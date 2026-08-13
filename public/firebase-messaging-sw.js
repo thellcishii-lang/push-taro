@@ -4,12 +4,12 @@ importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-comp
 // ⚠️ ここをあなたのFirebaseプロジェクト設定に置き換えてください
 // Firebase Console → プロジェクト設定 → 全般 → マイアプリ → SDKの設定と構成
 firebase.initializeApp({
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyAhOsfGYv_jBCdv0rUEkn29ADgFbD4pnZU",
+  authDomain: "push-taro-8b503.firebaseapp.com",
+  projectId: "push-taro-8b503",
+  storageBucket: "push-taro-8b503.firebasestorage.app",
+  messagingSenderId: "977949043216",
+  appId: "1:977949043216:web:e2f98530645c719c123895",
 });
 
 const messaging = firebase.messaging();
