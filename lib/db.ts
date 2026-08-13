@@ -24,17 +24,19 @@ class PushTaroDB extends Dexie {
 
 export const db = new PushTaroDB();
 
-// JSONとしてエクスポート（「フォルダ」ダウンロード）
+// JSONとしてエクスポート（フォルダダウンロード）
 export async function exportHistoryToJSON(): Promise<string> {
   const all = await db.history.toArray();
   return JSON.stringify(all, null, 2);
 }
 
-// JSONからインポート（「フォルダ」読み込み）
+// JSONからインポート（フォルダ読み込み）
 export async function importHistoryFromJSON(jsonString: string): Promise<void> {
   const data = JSON.parse(jsonString) as PushHistory[];
-  await db.history.bulkAdd(data.map(d => ({
-    ...d,
-    sentAt: new Date(d.sentAt),
-  })));
+  await db.history.bulkAdd(
+    data.map((d) => ({
+      ...d,
+      sentAt: new Date(d.sentAt),
+    }))
+  );
 }
