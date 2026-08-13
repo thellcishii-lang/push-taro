@@ -7,52 +7,66 @@ import { storage } from '@/lib/firebase-client';
 
 interface ImageUploaderProps {
   onImageUploaded: (url: string) => void;
+  currentUrl?: string;
 }
 
-export default function ImageUploader({ onImageUploaded }: ImageUploaderProps) {
+export default function ImageUploader({ onImageUploaded, currentUrl }: ImageUploaderProps) {
   const [uploading, setUploading] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(currentUrl || null);
 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (!file) return;
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      const file = acceptedFiles[0];
+      if (!file) return;
 
-    // 1MB制限
-    const MAX_SIZE = 1 * 1024 * 1024;
-    if (file.size > MAX_SIZE) {
-      alert('画像サイズは1MB以下にしてください。\n現在: ' + (file.size / 1024 / 1024).toFixed(2) + 'MB');
-      return;
-    }
+      // 1MB制限
+      const MAX_SIZE = 1 * 1024 * 1024;
+      if (file.size > MAX_SIZE) {
+        alert(
+          `画像サイズは1MB以下にしてください。\n現在: ${(file.size / 1024 / 1024).toFixed(2)}MB`
+        );
+        return;
+      }
 
-    // プレビュー表示
-    const reader = new FileReader();
-    reader.onload = (e) => setPreview(e.target?.result as string);
-    reader.readAsDataURL(file);
+      // プレビュー
+      const reader = new FileReader();
+      reader.onload = (e) => setPreview(e.target?.result as string);
+      reader.readAsDataURL(file);
 
-    setUploading(true);
-    try {
-      const storageRef = ref(storage, `push-images/${Date.now()}_${file.name}`);
-      await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
-      onImageUploaded(url);
-      alert('画像アップロード完了！');
-    } catch (err) {
-      alert('アップロード失敗: ' + (err as Error).message);
-    } finally {
-      setUploading(false);
-    }
-  }, [onImageUploaded]);
+      setUploading(true);
+      try {
+        const storageRef = ref(storage, `push-images/${Date.now()}_${file.name}`);
+        await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(storageRef);
+        onImageUploaded(url);
+      } catch (err: any) {
+        alert('アップロード失敗: ' + err.message);
+        setPreview(currentUrl || null);
+      } finally {
+        setUploading(false);
+      }
+    },
+    [onImageUploaded, currentUrl]
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp'] },
+    accept: {
+      'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp'],
+    },
     maxFiles: 1,
     disabled: uploading,
   });
 
   return (
     <div>
-      <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+      <label
+        style={{
+          display: 'block',
+          marginBottom: '5px',
+          fontWeight: 'bold',
+        }}
+      >
         画像（1MB以下）{uploading && ' - アップロード中...'}
       </label>
       <div
@@ -69,17 +83,26 @@ export default function ImageUploader({ onImageUploaded }: ImageUploaderProps) {
       >
         <input {...getInputProps()} />
         {preview ? (
-          <img src={preview} alt="プレビュー" style={{ maxWidth: '100%', maxHeight: '200px' }} />
+          <img
+            src={preview}
+            alt="プレビュー"
+            style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '4px' }}
+          />
         ) : (
-          <p>
+          <p style={{ margin: 0, color: '#666' }}>
             {isDragActive
               ? 'ここにドロップしてください'
-              : 'クリックまたはドラッグ＆ドロップで画像を選択（1MB以下）'}
+              : 'クリックまたはドラッグ＆ドロップで画像を選択'}
           </p>
         )}
       </div>
       <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
         ※ 対応形式: PNG, JPG, GIF, WebP / 最大1MB
+        {currentUrl && !uploading && (
+          <span style={{ display: 'block', marginTop: '4px', wordBreak: 'break-all' }}>
+            URL: {currentUrl}
+          </span>
+        )}
       </p>
     </div>
   );
