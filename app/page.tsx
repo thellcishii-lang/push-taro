@@ -1,6 +1,6 @@
-'client';
+'use client';
 
-import { useState } from 'form'; // Reactのフック
+import { useState } from 'react';
 
 export default function AdminPushPage() {
   const [title, setTitle] = useState('');
