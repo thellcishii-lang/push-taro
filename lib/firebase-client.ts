@@ -17,8 +17,8 @@ export const auth = getAuth(app);
 export const storage = getStorage(app);
 export const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
 
-// FCMトークン取得
-export async function requestFCMToken() {
+// FCMトークン取得（通知許可ダイアログが出ます）
+export async function requestFCMToken(): Promise<string | null> {
   if (!messaging) return null;
   try {
     const token = await getToken(messaging, {
@@ -31,7 +31,7 @@ export async function requestFCMToken() {
   }
 }
 
-// フォアグラウンド受信
+// アプリ起動中の通知受信
 export function onForegroundMessage(callback: (payload: any) => void) {
   if (!messaging) return () => {};
   return onMessage(messaging, callback);
