@@ -1,10 +1,10 @@
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
 
-// ⚠️ ここをあなたのFirebaseプロジェクト設定に置き換えてください
-// Firebase Console → プロジェクト設定 → 全般 → マイアプリ → SDKの設定と構成
+console.log('[firebase-messaging-sw.js] Service Worker 読み込み');
+
 firebase.initializeApp({
-  apiKey: "AIzaSyAhOsfGYv_jBCdv0rUEkn29ADgFbD4pnZU",
+  apiKey: "AIzaSyAh0sfGYv_jBCdv0rUEkn29ADgFbD4pnZU",
   authDomain: "push-taro-8b503.firebaseapp.com",
   projectId: "push-taro-8b503",
   storageBucket: "push-taro-8b503.firebasestorage.app",
@@ -15,6 +15,7 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
+  console.log('[firebase-messaging-sw.js] バックグラウンド通知受信:', payload);
   self.registration.showNotification(payload.notification.title, {
     body: payload.notification.body,
     icon: '/icon-192x192.png',
@@ -23,4 +24,14 @@ messaging.onBackgroundMessage((payload) => {
     tag: payload.data?.messageId || 'default',
     requireInteraction: false,
   });
+});
+
+self.addEventListener('install', (event) => {
+  console.log('[firebase-messaging-sw.js] install イベント');
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  console.log('[firebase-messaging-sw.js] activate イベント');
+  event.waitUntil(self.clients.claim());
 });
