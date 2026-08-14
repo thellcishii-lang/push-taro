@@ -51,8 +51,7 @@ export default function PushTaroPage() {
           }
         }
     });
-
-    // フォアグラウンド通知受信
+　　　　　　　　　　　　　// フォアグラウンド通知受信
     const unsubMsg = onForegroundMessage((payload) => {
       console.log('フォアグラウンド通知:', payload);
       // 必要に応じてトースト表示など
