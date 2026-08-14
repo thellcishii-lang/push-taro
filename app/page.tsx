@@ -9,7 +9,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../lib/firebase-client';
 import { requestFCMToken, onForegroundMessage } from '../lib/firebase-client';
-import ImageUploader from '@/components/ImageUploader';
+import ImageUploader from '../components/ImageUploader';
 import { db, exportHistoryToJSON, importHistoryFromJSON, PushHistory } from '../lib/db';
 
 export default function PushTaroPage() {
