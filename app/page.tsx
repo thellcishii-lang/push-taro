@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { requestFCMToken } from './lib/firebase-client';
+import { requestFCMToken } from '../lib/firebase-client';
 
 export default function LandingPage() {
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
