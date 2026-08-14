@@ -19,20 +19,30 @@ export const messaging = typeof window !== 'undefined' ? getMessaging(app) : nul
 
 // FCMトークン取得（通知許可ダイアログが出ます）
 export async function requestFCMToken(): Promise<string | null> {
-  if (!messaging) return null;
+  console.log('[firebase-client.ts] requestFCMToken 呼び出し');
+  if (!messaging) {
+    console.warn('[firebase-client.ts] messagingがnull（SSR中？）');
+    return null;
+  }
   try {
+    console.log('[firebase-client.ts] getToken 開始');
     const token = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
     });
+    console.log('[firebase-client.ts] getToken 結果:', token ? '取得成功' : 'null返却');
     return token;
   } catch (err) {
-    console.error('FCMトークン取得失敗:', err);
+    console.error('[firebase-client.ts] FCMトークン取得失敗:', err);
     return null;
   }
 }
 
 // アプリ起動中の通知受信
 export function onForegroundMessage(callback: (payload: any) => void) {
+  console.log('[firebase-client.ts] onForegroundMessage 設定');
   if (!messaging) return () => {};
-  return onMessage(messaging, callback);
+  return onMessage(messaging, (payload) => {
+    console.log('[firebase-client.ts] onMessage 受信:', payload);
+    callback(payload);
+  });
 }
