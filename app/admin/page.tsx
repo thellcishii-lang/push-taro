@@ -7,10 +7,10 @@ import {
   createUserWithEmailAndPassword,
   signOut,
 } from 'firebase/auth';
-import { auth } from '../lib/firebase-client';
-import { requestFCMToken, onForegroundMessage } from '../lib/firebase-client';
-import ImageUploader from '../components/ImageUploader';
-import { db, exportHistoryToJSON, importHistoryFromJSON, PushHistory } from '../lib/db';
+import { auth } from '../../lib/firebase-client';
+import { requestFCMToken, onForegroundMessage } from '../../lib/firebase-client';
+import ImageUploader from '../../components/ImageUploader';
+import { db, exportHistoryToJSON, importHistoryFromJSON, PushHistory } from '../../lib/db';
 
 export default function PushTaroPage() {
   const [user, setUser] = useState<any>(null);
