@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import * as admin from 'firebase-admin';
 
+// Firebase Adminの初期化（二重初期化防止）
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
@@ -20,6 +21,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'タイトルと本文は必須です。' }, { status: 400 });
     }
 
+    // FCMのペイロード構築
     const message: admin.messaging.Message = {
       topic: 'all_users',
       notification: {
@@ -32,6 +34,7 @@ export async function POST(request: Request) {
       },
     };
 
+    // FCMへ送信リクエスト
     const response = await admin.messaging().send(message);
 
     return NextResponse.json({ success: true, messageId: response }, { status: 200 });
