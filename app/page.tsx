@@ -62,7 +62,7 @@ export default function PushTaroPage() {
       unsub();
       unsubMsg();
     };
-  }, []);
+  );
 
   const loadHistory = async () => {
     const all = await db.history.orderBy('sentAt').reverse().toArray();
