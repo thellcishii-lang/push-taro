@@ -30,40 +30,61 @@ export default function PushTaroPage() {
 
   // 認証状態監視 + 履歴読み込み + FCM初期化
   useEffect(() => {
+    console.log('[page.tsx] useEffect開始');
     const unsub = onAuthStateChanged(auth, async (u) => {
+      console.log('[page.tsx] onAuthStateChanged 呼ばれた', u?.email || '未ログイン');
       setUser(u);
       setLoadingAuth(false);
       if (u) {
+        console.log('[page.tsx] ログイン済み → loadHistory()');
         await loadHistory();
-        // FCMトークン取得（通知許可を求めます）
+        console.log('[page.tsx] FCMトークン取得開始');
         const token = await requestFCMToken();
+        console.log('[page.tsx] requestFCMToken 結果:', token ? '取得成功' : '取得失敗/null');
         if (token) {
           setFcmToken(token);
+          console.log('[page.tsx] subscribe API 呼び出し開始');
           try {
-            await fetch('/api/subscribe', {
+            const res = await fetch('/api/subscribe', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ token }),
             });
+            const data = await res.json();
+            console.log('[page.tsx] subscribe API レスポンス:', res.status, data);
           } catch (err) {
-            console.error('トピック登録失敗:', err);
+            console.error('[page.tsx] subscribe API エラー:', err);
           }
+        } else {
+          console.warn('[page.tsx] tokenがnullのためsubscribeスキップ');
         }
+      } else {
+        console.log('[page.tsx] 未ログイン');
       }
     });
 
     const unsubMsg = onForegroundMessage((payload) => {
-      console.log('フォアグラウンド通知:', payload);
+      console.log('[page.tsx] フォアグラウンド通知受信:', payload);
+      if (Notification.permission === 'granted') {
+        new Notification(payload.notification?.title || 'プッシュ太郎', {
+          body: payload.notification?.body || '',
+          icon: '/icon-192x192.png',
+          image: payload.notification?.image,
+        });
+      }
     });
 
     return () => {
+      console.log('[page.tsx] useEffect クリーンアップ');
       unsub();
       unsubMsg();
     };
   }, []);
 
   const loadHistory = async () => {
+    console.log('[page.tsx] loadHistory()');
     const all = await db.history.orderBy('sentAt').reverse().toArray();
+    console.log('[page.tsx] 履歴件数:', all.length);
     setHistory(all);
   };
 
@@ -89,16 +110,19 @@ export default function PushTaroPage() {
     if (!user) return;
     setLoading(true);
     setMessage('');
+    console.log('[page.tsx] 送信開始', { title, body, imageUrl, linkUrl });
 
     try {
+      console.log('[page.tsx] /api/send-push へPOST');
       const response = await fetch('/api/send-push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, body, imageUrl, linkUrl }),
       });
+      console.log('[page.tsx] /api/send-push レスポンス status:', response.status);
       const data = await response.json();
+      console.log('[page.tsx] /api/send-push レスポンス body:', data);
 
-      // IndexedDBに履歴保存
       await db.history.add({
         title,
         body,
@@ -116,18 +140,15 @@ export default function PushTaroPage() {
       }
 
       setMessage('✨ カメハメ波（プッシュ通知）を放ちました！');
-      setTitle('');
-      setBody('');
-      setImageUrl('');
-      setLinkUrl('');
+      setTitle(''); setBody(''); setImageUrl(''); setLinkUrl('');
     } catch (err: any) {
+      console.error('[page.tsx] 送信エラー:', err);
       setMessage(`❌ エラー: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
-  // JSONエクスポート（フォルダダウンロード）
   const handleExport = async () => {
     const json = await exportHistoryToJSON();
     const blob = new Blob([json], { type: 'application/json' });
@@ -139,7 +160,6 @@ export default function PushTaroPage() {
     URL.revokeObjectURL(url);
   };
 
-  // JSONインポート（フォルダ読み込み）
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -161,55 +181,18 @@ export default function PushTaroPage() {
     );
   }
 
-  // 未ログイン画面
   if (!user) {
     return (
       <main style={{ maxWidth: '400px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif' }}>
         <h1>🚀 プッシュ太郎</h1>
         <p style={{ color: '#666' }}>IDログインしてプッシュ通知を送信しましょう</p>
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px' }}>
-          <input
-            type="email"
-            placeholder="メールアドレス"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ padding: '10px', fontSize: '16px' }}
-          />
-          <input
-            type="password"
-            placeholder="パスワード"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{ padding: '10px', fontSize: '16px' }}
-          />
-          <button
-            type="submit"
-            style={{
-              padding: '12px',
-              background: '#ff4500',
-              color: '#fff',
-              border: 'none',
-              fontWeight: 'bold',
-              fontSize: '16px',
-              cursor: 'pointer',
-            }}
-          >
+          <input type="email" placeholder="メールアドレス" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ padding: '10px', fontSize: '16px' }} />
+          <input type="password" placeholder="パスワード" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ padding: '10px', fontSize: '16px' }} />
+          <button type="submit" style={{ padding: '12px', background: '#ff4500', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>
             ログイン
           </button>
-          <button
-            type="button"
-            onClick={handleRegister}
-            style={{
-              padding: '12px',
-              background: '#333',
-              color: '#fff',
-              border: 'none',
-              fontSize: '16px',
-              cursor: 'pointer',
-            }}
-          >
+          <button type="button" onClick={handleRegister} style={{ padding: '12px', background: '#333', color: '#fff', border: 'none', fontSize: '16px', cursor: 'pointer' }}>
             新規登録
           </button>
         </form>
@@ -217,7 +200,6 @@ export default function PushTaroPage() {
     );
   }
 
-  // ログイン後メイン画面
   return (
     <main style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
@@ -229,196 +211,56 @@ export default function PushTaroPage() {
               通知受信OK
             </span>
           )}
-          <button
-            onClick={() => signOut(auth)}
-            style={{ padding: '8px 16px', cursor: 'pointer' }}
-          >
+          <button onClick={() => signOut(auth)} style={{ padding: '8px 16px', cursor: 'pointer' }}>
             ログアウト
           </button>
         </div>
       </div>
 
-      {/* 送信フォーム */}
-      <form
-        onSubmit={handleSend}
-        style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '40px' }}
-      >
+      <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '40px' }}>
         <div>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>タイトル</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            placeholder="例: 新着セールのお知らせ"
-            style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box' }}
-          />
+          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="例: 新着セールのお知らせ" style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box' }} />
         </div>
-
         <div>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>本文</label>
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            required
-            rows={4}
-            placeholder="例: 本日から全品20%OFFセール開催中！"
-            style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box' }}
-          />
+          <textarea value={body} onChange={(e) => setBody(e.target.value)} required rows={4} placeholder="例: 本日から全品20%OFFセール開催中！" style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box' }} />
         </div>
-
         <ImageUploader onImageUploaded={setImageUrl} currentUrl={imageUrl} />
-
         <div>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>リンク先URL（任意）</label>
-          <input
-            type="url"
-            value={linkUrl}
-            onChange={(e) => setLinkUrl(e.target.value)}
-            placeholder="https://example.com/sale"
-            style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box' }}
-          />
+          <input type="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="https://example.com/sale" style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box' }} />
         </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            padding: '14px',
-            backgroundColor: loading ? '#ccc' : '#ff4500',
-            color: '#fff',
-            fontWeight: 'bold',
-            border: 'none',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            fontSize: '18px',
-            borderRadius: '6px',
-          }}
-        >
+        <button type="submit" disabled={loading} style={{ padding: '14px', backgroundColor: loading ? '#ccc' : '#ff4500', color: '#fff', fontWeight: 'bold', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', fontSize: '18px', borderRadius: '6px' }}>
           {loading ? '送信中...' : '🔥 カメハメ波（送信）'}
         </button>
-
-        {message && (
-          <p
-            style={{
-              marginTop: '10px',
-              fontWeight: 'bold',
-              color: message.includes('❌') ? '#d32f2f' : '#2e7d32',
-            }}
-          >
-            {message}
-          </p>
-        )}
+        {message && <p style={{ marginTop: '10px', fontWeight: 'bold', color: message.includes('❌') ? '#d32f2f' : '#2e7d32' }}>{message}</p>}
       </form>
 
-      {/* 履歴管理（フォルダ機能） */}
       <div style={{ borderTop: '2px solid #eee', paddingTop: '20px' }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '15px',
-            flexWrap: 'wrap',
-            gap: '10px',
-          }}
-        >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
           <h2 style={{ margin: 0 }}>📁 送信履歴（ローカルフォルダ）</h2>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button
-              onClick={handleExport}
-              style={{
-                padding: '8px 16px',
-                background: '#4CAF50',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '14px',
-              }}
-            >
-              ⬇️ フォルダをダウンロード（JSON）
-            </button>
-            <label
-              style={{
-                padding: '8px 16px',
-                background: '#2196F3',
-                color: '#fff',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                display: 'inline-block',
-              }}
-            >
+            <button onClick={handleExport} style={{ padding: '8px 16px', background: '#4CAF50', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}>⬇️ フォルダをダウンロード（JSON）</button>
+            <label style={{ padding: '8px 16px', background: '#2196F3', color: '#fff', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', display: 'inline-block' }}>
               ⬆️ フォルダを読み込み
               <input type="file" accept=".json" onChange={handleImport} style={{ display: 'none' }} />
             </label>
           </div>
         </div>
-
-        {history.length === 0 ? (
-          <p style={{ color: '#999' }}>履歴がありません。送信するとここに溜まります。</p>
-        ) : (
+        {history.length === 0 ? <p style={{ color: '#999' }}>履歴がありません。送信するとここに溜まります。</p> : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {history.map((h) => (
-              <div
-                key={h.id}
-                style={{
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  padding: '12px',
-                  background: h.status === 'error' ? '#fff0f0' : '#f9f9f9',
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: '8px',
-                  }}
-                >
+              <div key={h.id} style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '12px', background: h.status === 'error' ? '#fff0f0' : '#f9f9f9' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                   <strong style={{ fontSize: '16px' }}>{h.title}</strong>
-                  <span style={{ fontSize: '12px', color: '#666' }}>
-                    {new Date(h.sentAt).toLocaleString('ja-JP')}
-                  </span>
+                  <span style={{ fontSize: '12px', color: '#666' }}>{new Date(h.sentAt).toLocaleString('ja-JP')}</span>
                 </div>
                 <p style={{ margin: '8px 0', fontSize: '14px', color: '#333' }}>{h.body}</p>
-                {h.imageUrl && (
-                  <img
-                    src={h.imageUrl}
-                    alt=""
-                    style={{ maxHeight: '120px', borderRadius: '4px', marginBottom: '8px' }}
-                  />
-                )}
-                {h.linkUrl && (
-                  <a
-                    href={h.linkUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ fontSize: '13px', color: '#2196F3', wordBreak: 'break-all' }}
-                  >
-                    {h.linkUrl}
-                  </a>
-                )}
-                {h.status === 'error' && (
-                  <p style={{ color: '#d32f2f', fontSize: '12px', marginTop: '6px' }}>
-                    エラー: {h.errorMessage}
-                  </p>
-                )}
-                {h.status === 'success' && (
-                  <span
-                    style={{
-                      fontSize: '11px',
-                      color: '#4CAF50',
-                      background: '#e8f5e9',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                    }}
-                  >
-                    送信成功
-                  </span>
-                )}
+                {h.imageUrl && <img src={h.imageUrl} alt="" style={{ maxHeight: '120px', borderRadius: '4px', marginBottom: '8px' }} />}
+                {h.linkUrl && <a href={h.linkUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#2196F3', wordBreak: 'break-all' }}>{h.linkUrl}</a>}
+                {h.status === 'error' && <p style={{ color: '#d32f2f', fontSize: '12px', marginTop: '6px' }}>エラー: {h.errorMessage}</p>}
+                {h.status === 'success' && <span style={{ fontSize: '11px', color: '#4CAF50', background: '#e8f5e9', padding: '2px 8px', borderRadius: '12px' }}>送信成功</span>}
               </div>
             ))}
           </div>
