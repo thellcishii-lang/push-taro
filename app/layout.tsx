@@ -1,16 +1,15 @@
 export const metadata = {
   title: 'プッシュ太郎',
-  description: 'プッシュ通知一斉送信ツール',
+  description: 'プッシュ通知送信ツール',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
-      <body>{children}</body>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+      </head>
+      <body style={{ margin: 0 }}>{children}</body>
     </html>
   );
 }
