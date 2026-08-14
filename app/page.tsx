@@ -36,9 +36,20 @@ export default function PushTaroPage() {
       if (u) {
         await loadHistory();
         // FCMトークン取得（通知許可を求めます）
+                // FCMトークン取得（通知許可を求めます）
         const token = await requestFCMToken();
-        setFcmToken(token);
-      }
+        if (token) {
+          setFcmToken(token);
+          try {
+            await fetch('/api/subscribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token }),
+            });
+          } catch (err) {
+            console.error('トピック登録失敗:', err);
+          }
+        }
     });
 
     // フォアグラウンド通知受信
