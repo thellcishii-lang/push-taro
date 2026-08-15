@@ -41,6 +41,28 @@ export default function LandingPage() {
       setMessage('エラー: ' + err.message);
     }
   };
+  const handleUnsubscribe = async () => {
+  const token = localStorage.getItem('fcm_token');
+  if (!token) {
+    setMessage('トークンが見つかりません');
+    return;
+  }
+  try {
+    const res = await fetch('/api/unsubscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+    });
+    if (res.ok) {
+      localStorage.removeItem('fcm_token');
+      setMessage('✅ 通知を停止しました');
+    } else {
+      setMessage('❌ 停止に失敗しました');
+    }
+  } catch (err: any) {
+    setMessage('エラー: ' + err.message);
+  }
+};
 
   return (
     <main style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center', padding: '20px', fontFamily: 'sans-serif' }}>
