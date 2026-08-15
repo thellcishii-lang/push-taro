@@ -14,13 +14,8 @@ export async function POST(request: Request) {
     const decoded = await authAdmin.verifyIdToken(idToken);
     uid = decoded.uid;
   } catch (err: any) {
-    // ✅ エラー詳細を返す（一時的）
-    return NextResponse.json({ 
-      error: '認証トークンの検証に失敗しました',
-      detail: err.message,
-      code: err.code || 'unknown'
-    }, { status: 401 });
-  }
+    return NextResponse.json({ error: '無効な認証トークンです' }, { status: 401 });
+}
 
   try {
     const body = await request.json();
