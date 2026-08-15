@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { requestFCMToken } from '../lib/firebase-client';
+import { requestFCMToken } from 'lib/firebase-client';
 
 export default function LandingPage() {
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
@@ -43,38 +43,46 @@ export default function LandingPage() {
   };
 
   return (
-    <main style={{ textAlign: 'center', padding: '60px 20px', fontFamily: 'sans-serif' }}>
+    <main style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center', padding: '20px', fontFamily: 'sans-serif' }}>
       <h1>🚀 プッシュ太郎</h1>
-      <p style={{ color: '#666', fontSize: '18px', marginBottom: '40px' }}>
+      <p style={{ color: '#666', fontSize: '16px' }}>
         お得な情報をプッシュ通知でお届けします
       </p>
 
-      {status === 'success' ? (
-        <div style={{ padding: '20px', background: '#e8f5e9', borderRadius: '8px' }}>
-          <p style={{ color: '#2e7d32', fontWeight: 'bold', margin: 0 }}>{message}</p>
-        </div>
-      ) : (
-        <button
-          onClick={handleSubscribe}
-          disabled={status === 'requesting'}
-          style={{
-            padding: '16px 48px',
-            fontSize: '20px',
-            fontWeight: 'bold',
-            background: status === 'requesting' ? '#ccc' : '#ff4500',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-          }}
-        >
-          {status === 'requesting' ? '設定中...' : '🔔 通知を受け取る'}
-        </button>
-      )}
+      <div style={{ marginTop: '40px' }}>
+        {status === 'success' ? (
+          <div style={{ padding: '20px', background: '#e8f5e9', borderRadius: '8px' }}>
+            <p style={{ color: '#2e7d32', fontWeight: 'bold', fontSize: '18px' }}>{message}</p>
+          </div>
+        ) : (
+          <button
+            onClick={handleSubscribe}
+            disabled={status === 'requesting'}
+            style={{
+              padding: '16px 32px',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              background: status === 'requesting' ? '#ccc' : '#ff4500',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: status === 'requesting' ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {status === 'requesting' ? '登録中...' : '🔔 通知を受け取る'}
+          </button>
+        )}
 
-      {status === 'error' && (
-        <p style={{ color: '#d32f2f', marginTop: '20px' }}>{message}</p>
-      )}
+        {status === 'error' && (
+          <p style={{ marginTop: '20px', color: '#d32f2f', fontWeight: 'bold' }}>{message}</p>
+        )}
+      </div>
+
+      <div style={{ marginTop: '60px', paddingTop: '20px', borderTop: '1px solid #eee' }}>
+        <a href="/admin" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>
+          お店の方はこちら →
+        </a>
+      </div>
     </main>
   );
 }
