@@ -1,11 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { requestFCMToken } from 'lib/firebase-client';
 
 export default function LandingPage() {
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+
+  // ページ読み込み時に localStorage で既存トークン確認
+  useEffect(() => {
+    const token = localStorage.getItem('fcm_token');
+    if (token) {
+      setStatus('success');
+      setMessage('✅ すでに通知の受け取り登録が完了しています');
+    }
+  }, []);
 
   const handleSubscribe = async () => {
     setStatus('requesting');
@@ -26,6 +35,9 @@ export default function LandingPage() {
         return;
       }
 
+      // ✅ トークンを localStorage に保存（unsubscribe 用）
+      localStorage.setItem('fcm_token', token);
+
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -41,28 +53,30 @@ export default function LandingPage() {
       setMessage('エラー: ' + err.message);
     }
   };
+
   const handleUnsubscribe = async () => {
-  const token = localStorage.getItem('fcm_token');
-  if (!token) {
-    setMessage('トークンが見つかりません');
-    return;
-  }
-  try {
-    const res = await fetch('/api/unsubscribe', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token }),
-    });
-    if (res.ok) {
-      localStorage.removeItem('fcm_token');
-      setMessage('✅ 通知を停止しました');
-    } else {
-      setMessage('❌ 停止に失敗しました');
+    const token = localStorage.getItem('fcm_token');
+    if (!token) {
+      setMessage('トークンが見つかりません');
+      return;
     }
-  } catch (err: any) {
-    setMessage('エラー: ' + err.message);
-  }
-};
+    try {
+      const res = await fetch('/api/unsubscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+      if (res.ok) {
+        localStorage.removeItem('fcm_token');
+        setStatus('idle');
+        setMessage('✅ 通知を停止しました');
+      } else {
+        setMessage('❌ 停止に失敗しました');
+      }
+    } catch (err: any) {
+      setMessage('エラー: ' + err.message);
+    }
+  };
 
   return (
     <main style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center', padding: '20px', fontFamily: 'sans-serif' }}>
@@ -75,6 +89,21 @@ export default function LandingPage() {
         {status === 'success' ? (
           <div style={{ padding: '20px', background: '#e8f5e9', borderRadius: '8px' }}>
             <p style={{ color: '#2e7d32', fontWeight: 'bold', fontSize: '18px' }}>{message}</p>
+            <button
+              onClick={handleUnsubscribe}
+              style={{
+                marginTop: '16px',
+                padding: '10px 24px',
+                fontSize: '16px',
+                background: '#666',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+              }}
+            >
+              🔔 通知を停止する
+            </button>
           </div>
         ) : (
           <button
