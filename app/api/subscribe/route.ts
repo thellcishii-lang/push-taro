@@ -17,31 +17,37 @@ function isRateLimited(ip: string): boolean {
 }
 
 export async function POST(request: Request) {
-  console.log('[subscribe/route.ts] POST 受信');
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
   if (isRateLimited(ip)) {
-    return NextResponse.json({ error: 'レート制限を超えました。1分後にお試しください。' }, { status: 429 });
+    return NextResponse.json({ error: 'レート制限を超えました' }, { status: 429 });
   }
 
   try {
-    const { token } = await request.json();
-    if (!token) {
-      return NextResponse.json({ error: 'トークンが必要です' }, { status: 400 });
+    const { token, shopId } = await request.json();
+    if (!token || !shopId) {
+      return NextResponse.json({ error: 'tokenとshopIdが必要です' }, { status: 400 });
     }
 
-    await messaging.subscribeToTopic([token], 'all_users');
+    // 店舗存在確認
+    const shopDoc = await db.collection('shops').doc(shopId).get();
+    if (!shopDoc.exists) {
+      return NextResponse.json({ error: '店舗が見つかりません' }, { status: 404 });
+    }
 
-    // ✅ Firestoreにトークン保存（クリーンアップ用）
+    const topic = `shop_${shopId}_users`;
+    await messaging.subscribeToTopic([token], topic);
+
     await db.collection('subscriptions').doc(token).set({
       token,
-      topic: 'all_users',
+      shopId,
+      topic,
       createdAt: FieldValue.serverTimestamp(),
       lastActive: FieldValue.serverTimestamp(),
     });
 
-    return NextResponse.json({ success: true }, { status: 200 });
+    return NextResponse.json({ success: true, topic }, { status: 200 });
   } catch (error: any) {
-    console.error('[subscribe/route.ts] エラー:', error);
+    console.error('[subscribe] エラー:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
