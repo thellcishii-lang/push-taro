@@ -1,22 +1,43 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { requestFCMToken } from 'lib/firebase-client';
 
-export default function LandingPage() {
+export default function CustomerPage() {
+  const searchParams = useSearchParams();
+  const shopId = searchParams.get('s');
+
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const [shopName, setShopName] = useState('');
+  const [coupon, setCoupon] = useState<any>(null);
+  const [linkUrl, setLinkUrl] = useState('');
 
-  // ページ読み込み時に localStorage で既存トークン確認
   useEffect(() => {
-    const token = localStorage.getItem('fcm_token');
-    if (token) {
+    if (!shopId) return;
+
+    // 店舗情報取得
+    fetch(`/api/shop-info?s=${shopId}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setShopName(data.name);
+          setCoupon(data.coupon);
+          setLinkUrl(data.linkUrl);
+        }
+      });
+
+    // 既存トークン確認
+    const saved = localStorage.getItem(`fcm_token_${shopId}`);
+    if (saved) {
       setStatus('success');
       setMessage('✅ すでに通知の受け取り登録が完了しています');
     }
-  }, []);
+  }, [shopId]);
 
   const handleSubscribe = async () => {
+    if (!shopId) return;
     setStatus('requesting');
     setMessage('');
 
@@ -35,13 +56,12 @@ export default function LandingPage() {
         return;
       }
 
-      // ✅ トークンを localStorage に保存（unsubscribe 用）
-      localStorage.setItem('fcm_token', token);
+      localStorage.setItem(`fcm_token_${shopId}`, token);
 
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ token, shopId }),
       });
 
       if (!res.ok) throw new Error('登録失敗');
@@ -55,7 +75,8 @@ export default function LandingPage() {
   };
 
   const handleUnsubscribe = async () => {
-    const token = localStorage.getItem('fcm_token');
+    if (!shopId) return;
+    const token = localStorage.getItem(`fcm_token_${shopId}`);
     if (!token) {
       setMessage('トークンが見つかりません');
       return;
@@ -64,10 +85,10 @@ export default function LandingPage() {
       const res = await fetch('/api/unsubscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ token, shopId }),
       });
       if (res.ok) {
-        localStorage.removeItem('fcm_token');
+        localStorage.removeItem(`fcm_token_${shopId}`);
         setStatus('idle');
         setMessage('✅ 通知を停止しました');
       } else {
@@ -78,12 +99,31 @@ export default function LandingPage() {
     }
   };
 
+  if (!shopId) {
+    return (
+      <main style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center', padding: '20px' }}>
+        <h1>🚀 プッシュ太郎</h1>
+        <p style={{ color: '#d32f2f' }}>QRコードからアクセスしてください</p>
+      </main>
+    );
+  }
+
   return (
     <main style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center', padding: '20px', fontFamily: 'sans-serif' }}>
-      <h1>🚀 プッシュ太郎</h1>
+      <h1>🚀 {shopName || '...'} のお知らせ</h1>
       <p style={{ color: '#666', fontSize: '16px' }}>
         お得な情報をプッシュ通知でお届けします
       </p>
+
+      {/* 初回クーポン表示 */}
+      {status === 'success' && coupon?.enabled && (
+        <div style={{ marginTop: '20px', padding: '20px', background: '#fff3e0', borderRadius: '8px', border: '2px dashed #ff9800' }}>
+          <h2>🎫 {coupon.title || '初回限定クーポン'}</h2>
+          <p>{coupon.description}</p>
+          {coupon.discountRate > 0 && <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#e65100' }}>{coupon.discountRate}% OFF</p>}
+          <p style={{ fontSize: '12px', color: '#666' }}>※ クーポンは通知受信後、ホーム画面からアクセスできます</p>
+        </div>
+      )}
 
       <div style={{ marginTop: '40px' }}>
         {status === 'success' ? (
@@ -91,16 +131,7 @@ export default function LandingPage() {
             <p style={{ color: '#2e7d32', fontWeight: 'bold', fontSize: '18px' }}>{message}</p>
             <button
               onClick={handleUnsubscribe}
-              style={{
-                marginTop: '16px',
-                padding: '10px 24px',
-                fontSize: '16px',
-                background: '#666',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-              }}
+              style={{ marginTop: '16px', padding: '10px 24px', fontSize: '16px', background: '#666', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
             >
               🔔 通知を停止する
             </button>
@@ -109,16 +140,7 @@ export default function LandingPage() {
           <button
             onClick={handleSubscribe}
             disabled={status === 'requesting'}
-            style={{
-              padding: '16px 32px',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              background: status === 'requesting' ? '#ccc' : '#ff4500',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: status === 'requesting' ? 'not-allowed' : 'pointer',
-            }}
+            style={{ padding: '16px 32px', fontSize: '18px', fontWeight: 'bold', background: status === 'requesting' ? '#ccc' : '#ff4500', color: '#fff', border: 'none', borderRadius: '8px', cursor: status === 'requesting' ? 'not-allowed' : 'pointer' }}
           >
             {status === 'requesting' ? '登録中...' : '🔔 通知を受け取る'}
           </button>
@@ -127,12 +149,6 @@ export default function LandingPage() {
         {status === 'error' && (
           <p style={{ marginTop: '20px', color: '#d32f2f', fontWeight: 'bold' }}>{message}</p>
         )}
-      </div>
-
-      <div style={{ marginTop: '60px', paddingTop: '20px', borderTop: '1px solid #eee' }}>
-        <a href="/admin" style={{ color: '#666', fontSize: '14px', textDecoration: 'none' }}>
-          お店の方はこちら →
-        </a>
       </div>
     </main>
   );
