@@ -136,7 +136,10 @@ export default function AdminPage() {
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !shopId) return;
+    alert('DEBUG: 送信ボタンが押されました');
+    if (!user || !shopId)
+      alert('DEBUG: early return! user=' + !!user + ' shopId=' + shopId);
+      return;
     setLoading(true);
     setMessage('');
 
