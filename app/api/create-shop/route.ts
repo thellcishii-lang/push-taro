@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db, authAdmin } from '../../../lib/firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { messaging, db, authAdmin } from '../../../lib/firebase-admin';
 
 export async function POST(request: Request) {
   const authHeader = request.headers.get('Authorization');
@@ -18,43 +17,40 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = await request.json();
-    const { name } = body;
+    // adminのshopId取得
+    const shopQuery = await db.collection('shops').where('ownerUid', '==', uid).limit(1).get();
+    if (shopQuery.empty) {
+      return NextResponse.json({ error: '店舗が見つかりません' }, { status: 403 });
+    }
+    const shopId = shopQuery.docs[0].id;
 
-    // 既存店舗チェック
-    const existing = await db.collection('shops').where('ownerUid', '==', uid).limit(1).get();
-    if (!existing.empty) {
-      const doc = existing.docs[0];
-      return NextResponse.json({ 
-        success: true, 
-        shopId: doc.id,
-        exists: true,
-        shop: doc.data()
-      }, { status: 200 });
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const snapshot = await db.collection('subscriptions')
+      .where('shopId', '==', shopId)
+      .where('lastActive', '<', thirtyDaysAgo)
+      .get();
+
+    const tokensToRemove: string[] = [];
+    snapshot.forEach(doc => tokensToRemove.push(doc.id));
+
+    if (tokensToRemove.length === 0) {
+      return NextResponse.json({ success: true, removed: 0 }, { status: 200 });
     }
 
-    // 新規作成
-    const shopRef = db.collection('shops').doc();
-    await shopRef.set({
-      name: name || '未設定の店舗',
-      ownerUid: uid,
-      createdAt: FieldValue.serverTimestamp(),
-      coupon: {
-        enabled: false,
-        title: '',
-        description: '',
-        discountRate: 0,
-      },
-      linkUrl: '',
-    });
+    const topic = `shop_${shopId}_users`;
+    await messaging.unsubscribeFromTopic(tokensToRemove, topic);
 
-    return NextResponse.json({ 
-      success: true, 
-      shopId: shopRef.id,
-      exists: false 
-    }, { status: 201 });
+    const batch = db.batch();
+    tokensToRemove.forEach(token => {
+      batch.delete(db.collection('subscriptions').doc(token));
+    });
+    await batch.commit();
+
+    return NextResponse.json({ success: true, removed: tokensToRemove.length }, { status: 200 });
   } catch (error: any) {
-    console.error('[create-shop] エラー:', error);
+    console.error('[cleanup] エラー:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
