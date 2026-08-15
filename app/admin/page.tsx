@@ -106,19 +106,26 @@ export default function PushTaroPage() {
   };
 
   const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-    setLoading(true);
-    setMessage('');
-    console.log('[page.tsx] 送信開始', { title, body, imageUrl, linkUrl });
+  e.preventDefault();
+  if (!user) return;
+  setLoading(true);
+  setMessage('');
+  console.log('[page.tsx] 送信開始', { title, body, imageUrl, linkUrl });
 
-    try {
-      console.log('[page.tsx] /api/send-push へPOST');
-      const response = await fetch('/api/send-push', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, body, imageUrl, linkUrl }),
-      });
+  try {
+    // ✅ 追加：Firebase AuthのIDトークンを取得
+    const idToken = await user.getIdToken();
+
+    console.log('[page.tsx] /api/send-push へPOST');
+    const response = await fetch('/api/send-push', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`  // ✅ 追加
+      },
+      body: JSON.stringify({ title, body, imageUrl, linkUrl }),
+    });
+    // ... 以下は今のまま
       console.log('[page.tsx] /api/send-push レスポンス status:', response.status);
       const data = await response.json();
       console.log('[page.tsx] /api/send-push レスポンス body:', data);
