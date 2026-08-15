@@ -64,15 +64,15 @@ export default function PushTaroPage() {
     });
 
     const unsubMsg = onForegroundMessage((payload) => {
-      console.log('[page.tsx] フォアグラウンド通知受信:', payload);
-      if (Notification.permission === 'granted') {
-        new Notification(payload.notification?.title || 'プッシュ太郎', {
-          body: payload.notification?.body || '',
-          icon: '/icon-192x192.png',
-          image: payload.notification?.image,
-        });
-      }
-    });
+  console.log('[page.tsx] フォアグラウンド通知受信:', payload);
+  if (Notification.permission === 'granted') {
+    new Notification(payload.notification?.title || 'プッシュ太郎', {
+      body: payload.notification?.body || '',
+      icon: '/icon-192x192.png',
+      ...(payload.notification?.image ? { image: payload.notification.image } : {}),
+    } as any);  // ← as any を追加
+  }
+});
 
     return () => {
       console.log('[page.tsx] useEffect クリーンアップ');
