@@ -14,14 +14,21 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+// ✅ data ベースで通知を構築
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] バックグラウンド通知受信:', payload);
-  self.registration.showNotification(payload.notification.title, {
-    body: payload.notification.body,
+  
+  const title = payload.data?.title || 'プッシュ太郎';
+  const body = payload.data?.body || '';
+  const image = payload.data?.image;
+  const url = payload.data?.url || '/';
+  
+  self.registration.showNotification(title, {
+    body: body,
     icon: '/icon-192x192.png',
-    image: payload.notification.image,
-    data: payload.data,
-    tag: payload.data?.messageId || 'default',
+    image: image,
+    data: { url: url },
+    tag: payload.data?.shopId || 'default',
     requireInteraction: false,
   });
 });
@@ -36,7 +43,6 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
-// ✅ 追加：通知クリックで遷移
 self.addEventListener('notificationclick', (event) => {
   console.log('[firebase-messaging-sw.js] 通知クリック:', event);
   event.notification.close();
