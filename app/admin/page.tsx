@@ -10,6 +10,7 @@ import {
 import { auth } from '../../lib/firebase-client';
 import ImageUploader from '../../components/ImageUploader';
 import { db as localDb, exportHistoryToJSON, importHistoryFromJSON, PushHistory } from '../../lib/db';
+import { QRCodeSVG } from 'qrcode.react';
 
 export default function AdminPage() {
   const [user, setUser] = useState<any>(null);
