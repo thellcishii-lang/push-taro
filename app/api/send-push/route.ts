@@ -1,55 +1,65 @@
 import { NextResponse } from 'next/server';
-import { messaging, authAdmin } from '../../../lib/firebase-admin';
+import { messaging, db, authAdmin } from '../../../lib/firebase-admin';
 
 export async function POST(request: Request) {
-  console.log('[send-push/route.ts] POST 受信');
-
-  // ✅ 認証チェック
   const authHeader = request.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
-    console.log('[send-push/route.ts] 認証ヘッダーなし');
     return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
   }
 
+  let uid: string;
   try {
     const idToken = authHeader.split('Bearer ')[1];
     const decoded = await authAdmin.verifyIdToken(idToken);
-    console.log('[send-push/route.ts] 認証成功:', decoded.uid);
-  } catch (err) {
-    console.error('[send-push/route.ts] 認証失敗:', err);
+    uid = decoded.uid;
+  } catch {
     return NextResponse.json({ error: '無効な認証トークンです' }, { status: 401 });
   }
 
   try {
-    const bodyData = await request.json();
-    console.log('[send-push/route.ts] リクエストボディ:', bodyData);
-    const { title, body, imageUrl, linkUrl } = bodyData;
+    // adminのuidからshopIdを取得
+    const shopQuery = await db.collection('shops').where('ownerUid', '==', uid).limit(1).get();
+    if (shopQuery.empty) {
+      return NextResponse.json({ error: '店舗が見つかりません' }, { status: 403 });
+    }
+    const shopId = shopQuery.docs[0].id;
+    const shopData = shopQuery.docs[0].data();
 
+    const { title, body, imageUrl, linkUrl } = await request.json();
     if (!title || !body) {
-      console.log('[send-push/route.ts] バリデーションエラー');
-      return NextResponse.json({ error: 'タイトルと本文は必須です。' }, { status: 400 });
+      return NextResponse.json({ error: 'タイトルと本文は必須です' }, { status: 400 });
     }
 
+    const topic = `shop_${shopId}_users`;
     const message = {
-      topic: 'all_users',
+      topic,
       notification: {
-        title: title,
-        body: body,
+        title,
+        body,
         ...(imageUrl ? { image: imageUrl } : {}),
       },
       data: {
         ...(linkUrl ? { url: linkUrl } : {}),
+        shopId,
       },
     };
-    console.log('[send-push/route.ts] FCMメッセージ構築:', JSON.stringify(message));
 
-    console.log('[send-push/route.ts] FCM送信開始');
     const response = await messaging.send(message);
-    console.log('[send-push/route.ts] FCM送信成功 messageId:', response);
+
+    // 履歴をFirestoreにも保存（オプション：有料化するまでDexie併用でも可）
+    await db.collection('histories').add({
+      shopId,
+      title,
+      body,
+      imageUrl: imageUrl || null,
+      linkUrl: linkUrl || null,
+      sentAt: FieldValue.serverTimestamp(),
+      status: 'success',
+    });
 
     return NextResponse.json({ success: true, messageId: response }, { status: 200 });
   } catch (error: any) {
-    console.error('[send-push/route.ts] FCM送信エラー:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    console.error('[send-push] エラー:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
