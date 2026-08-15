@@ -4,6 +4,12 @@ import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { requestFCMToken } from 'lib/firebase-client';
 
+// Cookie取得ヘルパー
+function getCookie(name: string): string | null {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? match[2] : null;
+}
+
 function CustomerPageContent() {
   const searchParams = useSearchParams();
   const urlShopId = searchParams.get('s');
@@ -16,19 +22,29 @@ function CustomerPageContent() {
   const [linkUrl, setLinkUrl] = useState('');
   const [notificationSupported, setNotificationSupported] = useState(true);
 
-  // shopId取得（URL or localStorage）
+  // shopId取得（URL → Cookie → localStorage）
   useEffect(() => {
     let s = urlShopId;
+    
+    // 1. URLパラメータ
+    // 2. Cookie（iOS PWA対応）
+    if (!s) {
+      s = getCookie('last_shop_id');
+    }
+    // 3. localStorage
     if (!s) {
       s = localStorage.getItem('last_shop_id');
     }
+    
     if (s) {
+      // 両方に保存（次回用）
       localStorage.setItem('last_shop_id', s);
+      document.cookie = `last_shop_id=${s};path=/;max-age=31536000`;
       setShopId(s);
     }
   }, [urlShopId]);
 
-  // 店舗情報取得 + Notification対応チェック
+  // 店舗情報取得
   useEffect(() => {
     if (!shopId) return;
 
