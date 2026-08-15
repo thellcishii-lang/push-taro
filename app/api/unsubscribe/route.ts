@@ -3,12 +3,13 @@ import { messaging, db } from '../../../lib/firebase-admin';
 
 export async function POST(request: Request) {
   try {
-    const { token } = await request.json();
-    if (!token) {
-      return NextResponse.json({ error: 'トークンが必要です' }, { status: 400 });
+    const { token, shopId } = await request.json();
+    if (!token || !shopId) {
+      return NextResponse.json({ error: 'tokenとshopIdが必要です' }, { status: 400 });
     }
 
-    await messaging.unsubscribeFromTopic([token], 'all_users');
+    const topic = `shop_${shopId}_users`;
+    await messaging.unsubscribeFromTopic([token], topic);
     await db.collection('subscriptions').doc(token).delete();
 
     return NextResponse.json({ success: true }, { status: 200 });
