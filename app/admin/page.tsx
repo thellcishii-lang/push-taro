@@ -300,7 +300,17 @@ export default function AdminPage() {
           <p>
             顧客用URL:{' '}
             <a href={qrUrl} target="_blank" rel="noopener noreferrer" style={{ wordBreak: 'break-all' }}>
-              {qrUrl}
+              {qrUrl && (
+  <div style={{ marginTop: '15px', textAlign: 'center', padding: '15px', background: '#fff', borderRadius: '8px' }}>
+    <QRCodeSVG value={qrUrl} size={200} />
+    <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
+      📱 スマホで読み取って通知を受け取れます
+    </p>
+    <p style={{ fontSize: '11px', color: '#999', wordBreak: 'break-all' }}>
+      {qrUrl}
+    </p>
+  </div>
+)}
             </a>
           </p>
 
