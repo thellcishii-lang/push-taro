@@ -1,10 +1,12 @@
 'use client';
 
+import { Suspense } from 'react';  // ← 追加
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { requestFCMToken } from 'lib/firebase-client';
 
-export default function CustomerPage() {
+// メインのコンポーネントを分離
+function CustomerPageContent() {
   const searchParams = useSearchParams();
   const shopId = searchParams.get('s');
 
@@ -17,7 +19,6 @@ export default function CustomerPage() {
   useEffect(() => {
     if (!shopId) return;
 
-    // 店舗情報取得
     fetch(`/api/shop-info?s=${shopId}`)
       .then(r => r.json())
       .then(data => {
@@ -28,7 +29,6 @@ export default function CustomerPage() {
         }
       });
 
-    // 既存トークン確認
     const saved = localStorage.getItem(`fcm_token_${shopId}`);
     if (saved) {
       setStatus('success');
@@ -115,7 +115,6 @@ export default function CustomerPage() {
         お得な情報をプッシュ通知でお届けします
       </p>
 
-      {/* 初回クーポン表示 */}
       {status === 'success' && coupon?.enabled && (
         <div style={{ marginTop: '20px', padding: '20px', background: '#fff3e0', borderRadius: '8px', border: '2px dashed #ff9800' }}>
           <h2>🎫 {coupon.title || '初回限定クーポン'}</h2>
@@ -151,5 +150,14 @@ export default function CustomerPage() {
         )}
       </div>
     </main>
+  );
+}
+
+// Suspense でラップしてエクスポート
+export default function CustomerPage() {
+  return (
+    <Suspense fallback={<main style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center' }}><p>読み込み中...</p></main>}>
+      <CustomerPageContent />
+    </Suspense>
   );
 }
