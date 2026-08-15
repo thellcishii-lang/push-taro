@@ -18,13 +18,11 @@ export async function POST(request: Request) {
   }
 
   try {
-    // adminのuidからshopIdを取得
     const shopQuery = await db.collection('shops').where('ownerUid', '==', uid).limit(1).get();
     if (shopQuery.empty) {
       return NextResponse.json({ error: '店舗が見つかりません' }, { status: 403 });
     }
     const shopId = shopQuery.docs[0].id;
-    const shopData = shopQuery.docs[0].data();
 
     const { title, body, imageUrl, linkUrl } = await request.json();
     if (!title || !body) {
@@ -32,22 +30,21 @@ export async function POST(request: Request) {
     }
 
     const topic = `shop_${shopId}_users`;
+
+    // ✅ notification を削除し、すべて data に統合
     const message = {
       topic,
-      notification: {
-        title,
-        body,
-        ...(imageUrl ? { image: imageUrl } : {}),
-      },
       data: {
+        title: title,
+        body: body,
+        ...(imageUrl ? { image: imageUrl } : {}),
         ...(linkUrl ? { url: linkUrl } : {}),
-        shopId,
+        shopId: shopId,
       },
     };
 
     const response = await messaging.send(message);
 
-    // 履歴をFirestoreにも保存（オプション：有料化するまでDexie併用でも可）
     await db.collection('histories').add({
       shopId,
       title,
