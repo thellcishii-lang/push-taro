@@ -1,21 +1,33 @@
 import { NextResponse } from 'next/server';
-import * as admin from 'firebase-admin';
+import { messaging } from '../../../lib/firebase-admin';
 
-console.log('[subscribe/route.ts] ファイル読み込み');
+// 簡易メモリベースレート制限（本番ではRedis等に移行推奨）
+const rateLimit = new Map<string, { count: number; resetAt: number }>();
 
-if (!admin.apps.length) {
-  console.log('[subscribe/route.ts] Firebase Admin 初期化');
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const record = rateLimit.get(ip);
+  
+  if (!record || now > record.resetAt) {
+    rateLimit.set(ip, { count: 1, resetAt: now + 60000 });
+    return false;
+  }
+  
+  if (record.count >= 10) return true;
+  
+  record.count++;
+  return false;
 }
 
 export async function POST(request: Request) {
   console.log('[subscribe/route.ts] POST 受信');
+
+  // ✅ レート制限
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+  if (isRateLimited(ip)) {
+    return NextResponse.json({ error: 'レート制限を超えました。1分後にお試しください。' }, { status: 429 });
+  }
+
   try {
     const { token } = await request.json();
     console.log('[subscribe/route.ts] 受信トークン:', token ? token.substring(0, 20) + '...' : 'null');
@@ -26,7 +38,7 @@ export async function POST(request: Request) {
     }
 
     console.log('[subscribe/route.ts] all_users トピック登録開始');
-    const response = await admin.messaging().subscribeToTopic([token], 'all_users');
+    const response = await messaging.subscribeToTopic([token], 'all_users');
     console.log('[subscribe/route.ts] 登録結果:', response);
 
     return NextResponse.json({ success: true, response }, { status: 200 });
