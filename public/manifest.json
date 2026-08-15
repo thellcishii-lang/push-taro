@@ -1,9 +1,12 @@
 {
   "name": "プッシュ太郎",
-  "short_name": "PushTaro",
+  "short_name": "Push太郎",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#ff4500",
-  "icons": []
+  "theme_color": "#ff6b6b",
+  "icons": [
+    { "src": "/icon-192x192.png", "sizes": "192x192" },
+    { "src": "/icon-512x512.png", "sizes": "512x512" }
+  ]
 }
