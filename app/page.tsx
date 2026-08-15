@@ -1,77 +1,67 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { requestFCMToken } from 'lib/firebase-client';
+import { useState, useEffect } from 'react';
+import { requestFCMToken, onForegroundMessage } from '../lib/firebase-client';
 
-// Cookie取得ヘルパー
-function getCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? match[2] : null;
+interface ShopInfo {
+  name: string;
+  coupon?: {
+    enabled: boolean;
+    title: string;
+    description: string;
+    discountRate: number;
+  };
+  linkUrl?: string;
 }
 
-function CustomerPageContent() {
-  const searchParams = useSearchParams();
-  const urlShopId = searchParams.get('s');
-
-  const [shopId, setShopId] = useState<string | null>(null);
+export default function LandingPage() {
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
-  const [shopName, setShopName] = useState('');
-  const [coupon, setCoupon] = useState<any>(null);
-  const [linkUrl, setLinkUrl] = useState('');
-  const [notificationSupported, setNotificationSupported] = useState(true);
+  const [shopId, setShopId] = useState('');
+  const [shopInfo, setShopInfo] = useState<ShopInfo | null>(null);
+  const [showCoupon, setShowCoupon] = useState(false);
+  const [couponUsed, setCouponUsed] = useState(false);
 
-  // shopId取得（URL → Cookie → localStorage）
+  // URLから shopId を取得 & 店舗情報取得
   useEffect(() => {
-    let s = urlShopId;
-    
-    // 1. URLパラメータ
-    // 2. Cookie（iOS PWA対応）
+    const params = new URLSearchParams(window.location.search);
+    const s = params.get('s');
     if (!s) {
-      s = getCookie('last_shop_id');
+      setStatus('error');
+      setMessage('無効なアクセスです。QRコードからアクセスしてください。');
+      return;
     }
-    // 3. localStorage
-    if (!s) {
-      s = localStorage.getItem('last_shop_id');
-    }
-    
-    if (s) {
-      // 両方に保存（次回用）
-      localStorage.setItem('last_shop_id', s);
-      document.cookie = `last_shop_id=${s};path=/;max-age=31536000`;
-      setShopId(s);
-    }
-  }, [urlShopId]);
-
-  // 店舗情報取得
-  useEffect(() => {
-    if (!shopId) return;
-
-    fetch(`/api/shop-info?s=${shopId}`)
-      .then(r => r.json())
+    setShopId(s);
+    fetch(`/api/shop-info?s=${s}`)
+      .then(r => r.ok ? r.json() : null)
       .then(data => {
-        if (data.success) {
-          setShopName(data.name);
-          setCoupon(data.coupon);
-          setLinkUrl(data.linkUrl);
-        }
+        if (data?.success) setShopInfo(data);
       });
+  }, []);
 
-    if (typeof Notification === 'undefined') {
-      setNotificationSupported(false);
+  // フォアグラウンド通知受信（アプリ起動中も通知を検知）
+  useEffect(() => {
+    const unsub = onForegroundMessage((payload) => {
+      console.log('フォアグラウンド受信:', payload);
+      if (payload.data?.title) {
+        // 簡易トースト表示
+        setMessage(`📢 ${payload.data.title}`);
+        setTimeout(() => setMessage(''), 5000);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // クーポン使用済み判定
+  useEffect(() => {
+    if (shopId && shopInfo?.coupon?.enabled) {
+      const used = localStorage.getItem(`coupon_used_${shopId}`);
+      setCouponUsed(!!used);
     }
-  }, [shopId]);
+  }, [shopId, shopInfo]);
 
   const handleSubscribe = async () => {
     if (!shopId) return;
-
-    if (!notificationSupported) {
-      setStatus('error');
-      setMessage('このブラウザは通知に対応していません。Safariで「ホーム画面に追加」後にお試しください。');
-      return;
-    }
-
     setStatus('requesting');
     setMessage('');
 
@@ -84,11 +74,7 @@ function CustomerPageContent() {
       }
 
       const token = await requestFCMToken();
-      if (!token) {
-        setStatus('error');
-        setMessage('トークン取得に失敗しました。');
-        return;
-      }
+      if (!token) throw new Error('トークン取得に失敗');
 
       const res = await fetch('/api/subscribe', {
         method: 'POST',
@@ -96,82 +82,99 @@ function CustomerPageContent() {
         body: JSON.stringify({ token, shopId }),
       });
 
-      if (!res.ok) throw new Error('登録失敗');
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || '登録失敗');
+      }
 
       setStatus('success');
-      setMessage('✅ 通知の受け取り登録が完了しました！');
+      setMessage(`✅ ${shopInfo?.name || '店舗'}の通知を受け取ります！`);
+
+      // 初回クーポンが有効なら表示
+      if (shopInfo?.coupon?.enabled && !localStorage.getItem(`coupon_used_${shopId}`)) {
+        setShowCoupon(true);
+      }
     } catch (err: any) {
       setStatus('error');
       setMessage('エラー: ' + err.message);
     }
   };
 
-  if (!shopId) {
+  const handleUseCoupon = () => {
+    localStorage.setItem(`coupon_used_${shopId}`, 'true');
+    setCouponUsed(true);
+    setShowCoupon(false);
+  };
+
+  const handleHomeAction = () => {
+    if (couponUsed && shopInfo?.linkUrl) {
+      window.location.href = shopInfo.linkUrl;
+    } else if (!couponUsed && shopInfo?.coupon?.enabled) {
+      setShowCoupon(true);
+    }
+  };
+
+  if (status === 'error' && !shopId) {
     return (
-      <main style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center', padding: '20px' }}>
-        <h1>🚀 プッシュ太郎</h1>
-        <p style={{ color: '#d32f2f' }}>QRコードからアクセスしてください</p>
+      <main style={{ padding: 40, textAlign: 'center', fontFamily: 'sans-serif' }}>
+        <h1>⚠️ アクセスエラー</h1>
+        <p>{message}</p>
       </main>
     );
   }
 
   return (
-    <main style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center', padding: '20px', fontFamily: 'sans-serif' }}>
-      <h1>🚀 {shopName || '...'} のお知らせ</h1>
-      <p style={{ color: '#666', fontSize: '16px' }}>
-        お得な情報をプッシュ通知でお届けします
-      </p>
+    <main style={{ padding: 24, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif' }}>
+      <h1>🍑 プッシュ太郎</h1>
+      <p>{shopInfo?.name ? `${shopInfo.name}からのお知らせを受け取ろう！` : 'お得な情報をプッシュ通知でお届けします'}</p>
 
-      {!notificationSupported && (
-        <div style={{ marginTop: '15px', padding: '15px', background: '#fff3e0', borderRadius: '8px', fontSize: '14px', color: '#e65100', textAlign: 'left' }}>
-          <strong>📱 iPhoneをお使いの方へ</strong><br />
-          1. Safariの<strong>共有ボタン</strong>（□に↑）をタップ<br />
-          2. <strong>「ホーム画面に追加」</strong>を選択<br />
-          3. ホーム画面のアイコンから開いて通知登録
+      {status === 'success' ? (
+        <div style={{ textAlign: 'center', marginTop: 40 }}>
+          <div style={{ fontSize: 64 }}>✅</div>
+          <p>{message}</p>
+
+          {/* クーポン表示エリア */}
+          {showCoupon && shopInfo?.coupon && (
+            <div style={{ marginTop: 24, padding: 20, border: '2px dashed #ff6b6b', borderRadius: 12, background: '#fff0f0' }}>
+              <h2>🎫 {shopInfo.coupon.title}</h2>
+              <p>{shopInfo.coupon.description}</p>
+              <p style={{ fontSize: 24, fontWeight: 'bold', color: '#ff6b6b' }}>
+                {shopInfo.coupon.discountRate}% OFF
+              </p>
+              <button onClick={handleUseCoupon} style={{ padding: '12px 24px', fontSize: 16, background: '#ff6b6b', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}>
+                クーポンを使う
+              </button>
+            </div>
+          )}
+
+          {/* ホーム画面風ボタン（PWA想定） */}
+          {!showCoupon && (
+            <button onClick={handleHomeAction} style={{ marginTop: 24, padding: '16px 32px', fontSize: 18, background: '#333', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}>
+              {couponUsed ? '店舗ページを開く' : 'クーポンを見る'}
+            </button>
+          )}
         </div>
-      )}
-
-      {coupon?.enabled && (
-        <div style={{ marginTop: '20px', padding: '20px', background: '#fff3e0', borderRadius: '8px', border: '2px dashed #ff9800' }}>
-          <h2>🎫 {coupon.title || '初回限定クーポン'}</h2>
-          <p>{coupon.description}</p>
-          {coupon.discountRate > 0 && <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#e65100' }}>{coupon.discountRate}% OFF</p>}
-          <p style={{ fontSize: '12px', color: '#666' }}>※ クーポンは通知受信後、ホーム画面からアクセスできます</p>
-        </div>
-      )}
-
-      <div style={{ marginTop: '40px' }}>
+      ) : (
         <button
           onClick={handleSubscribe}
-          disabled={status === 'requesting' || !notificationSupported}
+          disabled={status === 'requesting'}
           style={{
-            padding: '16px 32px',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            background: status === 'requesting' ? '#ccc' : !notificationSupported ? '#ccc' : '#ff4500',
+            width: '100%',
+            padding: 16,
+            fontSize: 18,
+            background: status === 'requesting' ? '#ccc' : '#ff6b6b',
             color: '#fff',
             border: 'none',
-            borderRadius: '8px',
-            cursor: status === 'requesting' || !notificationSupported ? 'not-allowed' : 'pointer',
+            borderRadius: 8,
+            cursor: status === 'requesting' ? 'wait' : 'pointer',
+            marginTop: 24,
           }}
         >
-          {!notificationSupported ? 'Safariでホーム画面に追加してください' : status === 'requesting' ? '登録中...' : '🔔 通知を受け取る'}
+          {status === 'requesting' ? '登録中...' : '🔔 通知を受け取る'}
         </button>
+      )}
 
-        {message && (
-          <p style={{ marginTop: '20px', fontWeight: 'bold', color: message.includes('❌') || message.includes('エラー') ? '#d32f2f' : '#2e7d32' }}>
-            {message}
-          </p>
-        )}
-      </div>
+      {status === 'error' && <p style={{ color: 'red', marginTop: 16 }}>{message}</p>}
     </main>
-  );
-}
-
-export default function CustomerPage() {
-  return (
-    <Suspense fallback={<main style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center' }}><p>読み込み中...</p></main>}>
-      <CustomerPageContent />
-    </Suspense>
   );
 }
