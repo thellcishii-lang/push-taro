@@ -1,21 +1,34 @@
 'use client';
 
-import { Suspense } from 'react';  // ← 追加
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { requestFCMToken } from 'lib/firebase-client';
 
-// メインのコンポーネントを分離
 function CustomerPageContent() {
   const searchParams = useSearchParams();
-  const shopId = searchParams.get('s');
+  const urlShopId = searchParams.get('s');
 
+  const [shopId, setShopId] = useState<string | null>(null);
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [shopName, setShopName] = useState('');
   const [coupon, setCoupon] = useState<any>(null);
   const [linkUrl, setLinkUrl] = useState('');
+  const [notificationSupported, setNotificationSupported] = useState(true);
 
+  // shopId取得（URL or localStorage）
+  useEffect(() => {
+    let s = urlShopId;
+    if (!s) {
+      s = localStorage.getItem('last_shop_id');
+    }
+    if (s) {
+      localStorage.setItem('last_shop_id', s);
+      setShopId(s);
+    }
+  }, [urlShopId]);
+
+  // 店舗情報取得 + Notification対応チェック
   useEffect(() => {
     if (!shopId) return;
 
@@ -29,15 +42,20 @@ function CustomerPageContent() {
         }
       });
 
-    const saved = localStorage.getItem(`fcm_token_${shopId}`);
-    if (saved) {
-      setStatus('success');
-      setMessage('✅ すでに通知の受け取り登録が完了しています');
+    if (typeof Notification === 'undefined') {
+      setNotificationSupported(false);
     }
   }, [shopId]);
 
   const handleSubscribe = async () => {
     if (!shopId) return;
+
+    if (!notificationSupported) {
+      setStatus('error');
+      setMessage('このブラウザは通知に対応していません。Safariで「ホーム画面に追加」後にお試しください。');
+      return;
+    }
+
     setStatus('requesting');
     setMessage('');
 
@@ -56,8 +74,6 @@ function CustomerPageContent() {
         return;
       }
 
-      localStorage.setItem(`fcm_token_${shopId}`, token);
-
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -70,31 +86,6 @@ function CustomerPageContent() {
       setMessage('✅ 通知の受け取り登録が完了しました！');
     } catch (err: any) {
       setStatus('error');
-      setMessage('エラー: ' + err.message);
-    }
-  };
-
-  const handleUnsubscribe = async () => {
-    if (!shopId) return;
-    const token = localStorage.getItem(`fcm_token_${shopId}`);
-    if (!token) {
-      setMessage('トークンが見つかりません');
-      return;
-    }
-    try {
-      const res = await fetch('/api/unsubscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, shopId }),
-      });
-      if (res.ok) {
-        localStorage.removeItem(`fcm_token_${shopId}`);
-        setStatus('idle');
-        setMessage('✅ 通知を停止しました');
-      } else {
-        setMessage('❌ 停止に失敗しました');
-      }
-    } catch (err: any) {
       setMessage('エラー: ' + err.message);
     }
   };
@@ -115,7 +106,16 @@ function CustomerPageContent() {
         お得な情報をプッシュ通知でお届けします
       </p>
 
-      {status === 'success' && coupon?.enabled && (
+      {!notificationSupported && (
+        <div style={{ marginTop: '15px', padding: '15px', background: '#fff3e0', borderRadius: '8px', fontSize: '14px', color: '#e65100', textAlign: 'left' }}>
+          <strong>📱 iPhoneをお使いの方へ</strong><br />
+          1. Safariの<strong>共有ボタン</strong>（□に↑）をタップ<br />
+          2. <strong>「ホーム画面に追加」</strong>を選択<br />
+          3. ホーム画面のアイコンから開いて通知登録
+        </div>
+      )}
+
+      {coupon?.enabled && (
         <div style={{ marginTop: '20px', padding: '20px', background: '#fff3e0', borderRadius: '8px', border: '2px dashed #ff9800' }}>
           <h2>🎫 {coupon.title || '初回限定クーポン'}</h2>
           <p>{coupon.description}</p>
@@ -125,35 +125,33 @@ function CustomerPageContent() {
       )}
 
       <div style={{ marginTop: '40px' }}>
-        {status === 'success' ? (
-          <div style={{ padding: '20px', background: '#e8f5e9', borderRadius: '8px' }}>
-            <p style={{ color: '#2e7d32', fontWeight: 'bold', fontSize: '18px' }}>{message}</p>
-            <button
-              onClick={handleUnsubscribe}
-              style={{ marginTop: '16px', padding: '10px 24px', fontSize: '16px', background: '#666', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
-            >
-              🔔 通知を停止する
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={handleSubscribe}
-            disabled={status === 'requesting'}
-            style={{ padding: '16px 32px', fontSize: '18px', fontWeight: 'bold', background: status === 'requesting' ? '#ccc' : '#ff4500', color: '#fff', border: 'none', borderRadius: '8px', cursor: status === 'requesting' ? 'not-allowed' : 'pointer' }}
-          >
-            {status === 'requesting' ? '登録中...' : '🔔 通知を受け取る'}
-          </button>
-        )}
+        <button
+          onClick={handleSubscribe}
+          disabled={status === 'requesting' || !notificationSupported}
+          style={{
+            padding: '16px 32px',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            background: status === 'requesting' ? '#ccc' : !notificationSupported ? '#ccc' : '#ff4500',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: status === 'requesting' || !notificationSupported ? 'not-allowed' : 'pointer',
+          }}
+        >
+          {!notificationSupported ? 'Safariでホーム画面に追加してください' : status === 'requesting' ? '登録中...' : '🔔 通知を受け取る'}
+        </button>
 
-        {status === 'error' && (
-          <p style={{ marginTop: '20px', color: '#d32f2f', fontWeight: 'bold' }}>{message}</p>
+        {message && (
+          <p style={{ marginTop: '20px', fontWeight: 'bold', color: message.includes('❌') || message.includes('エラー') ? '#d32f2f' : '#2e7d32' }}>
+            {message}
+          </p>
         )}
       </div>
     </main>
   );
 }
 
-// Suspense でラップしてエクスポート
 export default function CustomerPage() {
   return (
     <Suspense fallback={<main style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center' }}><p>読み込み中...</p></main>}>
