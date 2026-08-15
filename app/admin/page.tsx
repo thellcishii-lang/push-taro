@@ -135,13 +135,16 @@ export default function AdminPage() {
   };
 
   const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    alert('DEBUG: 送信ボタンが押されました');
-    if (!user || !shopId)
-      alert('DEBUG: early return! user=' + !!user + ' shopId=' + shopId);
-      return;
-    setLoading(true);
-    setMessage('');
+  e.preventDefault();
+  alert('DEBUG: 送信ボタンが押されました');
+  
+  if (!user || !shopId) {       // ← { を追加
+    alert('DEBUG: early return! user=' + !!user + ' shopId=' + shopId);
+    return;
+  }                             // ← } を追加
+  
+  setLoading(true);
+  setMessage('');
 
     try {
       const idToken = await user.getIdToken();
