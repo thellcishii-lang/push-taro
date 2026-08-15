@@ -1,4 +1,4 @@
-import * as admin from 'firebase-admin';
+import admin from 'firebase-admin';
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -10,7 +10,6 @@ if (!admin.apps.length) {
   });
 }
 
-export const db = admin.firestore();
 export const messaging = admin.messaging();
+export const db = admin.firestore();
 export const authAdmin = admin.auth();
-export default admin;
