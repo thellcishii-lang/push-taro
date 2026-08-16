@@ -1,38 +1,35 @@
 'use client';
 
+'use client';
+
 import { useState, useEffect } from 'react';
 import { requestFCMToken, onForegroundMessage } from '../lib/firebase-client';
 
 export default function LandingPage() {
+  // === 切り分け用: ページ読み込み確認 ===
+  const [debugInfo, setDebugInfo] = useState('ページ読み込み中...');
+
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [shopId, setShopId] = useState('');
 
-  // CHECK 1: URLから shopId を取得
   useEffect(() => {
-    console.log('[PAGE CHECK 1] === ページ読み込み ===');
+    setDebugInfo('JSは動いています');
+    
     const params = new URLSearchParams(window.location.search);
     const s = params.get('s');
-    console.log('[PAGE CHECK 1] URLパラメータ s =', s);
-
+    setDebugInfo(prev => prev + ` | s=${s || 'なし'}`);
+    
     if (!s) {
-      console.error('[PAGE CHECK 1] エラー: sがない');
       setStatus('error');
-      setMessage('無効なアクセスです。QRコードからアクセスしてください。');
+      setMessage('無効なアクセスです');
       return;
     }
     setShopId(s);
-    console.log('[PAGE CHECK 1] shopId設定完了:', s);
+    setDebugInfo(prev => prev + ` | shopId設定完了`);
   }, []);
 
-  // CHECK 2: フォアグラウンド通知リスナー
-  useEffect(() => {
-    console.log('[PAGE CHECK 2] フォアグラウンド通知リスナー設定');
-    const unsub = onForegroundMessage((payload) => {
-      console.log('[PAGE CHECK 2] フォアグラウンド受信:', payload);
-    });
-    return () => unsub();
-  }, []);
+  // ... 以降は同じ
 
   const handleSubscribe = async () => {
     console.log('[PAGE CHECK 3] === ボタン押下 ===');
