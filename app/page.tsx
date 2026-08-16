@@ -3,156 +3,99 @@
 import { useState, useEffect } from 'react';
 import { requestFCMToken, onForegroundMessage } from '../lib/firebase-client';
 
-interface ShopInfo {
-  name: string;
-  coupon?: {
-    enabled: boolean;
-    title: string;
-    description: string;
-    discountRate: number;
-  };
-  linkUrl?: string;
-}
-
 export default function LandingPage() {
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [shopId, setShopId] = useState('');
-  const [shopInfo, setShopInfo] = useState<ShopInfo | null>(null);
-  const [showCoupon, setShowCoupon] = useState(false);
-  const [couponUsed, setCouponUsed] = useState(false);
 
-  // URLから shopId を取得 & 店舗情報取得
+  // CHECK 1: URLから shopId を取得できているか
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const s = params.get('s');
+    console.log('[CHECK 1] URLパラメータ s =', s);
+    
     if (!s) {
       setStatus('error');
       setMessage('無効なアクセスです。QRコードからアクセスしてください。');
       return;
     }
     setShopId(s);
-    fetch(`/api/shop-info?s=${s}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (data?.success) setShopInfo(data);
-      });
   }, []);
 
-  // フォアグラウンド通知受信（アプリ起動中も通知を検知）
+  // CHECK 2: フォアグラウンド通知受信の設定
   useEffect(() => {
+    console.log('[CHECK 2] フォアグラウンド通知リスナーを設定');
     const unsub = onForegroundMessage((payload) => {
-      console.log('フォアグラウンド受信:', payload);
-      if (payload.data?.title) {
-        // 簡易トースト表示
-        setMessage(`📢 ${payload.data.title}`);
-        setTimeout(() => setMessage(''), 5000);
-      }
+      console.log('[CHECK 2] フォアグラウンドで通知受信:', payload);
     });
     return () => unsub();
   }, []);
 
-  // クーポン使用済み判定
-  useEffect(() => {
-    if (shopId && shopInfo?.coupon?.enabled) {
-      const used = localStorage.getItem(`coupon_used_${shopId}`);
-      setCouponUsed(!!used);
-    }
-  }, [shopId, shopInfo]);
-
   const handleSubscribe = async () => {
-    if (!shopId) return;
+    console.log('[CHECK 3] ボタン押下。shopId =', shopId);
+    if (!shopId) {
+      console.error('[CHECK 3] shopId が空！');
+      setStatus('error');
+      setMessage('店舗IDが取得できていません。');
+      return;
+    }
+
     setStatus('requesting');
     setMessage('');
 
     try {
+      // CHECK 4: 通知許可
       const permission = await Notification.requestPermission();
+      console.log('[CHECK 4] 通知許可結果:', permission);
       if (permission !== 'granted') {
         setStatus('error');
         setMessage('通知を許可しないと受け取れません。');
         return;
       }
 
+      // CHECK 5: FCMトークン取得
       const token = await requestFCMToken();
-      if (!token) throw new Error('トークン取得に失敗');
+      console.log('[CHECK 5] FCMトークン:', token ? '取得成功' : 'null/失敗');
+      if (!token) {
+        setStatus('error');
+        setMessage('トークン取得に失敗しました。');
+        return;
+      }
 
+      // CHECK 6: /api/subscribe へ送信（shopId を含める！）
+      console.log('[CHECK 6] /api/subscribe へ送信:', { token: token.slice(0, 20) + '...', shopId });
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, shopId }),
+        body: JSON.stringify({ token, shopId }),  // ← 修正点：shopId を追加
       });
 
+      console.log('[CHECK 6] APIレスポンス status:', res.status);
+      const resData = await res.json().catch(() => ({}));
+      console.log('[CHECK 6] APIレスポンス body:', resData);
+
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || '登録失敗');
+        throw new Error(resData.error || `HTTP ${res.status}`);
       }
 
       setStatus('success');
-      setMessage(`✅ ${shopInfo?.name || '店舗'}の通知を受け取ります！`);
-
-      // 初回クーポンが有効なら表示
-      if (shopInfo?.coupon?.enabled && !localStorage.getItem(`coupon_used_${shopId}`)) {
-        setShowCoupon(true);
-      }
+      setMessage('✅ 通知の受け取り登録が完了しました！');
     } catch (err: any) {
+      console.error('[CHECK 7] エラー:', err);
       setStatus('error');
       setMessage('エラー: ' + err.message);
     }
   };
 
-  const handleUseCoupon = () => {
-    localStorage.setItem(`coupon_used_${shopId}`, 'true');
-    setCouponUsed(true);
-    setShowCoupon(false);
-  };
-
-  const handleHomeAction = () => {
-    if (couponUsed && shopInfo?.linkUrl) {
-      window.location.href = shopInfo.linkUrl;
-    } else if (!couponUsed && shopInfo?.coupon?.enabled) {
-      setShowCoupon(true);
-    }
-  };
-
-  if (status === 'error' && !shopId) {
-    return (
-      <main style={{ padding: 40, textAlign: 'center', fontFamily: 'sans-serif' }}>
-        <h1>⚠️ アクセスエラー</h1>
-        <p>{message}</p>
-      </main>
-    );
-  }
-
   return (
     <main style={{ padding: 24, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif' }}>
       <h1>🍑 プッシュ太郎</h1>
-      <p>{shopInfo?.name ? `${shopInfo.name}からのお知らせを受け取ろう！` : 'お得な情報をプッシュ通知でお届けします'}</p>
-
+      <p>お得な情報をプッシュ通知でお届けします</p>
+      
       {status === 'success' ? (
         <div style={{ textAlign: 'center', marginTop: 40 }}>
           <div style={{ fontSize: 64 }}>✅</div>
           <p>{message}</p>
-
-          {/* クーポン表示エリア */}
-          {showCoupon && shopInfo?.coupon && (
-            <div style={{ marginTop: 24, padding: 20, border: '2px dashed #ff6b6b', borderRadius: 12, background: '#fff0f0' }}>
-              <h2>🎫 {shopInfo.coupon.title}</h2>
-              <p>{shopInfo.coupon.description}</p>
-              <p style={{ fontSize: 24, fontWeight: 'bold', color: '#ff6b6b' }}>
-                {shopInfo.coupon.discountRate}% OFF
-              </p>
-              <button onClick={handleUseCoupon} style={{ padding: '12px 24px', fontSize: 16, background: '#ff6b6b', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}>
-                クーポンを使う
-              </button>
-            </div>
-          )}
-
-          {/* ホーム画面風ボタン（PWA想定） */}
-          {!showCoupon && (
-            <button onClick={handleHomeAction} style={{ marginTop: 24, padding: '16px 32px', fontSize: 18, background: '#333', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}>
-              {couponUsed ? '店舗ページを開く' : 'クーポンを見る'}
-            </button>
-          )}
         </div>
       ) : (
         <button
