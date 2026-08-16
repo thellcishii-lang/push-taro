@@ -8,13 +8,14 @@ export default function LandingPage() {
   const [message, setMessage] = useState('');
   const [shopId, setShopId] = useState('');
 
-  // CHECK 1: URLから shopId を取得できているか
+  // CHECK 1: URLから shopId を取得
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const s = params.get('s');
     console.log('[CHECK 1] URLパラメータ s =', s);
-    
+
     if (!s) {
+      console.error('[CHECK 1] shopId がURLにない');
       setStatus('error');
       setMessage('無効なアクセスです。QRコードからアクセスしてください。');
       return;
@@ -22,21 +23,26 @@ export default function LandingPage() {
     setShopId(s);
   }, []);
 
-  // CHECK 2: フォアグラウンド通知受信の設定
+  // CHECK 2: フォアグラウンド通知受信（アプリ起動中も通知を検知）
   useEffect(() => {
-    console.log('[CHECK 2] フォアグラウンド通知リスナーを設定');
+    console.log('[CHECK 2] フォアグラウンド通知リスナー設定');
     const unsub = onForegroundMessage((payload) => {
-      console.log('[CHECK 2] フォアグラウンドで通知受信:', payload);
+      console.log('[CHECK 2] フォアグラウンド受信:', payload);
+      if (payload.data?.title) {
+        setMessage(`📢 ${payload.data.title}`);
+        setTimeout(() => setMessage(''), 5000);
+      }
     });
     return () => unsub();
   }, []);
 
   const handleSubscribe = async () => {
+    // CHECK 3: shopId が取得できているか
     console.log('[CHECK 3] ボタン押下。shopId =', shopId);
     if (!shopId) {
-      console.error('[CHECK 3] shopId が空！');
+      console.error('[CHECK 3] shopId が空');
       setStatus('error');
-      setMessage('店舗IDが取得できていません。');
+      setMessage('店舗IDが取得できていません。QRコードからアクセスしてください。');
       return;
     }
 
@@ -63,11 +69,15 @@ export default function LandingPage() {
       }
 
       // CHECK 6: /api/subscribe へ送信（shopId を含める！）
-      console.log('[CHECK 6] /api/subscribe へ送信:', { token: token.slice(0, 20) + '...', shopId });
+      console.log('[CHECK 6] /api/subscribe 送信:', {
+        token: token.slice(0, 20) + '...',
+        shopId: shopId,
+      });
+
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, shopId }),  // ← 修正点：shopId を追加
+        body: JSON.stringify({ token, shopId }), // ← 修正点：shopId を追加
       });
 
       console.log('[CHECK 6] APIレスポンス status:', res.status);
@@ -89,9 +99,9 @@ export default function LandingPage() {
 
   return (
     <main style={{ padding: 24, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h1>🍑 プッシュ太郎</h1>
+      <h1>🚀 プッシュ太郎</h1>
       <p>お得な情報をプッシュ通知でお届けします</p>
-      
+
       {status === 'success' ? (
         <div style={{ textAlign: 'center', marginTop: 40 }}>
           <div style={{ fontSize: 64 }}>✅</div>
@@ -117,7 +127,9 @@ export default function LandingPage() {
         </button>
       )}
 
-      {status === 'error' && <p style={{ color: 'red', marginTop: 16 }}>{message}</p>}
+      {status === 'error' && (
+        <p style={{ color: 'red', marginTop: 16 }}>{message}</p>
+      )}
     </main>
   );
 }
