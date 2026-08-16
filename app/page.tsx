@@ -7,23 +7,29 @@ export default function LandingPage() {
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [shopId, setShopId] = useState('');
+  const [isIos, setIsIos] = useState(false);
 
-  // CHECK 1: URLから shopId を取得
+  // CHECK 1: URLから shopId を取得 + iOS判定
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const s = params.get('s');
     console.log('[CHECK 1] URLパラメータ s =', s);
 
     if (!s) {
-      console.error('[CHECK 1] shopId がURLにない');
       setStatus('error');
       setMessage('無効なアクセスです。QRコードからアクセスしてください。');
       return;
     }
     setShopId(s);
+
+    // iOS判定
+    const ua = navigator.userAgent;
+    const ios = /iPad|iPhone|iPod/.test(ua);
+    setIsIos(ios);
+    console.log('[CHECK 1] iOS判定:', ios);
   }, []);
 
-  // CHECK 2: フォアグラウンド通知受信（アプリ起動中も通知を検知）
+  // CHECK 2: フォアグラウンド通知受信
   useEffect(() => {
     console.log('[CHECK 2] フォアグラウンド通知リスナー設定');
     const unsub = onForegroundMessage((payload) => {
@@ -37,12 +43,23 @@ export default function LandingPage() {
   }, []);
 
   const handleSubscribe = async () => {
-    // CHECK 3: shopId が取得できているか
     console.log('[CHECK 3] ボタン押下。shopId =', shopId);
+
     if (!shopId) {
-      console.error('[CHECK 3] shopId が空');
       setStatus('error');
       setMessage('店舗IDが取得できていません。QRコードからアクセスしてください。');
+      return;
+    }
+
+    // ✅ iOS Safari対応: Notification API がない場合
+    if (typeof Notification === 'undefined') {
+      console.log('[CHECK 3] Notification API なし（iOS Safari）');
+      setStatus('error');
+      setMessage(
+        'iPhoneのSafariでは、まず「ホーム画面に追加」してください。' +
+        'Safari下部の「共有」→「ホーム画面に追加」を押し、' +
+        '追加したアプリから再度アクセスしてください。'
+      );
       return;
     }
 
@@ -50,7 +67,6 @@ export default function LandingPage() {
     setMessage('');
 
     try {
-      // CHECK 4: 通知許可
       const permission = await Notification.requestPermission();
       console.log('[CHECK 4] 通知許可結果:', permission);
       if (permission !== 'granted') {
@@ -59,7 +75,6 @@ export default function LandingPage() {
         return;
       }
 
-      // CHECK 5: FCMトークン取得
       const token = await requestFCMToken();
       console.log('[CHECK 5] FCMトークン:', token ? '取得成功' : 'null/失敗');
       if (!token) {
@@ -68,7 +83,6 @@ export default function LandingPage() {
         return;
       }
 
-      // CHECK 6: /api/subscribe へ送信（shopId を含める！）
       console.log('[CHECK 6] /api/subscribe 送信:', {
         token: token.slice(0, 20) + '...',
         shopId: shopId,
@@ -77,16 +91,14 @@ export default function LandingPage() {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, shopId }), // ← 修正点：shopId を追加
+        body: JSON.stringify({ token, shopId }),
       });
 
       console.log('[CHECK 6] APIレスポンス status:', res.status);
       const resData = await res.json().catch(() => ({}));
       console.log('[CHECK 6] APIレスポンス body:', resData);
 
-      if (!res.ok) {
-        throw new Error(resData.error || `HTTP ${res.status}`);
-      }
+      if (!res.ok) throw new Error(resData.error || `HTTP ${res.status}`);
 
       setStatus('success');
       setMessage('✅ 通知の受け取り登録が完了しました！');
@@ -101,6 +113,13 @@ export default function LandingPage() {
     <main style={{ padding: 24, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif' }}>
       <h1>🚀 プッシュ太郎</h1>
       <p>お得な情報をプッシュ通知でお届けします</p>
+
+      {isIos && (
+        <div style={{ background: '#fff3cd', padding: 12, borderRadius: 8, marginBottom: 16, fontSize: 14 }}>
+          📱 <strong>iPhoneをお使いの方へ</strong><br />
+          通知を受け取るには、Safariの「共有」→「ホーム画面に追加」を押してから、このアプリを開いてください。
+        </div>
+      )}
 
       {status === 'success' ? (
         <div style={{ textAlign: 'center', marginTop: 40 }}>
@@ -128,7 +147,7 @@ export default function LandingPage() {
       )}
 
       {status === 'error' && (
-        <p style={{ color: 'red', marginTop: 16 }}>{message}</p>
+        <p style={{ color: 'red', marginTop: 16, whiteSpace: 'pre-line' }}>{message}</p>
       )}
     </main>
   );
