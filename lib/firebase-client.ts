@@ -12,12 +12,13 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+console.log('[firebase-client.ts] Firebase設定 projectId:', firebaseConfig.projectId);
+
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 export const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
 
-// FCMトークン取得（通知許可ダイアログが出ます）
 export async function requestFCMToken(): Promise<string | null> {
   console.log('[firebase-client.ts] requestFCMToken 呼び出し');
   if (!messaging) {
@@ -37,7 +38,6 @@ export async function requestFCMToken(): Promise<string | null> {
   }
 }
 
-// アプリ起動中の通知受信
 export function onForegroundMessage(callback: (payload: any) => void) {
   console.log('[firebase-client.ts] onForegroundMessage 設定');
   if (!messaging) return () => {};
