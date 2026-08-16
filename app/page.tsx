@@ -1,42 +1,49 @@
 'use client';
 
-'use client';
-
 import { useState, useEffect } from 'react';
 import { requestFCMToken, onForegroundMessage } from '../lib/firebase-client';
 
 export default function LandingPage() {
-  // === 切り分け用: ページ読み込み確認 ===
-  const [debugInfo, setDebugInfo] = useState('ページ読み込み中...');
-
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [shopId, setShopId] = useState('');
 
+  // CHECK 1: URLから shopId を取得
   useEffect(() => {
-    setDebugInfo('JSは動いています');
-    
+    console.log('[CHECK 1] === ページ読み込み ===');
+    console.log('[CHECK 1] 現在のURL:', window.location.href);
+    console.log('[CHECK 1] search:', window.location.search);
+
     const params = new URLSearchParams(window.location.search);
     const s = params.get('s');
-    setDebugInfo(prev => prev + ` | s=${s || 'なし'}`);
-    
+    console.log('[CHECK 1] s =', s);
+
     if (!s) {
+      console.error('[CHECK 1] エラー: sがない');
       setStatus('error');
-      setMessage('無効なアクセスです');
+      setMessage('無効なアクセスです。QRコードからアクセスしてください。');
       return;
     }
+
     setShopId(s);
-    setDebugInfo(prev => prev + ` | shopId設定完了`);
+    console.log('[CHECK 1] shopId設定完了:', s);
   }, []);
 
-  // ... 以降は同じ
+  // CHECK 2: フォアグラウンド通知リスナー
+  useEffect(() => {
+    console.log('[CHECK 2] フォアグラウンド通知リスナー設定');
+    const unsub = onForegroundMessage((payload) => {
+      console.log('[CHECK 2] フォアグラウンド受信:', payload);
+    });
+    return () => unsub();
+  }, []);
 
   const handleSubscribe = async () => {
-    console.log('[PAGE CHECK 3] === ボタン押下 ===');
-    console.log('[PAGE CHECK 3] shopId =', shopId);
+    console.log('[CHECK 3] === ボタン押下 ===');
+    console.log('[CHECK 3] shopId =', shopId);
 
     if (!shopId) {
-      console.error('[PAGE CHECK 3] エラー: shopIdが空');
+      console.error('[CHECK 3] エラー: shopIdが空');
       setStatus('error');
       setMessage('店舗IDが取得できていません。QRコードからアクセスしてください。');
       return;
@@ -46,11 +53,11 @@ export default function LandingPage() {
     setMessage('');
 
     try {
-      // CHECK 4: 通知許可（iPhone対策なし・以前のまま）
-      console.log('[PAGE CHECK 4] 通知許可要求...');
+      // CHECK 4: 通知許可
+      console.log('[CHECK 4] 通知許可要求...');
       const permission = await Notification.requestPermission();
-      console.log('[PAGE CHECK 4] 通知許可結果:', permission);
-      
+      console.log('[CHECK 4] 通知許可結果:', permission);
+
       if (permission !== 'granted') {
         setStatus('error');
         setMessage('通知を許可しないと受け取れません。');
@@ -58,20 +65,20 @@ export default function LandingPage() {
       }
 
       // CHECK 5: FCMトークン取得
-      console.log('[PAGE CHECK 5] FCMトークン取得...');
+      console.log('[CHECK 5] FCMトークン取得...');
       const token = await requestFCMToken();
-      console.log('[PAGE CHECK 5] FCMトークン:', token ? '取得成功' : 'null/失敗');
-      
+      console.log('[CHECK 5] FCMトークン:', token ? '取得成功' : 'null/失敗');
+
       if (!token) {
         setStatus('error');
         setMessage('トークン取得に失敗しました。');
         return;
       }
 
-      // CHECK 6: APIへ送信（shopIdを含める）
-      console.log('[PAGE CHECK 6] /api/subscribe 送信:', {
+      // CHECK 6: /api/subscribe へ送信（shopIdを含める）
+      console.log('[CHECK 6] /api/subscribe 送信:', {
         token: token.slice(0, 20) + '...',
-        shopId: shopId
+        shopId: shopId,
       });
 
       const res = await fetch('/api/subscribe', {
@@ -80,20 +87,20 @@ export default function LandingPage() {
         body: JSON.stringify({ token, shopId }),
       });
 
-      console.log('[PAGE CHECK 6] APIレスポンス status:', res.status);
+      console.log('[CHECK 6] APIレスポンス status:', res.status);
       const resData = await res.json().catch(() => ({}));
-      console.log('[PAGE CHECK 6] APIレスポンス body:', resData);
+      console.log('[CHECK 6] APIレスポンス body:', resData);
 
       if (!res.ok) {
         throw new Error(resData.error || `HTTP ${res.status}`);
       }
 
-      console.log('[PAGE CHECK 7] 登録成功!');
+      console.log('[CHECK 7] 登録成功!');
       setStatus('success');
       setMessage('✅ 通知の受け取り登録が完了しました！');
 
     } catch (err: any) {
-      console.error('[PAGE CHECK ERROR] 例外:', err);
+      console.error('[CHECK ERROR] 例外:', err);
       setStatus('error');
       setMessage('エラー: ' + err.message);
     }
