@@ -12,6 +12,8 @@ export default function LandingPage() {
   useEffect(() => {
     console.log('[CHECK 1] === ページ読み込み ===');
     console.log('[CHECK 1] URL:', window.location.href);
+    console.log('[DEBUG] 現在の localStorage shopId:', localStorage.getItem('push_taro_shop_id'));
+　　　　　　　　console.log('[DEBUG] 現在の document.cookie:', document.cookie);
 
     const params = new URLSearchParams(window.location.search);
     const s = params.get('s');
@@ -137,6 +139,12 @@ export default function LandingPage() {
 
   return (
     <main style={{ padding: 24, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif' }}>
+      <div style={{ background: '#f0f0f0', padding: '10px', marginBottom: '20px', fontSize: '14px', borderRadius: '8px' }}>
+  <p><strong>🔍 デバッグ情報</strong></p>
+  <p>shopId (state): <strong>{shopId || '（未設定）'}</strong></p>
+  <p>localStorage: <strong>{localStorage.getItem('push_taro_shop_id') || '（空）'}</strong></p>
+  <p>URL: <strong>{window.location.href}</strong></p>
+　</div>
       <h1>🚀 プッシュ太郎</h1>
       <p>お得な情報をプッシュ通知でお届けします</p>
 
