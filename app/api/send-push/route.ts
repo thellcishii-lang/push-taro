@@ -33,15 +33,18 @@ export async function POST(request: Request) {
 
     // ✅ notification を削除し、すべて data に統合
     const message = {
-      topic,
-      data: {
-        title: title,
-        body: body,
-        ...(imageUrl ? { image: imageUrl } : {}),
-        ...(linkUrl ? { url: linkUrl } : {}),
-        shopId: shopId,
-      },
-    };
+  topic,
+  notification: {   // ← これを追加！
+    title: title,
+    body: body,
+    ...(imageUrl ? { image: imageUrl } : {}),
+  },
+  data: {           // ← リンク等の追加データは data に残す
+    ...(linkUrl ? { url: linkUrl } : {}),
+    shopId: shopId,
+    click_action: linkUrl || '', // クリック時の遷移用
+  },
+};
 
     const response = await messaging.send(message);
 
