@@ -42,7 +42,7 @@ export default function LandingPage() {
     if (shopId) {
       const link = document.querySelector('link[rel="manifest"]');
       if (link) {
-        link.setAttribute('href', `/api/manifest?s=${shopId}`);
+        link.setAttribute('href', `/manifest/${shopId}`);
         console.log('[DEBUG] manifest href を更新:', `/api/manifest?s=${shopId}`);
       }
     }
