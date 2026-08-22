@@ -142,8 +142,6 @@ export default function LandingPage() {
             <div style={{ background: '#f0f0f0', padding: '10px', marginBottom: '20px', fontSize: '14px', borderRadius: '8px' }}>
               <p><strong>🔍 デバッグ情報</strong></p>
               <p>shopId (state): <strong>{shopId || '（未設定）'}</strong></p>
-              <p>localStorage: <strong>{localStorage.getItem('push_taro_shop_id') || '（空）'}</strong></p>
-              <p>URL: <strong>{window.location.href}</strong></p>
 　　　　　　　　　　　　　　　　　　　　　　　</div>
       <h1>🚀 プッシュ太郎</h1>
       <p>お得な情報をプッシュ通知でお届けします</p>
