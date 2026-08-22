@@ -34,15 +34,14 @@ export async function POST(request: Request) {
     // ✅ notification を削除し、すべて data に統合
     const message = {
   topic,
-  notification: {   // ← これを追加！
+  notification: {   // ← このブロックを追加する！（必須）
     title: title,
     body: body,
     ...(imageUrl ? { image: imageUrl } : {}),
   },
-  data: {           // ← リンク等の追加データは data に残す
+  data: {           // ← リンクなどの追加情報は data に残す
     ...(linkUrl ? { url: linkUrl } : {}),
     shopId: shopId,
-    click_action: linkUrl || '', // クリック時の遷移用
   },
 };
 
