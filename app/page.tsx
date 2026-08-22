@@ -13,19 +13,17 @@ export default function LandingPage() {
     console.log('[CHECK 1] === ページ読み込み ===');
     console.log('[CHECK 1] URL:', window.location.href);
     console.log('[DEBUG] 現在の localStorage shopId:', localStorage.getItem('push_taro_shop_id'));
-　　　　　　　　console.log('[DEBUG] 現在の document.cookie:', document.cookie);
+    console.log('[DEBUG] 現在の document.cookie:', document.cookie);
 
     const params = new URLSearchParams(window.location.search);
     const s = params.get('s');
     console.log('[CHECK 1] URLから取得 s =', s);
 
     if (s) {
-      // 初回アクセス: URLから取得 → localStorageに保存
       setShopId(s);
       localStorage.setItem('push_taro_shop_id', s);
       console.log('[CHECK 1] shopId設定完了(URL). localStorage保存:', s);
     } else {
-      // 2回目以降(PWA): localStorageから復元
       const saved = localStorage.getItem('push_taro_shop_id');
       console.log('[CHECK 1] localStorageから復元:', saved);
       if (saved) {
@@ -39,7 +37,18 @@ export default function LandingPage() {
     }
   }, []);
 
-  // CHECK 2: フォアグラウンド通知リスナー
+  // 追加: shopId が変わったら manifest のリンクを更新
+  useEffect(() => {
+    if (shopId) {
+      const link = document.querySelector('link[rel="manifest"]');
+      if (link) {
+        link.setAttribute('href', `/api/manifest?s=${shopId}`);
+        console.log('[DEBUG] manifest href を更新:', `/api/manifest?s=${shopId}`);
+      }
+    }
+  }, [shopId]);
+
+  // CHECK 2: フォアグラウンド通知リスナー（元々あったもの）
   useEffect(() => {
     console.log('[CHECK 2] フォアグラウンド通知リスナー設定');
     const unsub = onForegroundMessage((payload) => {
