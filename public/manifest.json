@@ -1,7 +1,7 @@
 {
   "name": "プッシュ太郎",
   "short_name": "Push太郎",
-  "start_url": "/?s=ol5N9HOZ19g69tf1jMjT",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ff6b6b",
