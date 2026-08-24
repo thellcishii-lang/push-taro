@@ -48,6 +48,22 @@ export default function LandingPage() {
     }
   }
 }, [shopId]);
+  // 追加: iOS 用の meta タグを設定（スタンドアロンモードを強制）
+useEffect(() => {
+  if (shopId && shopId !== 'placeholder' && shopId !== 'undefined') {
+    let meta = document.querySelector('meta[name="apple-mobile-web-app-capable"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute('name', 'apple-mobile-web-app-capable');
+      meta.setAttribute('content', 'yes');
+      document.head.appendChild(meta);
+      console.log('[DEBUG] apple-mobile-web-app-capable meta タグを追加');
+    } else {
+      meta.setAttribute('content', 'yes');
+      console.log('[DEBUG] apple-mobile-web-app-capable meta タグを更新');
+    }
+  }
+}, [shopId]);
 
   // CHECK 2: フォアグラウンド通知リスナー（元々あったもの）
   useEffect(() => {
