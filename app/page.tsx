@@ -39,14 +39,15 @@ export default function LandingPage() {
 
   // 追加: shopId が変わったら manifest のリンクを更新
   useEffect(() => {
-    if (shopId) {
-      const link = document.querySelector('link[rel="manifest"]');
-      if (link) {
-        link.setAttribute('href', `/manifest/${shopId}`);
-        console.log('[DEBUG] manifest href を更新:', `/api/manifest?s=${shopId}`);
-      }
+  if (shopId && shopId !== 'placeholder' && shopId !== 'undefined') {
+    const link = document.querySelector('link[rel="manifest"]');
+    if (link) {
+      const newHref = `/manifest/${shopId}`;
+      link.setAttribute('href', newHref);
+      console.log('[DEBUG] manifest href を更新:', newHref);
     }
-  }, [shopId]);
+  }
+}, [shopId]);
 
   // CHECK 2: フォアグラウンド通知リスナー（元々あったもの）
   useEffect(() => {
