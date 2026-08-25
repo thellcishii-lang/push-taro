@@ -136,57 +136,59 @@ export default function AdminPage() {
 
   const handleSend = async (e: React.FormEvent) => {
   e.preventDefault();
-  alert('DEBUG: 送信ボタンが押されました');
-  
-  if (!user || !shopId) {       // ← { を追加
-    alert('DEBUG: early return! user=' + !!user + ' shopId=' + shopId);
+
+  // 🟡 デバッグアラートは削除（またはコメントアウト）
+  // alert('DEBUG: 送信ボタンが押されました');
+
+  if (!user || !shopId) {
+    setMessage('❌ ユーザーまたは店舗IDが取得できていません');
     return;
-  }                             // ← } を追加
-  
+  }
+
   setLoading(true);
   setMessage('');
 
-    try {
-      const idToken = await user.getIdToken();
-      const response = await fetch('/api/send-push', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
-        },
-        body: JSON.stringify({ title, body, imageUrl, linkUrl }),
-      });
+  try {
+    const idToken = await user.getIdToken();
+    const response = await fetch('/api/send-push', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({ title, body, imageUrl, linkUrl }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      await localDb.history.add({
-        title,
-        body,
-        imageUrl: imageUrl || undefined,
-        linkUrl: linkUrl || undefined,
-        sentAt: new Date(),
-        status: response.ok ? 'success' : 'error',
-        errorMessage: response.ok ? undefined : data.error,
-      });
+    await localDb.history.add({
+      title,
+      body,
+      imageUrl: imageUrl || undefined,
+      linkUrl: linkUrl || undefined,
+      sentAt: new Date(),
+      status: response.ok ? 'success' : 'error',
+      errorMessage: response.ok ? undefined : data.error,
+    });
 
-      await loadHistory();
+    await loadHistory();
 
-      if (!response.ok) {
-        throw new Error(data.error || '送信に失敗しました');
-      }
-
-      setMessage('✨ カメハメ波（プッシュ通知）を放ちました！');
-      setTitle('');
-      setBody('');
-      setImageUrl('');
-      setLinkUrl('');
-    } catch (err: any) {
-      console.error('送信エラー:', err);
-      setMessage(`❌ エラー: ${err.message}`);
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error(data.error || '送信に失敗しました');
     }
-  };
+
+    setMessage('✨ カメハメ波（プッシュ通知）を放ちました！');
+    setTitle('');
+    setBody('');
+    setImageUrl('');
+    setLinkUrl('');
+  } catch (err: any) {
+    console.error('送信エラー:', err);
+    setMessage(`❌ エラー: ${err.message}`);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleExport = async () => {
     const json = await exportHistoryToJSON();
