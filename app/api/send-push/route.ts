@@ -97,7 +97,8 @@ export async function POST(request: Request) {
 
       // 無効なトークンを一括削除
       for (const token of invalidTokens) {
-        await db.collection('subscriptions').doc(token).delete();
+        const docId = `${shopId}_${token}`;
+　　　　　　　　　　　　　　　　　　await db.collection('subscriptions').doc(docId).delete();
         console.log(`[send-push] 無効なトークンを削除: ${token}`);
       }
     }
