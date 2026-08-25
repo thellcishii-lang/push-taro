@@ -26,6 +26,7 @@ export async function POST(request: Request) {
   }
 
   try {
+    // CHECK 2: リクエストボディをパース
     const body = await request.json();
     console.log('[API CHECK 2] 受信ボディ:', { token: body.token?.slice(0, 20) + '...', shopId: body.shopId });
 
@@ -35,6 +36,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'tokenとshopIdが必要です' }, { status: 400 });
     }
 
+    // CHECK 3: 店舗存在確認
     console.log('[API CHECK 3] Firestoreで店舗検索:', shopId);
     const shopDoc = await db.collection('shops').doc(shopId).get();
     console.log('[API CHECK 3] 店舗存在:', shopDoc.exists);
@@ -43,23 +45,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: '店舗が見つかりません' }, { status: 404 });
     }
 
+    // CHECK 4: FCMトピック登録
     const topic = `shop_${shopId}_users`;
     console.log('[API CHECK 4] FCMトピック登録:', topic);
     const subscribeResult = await messaging.subscribeToTopic([token], topic);
     console.log('[API CHECK 4] FCM登録結果:', subscribeResult);
 
+    // CHECK 5: Firestore書き込み
     console.log('[API CHECK 5] Firestore書き込み開始:', { token: token.slice(0, 20) + '...', shopId, topic });
-    
-    // 🔥 shopId + token でドキュメントIDを生成
-    const docId = `${shopId}_${token}`;
-    await db.collection('subscriptions').doc(docId).set({
+    await db.collection('subscriptions').doc(token).set({
       token,
       shopId,
       topic,
       createdAt: FieldValue.serverTimestamp(),
       lastActive: FieldValue.serverTimestamp(),
     });
-    
     console.log('[API CHECK 5] Firestore書き込み完了');
 
     console.log('[API CHECK 6] レスポンス返却: success');
