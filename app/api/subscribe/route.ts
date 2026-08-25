@@ -53,13 +53,14 @@ export async function POST(request: Request) {
 
     // CHECK 5: Firestore書き込み
     console.log('[API CHECK 5] Firestore書き込み開始:', { token: token.slice(0, 20) + '...', shopId, topic });
-    await db.collection('subscriptions').doc(token).set({
-      token,
-      shopId,
-      topic,
-      createdAt: FieldValue.serverTimestamp(),
-      lastActive: FieldValue.serverTimestamp(),
-    });
+    const docId = `${shopId}_${token}`;
+await db.collection('subscriptions').doc(docId).set({
+  token,
+  shopId,
+  topic,
+  createdAt: FieldValue.serverTimestamp(),
+  lastActive: FieldValue.serverTimestamp(),
+});
     console.log('[API CHECK 5] Firestore書き込み完了');
 
     console.log('[API CHECK 6] レスポンス返却: success');
