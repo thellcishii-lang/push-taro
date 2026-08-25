@@ -9,7 +9,7 @@ export async function GET(
   const manifest = {
     name: 'プッシュ太郎',
     short_name: 'Push太郎',
-    start_url: `/?s=${shopId}`,
+    start_url: shopId ? `/?s=${shopId}` : '/',
     display: 'standalone',
     background_color: '#ffffff',
     theme_color: '#ff6b6b',
