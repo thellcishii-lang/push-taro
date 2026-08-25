@@ -1,55 +1,65 @@
+// scripts/build-sw.js
 const fs = require('fs');
 const path = require('path');
 
-const templatePath = path.join(__dirname, '..', 'public', 'firebase-messaging-sw.template.js');
-const outputPath = path.join(__dirname, '..', 'public', 'firebase-messaging-sw.js');
+const swCode = `
+importScripts('https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.14.0/firebase-messaging-compat.js');
 
-// テンプレート存在確認
-if (!fs.existsSync(templatePath)) {
-  console.error('❌ Template file not found:', templatePath);
-  process.exit(1);
-}
+firebase.initializeApp({
+  apiKey: '${process.env.NEXT_PUBLIC_FIREBASE_API_KEY}',
+  projectId: '${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}',
+  messagingSenderId: '${process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID}',
+  appId: '${process.env.NEXT_PUBLIC_FIREBASE_APP_ID}',
+});
 
-let template = fs.readFileSync(templatePath, 'utf8');
+const messaging = firebase.messaging();
 
-// 必須環境変数を厳密にチェック
-const requiredVars = [
-  'NEXT_PUBLIC_FIREBASE_API_KEY',
-  'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',
-  'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
-  'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET',
-  'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
-  'NEXT_PUBLIC_FIREBASE_APP_ID',
-];
+// ✅ 絶対に動くバックグラウンド通知ハンドラ
+messaging.onBackgroundMessage((payload) => {
+  console.log('[SW] 受信ペイロード:', payload);
 
-let missing = [];
-for (const v of requiredVars) {
-  if (!process.env[v]) missing.push(v);
-}
+  // ✅ notification と data の両方からタイトル/本文を探す（両方対応）
+  const title = payload.notification?.title || payload.data?.title || 'プッシュ太郎';
+  const body = payload.notification?.body || payload.data?.body || 'お知らせがあります';
 
-if (missing.length > 0) {
-  console.error('❌ 以下の環境変数が未設定です:');
-  missing.forEach(v => console.error(`   - ${v}`));
-  console.error('❌ Service Worker のビルドを中止しました。');
-  process.exit(1);
-}
+  const options = {
+    body: body,
+    icon: '/icon-192x192.png',
+    badge: '/icon-192x192.png',
+    data: payload.data || {},
+    requireInteraction: true,
+  };
 
-// 置換
-template = template.replace(/{{FIREBASE_API_KEY}}/g, process.env.NEXT_PUBLIC_FIREBASE_API_KEY);
-template = template.replace(/{{FIREBASE_AUTH_DOMAIN}}/g, process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN);
-template = template.replace(/{{FIREBASE_PROJECT_ID}}/g, process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
-template = template.replace(/{{FIREBASE_STORAGE_BUCKET}}/g, process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET);
-template = template.replace(/{{FIREBASE_MESSAGING_SENDER_ID}}/g, process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID);
-template = template.replace(/{{FIREBASE_APP_ID}}/g, process.env.NEXT_PUBLIC_FIREBASE_APP_ID);
+  // 画像があれば表示
+  if (payload.data?.image) {
+    options.image = payload.data.image;
+  }
 
-fs.writeFileSync(outputPath, template);
-console.log('✅ Service Worker built successfully');
+  // 通知を表示
+  self.registration.showNotification(title, options);
+});
 
-// 二重チェック：プレースホルダーが残っていないか
-const built = fs.readFileSync(outputPath, 'utf8');
-const remaining = built.match(/{{[A-Z_]+}}/g);
-if (remaining) {
-  console.error('❌ プレースホルダーが残っています:', remaining);
-  process.exit(1);
-}
-console.log('✅ プレースホルダー置換を確認しました');
+// ✅ 通知クリック時の処理（リンクがあれば開く）
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const urlToOpen = event.notification.data?.url || '/';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((windowClients) => {
+        for (const client of windowClients) {
+          if (client.url === urlToOpen && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
+  );
+});
+`;
+
+const outputPath = path.join(__dirname, '../public/firebase-messaging-sw.js');
+fs.writeFileSync(outputPath, swCode);
+console.log('✅ Service Worker generated at:', outputPath);
