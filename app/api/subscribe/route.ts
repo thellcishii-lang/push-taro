@@ -18,54 +18,85 @@ function isRateLimited(ip: string): boolean {
 
 export async function POST(request: Request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
-  console.log('[API CHECK 1] リクエスト受信 from IP:', ip);
 
   if (isRateLimited(ip)) {
-    console.log('[API CHECK 1] レート制限ヒット');
     return NextResponse.json({ error: 'レート制限を超えました' }, { status: 429 });
   }
 
   try {
-    // CHECK 2: リクエストボディをパース
     const body = await request.json();
-    console.log('[API CHECK 2] 受信ボディ:', { token: body.token?.slice(0, 20) + '...', shopId: body.shopId });
-
     const { token, shopId } = body;
+
     if (!token || !shopId) {
-      console.log('[API CHECK 2] バリデーション失敗:', { hasToken: !!token, hasShopId: !!shopId });
       return NextResponse.json({ error: 'tokenとshopIdが必要です' }, { status: 400 });
     }
 
-    // CHECK 3: 店舗存在確認
-    console.log('[API CHECK 3] Firestoreで店舗検索:', shopId);
+    // 店舗存在確認
     const shopDoc = await db.collection('shops').doc(shopId).get();
-    console.log('[API CHECK 3] 店舗存在:', shopDoc.exists);
-    
     if (!shopDoc.exists) {
       return NextResponse.json({ error: '店舗が見つかりません' }, { status: 404 });
     }
 
-    // CHECK 4: FCMトピック登録
+    const normalizedToken = token.trim();
     const topic = `shop_${shopId}_users`;
-    console.log('[API CHECK 4] FCMトピック登録:', topic);
-    const subscribeResult = await messaging.subscribeToTopic([token], topic);
-    console.log('[API CHECK 4] FCM登録結果:', subscribeResult);
+    const docRef = db.collection('subscriptions').doc(normalizedToken);
+    const doc = await docRef.get();
 
-    // CHECK 5: Firestore書き込み
-    console.log('[API CHECK 5] Firestore書き込み開始:', { token: token.slice(0, 20) + '...', shopId, topic });
-    await db.collection('subscriptions').doc(token).set({
-      token,
-      shopId,
-      topic,
-      createdAt: FieldValue.serverTimestamp(),
-      lastActive: FieldValue.serverTimestamp(),
-    });
-    console.log('[API CHECK 5] Firestore書き込み完了');
+    // FCM トピック登録
+    await messaging.subscribeToTopic([normalizedToken], topic);
 
-    console.log('[API CHECK 6] レスポンス返却: success');
-    return NextResponse.json({ success: true, topic }, { status: 200 });
+    if (doc.exists) {
+      const data = doc.data();
+      const shopIds = data?.shopIds || [];
+
+      // ✅ 同じ店舗が既に登録されているかチェック
+      if (shopIds.includes(shopId)) {
+        // 同じ店舗 → 最終アクティブ日時を更新
+        console.log('[API] 同じ店舗への再登録（更新）:', shopId);
+        await docRef.update({
+          lastActive: FieldValue.serverTimestamp(),
+        });
+
+        return NextResponse.json({
+          success: true,
+          topic,
+          message: '既存の登録を更新しました',
+        }, { status: 200 });
+      } else {
+        // 別の店舗 → 追加登録
+        console.log('[API] 別の店舗を追加:', shopId);
+        await docRef.update({
+          shopIds: FieldValue.arrayUnion(shopId),
+          topics: FieldValue.arrayUnion(topic),
+          lastActive: FieldValue.serverTimestamp(),
+        });
+
+        return NextResponse.json({
+          success: true,
+          topic,
+          message: '新しい店舗を追加しました',
+        }, { status: 200 });
+      }
+    } else {
+      // 新規トークン → 新規作成
+      console.log('[API] 新規登録:', { token: normalizedToken.slice(0, 20) + '...', shopId });
+      await docRef.set({
+        token: normalizedToken,
+        shopIds: [shopId],
+        topics: [topic],
+        createdAt: FieldValue.serverTimestamp(),
+        lastActive: FieldValue.serverTimestamp(),
+      });
+
+      return NextResponse.json({
+        success: true,
+        topic,
+        message: '新規登録しました',
+      }, { status: 200 });
+    }
+
   } catch (error: any) {
-    console.error('[API CHECK ERROR] 例外発生:', error.message, error.stack);
+    console.error('[API ERROR]', error.message, error.stack);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
