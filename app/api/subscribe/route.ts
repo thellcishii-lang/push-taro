@@ -54,7 +54,8 @@ export async function POST(request: Request) {
     // CHECK 5: Firestore書き込み
     console.log('[API CHECK 5] Firestore書き込み開始:', { token: token.slice(0, 20) + '...', shopId, topic });
     const docId = `${shopId}_${token}`;
-await db.collection('subscriptions').doc(docId).set({
+const docId = `${shopId}_${token}`;
+await db.collection('subscriptions').doc(docId).set({ ... });
   token,
   shopId,
   topic,
