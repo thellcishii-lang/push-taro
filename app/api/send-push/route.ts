@@ -39,11 +39,13 @@ export async function POST(request: Request) {
     body: body,
     ...(imageUrl ? { image: imageUrl } : {}),
   },
-  data: {           // ← リンクなどの追加情報は data に残す
-    ...(linkUrl ? { url: linkUrl } : {}),
-    shopId: shopId,
-  },
-};
+  data: {
+  title: title,           // ← これを追加！
+  body: body,             // ← これを追加！
+  image: imageUrl || '',
+  url: linkUrl || '',
+  shopId: shopId,
+},
 
     const response = await messaging.send(message);
 
