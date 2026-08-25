@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 
-export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const shopId = url.searchParams.get('s') || '';
+export async function GET(
+  request: Request,
+  { params }: { params: { shopId: string } }
+) {
+  const shopId = params.shopId;  // ← これが正しい！
 
   const manifest = {
     name: 'プッシュ太郎',
