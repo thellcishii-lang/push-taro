@@ -50,7 +50,7 @@ export async function POST(request: Request) {
 
     console.log('[API CHECK 5] Firestore書き込み開始:', { token: token.slice(0, 20) + '...', shopId, topic });
     
-    // 🔥 修正: shopId + token でドキュメントIDを生成
+    // 🔥 shopId + token でドキュメントIDを生成
     const docId = `${shopId}_${token}`;
     await db.collection('subscriptions').doc(docId).set({
       token,
