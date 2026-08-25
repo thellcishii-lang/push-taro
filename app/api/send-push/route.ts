@@ -52,7 +52,7 @@ export async function POST(request: Request) {
         ...(linkUrl ? { url: linkUrl } : {}),
         shopId: shopId,
       },
-      // iOS（iPhone）向け
+      // 🍏 iOS（iPhone）向け
       apns: {
         payload: {
           aps: {
@@ -62,15 +62,15 @@ export async function POST(request: Request) {
           },
         },
       },
-      // Android向け
+      // 🤖 Android向け
       android: {
-        priority: 'high',
+        priority: 'high' as const,
         notification: {
           sound: 'default',
           clickAction: 'FLUTTER_NOTIFICATION_CLICK',
         },
       },
-      // PC（Web）向け
+      // 💻 PC（Web）向け
       webpush: {
         headers: {
           Urgency: 'high',
