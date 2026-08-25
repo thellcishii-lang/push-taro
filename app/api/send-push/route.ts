@@ -3,10 +3,22 @@ import { messaging, db, authAdmin } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST(request: Request) {
-  // ...（認証部分は既存のまま）...
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
+  }
+
+  let uid: string;
+  try {
+    const idToken = authHeader.split('Bearer ')[1];
+    const decoded = await authAdmin.verifyIdToken(idToken);
+    uid = decoded.uid;
+  } catch {
+    return NextResponse.json({ error: '無効な認証トークンです' }, { status: 401 });
+  }
 
   try {
-    // 店舗情報を取得（既存のまま）
+    // 店舗情報を取得
     const shopQuery = await db.collection('shops').where('ownerUid', '==', uid).limit(1).get();
     if (shopQuery.empty) {
       return NextResponse.json({ error: '店舗が見つかりません' }, { status: 403 });
@@ -14,8 +26,11 @@ export async function POST(request: Request) {
     const shopId = shopQuery.docs[0].id;
 
     const { title, body, imageUrl, linkUrl } = await request.json();
+    if (!title || !body) {
+      return NextResponse.json({ error: 'タイトルと本文は必須です' }, { status: 400 });
+    }
 
-    // 🔥 追加: この店舗の全デバイストークンを取得
+    // この店舗の全デバイストークンを取得
     const tokensSnapshot = await db.collection('subscriptions')
       .where('shopId', '==', shopId)
       .get();
@@ -26,7 +41,7 @@ export async function POST(request: Request) {
 
     const registrationTokens = tokensSnapshot.docs.map(doc => doc.data().token);
 
-    // 🔥 修正: トピック送信 → マルチキャスト送信に変更
+    // マルチキャスト送信メッセージを作成
     const message = {
       notification: {
         title: title,
@@ -37,7 +52,7 @@ export async function POST(request: Request) {
         ...(linkUrl ? { url: linkUrl } : {}),
         shopId: shopId,
       },
-      // 🍏 iOS（iPhone）向け
+      // iOS（iPhone）向け
       apns: {
         payload: {
           aps: {
@@ -47,7 +62,7 @@ export async function POST(request: Request) {
           },
         },
       },
-      // 🤖 Android向け
+      // Android向け
       android: {
         priority: 'high',
         notification: {
@@ -55,7 +70,7 @@ export async function POST(request: Request) {
           clickAction: 'FLUTTER_NOTIFICATION_CLICK',
         },
       },
-      // 💻 PC（Web）向け
+      // PC（Web）向け
       webpush: {
         headers: {
           Urgency: 'high',
@@ -68,10 +83,10 @@ export async function POST(request: Request) {
       tokens: registrationTokens,
     };
 
-    // 🔥 修正: messaging.send() → messaging.sendEachForMulticast()
+    // マルチキャスト送信を実行
     const response = await messaging.sendEachForMulticast(message);
 
-    // 🔥 送信結果をFirestoreに保存（履歴）
+    // 送信履歴を保存
     await db.collection('histories').add({
       shopId,
       title,
@@ -85,7 +100,7 @@ export async function POST(request: Request) {
       failureCount: response.failureCount,
     });
 
-    // 🔥 無効なトークンをFirestoreから削除（クリーンアップ）
+    // 無効なトークンをFirestoreから削除（クリーンアップ）
     if (response.failureCount > 0) {
       const invalidTokens: string[] = [];
       response.responses.forEach((resp, idx) => {
@@ -95,11 +110,11 @@ export async function POST(request: Request) {
         }
       });
 
-      // 無効なトークンを一括削除
+      // 無効なトークンを一括削除（shopId + token でドキュメントIDを生成）
       for (const token of invalidTokens) {
         const docId = `${shopId}_${token}`;
-　　　　　　　　　　　　　　　　　　await db.collection('subscriptions').doc(docId).delete();
-        console.log(`[send-push] 無効なトークンを削除: ${token}`);
+        await db.collection('subscriptions').doc(docId).delete();
+        console.log(`[send-push] 無効なトークンを削除: ${docId}`);
       }
     }
 
