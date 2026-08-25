@@ -19,13 +19,39 @@ export const auth = getAuth(app);
 export const storage = getStorage(app);
 export const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
 
+// 🔴 修正点: Service Worker を正しいスコープで登録する
+async function registerServiceWorker() {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+    console.log('[SW] サービスワーカー非対応ブラウザ');
+    return null;
+  }
+
+  try {
+    console.log('[SW] サービスワーカー登録開始...');
+    const registration = await navigator.serviceWorker.register(
+      '/firebase-messaging-sw.js',
+      { scope: '/' }  // ← これが重要！
+    );
+    console.log('[SW] 登録成功！スコープ:', registration.scope);
+    return registration;
+  } catch (err) {
+    console.error('[SW] 登録失敗:', err);
+    return null;
+  }
+}
+
 export async function requestFCMToken(): Promise<string | null> {
   console.log('[firebase-client.ts] requestFCMToken 呼び出し');
+  
   if (!messaging) {
     console.warn('[firebase-client.ts] messagingがnull（SSR中？）');
     return null;
   }
+
   try {
+    // 🔴 修正点: トークン取得前に必ずSWを登録する
+    await registerServiceWorker();
+
     console.log('[firebase-client.ts] getToken 開始');
     const token = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
