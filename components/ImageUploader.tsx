@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react'; // ← useEffect を追加
 import { useDropzone } from 'react-dropzone';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../lib/firebase-client';
@@ -22,7 +22,6 @@ async function compressImage(file: File, maxWidth = 1000, maxHeight = 1000, qual
         let width = img.width;
         let height = img.height;
 
-        // 縦横比を維持しながらリサイズ計算
         if (width > maxWidth || height > maxHeight) {
           if (width / height > maxWidth / maxHeight) {
             height = Math.round((height * maxWidth) / width);
@@ -58,13 +57,21 @@ async function compressImage(file: File, maxWidth = 1000, maxHeight = 1000, qual
       };
       img.onerror = (error) => reject(error);
     };
-    reader.readAsErrordataURL = () => {}; // dummy
   });
 }
 
 export default function ImageUploader({ onImageUploaded, currentUrl }: ImageUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(currentUrl || null);
+
+  // 🔴 追加：親側（admin）で送信完了して currentUrl が空になったら、プレビューも自動で消す
+  useEffect(() => {
+    if (!currentUrl) {
+      setPreview(null);
+    } else {
+      setPreview(currentUrl);
+    }
+  }, [currentUrl]);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -73,10 +80,8 @@ export default function ImageUploader({ onImageUploaded, currentUrl }: ImageUplo
 
       setUploading(true);
       try {
-        // スマホで撮った巨大な写真なども、ここで自動的に軽量なJPEGに圧縮する
         const compressedBlob = await compressImage(file, 1000, 1000, 0.8);
 
-        // プレビュー表示
         const previewUrl = URL.createObjectURL(compressedBlob);
         setPreview(previewUrl);
 
