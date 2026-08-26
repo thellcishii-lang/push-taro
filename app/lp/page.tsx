@@ -1,29 +1,45 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function LandingPage() {
   return (
     <div style={{ fontFamily: 'sans-serif', color: '#333', background: '#fffcf7', minHeight: '100vh', margin: 0, padding: 0 }}>
       {/* ヒーローセクション */}
-      <header style={{ background: '#1a1a1a', color: '#fff', padding: '40px 20px', textAlign: 'center' }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <span style={{ background: '#ff4500', color: '#fff', padding: '6px 14px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}>
+      <header style={{ background: '#1a1a1a', color: '#fff', padding: '60px 20px', textAlign: 'center', overflow: 'hidden' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '30px' }}>
+          
+          <span style={{ background: '#ff4500', color: '#fff', padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}>
             プッシュ通知特化型システム
           </span>
-          <h1 style={{ fontSize: 'clamp(32px, 5vw, 56px)', margin: '20px 0 10px 0', fontWeight: '900', letterSpacing: '2px' }}>
+
+          <h1 style={{ fontSize: 'clamp(36px, 6vw, 64px)', margin: 0, fontWeight: '900', letterSpacing: '2px', lineHeight: '1.2' }}>
             プッシュ太郎
           </h1>
-          <p style={{ fontSize: '20px', color: '#ffcc00', fontWeight: 'bold', margin: '0 0 20px 0' }}>
+
+          <p style={{ fontSize: '22px', color: '#ffcc00', fontWeight: 'bold', margin: 0 }}>
             数こそ正義。量こそ力。とにかく送る！
           </p>
-          <p style={{ fontSize: '16px', color: '#ccc', lineHeight: '1.6', marginBottom: '30px' }}>
+
+          {/* ヒーロー画像エリア */}
+          <div style={{ width: '100%', maxWidth: '500px', margin: '10px 0', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 8px 30px rgba(255, 69, 0, 0.3)', border: '2px solid #ff4500' }}>
+            {/* ※実際の画像パス（publicフォルダからの相対パス）に変更してください */}
+            <img 
+              src="/taro.png" 
+              alt="プッシュ太郎 ヒーロー画像" 
+              style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }}
+            />
+          </div>
+
+          <p style={{ fontSize: '16px', color: '#ccc', lineHeight: '1.6', maxWidth: '700px', margin: 0 }}>
             LINEの配信制限や高いコストに悩んでいませんか？<br />
             お店専用のプッシュ通知で、もっと安く、もっと大量に、お客様のスマホへダイレクトに届ける。
           </p>
+
           <a
             href="#pricing"
-            style={{ display: 'inline-block', background: '#ff4500', color: '#fff', padding: '16px 36px', fontSize: '18px', fontWeight: 'bold', textDecoration: 'none', borderRadius: '8px', boxShadow: '0 4px 15px rgba(255, 69, 0, 0.4)' }}
+            style={{ display: 'inline-block', background: '#ff4500', color: '#fff', padding: '18px 40px', fontSize: '18px', fontWeight: 'bold', textDecoration: 'none', borderRadius: '8px', boxShadow: '0 4px 20px rgba(255, 69, 0, 0.5)', transition: 'transform 0.2s' }}
           >
             🔥 今すぐプランを選ぶ
           </a>
