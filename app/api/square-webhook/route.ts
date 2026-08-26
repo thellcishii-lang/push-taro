@@ -33,7 +33,8 @@ export async function POST(request: Request) {
     }
 
     // 1. ランダムな初期パスワードを生成
-    const temporaryPassword = Math.random().toString(36.slice(-8)) + 'A1!';
+    // 1. ランダムな初期パスワードを生成
+    const temporaryPassword = Math.random().toString(36).slice(-8) + 'A1!';
 
     // 2. Firebase Authにアカウント（ID/パスワード）を自動作成
     const userRecord = await authAdmin.createUser({
