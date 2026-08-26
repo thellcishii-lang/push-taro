@@ -85,6 +85,10 @@ export async function POST(request: Request) {
 
     // ✅ マルチキャスト送信
     const message = {
+      notification: {
+        title: title,
+        body: body,
+　　　　　　　　　　　　　},
       data: {
         title: title,
         body: body,
