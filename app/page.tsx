@@ -65,14 +65,13 @@ useEffect(() => {
   }
 }, [shopId]);
 
-  // CHECK 2: フォアグラウンド通知リスナー（元々あったもの）
   useEffect(() => {
-    console.log('[CHECK 2] フォアグラウンド通知リスナー設定');
-    const unsub = onForegroundMessage((payload) => {
-      console.log('[CHECK 2] フォアグラウンド受信:', payload);
-    });
-    return () => unsub();
-  }, []);
+  // 🔴 フォアグラウンド受信を完全に無効化
+  // const unsub = onForegroundMessage((payload) => {
+  //   console.log('[フォアグラウンド] 受信:', payload);
+  // });
+  // return () => unsub();
+}, []);
 
   const handleSubscribe = async () => {
     console.log('[CHECK 3] === ボタン押下 ===');
