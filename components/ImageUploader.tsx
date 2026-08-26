@@ -136,7 +136,7 @@ export default function ImageUploader({ onImageUploaded, currentUrl }: ImageUplo
           <img
             src={preview}
             alt="プレビュー"
-            style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '4px' }}
+            style={{ maxWidth: '100%', maxHeight: '200px',objectFit: 'contain', borderRadius: '4px' }}
           />
         ) : (
           <p style={{ margin: 0, color: '#666' }}>
