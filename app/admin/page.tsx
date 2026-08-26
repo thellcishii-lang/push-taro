@@ -16,6 +16,9 @@ export default function AdminPage() {
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  
 
   // 店舗情報
   const [shopId, setShopId] = useState<string | null>(null);
@@ -120,38 +123,46 @@ export default function AdminPage() {
   };
 
   const handleSaveSettings = async () => {
-    if (!user || !shopId) return;
-    try {
-      const idToken = await user.getIdToken();
-      const res = await fetch('/api/update-shop', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
+  if (!user || !shopId) return;
+  setSaving(true);
+  setSaveSuccess(false);
+  try {
+    const idToken = await user.getIdToken();
+    const res = await fetch('/api/update-shop', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({
+        shopId,
+        name: shopName,
+        coupon: {
+          enabled: couponEnabled,
+          title: couponTitle,
+          description: couponDesc,
+          discountRate: couponRate,
         },
-        body: JSON.stringify({
-          shopId,
-          name: shopName,
-          coupon: {
-            enabled: couponEnabled,
-            title: couponTitle,
-            description: couponDesc,
-            discountRate: couponRate,
-          },
-          linkUrl: clientLinkUrl,
-        }),
-      });
-      if (res.ok) {
-        setMessage('✅ 設定を保存しました');
-        setTimeout(() => setMessage(''), 3000);
-      } else {
-        const data = await res.json();
-        throw new Error(data.error);
-      }
-    } catch (err: any) {
-      setMessage('❌ 保存エラー: ' + err.message);
+        linkUrl: clientLinkUrl,
+      }),
+    });
+    if (res.ok) {
+      setSaveSuccess(true);
+      setMessage('✅ 設定を保存しました');
+      setTimeout(() => {
+        setSaveSuccess(false);
+        setMessage('');
+      }, 3000);
+    } else {
+      const data = await res.json();
+      throw new Error(data.error);
     }
-  };
+  } catch (err: any) {
+    setMessage('❌ 保存エラー: ' + err.message);
+  } finally {
+    setSaving(false);
+  }
+};
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
