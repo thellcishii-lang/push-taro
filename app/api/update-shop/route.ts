@@ -17,7 +17,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { shopId, name, coupon, linkUrl } = await request.json();
+    // 💡 iconUrl を追加で受け取るようにする
+    const { shopId, name, coupon, linkUrl, iconUrl } = await request.json();
 
     // 所有者確認
     const shopDoc = await db.collection('shops').doc(shopId).get();
@@ -25,10 +26,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: '権限がありません' }, { status: 403 });
     }
 
+    // 💡 update の中に iconUrl を追加する
     await db.collection('shops').doc(shopId).update({
       ...(name !== undefined && { name }),
       ...(coupon !== undefined && { coupon }),
       ...(linkUrl !== undefined && { linkUrl }),
+      ...(iconUrl !== undefined && { iconUrl }),
     });
 
     return NextResponse.json({ success: true }, { status: 200 });
