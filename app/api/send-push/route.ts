@@ -85,43 +85,33 @@ export async function POST(request: Request) {
 
     // ✅ マルチキャスト送信
     const message = {
-      notification: {
-        title: title,
-        body: body,
-　　　　　　　　　　　　　},
-      data: {
-        title: title,
-        body: body,
-        image: imageUrl || '',
-        url: linkUrl || '',
-        shopId: shopId,
+  data: {
+    title: title,
+    body: body,
+    image: imageUrl || '',
+    url: linkUrl || '',
+    shopId: shopId,
+  },
+  apns: {
+    payload: {
+      aps: {
+        sound: 'default',
+        badge: 1,
+        'content-available': 1,
       },
-      apns: {
-        payload: {
-          aps: {
-            sound: 'default',
-            badge: 1,
-            'content-available': 1,
-          },
-        },
-      },
-      android: {
-        priority: 'high',
-        notification: {
-          sound: 'default',
-        },
-      },
-      webpush: {
-        headers: {
-          Urgency: 'high',
-        },
-        notification: {
-          icon: '/icon-192x192.png',
-          requireInteraction: true,
-        },
-      },
-      tokens: registrationTokens,
-    };
+    },
+  },
+  android: {
+    priority: 'high',
+  },
+  webpush: {
+    headers: {
+      Urgency: 'high',
+    },
+    // webpushの場合もnotificationプロパティはあえて外すか、dataを中心に組み立てる
+  },
+  tokens: registrationTokens,
+};
 
     console.log(`[send-push] 🚀 送信開始: ${registrationTokens.length} 件`);
 
