@@ -28,6 +28,7 @@ export default function AdminPage() {
   const [couponDesc, setCouponDesc] = useState('');
   const [couponRate, setCouponRate] = useState(0);
   const [clientLinkUrl, setClientLinkUrl] = useState('');
+  const [shopIconUrl, setShopIconUrl] = useState('');
 
   // 送信フォーム
   const [title, setTitle] = useState('');
@@ -73,6 +74,7 @@ export default function AdminPage() {
               setCouponRate(data.shop.coupon.discountRate || 0);
             }
             if (data.shop?.linkUrl) setClientLinkUrl(data.shop.linkUrl);
+            if (data.shop?.iconUrl) setShopIconUrl(data.shop.iconUrl);
 
             // 受取許可件数の取得
             fetchSubscribersCount(data.shopId, idToken);
@@ -359,6 +361,13 @@ export default function AdminPage() {
                   style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
               </div>
+              <div style={{ marginBottom: '15px' }}>
+                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>店舗アイコン画像</label>
+                  <ImageUploader
+                         onImageUploaded={(url) => setShopIconUrl(url)}
+                    urrentUrl={shopIconUrl}
+                  />
+            </div>
 
               <p style={{ fontSize: '14px', color: '#666' }}>店舗ID: <code>{shopId}</code></p>
               
