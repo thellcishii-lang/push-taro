@@ -66,12 +66,28 @@ useEffect(() => {
 }, [shopId]);
 
   useEffect(() => {
-  // 🔴 フォアグラウンド受信を完全に無効化
-  // const unsub = onForegroundMessage((payload) => {
-  //   console.log('[フォアグラウンド] 受信:', payload);
-  // });
-  // return () => unsub();
-}, []);
+    // フォアグラウンド受信時に強制的に通知を表示する
+    const unsub = onForegroundMessage((payload) => {
+      console.log('[フォアグラウンド] 受信:', payload);
+      
+      const title = payload.data?.title || 'プッシュ太郎';
+      const options = {
+        body: payload.data?.body || '',
+        icon: '/icon-192x192.png',
+        image: payload.data?.image,
+        data: { url: payload.data?.url || '/' },
+        tag: payload.data?.shopId || 'default',
+      };
+
+      if (Notification.permission === 'granted') {
+        navigator.serviceWorker.ready.then((registration) => {
+          registration.showNotification(title, options);
+        });
+      }
+    });
+
+    return () => unsub();
+  }, []);
 
   const handleSubscribe = async () => {
     console.log('[CHECK 3] === ボタン押下 ===');
