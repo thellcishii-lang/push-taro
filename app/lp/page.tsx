@@ -6,17 +6,17 @@ export default function LandingPage() {
   return (
     <div style={{ fontFamily: 'sans-serif', color: '#333', background: '#fffcf7', minHeight: '100vh', margin: 0, padding: 0 }}>
       {/* ヒーローセクション */}
-      <header style={{ background: '#1a1a1a', color: '#fff', textAlign: 'center', overflow: 'hidden' }}>
-        {/* 横幅いっぱいのヒーロー画像エリア */}
-        <div style={{ width: '100%', maxHeight: '500px', overflow: 'hidden', borderBottom: '4px solid #ff4500' }}>
+      <header style={{ background: '#1a1a1a', color: '#fff', textAlign: 'center' }}>
+        {/* 画像全体が切れないように収めるエリア */}
+        <div style={{ width: '100%', maxWidth: '900px', margin: '0 auto', padding: '20px 20px 0 20px' }}>
           <img 
             src="/taro.png" 
             alt="プッシュ太郎" 
-            style={{ width: '100%', height: 'auto', maxHeight: '500px', display: 'block', objectFit: 'cover', objectPosition: 'center' }}
+            style={{ width: '100%', height: 'auto', maxHeight: '600px', display: 'block', objectFit: 'contain', margin: '0 auto' }}
           />
         </div>
 
-        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '50px 20px' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '30px 20px 60px 20px' }}>
           <span style={{ background: '#ff4500', color: '#fff', padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}>
             プッシュ通知特化型システム
           </span>
