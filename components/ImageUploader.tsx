@@ -10,6 +10,58 @@ interface ImageUploaderProps {
   currentUrl?: string;
 }
 
+// 画像を自動でリサイズ・圧縮する関数
+async function compressImage(file: File, maxWidth = 1000, maxHeight = 1000, quality = 0.8): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        // 縦横比を維持しながらリサイズ計算
+        if (width > maxWidth || height > maxHeight) {
+          if (width / height > maxWidth / maxHeight) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas context failed'));
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error('Canvas to Blob failed'));
+            }
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+      img.onerror = (error) => reject(error);
+    };
+    reader.readAsErrordataURL = () => {}; // dummy
+  });
+}
+
 export default function ImageUploader({ onImageUploaded, currentUrl }: ImageUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(currentUrl || null);
@@ -19,28 +71,21 @@ export default function ImageUploader({ onImageUploaded, currentUrl }: ImageUplo
       const file = acceptedFiles[0];
       if (!file) return;
 
-      // 1MB制限
-      const MAX_SIZE = 1 * 1024 * 1024;
-      if (file.size > MAX_SIZE) {
-        alert(
-          `画像サイズは1MB以下にしてください。\n現在: ${(file.size / 1024 / 1024).toFixed(2)}MB`
-        );
-        return;
-      }
-
-      // プレビュー
-      const reader = new FileReader();
-      reader.onload = (e) => setPreview(e.target?.result as string);
-      reader.readAsDataURL(file);
-
       setUploading(true);
       try {
-        const storageRef = ref(storage, `push-images/${Date.now()}_${file.name}`);
-        await uploadBytes(storageRef, file);
+        // スマホで撮った巨大な写真なども、ここで自動的に軽量なJPEGに圧縮する
+        const compressedBlob = await compressImage(file, 1000, 1000, 0.8);
+
+        // プレビュー表示
+        const previewUrl = URL.createObjectURL(compressedBlob);
+        setPreview(previewUrl);
+
+        const storageRef = ref(storage, `push-images/${Date.now()}_compressed.jpg`);
+        await uploadBytes(storageRef, compressedBlob);
         const url = await getDownloadURL(storageRef);
         onImageUploaded(url);
       } catch (err: any) {
-        alert('アップロード失敗: ' + err.message);
+        alert('圧縮・アップロード失敗: ' + err.message);
         setPreview(currentUrl || null);
       } finally {
         setUploading(false);
@@ -67,7 +112,7 @@ export default function ImageUploader({ onImageUploaded, currentUrl }: ImageUplo
           fontWeight: 'bold',
         }}
       >
-        画像（1MB以下）{uploading && ' - アップロード中...'}
+        画像（自動で最適化されます）{uploading && ' - 圧縮・アップロード中...'}
       </label>
       <div
         {...getRootProps()}
@@ -92,12 +137,12 @@ export default function ImageUploader({ onImageUploaded, currentUrl }: ImageUplo
           <p style={{ margin: 0, color: '#666' }}>
             {isDragActive
               ? 'ここにドロップしてください'
-              : 'クリックまたはドラッグ＆ドロップで画像を選択'}
+              : 'クリックまたはドラッグ＆ドロップで画像を選択（何MBでもOK！）'}
           </p>
         )}
       </div>
       <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
-        ※ 対応形式: PNG, JPG, GIF, WebP / 最大1MB
+        ※ スマホの写真なども自動で軽いサイズに調整されます
         {currentUrl && !uploading && (
           <span style={{ display: 'block', marginTop: '4px', wordBreak: 'break-all' }}>
             URL: {currentUrl}
