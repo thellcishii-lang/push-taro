@@ -17,6 +17,8 @@ const messaging = firebase.messaging();
 // ✅ data ベースで通知を構築
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] バックグラウンド通知受信:', payload);
+
+  console.log('[DEBUG] 受信した画像URL:', payload.data?.image);
   
   const title = payload.data?.title || 'プッシュ太郎';
   const body = payload.data?.body || '';
