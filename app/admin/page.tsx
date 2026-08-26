@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signOut,
 } from 'firebase/auth';
 import { auth } from '../../lib/firebase-client';
@@ -19,7 +18,6 @@ export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  
 
   // 店舗情報
   const [shopId, setShopId] = useState<string | null>(null);
@@ -117,55 +115,48 @@ export default function AdminPage() {
     }
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveSettings = async () => {
+    if (!user || !shopId) return;
+    setSaving(true);
+    setSaveSuccess(false);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/update-shop', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          shopId,
+          name: shopName,
+          coupon: {
+            enabled: couponEnabled,
+            title: couponTitle,
+            description: couponDesc,
+            discountRate: couponRate,
+          },
+          linkUrl: clientLinkUrl,
+          iconUrl: shopIconUrl,
+        }),
+      });
+      if (res.ok) {
+        setSaveSuccess(true);
+        setMessage('✅ 設定を保存しました');
+        setTimeout(() => {
+          setSaveSuccess(false);
+          setMessage('');
+        }, 3000);
+      } else {
+        const data = await res.json();
+        throw new Error(data.error);
+      }
     } catch (err: any) {
-      alert('ログイン失敗: ' + err.message);
+      setMessage('❌ 保存エラー: ' + err.message);
+    } finally {
+      setSaving(false);
     }
   };
-
-  const handleSaveSettings = async () => {
-    // ...（省略：設定保存の処理はそのまま）
-  };
-
-  const handleSaveSettings = async () => {
-  if (!user) {
-    return (
-      <main style={{ maxWidth: '400px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif', textAlign: 'center' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
-          <img src="/icon-192x192.png" alt="プッシュ太郎" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover' }} />
-        </div>
-        <h1>プッシュ太郎</h1>
-        <p style={{ color: '#666', marginBottom: '20px' }}>オーナー専用ログイン画面</p>
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <input
-            type="email"
-            placeholder="メールアドレス（ログインID）"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #ccc' }}
-          />
-          <input
-            type="password"
-            placeholder="パスワード"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{ padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #ccc' }}
-          />
-          <button
-            type="submit"
-            style={{ padding: '14px', background: '#ff4500', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', borderRadius: '6px', marginTop: '5px' }}
-          >
-            ログイン
-          </button>
-        </form>
-      </main>
-    );
-  }
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,7 +186,6 @@ export default function AdminPage() {
         throw new Error(data.error || '送信に失敗しました');
       }
 
-      // ローカル履歴に保存（送信件数もあわせて記録）
       await localDb.history.add({
         title,
         body,
@@ -207,7 +197,6 @@ export default function AdminPage() {
 
       await loadHistory();
 
-      // 📝 要件：送信完了メッセージは5秒後に消え、入力欄はクリアされる
       setMessage('✨ 送信が完了しました。');
       setTitle('');
       setBody('');
@@ -279,6 +268,7 @@ export default function AdminPage() {
     );
   }
 
+  // 🔐 未ログイン時はログイン専用画面を表示（新規登録ボタンは削除）
   if (!user) {
     return (
       <main style={{ maxWidth: '400px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif', textAlign: 'center' }}>
@@ -286,15 +276,15 @@ export default function AdminPage() {
           <img src="/icon-192x192.png" alt="プッシュ太郎" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover' }} />
         </div>
         <h1>プッシュ太郎</h1>
-        <p style={{ color: '#666' }}>IDログインしてプッシュ通知を送信しましょう</p>
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px' }}>
+        <p style={{ color: '#666', marginBottom: '20px' }}>オーナー専用ログイン画面</p>
+        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <input
             type="email"
-            placeholder="メールアドレス"
+            placeholder="メールアドレス（ログインID）"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={{ padding: '10px', fontSize: '16px' }}
+            style={{ padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #ccc' }}
           />
           <input
             type="password"
@@ -302,20 +292,13 @@ export default function AdminPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={{ padding: '10px', fontSize: '16px' }}
+            style={{ padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #ccc' }}
           />
           <button
             type="submit"
-            style={{ padding: '12px', background: '#ff4500', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', borderRadius: '6px' }}
+            style={{ padding: '14px', background: '#ff4500', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', borderRadius: '6px', marginTop: '5px' }}
           >
             ログイン
-          </button>
-          <button
-            type="button"
-            onClick={handleRegister}
-            style={{ padding: '12px', background: '#333', color: '#fff', border: 'none', fontSize: '16px', cursor: 'pointer', borderRadius: '6px' }}
-          >
-            新規登録
           </button>
         </form>
       </main>
@@ -329,7 +312,7 @@ export default function AdminPage() {
       {/* ヘッダー：アイコンと店舗名表示 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '10px', borderBottom: '2px solid #eee', paddingBottom: '15px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src="/icon-192x192.png" alt="アイコン" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #ddd' }} />
+          <img src={shopIconUrl || "/icon-192x192.png"} alt="アイコン" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #ddd' }} />
           <h1 style={{ margin: 0, fontSize: '24px' }}>{shopName || 'プッシュ太郎'}</h1>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -363,11 +346,11 @@ export default function AdminPage() {
                 />
               </div>
               <div style={{ marginBottom: '15px' }}>
-                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>店舗アイコン画像</label>
-                     <ImageUploader
-                        onImageUploaded={(url) => setShopIconUrl(url)}
-                        currentUrl={shopIconUrl}
-                    />
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>店舗アイコン画像</label>
+                <ImageUploader
+                  onImageUploaded={(url) => setShopIconUrl(url)}
+                  currentUrl={shopIconUrl}
+                />
               </div>
 
               <p style={{ fontSize: '14px', color: '#666' }}>店舗ID: <code>{shopId}</code></p>
@@ -421,23 +404,23 @@ export default function AdminPage() {
               )}
 
               <button
-  onClick={handleSaveSettings}
-  disabled={saving}
-  style={{
-    marginTop: '20px',
-    padding: '10px 20px',
-    background: saveSuccess ? '#4CAF50' : saving ? '#cccccc' : '#2196F3',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: saving ? 'wait' : 'pointer',
-    fontSize: '16px',
-    fontWeight: 'bold',
-    transition: 'background 0.2s',
-  }}
->
-  {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 設定を保存'}
-</button>
+                onClick={handleSaveSettings}
+                disabled={saving}
+                style={{
+                  marginTop: '20px',
+                  padding: '10px 20px',
+                  background: saveSuccess ? '#4CAF50' : saving ? '#cccccc' : '#2196F3',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: saving ? 'wait' : 'pointer',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  transition: 'background 0.2s',
+                }}
+              >
+                {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 設定を保存'}
+              </button>
             </div>
           )}
         </div>
