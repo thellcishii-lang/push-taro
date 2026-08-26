@@ -1,38 +1,25 @@
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
-import nodemailer from 'nodemailer';
-
-// メール送信用のトランスポーター設定（Gmailや各種SMTPサービスを使用）
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER, // 環境変数に設定する送信元メールアドレス
-    pass: process.env.EMAIL_PASS, // アプリパスワード等
-  },
-});
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // SquareからのWebhookイベント種別を確認（決済完了イベント等の判定）
-    // ※実際のSquare Webhookのペイロード構造に合わせて調整します
+    // SquareからのWebhookイベント種別を確認
     const eventType = body?.type;
     if (eventType !== 'payment.updated' && eventType !== 'order.fulfillment.updated') {
-      // 決済完了に該当するイベント以外は一旦スルーまたは200を返す
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
     const payment = body?.data?.object?.payment;
     const customerEmail = payment?.buyer_email_address || body?.related_customer_email;
-    const note = payment?.note || ''; // 申込時の店舗名や識別子をメモ等に入れてもらう想定
+    const note = payment?.note || ''; // 申込時の店舗名など
 
     if (!customerEmail) {
       return NextResponse.json({ error: '顧客のメールアドレスが見つかりません' }, { status: 400 });
     }
 
-    // 1. ランダムな初期パスワードを生成
     // 1. ランダムな初期パスワードを生成
     const temporaryPassword = Math.random().toString(36).slice(-8) + 'A1!';
 
@@ -56,28 +43,18 @@ export async function POST(request: Request) {
       iconUrl: '',
     });
 
-    // 4. オーナーへログイン情報をメール送信
     const loginUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://example.com'}/admin`;
-    
-    await transporter.sendMail({
-      from: '"プッシュ太郎 運営事務局" <' + process.env.EMAIL_USER + '>',
-      to: customerEmail,
-      subject: '【プッシュ太郎】初期ID・パスワードの発行のお知らせ',
-      text: `
-プッシュ太郎をご利用いただきありがとうございます。
-決済が確認されましたので、管理画面用のログイン情報をお知らせいたします。
 
---------------------------------ログイン情報--------------------------------
-管理画面URL: ${loginUrl}
-ログインID（メールアドレス）: ${customerEmail}
-初期パスワード: ${temporaryPassword}
-----------------------------------------------------------------------------
+    // 4. メール送信の代わりに、まずはサーバーのログに確実に情報を出力
+    // ※必要に応じてここを外部のメール配信用API（Resend等）の fetch に置き換え可能
+    console.log('--- 【プッシュ太郎】アカウント自動発行完了 ---');
+    console.log(`宛先: ${customerEmail}`);
+    console.log(`ログインID: ${customerEmail}`);
+    console.log(`初期パスワード: ${temporaryPassword}`);
+    console.log(`管理画面URL: ${loginUrl}`);
+    console.log('---------------------------------------------');
 
-初回ログイン後、管理画面よりパスワードの変更や店舗情報の設定を行ってください。
-      `,
-    });
-
-    return NextResponse.json({ success: true, message: 'アカウントを発行しメールを送信しました' }, { status: 200 });
+    return NextResponse.json({ success: true, message: 'アカウントを自動発行しました' }, { status: 200 });
 
   } catch (error: any) {
     console.error('[square-webhook] エラー:', error);
