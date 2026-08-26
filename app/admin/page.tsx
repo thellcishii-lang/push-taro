@@ -8,7 +8,6 @@ import {
   signOut,
 } from 'firebase/auth';
 import { auth } from '../../lib/firebase-client';
-import ImageUploader from '../../components/ImageUploader';
 import { db as localDb, exportHistoryToJSON, importHistoryFromJSON, PushHistory } from '../../lib/db';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -30,13 +29,16 @@ export default function AdminPage() {
   // 送信フォーム
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  // 履歴
+  // UI開閉用ステート
+  const [shopInfoOpen, setShopInfoOpen] = useState(false);
+
+  // 履歴＆受取許可件数
   const [history, setHistory] = useState<PushHistory[]>([]);
+  const [subscriberCount, setSubscriberCount] = useState<number | null>(null);
 
   // 認証状態監視 + 店舗情報取得
   useEffect(() => {
@@ -47,7 +49,6 @@ export default function AdminPage() {
       if (u) {
         await loadHistory();
 
-        // 店舗情報取得/作成
         try {
           const idToken = await u.getIdToken();
           const res = await fetch('/api/create-shop', {
@@ -69,6 +70,9 @@ export default function AdminPage() {
               setCouponRate(data.shop.coupon.discountRate || 0);
             }
             if (data.shop?.linkUrl) setClientLinkUrl(data.shop.linkUrl);
+
+            // 受取許可件数の取得
+            fetchSubscribersCount(data.shopId, idToken);
           }
         } catch (err) {
           console.error('店舗情報取得エラー:', err);
@@ -78,6 +82,20 @@ export default function AdminPage() {
 
     return () => unsub();
   }, []);
+
+  const fetchSubscribersCount = async (sId: string, idToken: string) => {
+    try {
+      const res = await fetch(`/api/shop-info?s=${sId}`, {
+        headers: { 'Authorization': `Bearer ${idToken}` },
+      });
+      const data = await res.json();
+      if (data.success && typeof data.subscriberCount === 'number') {
+        setSubscriberCount(data.subscriberCount);
+      }
+    } catch (e) {
+      console.error('購読者数取得エラー:', e);
+    }
+  };
 
   const loadHistory = async () => {
     const all = await localDb.history.orderBy('sentAt').reverse().toArray();
@@ -125,6 +143,7 @@ export default function AdminPage() {
       });
       if (res.ok) {
         setMessage('✅ 設定を保存しました');
+        setTimeout(() => setMessage(''), 3000);
       } else {
         const data = await res.json();
         throw new Error(data.error);
@@ -135,60 +154,62 @@ export default function AdminPage() {
   };
 
   const handleSend = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  // 🟡 デバッグアラートは削除（またはコメントアウト）
-  // alert('DEBUG: 送信ボタンが押されました');
-
-  if (!user || !shopId) {
-    setMessage('❌ ユーザーまたは店舗IDが取得できていません');
-    return;
-  }
-
-  setLoading(true);
-  setMessage('');
-
-  try {
-    const idToken = await user.getIdToken();
-    const response = await fetch('/api/send-push', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${idToken}`,
-      },
-      body: JSON.stringify({ title, body, imageUrl, linkUrl }),
-    });
-
-    const data = await response.json();
-
-    await localDb.history.add({
-      title,
-      body,
-      imageUrl: imageUrl || undefined,
-      linkUrl: linkUrl || undefined,
-      sentAt: new Date(),
-      status: response.ok ? 'success' : 'error',
-      errorMessage: response.ok ? undefined : data.error,
-    });
-
-    await loadHistory();
-
-    if (!response.ok) {
-      throw new Error(data.error || '送信に失敗しました');
+    if (!user || !shopId) {
+      setMessage('❌ ユーザーまたは店舗IDが取得できていません');
+      return;
     }
 
-    setMessage('✨ カメハメ波（プッシュ通知）を放ちました！');
-    setTitle('');
-    setBody('');
-    setImageUrl('');
-    setLinkUrl('');
-  } catch (err: any) {
-    console.error('送信エラー:', err);
-    setMessage(`❌ エラー: ${err.message}`);
-  } finally {
-    setLoading(false);
-  }
-};
+    setLoading(true);
+    setMessage('');
+
+    try {
+      const idToken = await user.getIdToken();
+      const response = await fetch('/api/send-push', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ title, body, linkUrl }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || '送信に失敗しました');
+      }
+
+      // ローカル履歴に保存（送信件数もあわせて記録）
+      await localDb.history.add({
+        title,
+        body,
+        linkUrl: linkUrl || undefined,
+        sentAt: new Date(),
+        status: 'success',
+        successCount: data.successCount,
+      });
+
+      await loadHistory();
+
+      // 📝 要件：送信完了メッセージは5秒後に消え、入力欄はクリアされる
+      setMessage('✨ 送信が完了しました。');
+      setTitle('');
+      setBody('');
+      setLinkUrl('');
+
+      setTimeout(() => {
+        setMessage('');
+      }, 5000);
+
+    } catch (err: any) {
+      console.error('送信エラー:', err);
+      setMessage(`❌ エラー: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleExport = async () => {
     const json = await exportHistoryToJSON();
@@ -246,8 +267,11 @@ export default function AdminPage() {
 
   if (!user) {
     return (
-      <main style={{ maxWidth: '400px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif' }}>
-        <h1>🚀 プッシュ太郎</h1>
+      <main style={{ maxWidth: '400px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif', textAlign: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
+          <img src="/icon-192x192.png" alt="プッシュ太郎" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover' }} />
+        </div>
+        <h1>プッシュ太郎</h1>
         <p style={{ color: '#666' }}>IDログインしてプッシュ通知を送信しましょう</p>
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px' }}>
           <input
@@ -268,14 +292,14 @@ export default function AdminPage() {
           />
           <button
             type="submit"
-            style={{ padding: '12px', background: '#ff4500', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}
+            style={{ padding: '12px', background: '#ff4500', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', borderRadius: '6px' }}
           >
             ログイン
           </button>
           <button
             type="button"
             onClick={handleRegister}
-            style={{ padding: '12px', background: '#333', color: '#fff', border: 'none', fontSize: '16px', cursor: 'pointer' }}
+            style={{ padding: '12px', background: '#333', color: '#fff', border: 'none', fontSize: '16px', cursor: 'pointer', borderRadius: '6px' }}
           >
             新規登録
           </button>
@@ -288,96 +312,107 @@ export default function AdminPage() {
 
   return (
     <main style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
-      {/* ヘッダー */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
-        <h1 style={{ margin: 0 }}>🚀 プッシュ太郎</h1>
+      {/* ヘッダー：アイコンと店舗名表示 */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '10px', borderBottom: '2px solid #eee', paddingBottom: '15px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <img src="/icon-192x192.png" alt="アイコン" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #ddd' }} />
+          <h1 style={{ margin: 0, fontSize: '24px' }}>{shopName || 'プッシュ太郎'}</h1>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '14px', color: '#666' }}>{user.email}</span>
-          <button onClick={() => signOut(auth)} style={{ padding: '8px 16px', cursor: 'pointer' }}>
+          <button onClick={() => signOut(auth)} style={{ padding: '8px 16px', cursor: 'pointer', borderRadius: '4px', border: '1px solid #ccc' }}>
             ログアウト
           </button>
         </div>
       </div>
 
-      {/* 店舗情報・設定 */}
+      {/* 🏪 店舗情報ボタン（アコーディオン式に折りたたみ） */}
       {shopId && (
-        <div style={{ marginBottom: '30px', padding: '20px', background: '#f5f5f5', borderRadius: '8px' }}>
-          <h3>🏪 店舗情報</h3>
-          <p>店舗名: <strong>{shopName}</strong></p>
-          <p>店舗ID: <code>{shopId}</code></p>
-          <p>
-            顧客用URL:{' '}
-            <a href={qrUrl} target="_blank" rel="noopener noreferrer" style={{ wordBreak: 'break-all' }}>
+        <div style={{ marginBottom: '30px' }}>
+          <button
+            onClick={() => setShopInfoOpen(!shopInfoOpen)}
+            style={{ width: '100%', padding: '14px 20px', background: '#f8f9fa', border: '1px solid #ced4da', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+          >
+            <span>🏪 店舗情報・QRコード設定</span>
+            <span>{shopInfoOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
+          </button>
+
+          {shopInfoOpen && (
+            <div style={{ marginTop: '10px', padding: '20px', background: '#f5f5f5', borderRadius: '8px', border: '1px solid #e9ecef' }}>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>店舗名</label>
+                <input
+                  type="text"
+                  value={shopName}
+                  onChange={(e) => setShopName(e.target.value)}
+                  style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
+                />
+              </div>
+
+              <p style={{ fontSize: '14px', color: '#666' }}>店舗ID: <code>{shopId}</code></p>
+              
               {qrUrl && (
-  <div style={{ marginTop: '15px', textAlign: 'center', padding: '15px', background: '#fff', borderRadius: '8px' }}>
-    <QRCodeSVG value={qrUrl} size={200} />
-    <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
-      📱 スマホで読み取って通知を受け取れます
-    </p>
-    <p style={{ fontSize: '11px', color: '#999', wordBreak: 'break-all' }}>
-      {qrUrl}
-    </p>
-  </div>
-)}
-            </a>
-          </p>
+                <div style={{ marginTop: '15px', textAlign: 'center', padding: '15px', background: '#fff', borderRadius: '8px' }}>
+                  <QRCodeSVG value={qrUrl} size={180} />
+                  <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
+                    📱 スマホで読み取って通知を受け取れます
+                  </p>
+                  <p style={{ fontSize: '11px', color: '#999', wordBreak: 'break-all' }}>
+                    {qrUrl}
+                  </p>
+                </div>
+              )}
 
-          <h4 style={{ marginTop: '20px' }}>🎫 初回クーポン設定</h4>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={couponEnabled}
-              onChange={(e) => setCouponEnabled(e.target.checked)}
-            />
-            初回クーポンを有効にする
-          </label>
+              <h4 style={{ marginTop: '20px', marginBottom: '10px' }}>🎫 初回クーポン設定</h4>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '10px' }}>
+                <input
+                  type="checkbox"
+                  checked={couponEnabled}
+                  onChange={(e) => setCouponEnabled(e.target.checked)}
+                />
+                初回クーポンを有効にする
+              </label>
 
-          {couponEnabled && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
-              <input
-                type="text"
-                placeholder="クーポンタイトル（例: 初回限定20%OFF）"
-                value={couponTitle}
-                onChange={(e) => setCouponTitle(e.target.value)}
-                style={{ padding: '10px', fontSize: '16px' }}
-              />
-              <input
-                type="text"
-                placeholder="説明"
-                value={couponDesc}
-                onChange={(e) => setCouponDesc(e.target.value)}
-                style={{ padding: '10px', fontSize: '16px' }}
-              />
-              <input
-                type="number"
-                placeholder="割引率 (%)"
-                value={couponRate}
-                onChange={(e) => setCouponRate(Number(e.target.value))}
-                style={{ padding: '10px', fontSize: '16px' }}
-              />
+              {couponEnabled && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+                  <input
+                    type="text"
+                    placeholder="クーポンタイトル（例: 初回限定20%OFF）"
+                    value={couponTitle}
+                    onChange={(e) => setCouponTitle(e.target.value)}
+                    style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="説明文"
+                    value={couponDesc}
+                    onChange={(e) => setCouponDesc(e.target.value)}
+                    style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
+                  />
+                  <input
+                    type="number"
+                    placeholder="割引率 (%)"
+                    value={couponRate}
+                    onChange={(e) => setCouponRate(Number(e.target.value))}
+                    style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
+                  />
+                </div>
+              )}
+
+              <button
+                onClick={handleSaveSettings}
+                style={{ marginTop: '20px', padding: '10px 20px', background: '#2196F3', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}
+              >
+                💾 設定を保存
+              </button>
             </div>
           )}
-
-          <h4 style={{ marginTop: '20px' }}>🔗 クーポン使用後の遷移先URL</h4>
-          <input
-            type="url"
-            placeholder="https://example.com/sale"
-            value={clientLinkUrl}
-            onChange={(e) => setClientLinkUrl(e.target.value)}
-            style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box' }}
-          />
-
-          <button
-            onClick={handleSaveSettings}
-            style={{ marginTop: '15px', padding: '10px 20px', background: '#2196F3', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}
-          >
-            💾 設定を保存
-          </button>
         </div>
       )}
 
       {/* 送信フォーム */}
-      <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '40px' }}>
+      <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '40px', background: '#fff', padding: '20px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
+        <h3 style={{ margin: '0 0 10px 0' }}>📢 プッシュ通知を作成</h3>
         <div>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>タイトル</label>
           <input
@@ -386,7 +421,7 @@ export default function AdminPage() {
             onChange={(e) => setTitle(e.target.value)}
             required
             placeholder="例: 新着セールのお知らせ"
-            style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
           />
         </div>
         <div>
@@ -397,10 +432,9 @@ export default function AdminPage() {
             required
             rows={4}
             placeholder="例: 本日から全品20%OFFセール開催中！"
-            style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
           />
         </div>
-        <ImageUploader onImageUploaded={setImageUrl} currentUrl={imageUrl} />
         <div>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>リンク先URL（任意）</label>
           <input
@@ -408,7 +442,7 @@ export default function AdminPage() {
             value={linkUrl}
             onChange={(e) => setLinkUrl(e.target.value)}
             placeholder="https://example.com/sale"
-            style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
           />
         </div>
         <button
@@ -423,9 +457,10 @@ export default function AdminPage() {
             cursor: loading ? 'not-allowed' : 'pointer',
             fontSize: '18px',
             borderRadius: '6px',
+            marginTop: '5px',
           }}
         >
-          {loading ? '送信中...' : '🔥 カメハメ波（送信）'}
+          {loading ? '送信中...' : '🔥 Push 通知送信'}
         </button>
         {message && (
           <p style={{ marginTop: '10px', fontWeight: 'bold', color: message.includes('❌') ? '#d32f2f' : '#2e7d32' }}>
@@ -434,10 +469,18 @@ export default function AdminPage() {
         )}
       </form>
 
-      {/* 履歴 */}
+      {/* 履歴セクション */}
       <div style={{ borderTop: '2px solid #eee', paddingTop: '20px' }}>
+        {/* 現在の受取許可件数表示 */}
+        <div style={{ marginBottom: '15px', padding: '12px 16px', background: '#e3f2fd', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '15px', fontWeight: 'bold', color: '#0d47a1' }}>📱 現在の受取許可件数</span>
+          <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#1565c0' }}>
+            {subscriberCount !== null ? `${subscriberCount} 件` : '取得中...'}
+          </span>
+        </div>
+
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
-          <h2 style={{ margin: 0 }}>📁 送信履歴（ローカルフォルダ）</h2>
+          <h2 style={{ margin: 0, fontSize: '20px' }}>📁 送信履歴（ローカルフォルダ）</h2>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <button
               onClick={handleExport}
@@ -481,29 +524,31 @@ export default function AdminPage() {
                   </span>
                 </div>
                 <p style={{ margin: '8px 0', fontSize: '14px', color: '#333' }}>{h.body}</p>
-                {h.imageUrl && (
-                  <img src={h.imageUrl} alt="" style={{ maxHeight: '120px', borderRadius: '4px', marginBottom: '8px' }} />
-                )}
                 {h.linkUrl && (
-                  <a href={h.linkUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#2196F3', wordBreak: 'break-all' }}>
+                  <a href={h.linkUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#2196F3', wordBreak: 'break-all', display: 'block', marginBottom: '6px' }}>
                     {h.linkUrl}
                   </a>
                 )}
-                {h.status === 'error' && (
+                
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
+                  {h.status === 'success' ? (
+                    <span style={{ fontSize: '11px', color: '#4CAF50', background: '#e8f5e9', padding: '2px 8px', borderRadius: '12px' }}>
+                      送信成功
+                    </span>
+                  ) : (
+                    <span style={{ fontSize: '11px', color: '#d32f2f', background: '#ffebee', padding: '2px 8px', borderRadius: '12px' }}>
+                      送信失敗
+                    </span>
+                  )}
+                  {typeof h.successCount === 'number' && (
+                    <span style={{ fontSize: '12px', color: '#555', fontWeight: 'bold' }}>
+                      （送信数: {h.successCount}件）
+                    </span>
+                  )}
+                </div>
+
+                {h.status === 'error' && h.errorMessage && (
                   <p style={{ color: '#d32f2f', fontSize: '12px', marginTop: '6px' }}>エラー: {h.errorMessage}</p>
-                )}
-                {h.status === 'success' && (
-                  <span
-                    style={{
-                      fontSize: '11px',
-                      color: '#4CAF50',
-                      background: '#e8f5e9',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                    }}
-                  >
-                    送信成功
-                  </span>
                 )}
               </div>
             ))}
