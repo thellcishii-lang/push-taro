@@ -94,7 +94,7 @@ export default function LandingPage() {
   const handleSubscribe = async () => {
     let effectiveShopId = shopId;
     if (!effectiveShopId) {
-      effectiveShopId = localStorage.getItem('push_taro_shop_id'] || '';
+      effectiveShopId = localStorage.getItem('push_taro_shop_id') || '';
     }
 
     if (!effectiveShopId) {
