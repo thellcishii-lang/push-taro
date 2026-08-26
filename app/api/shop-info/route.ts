@@ -22,6 +22,7 @@ export async function GET(request: Request) {
       name: data?.name,
       coupon: data?.coupon,
       linkUrl: data?.linkUrl,
+      iconUrl: data?.iconUrl, // 👈 ここを追加！
     }, { status: 200 });
   } catch (error: any) {
     console.error('[shop-info] エラー:', error);
