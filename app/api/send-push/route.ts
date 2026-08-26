@@ -102,8 +102,11 @@ export async function POST(request: Request) {
     },
   },
   android: {
-    priority: 'high',
-  },
+        priority: 'high' as const, // ← 'as const' を追加する
+        notification: {
+          sound: 'default',
+        },
+      },
   webpush: {
     headers: {
       Urgency: 'high',
