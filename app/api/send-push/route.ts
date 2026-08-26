@@ -14,6 +14,13 @@ function guessPlatform(token: string): string {
   return 'unknown';
 }
 
+// 📦 プランごとの月間送信上限
+const PLAN_LIMITS: Record<string, { name: string; limit: number }> = {
+  light: { name: 'ライトプラン', limit: 5000 },
+  standard: { name: 'スタンダードプラン', limit: 10000 },
+  pro: { name: 'プロプラン', limit: 30000 },
+};
+
 export async function POST(request: Request) {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
@@ -34,7 +41,9 @@ export async function POST(request: Request) {
     if (shopQuery.empty) {
       return NextResponse.json({ error: '店舗が見つかりません' }, { status: 403 });
     }
-    const shopId = shopQuery.docs[0].id;
+    const shopDoc = shopQuery.docs[0];
+    const shopId = shopDoc.id;
+    const shopData = shopDoc.data();
     console.log(`[send-push] 🏪 店舗ID: ${shopId}`);
 
     const { title, body, imageUrl, linkUrl } = await request.json();
@@ -73,6 +82,32 @@ export async function POST(request: Request) {
       }, { status: 404 });
     }
 
+    // 🛡️ プランと月間送信上限のチェック
+    const planKey = shopData.plan || 'standard'; // デフォルトはスタンダード
+    const planInfo = PLAN_LIMITS[planKey] || PLAN_LIMITS['standard'];
+    const monthlyLimit = shopData.monthlyLimit || planInfo.limit;
+
+    // 現在の年月（例: "2026-08"）
+    const now = new Date();
+    const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    let currentMonthSent = shopData.currentMonthSent || 0;
+    const lastSentMonth = shopData.lastSentMonth || '';
+
+    // 月が変わっていたら送信数をリセット
+    if (lastSentMonth !== currentMonthStr) {
+      currentMonthSent = 0;
+    }
+
+    // 今回送信することで上限を超えるかチェック
+    const targetCount = registrationTokens.length;
+    if (currentMonthSent + targetCount > monthlyLimit) {
+      return NextResponse.json({ 
+        success: false, 
+        error: `今月の送信上限（${planInfo.name}: ${monthlyLimit.toLocaleString()}件）に達するため送信できません。今月の送信済み数: ${currentMonthSent.toLocaleString()}件` 
+      }, { status: 400 });
+    }
+
     // ✅ 基本のメッセージ構造
     const baseMessage = {
       data: {
@@ -104,7 +139,7 @@ export async function POST(request: Request) {
       },
     };
 
-    console.log(`[send-push] 🚀 送信開始 (総件数: ${registrationTokens.length} 件)`);
+    console.log(`[send-push] 🚀 送信開始 (総件数: ${targetCount} 件)`);
 
     // 🛡️ 500件の上限に対して安全に「450件ずつ」に分割（チャンク処理）
     const CHUNK_SIZE = 450;
@@ -126,7 +161,6 @@ export async function POST(request: Request) {
         totalSuccessCount += response.successCount;
         totalFailureCount += response.failureCount;
 
-        // このチャンクで失敗したトークンを回収
         response.responses.forEach((resp, idx) => {
           if (!resp.success) {
             const token = chunkTokens[idx];
@@ -137,7 +171,6 @@ export async function POST(request: Request) {
         });
       } catch (chunkError) {
         console.error(`[send-push] ❌ チャンク送信エラー (index ${i}):`, chunkError);
-        // チャンク全体が失敗した場合のフォールバックとしてカウント
         totalFailureCount += chunkTokens.length;
       }
     }
@@ -146,7 +179,6 @@ export async function POST(request: Request) {
 
     // 🗑️ 失敗した全トークンを Firestore からまとめて削除
     if (failedTokens.length > 0) {
-      // Firestoreのバッチ処理は一度に最大500件までなので、安全に分割して削除
       for (let i = 0; i < failedTokens.length; i += 400) {
         const batchTokens = failedTokens.slice(i, i + 400);
         const batch = db.batch();
@@ -158,6 +190,13 @@ export async function POST(request: Request) {
       }
       console.log(`[send-push] 🧹 ${failedTokens.length} 件の無効トークンを削除しました`);
     }
+
+    // 📈 今月の送信数を加算して店舗ドキュメントを更新
+    const newMonthSentCount = currentMonthSent + totalSuccessCount;
+    await shopDoc.ref.update({
+      currentMonthSent: newMonthSentCount,
+      lastSentMonth: currentMonthStr,
+    });
 
     // 📝 履歴保存
     await db.collection('histories').add({
