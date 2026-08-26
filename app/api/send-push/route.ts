@@ -5,16 +5,12 @@ import { FieldValue } from 'firebase-admin/firestore';
 // 🔍 トークンからプラットフォームを推測する簡易関数
 function guessPlatform(token: string): string {
   if (!token) return 'unknown';
-  // iPhone のトークンは長さが異なる傾向（APNsトークンは64文字の16進数 + FCMプレフィックス）
-  // ここでは、特定のプレフィックスや長さで判断（あくまで推測）
   if (token.startsWith('c-') || token.startsWith('d-')) {
     return 'iPhone (APNs)';
   }
   if (token.includes('APA91')) {
-    // Web Push トークンに多いパターン
     return 'Web (PC/Android)';
   }
-  // その他は不明
   return 'unknown';
 }
 
@@ -70,12 +66,6 @@ export async function POST(request: Request) {
 
     console.log(`[send-push] 📱 取得したトークン数: ${registrationTokens.length}`);
 
-    // 🔍 各トークンのプラットフォーム推定をログ出力
-    registrationTokens.forEach((token, index) => {
-      const platform = guessPlatform(token);
-      console.log(`[send-push] 📱 トークン#${index+1}: ${token.slice(0, 20)}... (推定: ${platform})`);
-    });
-
     if (registrationTokens.length === 0) {
       return NextResponse.json({ 
         success: false, 
@@ -83,76 +73,93 @@ export async function POST(request: Request) {
       }, { status: 404 });
     }
 
-    // ✅ マルチキャスト送信
-    const message = {
-  data: {
-    title: title,
-    body: body,
-    image: imageUrl || '',
-    url: linkUrl || '',
-    shopId: shopId,
-  },
-  apns: {
-    payload: {
-      aps: {
-        sound: 'default',
-        badge: 1,
-        'content-available': 1,
+    // ✅ 基本のメッセージ構造
+    const baseMessage = {
+      data: {
+        title: title,
+        body: body,
+        image: imageUrl || '',
+        url: linkUrl || '',
+        shopId: shopId,
       },
-    },
-  },
-  android: {
-        priority: 'high' as const, // ← 'as const' を追加する
+      apns: {
+        payload: {
+          aps: {
+            sound: 'default',
+            badge: 1,
+            'content-available': 1,
+          },
+        },
+      },
+      android: {
+        priority: 'high' as const,
         notification: {
           sound: 'default',
         },
       },
-  webpush: {
-    headers: {
-      Urgency: 'high',
-    },
-    // webpushの場合もnotificationプロパティはあえて外すか、dataを中心に組み立てる
-  },
-  tokens: registrationTokens,
-};
+      webpush: {
+        headers: {
+          Urgency: 'high',
+        },
+      },
+    };
 
-    console.log(`[send-push] 🚀 送信開始: ${registrationTokens.length} 件`);
+    console.log(`[send-push] 🚀 送信開始 (総件数: ${registrationTokens.length} 件)`);
 
-    const response = await messaging.sendEachForMulticast(message);
+    // 🛡️ 500件の上限に対して安全に「450件ずつ」に分割（チャンク処理）
+    const CHUNK_SIZE = 450;
+    let totalSuccessCount = 0;
+    let totalFailureCount = 0;
+    const failedTokens: string[] = [];
 
-    console.log(`[send-push] ✅ 成功: ${response.successCount}, ❌ 失敗: ${response.failureCount}`);
+    for (let i = 0; i < registrationTokens.length; i += CHUNK_SIZE) {
+      const chunkTokens = registrationTokens.slice(i, i + CHUNK_SIZE);
+      console.log(`[send-push] 📦 チャンク送信中: ${i + 1} 〜 ${i + chunkTokens.length} 件目`);
 
-    // 🔍 各トークンの送信結果をログ出力（プラットフォーム別に色分け）
-    response.responses.forEach((resp, idx) => {
-      const token = registrationTokens[idx];
-      const platform = guessPlatform(token);
-      if (!resp.success) {
-        console.error(`[send-push] ❌ 失敗: ${token.slice(0, 20)}... (${platform})`, resp.error);
-      } else {
-        console.log(`[send-push] ✅ 成功: ${token.slice(0, 20)}... (${platform})`);
+      const message = {
+        ...baseMessage,
+        tokens: chunkTokens,
+      };
+
+      try {
+        const response = await messaging.sendEachForMulticast(message);
+        totalSuccessCount += response.successCount;
+        totalFailureCount += response.failureCount;
+
+        // このチャンクで失敗したトークンを回収
+        response.responses.forEach((resp, idx) => {
+          if (!resp.success) {
+            const token = chunkTokens[idx];
+            failedTokens.push(token);
+            const platform = guessPlatform(token);
+            console.error(`[send-push] ❌ 失敗: ${token.slice(0, 20)}... (${platform})`, resp.error);
+          }
+        });
+      } catch (chunkError) {
+        console.error(`[send-push] ❌ チャンク送信エラー (index ${i}):`, chunkError);
+        // チャンク全体が失敗した場合のフォールバックとしてカウント
+        totalFailureCount += chunkTokens.length;
       }
-    });
-
-    // 失敗したトークンを Firestore から削除
-    if (response.failureCount > 0) {
-      const failedTokens: string[] = [];
-      response.responses.forEach((resp, idx) => {
-        if (!resp.success) {
-          failedTokens.push(registrationTokens[idx]);
-        }
-      });
-
-      const batch = db.batch();
-      for (const token of failedTokens) {
-        const docRef = db.collection('subscriptions').doc(token);
-        batch.delete(docRef);
-        console.log(`[send-push] 🗑️ 削除: ${token.slice(0, 20)}...`);
-      }
-      await batch.commit();
-      console.log(`[send-push] 🧹 ${failedTokens.length} 件の無効トークンを削除`);
     }
 
-    // 履歴保存
+    console.log(`[send-push] ✅ 合計成功: ${totalSuccessCount}, ❌ 合計失敗: ${totalFailureCount}`);
+
+    // 🗑️ 失敗した全トークンを Firestore からまとめて削除
+    if (failedTokens.length > 0) {
+      // Firestoreのバッチ処理は一度に最大500件までなので、安全に分割して削除
+      for (let i = 0; i < failedTokens.length; i += 400) {
+        const batchTokens = failedTokens.slice(i, i + 400);
+        const batch = db.batch();
+        for (const token of batchTokens) {
+          const docRef = db.collection('subscriptions').doc(token);
+          batch.delete(docRef);
+        }
+        await batch.commit();
+      }
+      console.log(`[send-push] 🧹 ${failedTokens.length} 件の無効トークンを削除しました`);
+    }
+
+    // 📝 履歴保存
     await db.collection('histories').add({
       shopId,
       title,
@@ -161,14 +168,14 @@ export async function POST(request: Request) {
       linkUrl: linkUrl || null,
       sentAt: FieldValue.serverTimestamp(),
       status: 'success',
-      successCount: response.successCount,
-      failureCount: response.failureCount,
+      successCount: totalSuccessCount,
+      failureCount: totalFailureCount,
     });
 
     return NextResponse.json({ 
       success: true, 
-      successCount: response.successCount,
-      failureCount: response.failureCount,
+      successCount: totalSuccessCount,
+      failureCount: totalFailureCount,
     }, { status: 200 });
 
   } catch (error: any) {
