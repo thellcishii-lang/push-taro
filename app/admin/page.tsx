@@ -363,12 +363,12 @@ export default function AdminPage() {
                 />
               </div>
               <div style={{ marginBottom: '15px' }}>
-                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>店舗アイコン画像</label>
-                  <ImageUploader
-                         onImageUploaded={(url) => setShopIconUrl(url)}
-                    urrentUrl={shopIconUrl}
-                  />
-            </div>
+                  <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>店舗アイコン画像</label>
+                     <ImageUploader
+                        onImageUploaded={(url) => setShopIconUrl(url)}
+                        currentUrl={shopIconUrl}
+                    />
+              </div>
 
               <p style={{ fontSize: '14px', color: '#666' }}>店舗ID: <code>{shopId}</code></p>
               
