@@ -201,7 +201,7 @@ export default function AdminPage() {
 
       setTimeout(() => {
         setMessage('');
-      }, 5000);
+      }, 3000);
 
     } catch (err: any) {
       console.error('送信エラー:', err);
@@ -400,11 +400,23 @@ export default function AdminPage() {
               )}
 
               <button
-                onClick={handleSaveSettings}
-                style={{ marginTop: '20px', padding: '10px 20px', background: '#2196F3', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}
-              >
-                💾 設定を保存
-              </button>
+  onClick={handleSaveSettings}
+  disabled={saving}
+  style={{
+    marginTop: '20px',
+    padding: '10px 20px',
+    background: saveSuccess ? '#4CAF50' : saving ? '#cccccc' : '#2196F3',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: saving ? 'wait' : 'pointer',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    transition: 'background 0.2s',
+  }}
+>
+  {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 設定を保存'}
+</button>
             </div>
           )}
         </div>
