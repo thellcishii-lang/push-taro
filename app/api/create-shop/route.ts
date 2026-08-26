@@ -39,6 +39,7 @@ export async function POST(request: Request) {
       createdAt: FieldValue.serverTimestamp(),
       coupon: { enabled: false, title: '', description: '', discountRate: 0 },
       linkUrl: '',
+      iconUrl: '', // 👈 ここを新しく追加！
     });
 
     return NextResponse.json({ success: true, shopId: shopRef.id, exists: false }, { status: 201 });
