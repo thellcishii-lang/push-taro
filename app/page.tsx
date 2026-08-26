@@ -9,10 +9,14 @@ export default function LandingPage() {
   const [message, setMessage] = useState('');
   const [shopId, setShopId] = useState('');
   
-  // 登録完了後に顧客画面を表示するためのフラグ
+  // 画面状態管理
   const [isRegistered, setIsRegistered] = useState(false);
   const [fcmToken, setFcmToken] = useState('');
   const [shopData, setShopData] = useState<any>(null);
+  
+  // 折りたたみ（アコーディオン）用のステート
+  const [debugOpen, setDebugOpen] = useState(false);
+  const [tokenOpen, setTokenOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [couponUsed, setCouponUsed] = useState(false);
 
@@ -35,21 +39,20 @@ export default function LandingPage() {
     }
   }, []);
 
-  // すでに登録済み（ローカルストレージにトークンがある等）の判定や店舗情報の取得
+  // 店舗情報の取得（既存の /api/shop-info?s=... に合わせる）
   useEffect(() => {
     if (!shopId) return;
 
-    // 店舗情報を取得してアイコンや名前、クーポン情報を表示できるようにする
-    fetch(`/api/shop-info?shopId=${shopId}`)
+    fetch(`/api/shop-info?s=${shopId}`)
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          setShopData(data.shop);
+          setShopData(data);
         }
       })
       .catch(err => console.error('店舗情報取得エラー:', err));
 
-    // もしすでにこの端末で登録済みなら、直接顧客画面を表示するなどの分岐も可能
+    // すでに登録済み（トークンがある）なら顧客画面へ直行
     const savedToken = localStorage.getItem(`push_taro_token_${shopId}`);
     if (savedToken) {
       setFcmToken(savedToken);
@@ -156,7 +159,6 @@ export default function LandingPage() {
         throw new Error(resData.error || `HTTP ${res.status}`);
       }
 
-      // トークンを保存
       localStorage.setItem(`push_taro_token_${effectiveShopId}`, token);
       setFcmToken(token);
       setStatus('success');
@@ -177,14 +179,25 @@ export default function LandingPage() {
   if (isRegistered) {
     return (
       <main style={{ padding: 20, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif' }}>
-        {/* 1. 一番上：顧客のコード（FCMトークン） */}
-        <div style={{ background: '#f8f9fa', padding: '8px 12px', borderRadius: '6px', fontSize: '11px', color: '#666', wordBreak: 'break-all', marginBottom: '20px', border: '1px solid #e9ecef' }}>
-          <span>🔑 端末コード: </span><code>{fcmToken}</code>
+        {/* 1. 一番上：顧客コード（折りたたみ式ボタン） */}
+        <div style={{ marginBottom: '20px' }}>
+          <button
+            onClick={() => setTokenOpen(!tokenOpen)}
+            style={{ width: '100%', padding: '8px 12px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '6px', fontSize: '12px', color: '#666', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+          >
+            <span>🔑 顧客コード（端末ID）を確認</span>
+            <span>{tokenOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
+          </button>
+          {tokenOpen && (
+            <div style={{ marginTop: '6px', padding: '10px', background: '#f1f3f5', borderRadius: '6px', fontSize: '11px', wordBreak: 'break-all', color: '#333' }}>
+              <code>{fcmToken}</code>
+            </div>
+          )}
         </div>
 
         {/* 2. 店舗情報（アイコン・店名・リンク） */}
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <div style={{ width: '64px', height: '64px', background: '#ddd', borderRadius: '50%', margin: '0 auto 10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
+          <div style={{ width: '64px', height: '64px', background: '#e0e0e0', borderRadius: '50%', margin: '0 auto 10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
             🏪
           </div>
           <h2 style={{ margin: '0 0 8px 0' }}>{shopData?.name || '登録店舗'}</h2>
@@ -202,7 +215,7 @@ export default function LandingPage() {
             <p style={{ fontSize: '14px', color: '#333', marginBottom: '12px' }}>{shopData.coupon.description}</p>
             
             <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '12px' }}>
-              <QRCodeSVG value={shopData.coupon.shopId || shopId} size={150} />
+              <QRCodeSVG value={shopId} size={150} />
             </div>
 
             <div>
@@ -216,7 +229,7 @@ export default function LandingPage() {
           </div>
         )}
 
-        {/* 4. 通知履歴（履歴ボタンで展開、最大20件） */}
+        {/* 4. 通知履歴（履歴ボタンで展開） */}
         <div style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
           <button
             onClick={() => setHistoryOpen(!historyOpen)}
@@ -231,7 +244,6 @@ export default function LandingPage() {
               <p style={{ fontSize: '13px', color: '#666', textAlign: 'center', margin: '10px 0' }}>
                 （受信した通知がここに最大20件表示されます）
               </p>
-              {/* ※ローカル等に保存された受信履歴をここにマップして表示するエリア */}
             </div>
           )}
         </div>
@@ -273,6 +285,24 @@ export default function LandingPage() {
       {status === 'error' && (
         <p style={{ color: 'red', marginTop: 16, whiteSpace: 'pre-line' }}>{message}</p>
       )}
+
+      {/* 🔍 トラブルシューティング用の折りたたみデバッグ情報 */}
+      <div style={{ marginTop: '40px', textAlign: 'left' }}>
+        <button
+          onClick={() => setDebugOpen(!debugOpen)}
+          style={{ width: '100%', padding: '8px', background: '#f1f3f5', border: '1px solid #ced4da', borderRadius: '6px', fontSize: '12px', color: '#495057', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+        >
+          <span>🔍 デバッグ情報（トラブル時用）</span>
+          <span>{debugOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
+        </button>
+        {debugOpen && (
+          <div style={{ marginTop: '6px', padding: '12px', background: '#f8f9fa', borderRadius: '6px', fontSize: '12px', color: '#333', wordBreak: 'break-all', border: '1px solid #e9ecef' }}>
+            <p style={{ margin: '0 0 6px 0' }}>shopId: <strong>{shopId || '（未設定）'}</strong></p>
+            <p style={{ margin: '0 0 6px 0' }}>店舗名(取得結果): <strong>{shopData?.name || '未取得'}</strong></p>
+            <p style={{ margin: 0 }}>URL: <code>{typeof window !== 'undefined' ? window.location.href : ''}</code></p>
+          </div>
+        )}
+      </div>
     </main>
   );
 }
