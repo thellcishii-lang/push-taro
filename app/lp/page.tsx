@@ -101,7 +101,7 @@ export default function LandingPage() {
       <section style={{ maxWidth: '900px', margin: '80px auto', padding: '0 20px' }}>
         <div style={{ textAlign: 'center', marginBottom: '50px' }}>
           <span style={{ color: '#3182ce', fontWeight: '700', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            Proven Results
+            Proven Results & Statistics
           </span>
           <h2 style={{ fontSize: '30px', fontWeight: '800', color: '#1a202c', margin: '16px 0 10px 0' }}>
             業種別：Push-taro導入による実績データ
@@ -170,7 +170,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 料金プランセクション */}
+      {/* 料金プランセクション（配信上限数明記版） */}
       <section id="pricing" style={{ background: '#f8fafc', padding: '80px 20px' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '50px' }}>
@@ -178,7 +178,7 @@ export default function LandingPage() {
               明快でリーズナブルな料金プラン
             </h2>
             <p style={{ color: '#4a5568', fontSize: '16px' }}>
-              店舗の規模やマーケティングの目的に合わせて、最適なプランをお選びいただけます。
+              店舗の規模やマーケティングの目的に合わせて、最適なプランをお選びいただけます。追加の従量課金はありません。
             </p>
           </div>
 
@@ -191,6 +191,9 @@ export default function LandingPage() {
                 <div style={{ fontSize: '36px', fontWeight: '800', color: '#1a202c', marginBottom: '16px' }}>
                   1,980円<span style={{ fontSize: '14px', color: '#718096', fontWeight: 'normal' }}>/月 (税込)</span>
                 </div>
+                <p style={{ fontSize: '14px', color: '#e53e3e', fontWeight: '700', marginBottom: '16px' }}>
+                  月間配信上限: 5,000通
+                </p>
                 <p style={{ fontSize: '14px', color: '#718096', marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
                   まずは手軽にプッシュ通知を導入したい小規模店舗向け
                 </p>
@@ -220,6 +223,9 @@ export default function LandingPage() {
                 <div style={{ fontSize: '36px', fontWeight: '800', color: '#1a202c', marginBottom: '16px' }}>
                   3,800円<span style={{ fontSize: '14px', color: '#718096', fontWeight: 'normal' }}>/月 (税込)</span>
                 </div>
+                <p style={{ fontSize: '14px', color: '#e53e3e', fontWeight: '700', marginBottom: '16px' }}>
+                  月間配信上限: 10,000通 (1万通)
+                </p>
                 <p style={{ fontSize: '14px', color: '#718096', marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
                   ジオフェンス機能でリアルタイムな来店を強力に促進
                 </p>
@@ -246,6 +252,9 @@ export default function LandingPage() {
                 <div style={{ fontSize: '36px', fontWeight: '800', color: '#1a202c', marginBottom: '16px' }}>
                   9,800円<span style={{ fontSize: '14px', color: '#718096', fontWeight: 'normal' }}>/月 (税込)</span>
                 </div>
+                <p style={{ fontSize: '14px', color: '#e53e3e', fontWeight: '700', marginBottom: '16px' }}>
+                  月間配信上限: 50,000通 (5万通)
+                </p>
                 <p style={{ fontSize: '14px', color: '#718096', marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
                   本格的な自動CRM・ファン育成を極める最高峰プラン
                 </p>
