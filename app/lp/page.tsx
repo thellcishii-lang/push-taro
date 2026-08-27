@@ -12,14 +12,14 @@ export default function LandingPage() {
           Push-taro<span style={{ color: '#3182ce', fontSize: '14px', marginLeft: '8px', fontWeight: 'normal' }}>本格派CRMツール</span>
         </div>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-          <a href="#agency-intro" style={{ fontSize: '14px', fontWeight: '600', color: '#dd6b20', textDecoration: 'none' }}>
-            代理店制度について
+          <a href="#pro-referral" style={{ fontSize: '14px', fontWeight: '600', color: '#dd6b20', textDecoration: 'none' }}>
+            プロ紹介制度
+          </a>
+          <a href="#agency-intro" style={{ fontSize: '14px', fontWeight: '600', color: '#3182ce', textDecoration: 'none' }}>
+            代理店パートナー
           </a>
           <a href="#pricing" style={{ fontSize: '14px', fontWeight: '600', color: '#4a5568', textDecoration: 'none' }}>
             料金プラン
-          </a>
-          <a href="#contact" style={{ fontSize: '14px', fontWeight: '600', color: '#3182ce', textDecoration: 'none' }}>
-            お問い合わせ
           </a>
           <Link href="/signup" style={{ background: '#3182ce', color: '#fff', padding: '10px 20px', borderRadius: '6px', fontSize: '14px', fontWeight: '600', textDecoration: 'none', transition: 'background 0.2s' }}>
             お申し込み
@@ -106,7 +106,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 4つの導入実績事例セクション（スタンダード統合版） */}
+      {/* 4つの導入実績事例セクション */}
       <section style={{ maxWidth: '1000px', margin: '80px auto', padding: '0 20px' }}>
         <div style={{ textAlign: 'center', marginBottom: '50px' }}>
           <span style={{ color: '#3182ce', fontWeight: '700', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>
@@ -116,7 +116,7 @@ export default function LandingPage() {
             導入実績と活用事例
           </h2>
           <p style={{ color: '#718096', fontSize: '16px' }}>
-            ライトからプロプランまで、各店舗の特性を活かした成果をご紹介します。
+            各プランの特性を活かして、どのように店舗の成果に直結しているのかをご紹介します。
           </p>
         </div>
 
@@ -132,7 +132,7 @@ export default function LandingPage() {
               <div style={{ fontSize: '24px', fontWeight: '800', color: '#3182ce', marginBottom: '8px' }}>月間200人の新規獲得</div>
               <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#2d3748', marginBottom: '8px' }}>新規顧客の自動リスト化</h3>
               <p style={{ fontSize: '13px', color: '#718096', lineHeight: '1.6' }}>
-                QRコードとクーポンだけで手間をかけず、低コストで顧客リスト（購読者）を増やす。
+                QRコードと初回クーポンだけで手間をかけず、まずは小規模に低コストで顧客リストを増やす。
               </p>
             </div>
           </div>
@@ -175,13 +175,44 @@ export default function LandingPage() {
                 <span style={{ fontSize: '13px', color: '#718096', fontWeight: '600' }}>エステ・リラク</span>
               </div>
               <div style={{ fontSize: '22px', fontWeight: '800', color: '#dd6b20', marginBottom: '8px' }}>リピート率 18% ⇒ 42%</div>
-              <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#2d3748', marginBottom: '8px' }}>ファン育成 ＆ 紹介で収益化</h3>
+              <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#2d3748', marginBottom: '8px' }}>ファン育成 ＆ 紹介で実質無料</h3>
               <p style={{ fontSize: '13px', color: '#718096', lineHeight: '1.6' }}>
                 連続アクセス特典やA/Bテストでロイヤル化。紹介制度も活用してランニングコストを完全に相殺。
               </p>
             </div>
           </div>
 
+        </div>
+      </section>
+
+      {/* プロプラン紹介制度セクション（復活） */}
+      <section id="pro-referral" style={{ background: '#1a202c', color: '#fff', padding: '80px 20px' }}>
+        <div style={{ maxWidth: '850px', margin: '0 auto', textAlign: 'center' }}>
+          <span style={{ background: 'rgba(236, 201, 75, 0.2)', color: '#ecc94b', border: '1px solid #ecc94b', padding: '6px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            Pro Plan Exclusive
+          </span>
+          <h2 style={{ fontSize: '32px', fontWeight: '800', margin: '20px 0 16px 0', letterSpacing: '-0.5px' }}>
+            プロプラン限定：紹介制度で「実質無料」運用
+          </h2>
+          <p style={{ fontSize: '16px', color: '#a0aec0', lineHeight: '1.8', marginBottom: '40px' }}>
+            プロプランを他の店舗様に紹介すると、月額料金の<strong>10%（約1,000円分）が毎月ポイント還元</strong>されます。<br />
+            10件ご紹介いただければ、プロプランがなんと<strong>実質ゼロ円（無料）</strong>に！貯まったポイントは自動口座振込で引き出し可能です。
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', textAlign: 'left' }}>
+            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '24px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ color: '#ecc94b', fontWeight: '700', fontSize: '16px', marginBottom: '8px' }}>🎁 10% 毎月還元</div>
+              <p style={{ fontSize: '13px', color: '#cbd5e0', lineHeight: '1.6' }}>紹介した店舗が契約中である限り、毎月継続してポイントがチャージされ続けます。</p>
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '24px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ color: '#ecc94b', fontWeight: '700', fontSize: '16px', marginBottom: '8px' }}>🚀 10件で実質無料</div>
+              <p style={{ fontSize: '13px', color: '#cbd5e0', lineHeight: '1.6' }}>10店舗の仲間を増やすだけで、10,000円の最高峰プランがタダに。</p>
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '24px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ color: '#ecc94b', fontWeight: '700', fontSize: '16px', marginBottom: '8px' }}>💰 1万円から現金化</div>
+              <p style={{ fontSize: '13px', color: '#cbd5e0', lineHeight: '1.6' }}>1P=1円で換算。1万円を超えたら申請ボタン一つで口座へ振り込み。</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -240,7 +271,7 @@ export default function LandingPage() {
                   月間配信上限: 10,000通 (1万通)
                 </p>
                 <p style={{ fontSize: '14px', color: '#718096', marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
-                  より多くの配信と充実のサポートで集客を加速
+                  充実の配信枠と手厚いサポートで集客を加速
                 </p>
                 <ul style={{ fontSize: '14px', color: '#2d3748', paddingLeft: '20px', lineHeight: '2' }}>
                   <li>ライトプランの全機能</li>
@@ -256,7 +287,7 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* プロプラン（10,000円に統一） */}
+            {/* プロプラン（10,000円） */}
             <div style={{ background: '#fff', borderRadius: '12px', padding: '36px 30px', border: '2px solid #dd6b20', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 10px 15px -3px rgba(221, 107, 32, 0.15)' }}>
               <div style={{ position: 'absolute', top: '-14px', right: '24px', background: '#dd6b20', color: '#fff', padding: '4px 14px', fontSize: '12px', fontWeight: '700', borderRadius: '12px' }}>
                 最高峰・実質無料化
@@ -292,24 +323,24 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 料金プラン下の代理店制度セクション（ご要望の導線） */}
-      <section id="agency-intro" style={{ background: '#1a202c', color: '#fff', padding: '80px 20px', textAlign: 'center' }}>
+      {/* 料金プラン下の代理店制度案内セクション */}
+      <section id="agency-intro" style={{ background: '#edf2f7', padding: '80px 20px', textAlign: 'center', borderTop: '1px solid #cbd5e0' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <span style={{ background: 'rgba(236, 201, 75, 0.2)', color: '#ecc94b', border: '1px solid #ecc94b', padding: '6px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            Partner Program
+          <span style={{ background: '#3182ce', color: '#fff', padding: '6px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            Agency Partnership
           </span>
-          <h2 style={{ fontSize: '32px', fontWeight: '800', margin: '20px 0 16px 0', letterSpacing: '-0.5px' }}>
+          <h2 style={{ fontSize: '30px', fontWeight: '800', color: '#1a202c', margin: '20px 0 16px 0', letterSpacing: '-0.5px' }}>
             事業を加速させる「代理店・パートナー制度」
           </h2>
-          <p style={{ fontSize: '16px', color: '#a0aec0', lineHeight: '1.8', marginBottom: '30px' }}>
+          <p style={{ fontSize: '16px', color: '#4a5568', lineHeight: '1.8', marginBottom: '30px' }}>
             ご紹介数に応じて報酬がステップアップする<strong>超過累進型報酬（30%〜最大45%還元）</strong>を採用。<br />
-            安心のPayPay送金で、あなたのビジネスに強力な収益の柱を構築しませんか？<br />
-            <span style={{ color: '#ecc94b', fontSize: '14px' }}>※今だけ限定：加盟金 通常100万円 ➔ 30万円でパートナー参加可能！</span>
+            PayPay（PayPay銀行経由）による手数料無料のスムーズな送金で、強力な収益の柱を構築できます。<br />
+            <span style={{ color: '#e53e3e', fontWeight: '700', fontSize: '15px' }}>※今だけ限定：加盟金 通常100万円 ➔ 30万円でパートナー参加可能！</span>
           </p>
 
           <Link
             href="/agency"
-            style={{ display: 'inline-block', background: '#ecc94b', color: '#1a202c', padding: '14px 32px', borderRadius: '8px', fontSize: '16px', fontWeight: '700', textDecoration: 'none', boxShadow: '0 4px 12px rgba(236, 201, 75, 0.3)' }}
+            style={{ display: 'inline-block', background: '#3182ce', color: '#fff', padding: '14px 32px', borderRadius: '8px', fontSize: '16px', fontWeight: '700', textDecoration: 'none', boxShadow: '0 4px 12px rgba(49, 130, 206, 0.3)' }}
           >
             代理店制度の仕組み・詳細はこちら ➔
           </Link>
@@ -317,7 +348,7 @@ export default function LandingPage() {
       </section>
 
       {/* お問い合わせセクション */}
-      <section id="contact" style={{ background: '#edf2f7', padding: '60px 20px', textAlign: 'center' }}>
+      <section id="contact" style={{ background: '#fff', padding: '60px 20px', textAlign: 'center' }}>
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
           <h3 style={{ fontSize: '24px', fontWeight: '800', color: '#1a202c', marginBottom: '12px' }}>
             ご不明な点やご相談はお気軽に
