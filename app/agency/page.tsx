@@ -18,16 +18,33 @@ export default function AgencyPage() {
   };
 
   return (
-    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', color: '#2d3748', background: '#f8fafc', minHeight: '100vh', margin: 0, padding: '40px 20px', lineHeight: 1.7 }}>
+    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', color: '#2d3748', background: '#f8fafc', minHeight: '100vh', margin: 0, padding: 0, lineHeight: 1.7 }}>
       
-      {/* 戻るリンク */}
-      <div style={{ maxWidth: '800px', margin: '0 auto 20px auto' }}>
-        <Link href="/" style={{ color: '#3182ce', textDecoration: 'none', fontWeight: '600', fontSize: '14px' }}>
-          ← トップページに戻る
-        </Link>
-      </div>
+      {/* LP共通ヘッダー / ナビゲーション */}
+      <nav style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
+        <div style={{ fontSize: '20px', fontWeight: '800', color: '#1a202c', letterSpacing: '-0.5px' }}>
+          <Link href="/" style={{ color: '#1a202c', textDecoration: 'none' }}>
+            Push-taro<span style={{ color: '#3182ce', fontSize: '14px', marginLeft: '8px', fontWeight: 'normal' }}>本格派CRMツール</span>
+          </Link>
+        </div>
+        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+          <Link href="/#pro-referral" style={{ fontSize: '14px', fontWeight: '600', color: '#dd6b20', textDecoration: 'none' }}>
+            プロ紹介制度
+          </Link>
+          <Link href="/#pricing" style={{ fontSize: '14px', fontWeight: '600', color: '#4a5568', textDecoration: 'none' }}>
+            料金プラン
+          </Link>
+          <Link href="/#contact" style={{ fontSize: '14px', fontWeight: '600', color: '#3182ce', textDecoration: 'none' }}>
+            お問い合わせ
+          </Link>
+          <Link href="/signup" style={{ background: '#3182ce', color: '#fff', padding: '10px 20px', borderRadius: '6px', fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}>
+            お申し込み
+          </Link>
+        </div>
+      </nav>
 
-      <main style={{ maxWidth: '800px', margin: '0 auto', background: '#ffffff', padding: '40px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
+      {/* メインコンテンツ */}
+      <main style={{ maxWidth: '800px', margin: '50px auto', background: '#ffffff', padding: '40px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
         
         {/* ヘッダー */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
@@ -42,9 +59,9 @@ export default function AgencyPage() {
           </p>
         </div>
 
-        {/* 特徴・仕組みグリッド */}
+        {/* 特徴・仕組みグリッド（タイポ修正済み） */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '40px' }}>
-          <div style={{ background: '#f7fafc', p: '24px', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <div style={{ background: '#f7fafc', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#3182ce', marginBottom: '8px' }}>📈 超過累進報酬</h3>
             <p style={{ fontSize: '13px', color: '#718096', lineHeight: '1.6' }}>
               1〜100件は30%、101〜200件は36%、201件以降は45%還元！実績に応じて単価がアップします。
@@ -129,6 +146,26 @@ export default function AgencyPage() {
         </div>
 
       </main>
+
+      {/* LP共通フッター */}
+      <footer style={{ background: '#1a202c', color: '#a0aec0', padding: '50px 20px', textAlign: 'center', fontSize: '14px', marginTop: '80px' }}>
+        <p style={{ margin: '0 0 10px 0', color: '#fff', fontWeight: '700', fontSize: '18px' }}>Push-taro</p>
+        <p style={{ margin: '0 0 20px 0' }}>店舗専用プッシュ通知・CRMプラットフォーム</p>
+        
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '25px', flexWrap: 'wrap' }}>
+          <Link href="/terms" style={{ color: '#cbd5e0', textDecoration: 'none', fontSize: '13px' }}>利用規約</Link>
+          <Link href="/privacy" style={{ color: '#cbd5e0', textDecoration: 'none', fontSize: '13px' }}>プライバシーポリシー</Link>
+          <Link href="/tokusho" style={{ color: '#cbd5e0', textDecoration: 'none', fontSize: '13px' }}>特定商取引法に基づく表記</Link>
+        </div>
+
+        <p style={{ margin: 0, fontSize: '12px', color: '#718096' }}>© 2026 Push-taro All Rights Reserved.</p>
+        <div style={{ marginTop: '20px' }}>
+          <Link href="/admin" style={{ color: '#cbd5e0', textDecoration: 'none', fontSize: '13px' }}>
+            管理者ログイン
+          </Link>
+        </div>
+      </footer>
+
     </div>
   );
 }
