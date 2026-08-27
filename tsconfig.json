@@ -22,11 +22,3 @@
   "exclude": ["node_modules"]
 }
 ```[cite: 4]
-
-**追加した部分：**
-```json
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./*"]
-    }
-```[cite: 4]
