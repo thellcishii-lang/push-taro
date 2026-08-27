@@ -44,10 +44,10 @@ export async function GET(request: Request) {
       //   .eq('id', customer.id);
     }
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       count: targetCustomers.length,
-      message: `${targetCustomers.length件の誕生日自動配信を実行しました。` 
+      message: `${targetCustomers.length}件の誕生日自動配信を実行しました。`,
     });
 
   } catch (err: any) {
