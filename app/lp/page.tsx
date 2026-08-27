@@ -183,7 +183,7 @@ export default function LandingPage() {
                 <span style={{ background: '#1a202c', color: '#fff', padding: '2px 10px', fontSize: '11px', fontWeight: '700', borderRadius: '4px' }}>プロプラン</span>
                 <span style={{ fontSize: '13px', color: '#718096', fontWeight: '600' }}>美容室・サロン</span>
               </div>
-              <div style::={{ fontSize: '24px', fontWeight: '800', color: '#1a202c', marginBottom: '8px', fontSize: '22px' }}>再来 60日 ⇒ 42日</div>
+              <div style={{ fontSize: '22px', fontWeight: '800', color: '#1a202c', marginBottom: '8px' }}>再来 60日 ⇒ 42日</div>
               <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#2d3748', marginBottom: '8px' }}>再来サイクル短縮</h3>
               <p style={{ fontSize: '13px', color: '#718096', lineHeight: '1.6' }}>
                 誕生日配信や休眠顧客への自動アプローチで、お客様ごとのメンテナンス時期を逃さずリピート安定。
@@ -198,7 +198,7 @@ export default function LandingPage() {
                 <span style={{ background: '#1a202c', color: '#fff', padding: '2px 10px', fontSize: '11px', fontWeight: '700', borderRadius: '4px' }}>プロプラン</span>
                 <span style={{ fontSize: '13px', color: '#718096', fontWeight: '600' }}>エステ・リラク</span>
               </div>
-              <div style={{ fontSize: '24px', fontWeight: '800', color: '#1a202c', marginBottom: '8px', fontSize: '22px' }}>リピート率 18% ⇒ 42%</div>
+              <div style={{ fontSize: '22px', fontWeight: '800', color: '#1a202c', marginBottom: '8px' }}>リピート率 18% ⇒ 42%</div>
               <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#2d3748', marginBottom: '8px' }}>ファン育成 ＆ 紹介で実質無料</h3>
               <p style={{ fontSize: '13px', color: '#718096', lineHeight: '1.6' }}>
                 連続アクセス特典やA/Bテストでロイヤル化。紹介制度も活用してランニングコストを完全に相殺。
@@ -209,7 +209,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* スタンダード機能・ジオフェンス解説セクション（視覚的な3ステップ図解風） */}
+      {/* スタンダード機能・ジオフェンス解説セクション */}
       <section style={{ background: '#edf2f7', padding: '80px 20px' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
