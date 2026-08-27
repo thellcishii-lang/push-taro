@@ -11,8 +11,8 @@ export default function LandingPage() {
         <div style={{ fontSize: '20px', fontWeight: '800', color: '#1a202c', letterSpacing: '-0.5px' }}>
           Push-taro<span style={{ color: '#3182ce', fontSize: '14px', marginLeft: '8px', fontWeight: 'normal' }}>本格派CRMツール</span>
         </div>
-        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-          <a href="#referral" style={{ fontSize: '14px', fontWeight: '600', color: '#2b6cb0', textDecoration: 'none' }}>
+        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+          <a href="#referral" style={{ fontSize: '14px', fontWeight: '600', color: '#dd6b20', textDecoration: 'none' }}>
             紹介制度について
           </a>
           <a href="#pricing" style={{ background: '#3182ce', color: '#fff', padding: '10px 20px', borderRadius: '6px', fontSize: '14px', fontWeight: '600', textDecoration: 'none', transition: 'background 0.2s' }}>
@@ -176,14 +176,14 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* 事例5: プロ */}
-          <div style={{ background: '#fff', padding: '28px', borderRadius: '12px', border: '1px solid #1a202c', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          {/* 事例5: プロ（オレンジタグ） */}
+          <div style={{ background: '#fff', padding: '28px', borderRadius: '12px', border: '1px solid #dd6b20', boxShadow: '0 4px 6px rgba(221, 107, 32, 0.05)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <span style={{ background: '#1a202c', color: '#fff', padding: '2px 10px', fontSize: '11px', fontWeight: '700', borderRadius: '4px' }}>プロプラン</span>
+                <span style={{ background: '#dd6b20', color: '#fff', padding: '2px 10px', fontSize: '11px', fontWeight: '700', borderRadius: '4px' }}>プロプラン</span>
                 <span style={{ fontSize: '13px', color: '#718096', fontWeight: '600' }}>美容室・サロン</span>
               </div>
-              <div style={{ fontSize: '22px', fontWeight: '800', color: '#1a202c', marginBottom: '8px' }}>再来 60日 ⇒ 42日</div>
+              <div style={{ fontSize: '22px', fontWeight: '800', color: '#dd6b20', marginBottom: '8px' }}>再来 60日 ⇒ 42日</div>
               <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#2d3748', marginBottom: '8px' }}>再来サイクル短縮</h3>
               <p style={{ fontSize: '13px', color: '#718096', lineHeight: '1.6' }}>
                 誕生日配信や休眠顧客への自動アプローチで、お客様ごとのメンテナンス時期を逃さずリピート安定。
@@ -191,14 +191,14 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* 事例6: プロ */}
-          <div style={{ background: '#fff', padding: '28px', borderRadius: '12px', border: '1px solid #1a202c', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          {/* 事例6: プロ（オレンジタグ） */}
+          <div style={{ background: '#fff', padding: '28px', borderRadius: '12px', border: '1px solid #dd6b20', boxShadow: '0 4px 6px rgba(221, 107, 32, 0.05)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <span style={{ background: '#1a202c', color: '#fff', padding: '2px 10px', fontSize: '11px', fontWeight: '700', borderRadius: '4px' }}>プロプラン</span>
+                <span style={{ background: '#dd6b20', color: '#fff', padding: '2px 10px', fontSize: '11px', fontWeight: '700', borderRadius: '4px' }}>プロプラン</span>
                 <span style={{ fontSize: '13px', color: '#718096', fontWeight: '600' }}>エステ・リラク</span>
               </div>
-              <div style={{ fontSize: '22px', fontWeight: '800', color: '#1a202c', marginBottom: '8px' }}>リピート率 18% ⇒ 42%</div>
+              <div style={{ fontSize: '22px', fontWeight: '800', color: '#dd6b20', marginBottom: '8px' }}>リピート率 18% ⇒ 42%</div>
               <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#2d3748', marginBottom: '8px' }}>ファン育成 ＆ 紹介で実質無料</h3>
               <p style={{ fontSize: '13px', color: '#718096', lineHeight: '1.6' }}>
                 連続アクセス特典やA/Bテストでロイヤル化。紹介制度も活用してランニングコストを完全に相殺。
@@ -350,10 +350,13 @@ export default function LandingPage() {
               </a>
             </div>
 
-            {/* プロプラン */}
-            <div style={{ background: '#fff', borderRadius: '12px', padding: '36px 30px', border: '1px solid #1a202c', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            {/* プロプラン（オレンジベースに刷新） */}
+            <div style={{ background: '#fff', borderRadius: '12px', padding: '36px 30px', border: '2px solid #dd6b20', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 10px 15px -3px rgba(221, 107, 32, 0.15)' }}>
+              <div style={{ position: 'absolute', top: '-14px', right: '24px', background: '#dd6b20', color: '#fff', padding: '4px 14px', fontSize: '12px', fontWeight: '700', borderRadius: '12px' }}>
+                最高峰・実質無料化
+              </div>
               <div>
-                <h3 style={{ fontSize: '18px', color: '#1a202c', fontWeight: '700', marginBottom: '8px' }}>プロプラン</h3>
+                <h3 style={{ fontSize: '18px', color: '#dd6b20', fontWeight: '700', marginBottom: '8px' }}>プロプラン</h3>
                 <div style={{ fontSize: '36px', fontWeight: '800', color: '#1a202c', marginBottom: '16px' }}>
                   9,800円<span style={{ fontSize: '14px', color: '#718096', fontWeight: 'normal' }}>/月 (税込)</span>
                 </div>
@@ -375,7 +378,7 @@ export default function LandingPage() {
                 href="https://square.link/u/YOUR_PRO_LINK" 
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ display: 'block', textAlign: 'center', background: '#1a202c', color: '#fff', padding: '14px', borderRadius: '6px', textDecoration: 'none', fontWeight: '700', marginTop: '30px' }}
+                style={{ display: 'block', textAlign: 'center', background: '#dd6b20', color: '#fff', padding: '14px', borderRadius: '6px', textDecoration: 'none', fontWeight: '700', marginTop: '30px', boxShadow: '0 4px 10px rgba(221, 107, 32, 0.3)' }}
               >
                 プロプランで始める
               </a>
