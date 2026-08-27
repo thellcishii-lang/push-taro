@@ -98,13 +98,21 @@ export default function AgencyPage() {
         {/* 規約の表示エリア（別ページに飛ばさずここで完結） */}
         <div style={{ background: '#f8fafc', border: '1px solid #cbd5e0', borderRadius: '12px', padding: '24px', marginBottom: '24px' }}>
           <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1a202c', marginBottom: '12px' }}>代理店利用規約（必ずお読みください）</h3>
-          <div style={{ height: '180px', overflowY: 'auto', fontSize: '12px', color: '#4a5568', background: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', lineHeight: '1.8', marginBottom: '16px' }}>
-            <p style={{ margin: '0 0 10px 0' }}><strong>第1条（目的）</strong> 本規約は、当社のCRMツール「Push-taro」の販売促進活動を行う代理店（パートナー）の条件、報酬、および権利義務関係を定めることを目的とします。</p>
-            <p style={{ margin: '0 0 10px 0' }}><strong>第2条（契約成立と費用）</strong> パートナー契約は、所定の申し込み後、初期加盟金（30万円）および月額費用（30,000円）の決済が確認された時に成立します。支払われた加盟金は、理由の如何を問わず原則返金されません。</p>
-            <p style={{ margin: '0 0 10px 0' }}><strong>第3条（紹介報酬の算定）</strong> アクティブな紹介店舗数に応じた超過累進報酬ロジック（30%〜45%）に基づき報酬を算定し、PayPay等へ送金します。</p>
-            <p style={{ margin: '0 0 10px 0' }}><strong>第4条（禁止事項）</strong> 虚偽の説明や誇大広告、その他当社の信用を傷つける行為、不当な勧誘を固く禁じます。</p>
-            <p style={{ margin: 0 }}><strong>第5条（契約解除）</strong> 違反行為や月額費用の滞納等が認められた場合、直ちに契約解除およびアカウント停止の措置をとります。</p>
-          </div>
+          <div style={{ height: '220px', overflowY: 'auto', fontSize: '12px', color: '#4a5568', background: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', lineHeight: '1.8', marginBottom: '16px' }}>
+  <p style={{ margin: '0 0 10px 0' }}><strong>第1条（目的）</strong> 本規約は、当社のCRMツール「Push-taro」（以下「本サービス」）の販売促進活動を行う代理店（以下「パートナー」）の条件、報酬、および権利義務関係を定めることを目的とします。</p>
+  <p style={{ margin: '0 0 10px 0' }}><strong>第2条（代理店契約の成立と費用）</strong><br />
+  1. パートナー契約は、希望者が当社所定の手続きに従って申し込みを行い、当社がこれを承諾し、初期加盟金および所定の初期費用の決済が完了した時に成立するものとします。<br />
+  2. パートナーは、契約の対価として当社が定める加盟金（初期費用）を指定の方法で支払うものとします。支払われた加盟金は、システムの利用権等の対価として受領するものであり、理由の如何を問わず原則として返金されないものとします。<br />
+  3. パートナーは、本サービスの代理店資格および専用アカウントを維持するため、当社が定める<strong>代理店月額費用（月額30,000円・税別）</strong>を毎月支払うものとします。</p>
+  <p style={{ margin: '0 0 10px 0' }}><strong>第3条（紹介報酬の算定および支払い）</strong><br />
+  1. 当社は、パートナーの紹介コードを経由して本サービスのプロプランに加入し、有効に継続している店舗（アクティブ店舗）の数に応じ、別途定める超過累進型の報酬計算ロジックに基づいて報酬を算定します。<br />
+  2. 報酬の支払いは、毎月末締めで集計し、当社の指定する金融機関（PayPay銀行等）からパートナーの指定する決済アカウント（PayPay等）へ送金する方法により行います。</p>
+  <p style={{ margin: '0 0 10px 0' }}><strong>第4条（禁止事項）</strong> パートナーは、本サービスの販売活動を行うにあたり、虚偽の説明や誤認を招く誇大広告、当社の信用を傷つける行為、または不当な勧誘を行ってはならないものとします。</p>
+  <p style={{ margin: '0 0 10px 0' }}><strong>第5条（契約解除およびペナルティ）</strong> パートナーが禁止事項に違反した場合、または代理店月額費用の滞納が認められた場合、当社は事前の催告なしに本契約を解除し、アカウント停止および未払い報酬の没収等の措置をとることができるものとします。</p>
+  <p style={{ margin: '0 0 10px 0' }}><strong>第6条（中途解約）</strong> パートナーの都合による中途解約の場合においても、既払いの加盟金および月額費用の返金は一切行われないものとします。</p>
+  <p style={{ margin: '0 0 10px 0' }}><strong>第7条（免責事項）</strong> 当社は、システム障害やその他不可抗力によって生じたパートナーの損害について、一切の責任を負わないものとします。</p>
+  <p style={{ margin: 0 }}><strong>第8条（規約の変更）</strong> 当社は必要に応じて本規約を変更できるものとし、変更後の規約は本サービス上に掲示した時点で効力を生じるものとします。</p>
+</div>
           
           {/* 同意チェックボックス */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
