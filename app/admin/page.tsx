@@ -353,6 +353,52 @@ export default function AdminPage() {
                 />
               </div>
 
+              {/* 🤝 紹介・代理店 報酬管理セクション（アコーディオン式） */}
+  {shopId && (
+    <div style={{ marginBottom: '30px' }}>
+      <button
+        onClick={() => setReferralInfoOpen(!referralInfoOpen)}
+        style={{ width: '100%', padding: '14px 20px', background: '#f0f4f8', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+      >
+        <span>🤝 紹介・代理店 報酬管理</span>
+        <span>{referralInfoOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
+      </button>
+
+      {referralInfoOpen && (
+        <div style={{ marginTop: '10px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+            <div>
+              <h4 style={{ margin: '0 0 5px 0', fontSize: '16px' }}>今月の報酬明細</h4>
+              <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>紹介・代理店還元額の明細データをCSVでダウンロードできます。</p>
+            </div>
+            <button
+              onClick={() => {
+                const currentMonth = new Date().toISOString().slice(0, 7);
+                window.open(`/api/referrals/export-csv?referrer_id=${shopId}&month=${currentMonth}`, '_blank');
+              }}
+              style={{ padding: '10px 16px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}
+            >
+              📥 明細CSVダウンロード
+            </button>
+          </div>
+
+          <h4 style={{ marginBottom: '10px', fontSize: '16px' }}>紹介経由の店舗一覧（アクティブ）</h4>
+          <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '15px' }}>
+            ※紹介された店舗が解約（離脱）すると、この一覧から自動的に非表示になります。
+          </p>
+
+          {/* 紹介一覧のテーブルやリスト表示部分 */}
+          {/* ※あらかじめState等で取得した紹介店舗データをここにmapで展開します */}
+          <div style={{ background: '#fff', padding: '15px', borderRadius: '6px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b' }}>
+            現在、紹介しているアクティブな店舗はありません。
+          </div>
+
+        </div>
+      )}
+    </div>
+  )}
+
               <p style={{ fontSize: '14px', color: '#666' }}>店舗ID: <code>{shopId}</code></p>
               
               {qrUrl && (
