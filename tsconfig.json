@@ -13,8 +13,20 @@
     "jsx": "preserve",
     "incremental": true,
     "plugins": [{ "name": "next" }],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }
+```[cite: 4]
+
+**追加した部分：**
+```json
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+```[cite: 4]
