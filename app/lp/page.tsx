@@ -15,9 +15,16 @@ export default function LandingPage() {
           <a href="#referral" style={{ fontSize: '14px', fontWeight: '600', color: '#dd6b20', textDecoration: 'none' }}>
             紹介制度について
           </a>
-          <a href="#pricing" style={{ background: '#3182ce', color: '#fff', padding: '10px 20px', borderRadius: '6px', fontSize: '14px', fontWeight: '600', textDecoration: 'none', transition: 'background 0.2s' }}>
-            料金プランを見る
+          <a href="#pricing" style={{ fontSize: '14px', fontWeight: '600', color: '#4a5568', textDecoration: 'none' }}>
+            料金プラン
           </a>
+          {/* 将来チャットボットに差し替え可能な問い合わせボタン */}
+          <a href="#contact" style={{ fontSize: '14px', fontWeight: '600', color: '#3182ce', textDecoration: 'none' }}>
+            お問い合わせ
+          </a>
+          <Link href="/signup" style={{ background: '#3182ce', color: '#fff', padding: '10px 20px', borderRadius: '6px', fontSize: '14px', fontWeight: '600', textDecoration: 'none', transition: 'background 0.2s' }}>
+            お申し込み
+          </Link>
         </div>
       </nav>
 
@@ -37,12 +44,12 @@ export default function LandingPage() {
             店舗専用のプッシュ通知と高度なCRM機能が、安定した集客とリピートを実現します。
           </p>
 
-          <a
-            href="#pricing"
+          <Link
+            href="/signup"
             style={{ display: 'inline-block', background: '#3182ce', color: '#fff', padding: '16px 36px', fontSize: '16px', fontWeight: '700', textDecoration: 'none', borderRadius: '8px', boxShadow: '0 4px 14px rgba(49, 130, 206, 0.4)' }}
           >
-            料金プランと機能を確認する
-          </a>
+            今すぐ申し込む（無料相談・簡単登録）
+          </Link>
         </div>
       </header>
 
@@ -176,7 +183,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* 事例5: プロ（オレンジタグ） */}
+          {/* 事例5: プロ */}
           <div style={{ background: '#fff', padding: '28px', borderRadius: '12px', border: '1px solid #dd6b20', boxShadow: '0 4px 6px rgba(221, 107, 32, 0.05)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
@@ -191,7 +198,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* 事例6: プロ（オレンジタグ） */}
+          {/* 事例6: プロ */}
           <div style={{ background: '#fff', padding: '28px', borderRadius: '12px', border: '1px solid #dd6b20', boxShadow: '0 4px 6px rgba(221, 107, 32, 0.05)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
@@ -308,14 +315,12 @@ export default function LandingPage() {
                   <li>店舗専用管理画面</li>
                 </ul>
               </div>
-              <a
-                href="https://square.link/u/YOUR_LIGHT_LINK" 
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/signup" 
                 style={{ display: 'block', textAlign: 'center', background: '#4a5568', color: '#fff', padding: '14px', borderRadius: '6px', textDecoration: 'none', fontWeight: '700', marginTop: '30px' }}
               >
                 ライトプランで始める
-              </a>
+              </Link>
             </div>
 
             {/* スタンダードプラン */}
@@ -340,17 +345,15 @@ export default function LandingPage() {
                   <li>優先サポート対応</li>
                 </ul>
               </div>
-              <a
-                href="https://square.link/u/YOUR_STANDARD_LINK" 
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/signup" 
                 style={{ display: 'block', textAlign: 'center', background: '#3182ce', color: '#fff', padding: '14px', borderRadius: '6px', textDecoration: 'none', fontWeight: '700', marginTop: '30px' }}
               >
                 スタンダードで始める
-              </a>
+              </Link>
             </div>
 
-            {/* プロプラン（オレンジベースに刷新） */}
+            {/* プロプラン */}
             <div style={{ background: '#fff', borderRadius: '12px', padding: '36px 30px', border: '2px solid #dd6b20', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 10px 15px -3px rgba(221, 107, 32, 0.15)' }}>
               <div style={{ position: 'absolute', top: '-14px', right: '24px', background: '#dd6b20', color: '#fff', padding: '4px 14px', fontSize: '12px', fontWeight: '700', borderRadius: '12px' }}>
                 最高峰・実質無料化
@@ -374,24 +377,47 @@ export default function LandingPage() {
                   <li><strong>紹介制度（10%還元で実質無料化）</strong></li>
                 </ul>
               </div>
-              <a
-                href="https://square.link/u/YOUR_PRO_LINK" 
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/signup" 
                 style={{ display: 'block', textAlign: 'center', background: '#dd6b20', color: '#fff', padding: '14px', borderRadius: '6px', textDecoration: 'none', fontWeight: '700', marginTop: '30px', boxShadow: '0 4px 10px rgba(221, 107, 32, 0.3)' }}
               >
                 プロプランで始める
-              </a>
+              </Link>
             </div>
 
           </div>
         </div>
       </section>
 
-      {/* フッター */}
+      {/* お問い合わせセクション（将来チャットボットに差し替え可能） */}
+      <section id="contact" style={{ background: '#edf2f7', padding: '60px 20px', textAlign: 'center' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <h3 style={{ fontSize: '24px', fontWeight: '800', color: '#1a202c', marginBottom: '12px' }}>
+            ご不明な点やご相談はお気軽に
+          </h3>
+          <p style={{ fontSize: '14px', color: '#4a5568', marginBottom: '24px' }}>
+            導入前のプラン選定や機能に関するご質問など、いつでもお問い合わせください。
+          </p>
+          <a
+            href="mailto:support@pushtaro.com"
+            style={{ display: 'inline-block', background: '#3182ce', color: '#fff', padding: '12px 28px', borderRadius: '6px', fontSize: '14px', fontWeight: '700', textDecoration: 'none' }}
+          >
+            お問い合わせする
+          </a>
+        </div>
+      </section>
+
+      {/* フッター（法的ページとリンクを統合） */}
       <footer style={{ background: '#1a202c', color: '#a0aec0', padding: '50px 20px', textAlign: 'center', fontSize: '14px' }}>
         <p style={{ margin: '0 0 10px 0', color: '#fff', fontWeight: '700', fontSize: '18px' }}>Push-taro</p>
         <p style={{ margin: '0 0 20px 0' }}>店舗専用プッシュ通知・CRMプラットフォーム</p>
+        
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '25px', flexWrap: 'wrap' }}>
+          <Link href="/terms" style={{ color: '#cbd5e0', textDecoration: 'none', fontSize: '13px' }}>利用規約</Link>
+          <Link href="/privacy" style={{ color: '#cbd5e0', textDecoration: 'none', fontSize: '13px' }}>プライバシーポリシー</Link>
+          <Link href="/tokusho" style={{ color: '#cbd5e0', textDecoration: 'none', fontSize: '13px' }}>特定商取引法に基づく表記</Link>
+        </div>
+
         <p style={{ margin: 0, fontSize: '12px', color: '#718096' }}>© 2026 Push-taro All Rights Reserved.</p>
         <div style={{ marginTop: '20px' }}>
           <Link href="/admin" style={{ color: '#cbd5e0', textDecoration: 'none', fontSize: '13px' }}>
