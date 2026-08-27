@@ -18,29 +18,20 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* ヒーローセクション（起） */}
-      <header style={{ background: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)', color: '#fff', textAlign: 'center', padding: '80px 20px 60px 20px', overflow: 'hidden' }}>
-        {/* 文字なしベース画像エリア */}
-        <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto 40px auto', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)' }}>
-          <img 
-            src="/taro.png" 
-            alt="Push-taro イメージ" 
-            style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain' }}
-          />
-        </div>
-
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+      {/* ヒーローセクション（画像なし・テキストと信頼感に特化） */}
+      <header style={{ background: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)', color: '#fff', textAlign: 'center', padding: '100px 20px 80px 20px' }}>
+        <div style={{ maxWidth: '850px', margin: '0 auto' }}>
           <span style={{ background: 'rgba(49, 130, 206, 0.2)', color: '#63b3ed', border: '1px solid #3182ce', padding: '6px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            店舗の売上とリピート率を最大化するCRM
+            店舗の売上とリピート率を最大化するCRMプラットフォーム
           </span>
 
-          <h1 style={{ fontSize: 'clamp(32px, 5vw, 52px)', margin: '24px 0 16px 0', fontWeight: '800', letterSpacing: '-1px', lineHeight: '1.2' }}>
-            既存客の囲い込みを、もっと身近に。<br />もっと自由に。
+          <h1 style={{ fontSize: 'clamp(36px, 5vw, 56px)', margin: '24px 0 20px 0', fontWeight: '800', letterSpacing: '-1px', lineHeight: '1.2' }}>
+            既存客の囲い込みを、もっと身近に。<br />もっと自由に、コストを気にせず。
           </h1>
 
-          <p style={{ fontSize: '18px', color: '#a0aec0', lineHeight: '1.8', maxWidth: '700px', margin: '0 auto 40px auto' }}>
+          <p style={{ fontSize: '18px', color: '#a0aec0', lineHeight: '1.8', maxWidth: '720px', margin: '0 auto 40px auto' }}>
             雨の日や平日のアイドルタイム、常連客へのタイムリーなアプローチ。<br />
-            店舗専用のプッシュ通知プラットフォームが、安定した集客とリピートを実現します。
+            店舗専用のプッシュ通知と高度なCRM機能が、安定した集客とリピートを実現します。
           </p>
 
           <a
@@ -52,7 +43,7 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* 課題提示セクション（承・その1） */}
+      {/* 課題提示セクション */}
       <section style={{ maxWidth: '900px', margin: '80px auto', padding: '0 20px' }}>
         <div style={{ textAlign: 'center', marginBottom: '50px' }}>
           <h2 style={{ fontSize: '30px', fontWeight: '800', color: '#1a202c', marginBottom: '16px' }}>
@@ -90,7 +81,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 従量課金の罠（承・その2） */}
+      {/* 従量課金の罠 */}
       <section style={{ background: '#edf2f7', padding: '80px 20px' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
           <span style={{ color: '#e53e3e', fontWeight: '700', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>
@@ -106,44 +97,81 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 解決策・実績イメージ（転） */}
+      {/* 成功事例・業種別実績セクション */}
       <section style={{ maxWidth: '900px', margin: '80px auto', padding: '0 20px' }}>
         <div style={{ textAlign: 'center', marginBottom: '50px' }}>
           <span style={{ color: '#3182ce', fontWeight: '700', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            Solution & Results
+            Proven Results
           </span>
           <h2 style={{ fontSize: '30px', fontWeight: '800', color: '#1a202c', margin: '16px 0 10px 0' }}>
-            Push-taroがもたらす、確かなリピート改善効果
+            業種別：Push-taro導入による実績データ
           </h2>
           <p style={{ color: '#718096', fontSize: '16px' }}>
-            飲食店、サロン、アパレルなど、多様な業種でリピート率向上を実現しています。
+            定額使い放題のプッシュ通知と強力なリピート施策により、各業種で確かな成果が出ています。
           </p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '24px' }}>
           <div style={{ background: '#fff', padding: '30px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#2d3748', marginBottom: '10px' }}>🍽️ 飲食店・カフェ</h3>
+            <div style={{ fontSize: '28px', fontWeight: '800', color: '#3182ce', marginBottom: '8px' }}>約 2.4倍</div>
+            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#2d3748', marginBottom: '10px' }}>🍽️ 飲食店・カフェ（アイドルタイム集客）</h3>
             <p style={{ fontSize: '14px', color: '#718096', lineHeight: '1.6' }}>
-              雨の日のランチタイムに限定クーポンを配信し、稼働率を平均35%向上。常連化の自動化に成功。
+              雨天や平日の14〜16時に限定クーポンを配信し、閑散期の稼働率を大幅に向上。
             </p>
           </div>
+
           <div style={{ background: '#fff', padding: '30px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#2d3748', marginBottom: '10px' }}>✂️ 美容室・サロン</h3>
+            <div style={{ fontSize: '28px', fontWeight: '800', color: '#3182ce', marginBottom: '8px' }}>60日 ⇒ 42日</div>
+            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#2d3748', marginBottom: '10px' }}>✂️ 美容室・サロン（再来サイクル短縮）</h3>
             <p style={{ fontSize: '14px', color: '#718096', lineHeight: '1.6' }}>
-              前回来店から一定期間が経過した休眠顧客への自動アプローチで、再来店のサイクルが大幅に短縮。
+              最適タイミングでのリマインドと次回割引により、平均再来サイクルが短縮化。
             </p>
           </div>
+
           <div style={{ background: '#fff', padding: '30px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#2d3748', marginBottom: '10px' }}>🛍️ 小売・アパレル</h3>
+            <div style={{ fontSize: '28px', fontWeight: '800', color: '#3182ce', marginBottom: '8px' }}>リピート率 42%</div>
+            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#2d3748', marginBottom: '10px' }}>💆 エステ・リラクゼーション（常連化）</h3>
             <p style={{ fontSize: '14px', color: '#718096', lineHeight: '1.6' }}>
-              新作入荷やセール情報をタイムリーに一斉配信。コストを気にせずダイレクトに購買意欲を刺激。
+              誕生日配信やプロプランの自動アプローチ機能で、固定客の定着率（従来18%）が跳ね上がり。
             </p>
           </div>
         </div>
       </section>
 
-      {/* 料金プランセクション（結） */}
-      <section id="pricing" style={{ background: '#edf2f7', padding: '80px 20px' }}>
+      {/* スタンダード機能・ジオフェンス解説セクション */}
+      <section style={{ background: '#edf2f7', padding: '80px 20px' }}>
+        <div style={{ maxWidth: '850px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <span style={{ color: '#3182ce', fontWeight: '700', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              Feature Spotlight
+            </span>
+            <h2 style={{ fontSize: '28px', fontWeight: '800', color: '#1a202c', margin: '16px 0 12px 0' }}>
+              スタンダードプランの目玉：『ジオフェンス機能』とは？
+            </h2>
+            <p style={{ fontSize: '16px', color: '#4a5568', lineHeight: '1.8' }}>
+              お店の半径数十〜数百メートル以内（商圏内）に顧客が足を踏み入れた瞬間、スマホのGPSと連動して自動的にプッシュ通知を送信。リアルタイムな来店動機をつくり出す、強力な自動集客機能です。
+            </p>
+          </div>
+
+          <div style={{ background: '#fff', padding: '30px', borderRadius: '12px', border: '1px solid #cbd5e0', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
+            <div>
+              <h4 style={{ fontSize: '16px', fontWeight: '700', color: '#2d3748', marginBottom: '8px' }}>📍 1. エリアに入る</h4>
+              <p style={{ fontSize: '14px', color: '#718096', lineHeight: '1.6' }}>周辺を歩いている見込み客や既存顧客を自動で検知します。</p>
+            </div>
+            <div>
+              <h4 style={{ fontSize: '16px', fontWeight: '700', color: '#2d3748', marginBottom: '8px' }}>🎟️ 2. クーポンを自動配信</h4>
+              <p style={{ fontSize: '14px', color: '#718096', lineHeight: '1.6' }}>「お近くの方へ！今から使える限定特典」などを自動でお届け。</p>
+            </div>
+            <div>
+              <h4 style={{ fontSize: '16px', fontWeight: '700', color: '#2d3748', marginBottom: '8px' }}>🏃 3. そのまま来店へ</h4>
+              <p style={{ fontSize: '14px', color: '#718096', lineHeight: '1.6' }}>どこに行こうか迷っているお客様をダイレクトに店舗へ誘導します。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 料金プランセクション */}
+      <section id="pricing" style={{ background: '#f8fafc', padding: '80px 20px' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '50px' }}>
             <h2 style={{ fontSize: '32px', fontWeight: '800', color: '#1a202c', marginBottom: '12px' }}>
