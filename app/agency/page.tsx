@@ -4,175 +4,260 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 export default function AgencyPage() {
+  const [companyName, setCompanyName] = useState('');
+  const [ownerName, setOwnerName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [bankInfo, setBankInfo] = useState('');
+
   const [agreed, setAgreed] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleApply = () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!agreed) {
-      alert('代理店利用規約への同意が必要です。');
+      alert('代理店利用規約に同意してください。');
       return;
     }
+
     setLoading(true);
-    // Squareの代理店初期費用（加盟金30万円＋初月月額等）の決済URLへリダイレクト
-    window.location.href = 'https://square.link/u/your-agency-payment-link';
+    try {
+      const res = await fetch('/api/agency/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          companyName,
+          ownerName,
+          email,
+          phone,
+          address,
+          invoiceNumber,
+          bankInfo,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || '申込処理に失敗しました。');
+      }
+
+      setSubmitted(true);
+    } catch (err: any) {
+      alert('エラーが発生しました: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return (
-    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', color: '#2d3748', background: '#f8fafc', minHeight: '100vh', margin: 0, padding: 0, lineHeight: 1.7 }}>
-      
-      {/* LP共通ヘッダー */}
-      <nav style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ fontSize: '20px', fontWeight: '800', color: '#1a202c', letterSpacing: '-0.5px' }}>
-          <Link href="/" style={{ color: '#1a202c', textDecoration: 'none' }}>
-            Push-taro<span style={{ color: '#3182ce', fontSize: '14px', marginLeft: '8px', fontWeight: 'normal' }}>本格派CRMツール</span>
+  // 送信完了画面
+  if (submitted) {
+    return (
+      <main style={{ maxWidth: '650px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif' }}>
+        <div style={{ background: '#f0fdf4', padding: '40px 30px', borderRadius: '12px', textAlign: 'center', border: '1px solid #bbf7d0' }}>
+          <h2 style={{ color: '#166534', marginBottom: '16px', fontSize: '24px' }}>代理店お申し込みを受け付けました</h2>
+          <p style={{ lineHeight: '1.8', color: '#374151', marginBottom: '24px', fontSize: '15px' }}>
+            ご登録ありがとうございます。ご入力いただいた内容をもとに審査を行わせていただきます。<br />
+            審査完了後、ご登録のメールアドレス宛（<strong>{email}</strong>）に<strong>決済手続き用のご案内メール</strong>をお送りいたします。
+          </p>
+          <Link
+            href="/"
+            style={{
+              display: 'inline-block',
+              background: '#3182ce',
+              color: '#fff',
+              padding: '12px 28px',
+              borderRadius: '6px',
+              textDecoration: 'none',
+              fontWeight: 'bold',
+            }}
+          >
+            トップページへ戻る
           </Link>
         </div>
-        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-          <Link href="/#pro-referral" style={{ fontSize: '14px', fontWeight: '600', color: '#dd6b20', textDecoration: 'none' }}>
-            プロ紹介制度
-          </Link>
-          <Link href="/#pricing" style={{ fontSize: '14px', fontWeight: '600', color: '#4a5568', textDecoration: 'none' }}>
-            料金プラン
-          </Link>
-          <Link href="/signup" style={{ background: '#3182ce', color: '#fff', padding: '10px 20px', borderRadius: '6px', fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}>
-            お申し込み
+      </main>
+    );
+  }
+
+  return (
+    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', color: '#2d3748', background: '#f8fafc', minHeight: '100vh', margin: 0, padding: 0, lineHeight: 1.7 }}>
+      
+      {/* ナビゲーションバー */}
+      <nav style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
+        <div style={{ fontSize: '20px', fontWeight: '800', color: '#1a202c' }}>
+          <Link href="/" style={{ color: '#1a202c', textDecoration: 'none' }}>
+            Push-taro<span style={{ color: '#3182ce', fontSize: '14px', marginLeft: '8px', fontWeight: 'normal' }}>本格派CRMツール</span>
           </Link>
         </div>
       </nav>
 
       {/* メインコンテンツ */}
-      <main style={{ maxWidth: '850px', margin: '50px auto', background: '#ffffff', padding: '40px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
+      <main style={{ maxWidth: '800px', margin: '40px auto', background: '#ffffff', padding: '40px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
         
         {/* ヘッダー */}
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <span style={{ background: '#ebf8ff', color: '#3182ce', padding: '6px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '35px' }}>
+          <span style={{ background: '#ebf8ff', color: '#3182ce', padding: '6px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase' }}>
             Official Partner Program
           </span>
-          <h1 style={{ fontSize: '32px', fontWeight: '800', margin: '16px 0 10px 0', color: '#1a202c' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: '800', margin: '16px 0 10px 0', color: '#1a202c' }}>
             代理店パートナーお申し込み
           </h1>
-          <p style={{ color: '#718096', fontSize: '16px', maxWidth: '650px', margin: '0 auto' }}>
-            本気で収益を伸ばし、事業の柱を作るための超過累進型代理店制度です。専用アカウントによる万全のサポートと管理体制をご提供します。
+          <p style={{ color: '#718096', fontSize: '15px' }}>
+            必要事項をご入力の上、パートナー登録の審査へお進みください。
           </p>
         </div>
 
-        {/* 費用と条件のボックス */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-          {/* 加盟金 */}
-          <div style={{ background: 'linear-gradient(135deg, #ebf8ff 0%, #eef2ff 100%)', border: '2px solid #bee3f8', padding: '30px', borderRadius: '14px', textAlign: 'center' }}>
-            <span style={{ background: '#e53e3e', color: '#ffffff', fontSize: '10px', fontWeight: '700', padding: '4px 10px', borderRadius: '10px', textTransform: 'uppercase' }}>
-              期間限定キャンペーン
-            </span>
-            <h3 style={{ fontSize: '18px', fontWeight: '800', margin: '12px 0 6px 0', color: '#1a202c' }}>代理店加盟金（初期費用）</h3>
-            <div style={{ color: '#a0aec0', textDecoration: 'line-through', fontSize: '14px' }}>通常 1,000,000円 (税別)</div>
-            <div style={{ fontSize: '32px', fontWeight: '900', color: '#3182ce', margin: '4px 0 0 0' }}>
-              300,000円 <span style={{ fontSize: '13px', fontWeight: 'normal', color: '#4a5568' }}>(税別)</span>
+        {/* 条件サマリーボックス */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+          <div style={{ background: 'linear-gradient(135deg, #ebf8ff 0%, #eef2ff 100%)', border: '2px solid #bee3f8', padding: '20px', borderRadius: '12px', textAlign: 'center' }}>
+            <h3 style={{ fontSize: '15px', fontWeight: '800', margin: '0 0 6px 0', color: '#1a202c' }}>加盟金（初期費用）</h3>
+            <div style={{ fontSize: '26px', fontWeight: '900', color: '#3182ce' }}>
+              300,000円 <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#4a5568' }}>(税別)</span>
             </div>
           </div>
-
-          {/* 月額費用 */}
-          <div style={{ background: '#f7fafc', border: '2px solid #cbd5e0', padding: '30px', borderRadius: '14px', textAlign: 'center' }}>
-            <span style={{ background: '#4a5568', color: '#ffffff', fontSize: '10px', fontWeight: '700', padding: '4px 10px', borderRadius: '10px', textTransform: 'uppercase' }}>
-              パートナー専用プラン
-            </span>
-            <h3 style={{ fontSize: '18px', fontWeight: '800', margin: '12px 0 6px 0', color: '#1a202c' }}>代理店月額費用</h3>
-            <div style={{ color: '#718096', fontSize: '14px', visibility: 'hidden' }}>dummy</div>
-            <div style={{ fontSize: '32px', fontWeight: '900', color: '#1a202c', margin: '4px 0 0 0' }}>
-              30,000円 <span style={{ fontSize: '13px', fontWeight: 'normal', color: '#4a5568' }}>/月 (税別)</span>
+          <div style={{ background: '#f7fafc', border: '2px solid #cbd5e0', padding: '20px', borderRadius: '12px', textAlign: 'center' }}>
+            <h3 style={{ fontSize: '15px', fontWeight: '800', margin: '0 0 6px 0', color: '#1a202c' }}>代理店月額費用</h3>
+            <div style={{ fontSize: '26px', fontWeight: '900', color: '#1a202c' }}>
+              30,000円 <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#4a5568' }}>/月 (税別)</span>
             </div>
-            <p style={{ fontSize: '11px', color: '#718096', margin: '6px 0 0 0' }}>※活動意欲を高め、手厚い運営サポートを維持するための費用となります。</p>
           </div>
         </div>
 
-        {/* 特徴・報酬モデルの再確認 */}
-        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', marginBottom: '30px' }}>
-          <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1a202c', marginBottom: '10px' }}>📈 超過累進型の魅力的な報酬設計</h3>
-          <ul style={{ fontSize: '13px', color: '#4a5568', paddingLeft: '20px', margin: 0, lineHeight: '1.8' }}>
-            <li><strong>1〜100件目</strong>：30%還元</li>
-            <li><strong>101〜200件目</strong>：36%還元（上乗せ）</li>
-            <li><strong>201件目以降</strong>：45%還元（最大上乗せ）</li>
-            <li><strong>受取方法</strong>：運営のPayPay銀行からあなたのPayPayへ手数料無料で自動送金！</li>
-          </ul>
-        </div>
+        {/* 申込フォーム */}
+        <form onSubmit={handleSubmit}>
+          <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '15px', paddingBottom: '8px', borderBottom: '2px solid #edf2f7' }}>
+            申請者情報入力
+          </h2>
 
-        {/* 規約の表示エリア（別ページに飛ばさずここで完結） */}
-        <div style={{ background: '#f8fafc', border: '1px solid #cbd5e0', borderRadius: '12px', padding: '24px', marginBottom: '24px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1a202c', marginBottom: '12px' }}>代理店利用規約（必ずお読みください）</h3>
-          <div style={{ height: '220px', overflowY: 'auto', fontSize: '12px', color: '#4a5568', background: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', lineHeight: '1.8', marginBottom: '16px' }}>
-  <p style={{ margin: '0 0 10px 0' }}><strong>第1条（目的）</strong> 本規約は、当社のCRMツール「Push-taro」（以下「本サービス」）の販売促進活動を行う代理店（以下「パートナー」）の条件、報酬、および権利義務関係を定めることを目的とします。</p>
-  <p style={{ margin: '0 0 10px 0' }}><strong>第2条（代理店契約の成立と費用）</strong><br />
-  1. パートナー契約は、希望者が当社所定の手続きに従って申し込みを行い、当社がこれを承諾し、初期加盟金および所定の初期費用の決済が完了した時に成立するものとします。<br />
-  2. パートナーは、契約の対価として当社が定める加盟金（初期費用）を指定の方法で支払うものとします。支払われた加盟金は、システムの利用権等の対価として受領するものであり、理由の如何を問わず原則として返金されないものとします。<br />
-  3. パートナーは、本サービスの代理店資格および専用アカウントを維持するため、当社が定める<strong>代理店月額費用（月額30,000円・税別）</strong>を毎月支払うものとします。</p>
-  <p style={{ margin: '0 0 10px 0' }}><strong>第3条（紹介報酬の算定および支払い）</strong><br />
-  1. 当社は、パートナーの紹介コードを経由して本サービスのプロプランに加入し、有効に継続している店舗（アクティブ店舗）の数に応じ、別途定める超過累進型の報酬計算ロジックに基づいて報酬を算定します。<br />
-  2. 報酬の支払いは、毎月末締めで集計し、当社の指定する金融機関（PayPay銀行等）からパートナーの指定する決済アカウント（PayPay等）へ送金する方法により行います。</p>
-  <p style={{ margin: '0 0 10px 0' }}><strong>第4条（禁止事項）</strong> パートナーは、本サービスの販売活動を行うにあたり、虚偽の説明や誤認を招く誇大広告、当社の信用を傷つける行為、または不当な勧誘を行ってはならないものとします。</p>
-  <p style={{ margin: '0 0 10px 0' }}><strong>第5条（契約解除およびペナルティ）</strong> パートナーが禁止事項に違反した場合、または代理店月額費用の滞納が認められた場合、当社は事前の催告なしに本契約を解除し、アカウント停止および未払い報酬の没収等の措置をとることができるものとします。</p>
-  <p style={{ margin: '0 0 10px 0' }}><strong>第6条（中途解約）</strong> パートナーの都合による中途解約の場合においても、既払いの加盟金および月額費用の返金は一切行われないものとします。</p>
-  <p style={{ margin: '0 0 10px 0' }}><strong>第7条（免責事項）</strong> 当社は、システム障害やその他不可抗力によって生じたパートナーの損害について、一切の責任を負わないものとします。</p>
-  <p style={{ margin: 0 }}><strong>第8条（規約の変更）</strong> 当社は必要に応じて本規約を変更できるものとし、変更後の規約は本サービス上に掲示した時点で効力を生じるものとします。</p>
-</div>
-          
-          {/* 同意チェックボックス */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>会社名 / 屋号 <span style={{ color: 'red' }}>*</span></label>
             <input
-              type="checkbox"
-              id="agreement"
-              checked={agreed}
-              onChange={(e) => setAgreed(e.target.checked)}
-              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+              type="text"
+              required
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              placeholder="例: 株式会社サンプルエージェンシー"
+              style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
             />
-            <label htmlFor="agreement" style={{ fontSize: '14px', fontWeight: '600', color: '#2d3748', cursor: 'pointer' }}>
-              上記「代理店利用規約」の内容を確認し、同意します。
-            </label>
           </div>
-        </div>
 
-        {/* 申込ボタン */}
-        <div style={{ textAlign: 'center' }}>
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>ご担当者様のお名前 <span style={{ color: 'red' }}>*</span></label>
+            <input
+              type="text"
+              required
+              value={ownerName}
+              onChange={(e) => setOwnerName(e.target.value)}
+              placeholder="例: 山田 太郎"
+              style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>メールアドレス（連絡用） <span style={{ color: 'red' }}>*</span></label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="例: agency@example.com"
+              style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>お電話番号 <span style={{ color: 'red' }}>*</span></label>
+            <input
+              type="tel"
+              required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="例: 03-1234-5678"
+              style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>ご住所 <span style={{ color: 'red' }}>*</span></label>
+            <input
+              type="text"
+              required
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="例: 東京都渋谷区..."
+              style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>適格請求書発行事業者登録番号（インボイス番号）</label>
+            <input
+              type="text"
+              value={invoiceNumber}
+              onChange={(e) => setInvoiceNumber(e.target.value)}
+              placeholder="例: T1234567890123"
+              style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '25px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>成果報酬の振込先口座情報</label>
+            <input
+              type="text"
+              value={bankInfo}
+              onChange={(e) => setBankInfo(e.target.value)}
+              placeholder="例: 〇〇銀行 支店名 普通 1234567 口座名義"
+              style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+            />
+          </div>
+
+          {/* 規約エリア */}
+          <div style={{ background: '#f8fafc', border: '1px solid #cbd5e0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1a202c', marginBottom: '8px' }}>代理店利用規約（概要）</h3>
+            <div style={{ height: '140px', overflowY: 'auto', fontSize: '12px', color: '#4a5568', background: '#ffffff', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0', lineHeight: '1.7', marginBottom: '12px' }}>
+              <p style={{ margin: '0 0 8px 0' }}><strong>第1条（目的）</strong> 本規約は代理店パートナーの販売促進活動および権利義務関係を定めるものです。</p>
+              <p style={{ margin: '0 0 8px 0' }}><strong>第2条（契約成立と費用）</strong> 審査通過後、加盟金（30万円・税別）および初月月額費用（3万円・税別）の決済完了をもって契約成立とします。</p>
+              <p style={{ margin: '0 0 8px 0' }}><strong>第3条（解約・返金）</strong> 理由の如何を問わず、支払済みの加盟金の返金は行われません。</p>
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="checkbox"
+                id="agreement"
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+              />
+              <label htmlFor="agreement" style={{ fontSize: '14px', fontWeight: '600', color: '#2d3748', cursor: 'pointer' }}>
+                「代理店利用規約」の内容を確認し、同意します。
+              </label>
+            </div>
+          </div>
+
+          {/* 送信ボタン */}
           <button
-            onClick={handleApply}
+            type="submit"
             disabled={!agreed || loading}
             style={{
               width: '100%',
               padding: '16px',
-              borderRadius: '10px',
+              borderRadius: '8px',
               fontWeight: '700',
               fontSize: '16px',
               color: '#ffffff',
               border: 'none',
               background: agreed && !loading ? '#3182ce' : '#cbd5e0',
               cursor: agreed && !loading ? 'pointer' : 'not-allowed',
-              boxShadow: agreed && !loading ? '0 4px 12px rgba(49, 130, 206, 0.4)' : 'none',
-              transition: 'background 0.2s'
+              boxShadow: agreed && !loading ? '0 4px 12px rgba(49, 130, 206, 0.3)' : 'none',
             }}
           >
-            {loading ? '処理中...' : '加盟金（30万円）＆ 月額手続きへ進む'}
+            {loading ? '送信中...' : '代理店パートナーに申し込む'}
           </button>
-        </div>
+        </form>
 
       </main>
-
-      {/* LP共通フッター */}
-      <footer style={{ background: '#1a202c', color: '#a0aec0', padding: '50px 20px', textAlign: 'center', fontSize: '14px', marginTop: '80px' }}>
-        <p style={{ margin: '0 0 10px 0', color: '#fff', fontWeight: '700', fontSize: '18px' }}>Push-taro</p>
-        <p style={{ margin: '0 0 20px 0' }}>店舗専用プッシュ通知・CRMプラットフォーム</p>
-        
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '25px', flexWrap: 'wrap' }}>
-          <Link href="/terms" style={{ color: '#cbd5e0', textDecoration: 'none', fontSize: '13px' }}>利用規約</Link>
-          <Link href="/privacy" style={{ color: '#cbd5e0', textDecoration: 'none', fontSize: '13px' }}>プライバシーポリシー</Link>
-          <Link href="/tokusho" style={{ color: '#cbd5e0', textDecoration: 'none', fontSize: '13px' }}>特定商取引法に基づく表記</Link>
-        </div>
-
-        <p style={{ margin: 0, fontSize: '12px', color: '#718096' }}>© 2026 Push-taro All Rights Reserved.</p>
-        <div style={{ marginTop: '20px' }}>
-          <Link href="/admin" style={{ color: '#cbd5e0', textDecoration: 'none', fontSize: '13px' }}>
-            管理者ログイン
-          </Link>
-        </div>
-      </footer>
-
     </div>
   );
 }
