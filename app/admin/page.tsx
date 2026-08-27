@@ -38,6 +38,7 @@ export default function AdminPage() {
 
   // UI開閉用ステート
   const [shopInfoOpen, setShopInfoOpen] = useState(false);
+  const [referralInfoOpen, setReferralInfoOpen] = useState(false);
 
   // 履歴＆受取許可件数
   const [history, setHistory] = useState<PushHistory[]>([]);
