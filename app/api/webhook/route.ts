@@ -1,6 +1,6 @@
 // app/api/webhook/route.ts
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase'; // Firestoreの初期化設定
+import { ... } from '@/lib/firebase-admin'; // Firestoreの初期化設定
 
 export async function POST(req: Request) {
   try {
