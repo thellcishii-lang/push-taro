@@ -1,5 +1,5 @@
 // app/actions/agencyActions.ts
-import { db } from '@/lib/firebase'; // または Firebase Admin
+import { db } from '@/lib/firebase-admin'; // または Firebase Admin
 
 export async function getAgencyDashboardData(agencyShopId: string) {
   try {
