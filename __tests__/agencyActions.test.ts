@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// DB や外部ライブラリのモック設定
+// DB モック設定
 vi.mock('@/lib/db', () => ({
   db: {
     agency: {
@@ -10,7 +10,16 @@ vi.mock('@/lib/db', () => ({
   },
 }));
 
+// Firebase Admin モック設定（db も含めて統合）
 vi.mock('@/lib/firebase-admin', () => ({
+  db: {
+    collection: vi.fn().mockReturnValue({
+      doc: vi.fn().mockReturnValue({
+        update: vi.fn().mockResolvedValue(true),
+        get: vi.fn().mockResolvedValue({ exists: true, data: () => ({ status: 'PENDING' }) }),
+      }),
+    }),
+  },
   adminAuth: {
     setCustomUserClaims: vi.fn().mockResolvedValue(true),
   },
@@ -22,15 +31,12 @@ describe('agencyActions のテスト', () => {
   });
 
   it('代理店承認ロジックが正常に呼び出されること', async () => {
-    // agencyActions モジュールの読み込み
     const agencyActions = await import('../app/actions/agencyActions');
 
-    // 承認関数の呼び出しテスト（※実際の関数名に合わせて実行）
     if (typeof agencyActions.approveAgency === 'function') {
       const result = await agencyActions.approveAgency('agency-123');
       expect(result).toBeDefined();
     } else {
-      // モジュールが存在することを確認
       expect(agencyActions).toBeDefined();
     }
   });
