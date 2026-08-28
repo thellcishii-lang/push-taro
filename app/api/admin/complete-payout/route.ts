@@ -1,12 +1,9 @@
-// app/api/admin/complete-payout/route.ts
-
 import { NextResponse } from 'next/server';
-import { db } from '../../../lib/firebase-admin'; // 既存の相対パスに合わせて調整
+import { db } from '@/lib/firebase-admin'; // `@/` エイリアスで絶対パス指定
 
 // ユーザー通知メール送信用のヘルパー関数
 async function sendUserPayoutEmail({ to, amount, bankHolder }: { to: string; amount: number; bankHolder?: string }) {
   console.log(`[振込完了メール通知] To: ${to} | 金額: ¥${amount} | 名義: ${bankHolder}`);
-  // メール送信サービス（Resend等）を接続する場合はここに記述
 }
 
 export async function POST(req: Request) {
@@ -28,7 +25,7 @@ export async function POST(req: Request) {
       lastPaidAt: new Date(),
     });
 
-    // 2. ユーザーへ振込完了通知メールを送信（ログ出力）
+    // 2. ユーザーへ振込完了通知メールを送信
     await sendUserPayoutEmail({
       to: userData?.email,
       amount: amount,
