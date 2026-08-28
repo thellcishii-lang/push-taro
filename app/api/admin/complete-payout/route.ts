@@ -1,11 +1,18 @@
+// app/api/admin/complete-payout/route.ts
+
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase-admin';
-import { sendUserPayoutEmail } from '@/lib/email'; // ResendやNodemailerなど
+import { db } from '../../../lib/firebase-admin'; // 既存の相対パスに合わせて調整
+
+// ユーザー通知メール送信用のヘルパー関数
+async function sendUserPayoutEmail({ to, amount, bankHolder }: { to: string; amount: number; bankHolder?: string }) {
+  console.log(`[振込完了メール通知] To: ${to} | 金額: ¥${amount} | 名義: ${bankHolder}`);
+  // メール送信サービス（Resend等）を接続する場合はここに記述
+}
 
 export async function POST(req: Request) {
   try {
     const { userId, amount } = await req.json();
-    const userRef = db.collection('users').doc(userId);
+    const userRef = db.collection('shops').doc(userId);
     const userDoc = await userRef.get();
 
     if (!userDoc.exists) {
@@ -21,7 +28,7 @@ export async function POST(req: Request) {
       lastPaidAt: new Date(),
     });
 
-    // 2. ユーザーへ振込完了通知メールを送信
+    // 2. ユーザーへ振込完了通知メールを送信（ログ出力）
     await sendUserPayoutEmail({
       to: userData?.email,
       amount: amount,
