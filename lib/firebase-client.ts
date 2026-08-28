@@ -49,8 +49,8 @@ export async function requestFCMToken(): Promise<string | null> {
   }
 
   try {
-    // 🔴 修正点: トークン取得前に必ずSWを登録する
-    await registerServiceWorker();
+    // 変数 registration に代入して受け取る
+    const registration = await registerServiceWorker();
 
     console.log('[firebase-client.ts] getToken 開始');
     const token = await getToken(messaging, {
