@@ -55,6 +55,7 @@ export async function requestFCMToken(): Promise<string | null> {
     console.log('[firebase-client.ts] getToken 開始');
     const token = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+      serviceWorkerRegistration: registration || undefined,
     });
     console.log('[firebase-client.ts] getToken 結果:', token ? '取得成功' : 'null返却');
     return token;
