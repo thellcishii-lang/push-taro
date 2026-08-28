@@ -19,23 +19,40 @@ function calculateTieredReward(activeCount: number, monthlyFee: number = 10000):
  * 管理者宛に1万円到達時の手動振込依頼メールを送るヘルパー関数
  */
 async function sendAdminPayoutNotification(referrerData: any, referrerId: string, totalAmount: number) {
-  // メール送信サービス（Resend, SendGrid, Nodemailer等）をここに接続
-  console.log(`
-==================================================
+  const adminEmail = 'pushtaro.info@gmail.com';
+
+  const emailBody = `
 【要対応】紹介報酬 10,000円到達のお知らせ
---------------------------------------------------
+
+ユーザーの紹介報酬累計額が10,000円に達しました。
+口座情報をご確認の上、手動でお振り込み（PayPay銀行等）をお願いいたします。
+
+----------------------------------------
+■ ユーザー情報
 ユーザーID: ${referrerId}
 メールアドレス: ${referrerData.email}
 現在の未払い累計額: ¥${totalAmount.toLocaleString()}
 
-【振込先口座情報】
+■ 振込先口座情報
 金融機関名: ${referrerData.bankAccount?.bankName || '未登録'}
 支店名: ${referrerData.bankAccount?.branchName || '未登録'}
 口座種別: ${referrerData.bankAccount?.accountType === 'savings' ? '普通' : '当座'}
 口座番号: ${referrerData.bankAccount?.accountNumber || '未登録'}
 口座名義: ${referrerData.bankAccount?.accountHolder || '未登録'}
-==================================================
-  `);
+----------------------------------------
+`;
+
+  // コンソールへのログ出力
+  console.log(`[管理者通知] 送信先: ${adminEmail}`);
+  console.log(emailBody);
+
+  // Resend等を利用して実際のメールを送信する場合はここに記述します
+  // await resend.emails.send({
+  //   from: 'PUSH太郎 <noreply@push-taro.com>',
+  //   to: adminEmail,
+  //   subject: `【要対応】紹介報酬の振込リクエストが発生しました（${referrerData.email}）`,
+  //   text: emailBody,
+  // });
 }
 
 export async function POST(request: Request) {
