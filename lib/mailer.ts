@@ -2,6 +2,32 @@ import { NextResponse } from 'next/server';
 import { db, authAdmin } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../lib/mailer'; // 👈 メール送信ユーティリティをインポート
+import nodemailer from 'nodemailer';
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS,
+  },
+});
+
+// 誕生した関数名の前に export を付与します
+export async function sendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {
+  try {
+    const info = await transporter.sendMail({
+      from: `プッシュ太郎 <${process.env.GMAIL_USER}>`,
+      to,
+      subject,
+      html,
+    });
+    console.log('[Mailer] メール送信成功:', info.messageId);
+    return { success: true };
+  } catch (error) {
+    console.error('[Mailer] メール送信エラー:', error);
+    return { success: false, error };
+  }
+}
 
 export async function POST(request: Request) {
   const authHeader = request.headers.get('Authorization');
