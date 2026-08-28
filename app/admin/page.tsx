@@ -516,7 +516,7 @@ export default function AdminPage() {
               fontWeight: 'bold',
               fontSize: '16px',
               display: 'flex',
-              justify: 'space-between',
+              justifyContent: 'space-between',
               alignItems: 'center',
             }}
           >
