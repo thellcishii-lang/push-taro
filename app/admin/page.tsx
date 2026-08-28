@@ -526,7 +526,6 @@ export default function AdminPage() {
 
           {cronInfoOpen && (
             <div style={{ marginTop: '10px', padding: '20px', background: '#f6fef9', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
-              {/* 💡 前文・ガイド表示 */}
               <div style={{ padding: '12px 16px', background: '#e0f2fe', borderLeft: '4px solid #0284c7', borderRadius: '4px', marginBottom: '20px', color: '#0369a1', fontSize: '13px', lineHeight: '1.6' }}>
                 <p style={{ margin: '0 0 6px 0', fontWeight: 'bold', fontSize: '14px' }}>
                   💡 自動配信（Cron処理）について
