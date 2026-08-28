@@ -1,53 +1,53 @@
-// app/actions/agencyActions.ts
-import { db } from '@/lib/firebase-admin'; // または Firebase Admin
+// app/actions/agencyActions.ts に追加
+import { sendEmail } from '@/lib/mailer';
 
-export async function getAgencyDashboardData(agencyShopId: string) {
+// 代理店申請の承認処理
+export async function approveAgency(agencyShopId: string, email: string) {
   try {
-    // 1. 代理店自身のショップ情報（ID）を基に、紹介コード等を取得
-    const agencyDoc = await db.collection('shops').doc(agencyShopId).get();
-    if (!agencyDoc.exists) {
-      throw new Error('代理店情報が見つかりません');
-    }
-    const agencyData = agencyDoc.data();
-    const referralCode = agencyData?.referralCode || '';
-
-    // 2. referral_relations コレクションから、この代理店(referrerId)経由の「active」な店舗をカウント
-    const relationsSnapshot = await db.collection('referral_relations')
-      .where('referrerId', '==', agencyShopId)
-      .where('status', '==', 'active')
-      .get();
-    
-    const activeCount = relationsSnapshot.size;
-
-    // 3. 現在の還元率の判定（1-100件: 30%, 101-200件: 36%, 201件以降: 45%）
-    const currentRate = activeCount <= 100 ? 30 : activeCount <= 200 ? 36 : 45;
-
-    // 4. 当月の未払い報酬合計（monthly_rewards から今月分の金額を合算）
-    const currentMonth = new Date().toISOString().slice(0, 7); // 例: '2026-08'
-    const rewardsSnapshot = await db.collection('monthly_rewards')
-      .where('userId', '==', agencyShopId)
-      .where('billingMonth', '==', currentMonth)
-      .where('status', '==', 'unpaid')
-      .get();
-
-    let monthlyEstimatedReward = 0;
-    rewardsSnapshot.forEach((doc) => {
-      monthlyEstimatedReward += doc.data().amount || 0;
+    // 1. 店舗のステータスを代理店（または承認済み）に更新
+    await db.collection('shops').doc(agencyShopId).update({
+      isAgency: true,
+      agencyApprovedAt: new Date(),
     });
 
-    return {
-      referralCode,
-      activeCount,
-      currentRate,
-      monthlyEstimatedReward,
-    };
+    // 2. 承認メールの送信
+    await sendEmail({
+      to: email,
+      subject: '【プッシュ太郎】代理店申請承認のお知らせ',
+      html: `
+        <p>代理店申請が承認されました。</p>
+        <p>管理画面より代理店ダッシュボードをご利用いただけます。</p>
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/agency">代理店ダッシュボードへログイン</a>
+      `,
+    });
+
+    return { success: true };
   } catch (error) {
-    console.error('ダッシュボードデータの取得に失敗しました:', error);
-    return {
-      referralCode: '',
-      activeCount: 0,
-      currentRate: 30,
-      monthlyEstimatedReward: 0,
-    };
+    console.error('代理店承認エラー:', error);
+    return { success: false, error: '承認処理に失敗しました' };
+  }
+}
+
+// 代理店申請の却下処理
+export async function rejectAgency(agencyShopId: string, email: string, reason?: string) {
+  try {
+    await db.collection('shops').doc(agencyShopId).update({
+      agencyRejectedAt: new Date(),
+      agencyRejectReason: reason || '',
+    });
+
+    await sendEmail({
+      to: email,
+      subject: '【プッシュ太郎】代理店申請結果のお知らせ',
+      html: `
+        <p>大変恐れ入りますが、審査の結果、今回の代理店申請は見送りとなりました。</p>
+        ${reason ? `<p>理由: ${reason}</p>` : ''}
+      `,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('代理店却下エラー:', error);
+    return { success: false, error: '却下処理に失敗しました' };
   }
 }
