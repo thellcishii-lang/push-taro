@@ -177,18 +177,30 @@ export async function POST(request: Request) {
 
     console.log(`[send-push] ✅ 合計成功: ${totalSuccessCount}, ❌ 合計失敗: ${totalFailureCount}`);
 
-    // 🗑️ 失敗した全トークンを Firestore からまとめて削除
+   // 🗑️ 失敗した全トークンを Firestore からクエリで検索して確実に削除
     if (failedTokens.length > 0) {
-      for (let i = 0; i < failedTokens.length; i += 400) {
-        const batchTokens = failedTokens.slice(i, i + 400);
-        const batch = db.batch();
-        for (const token of batchTokens) {
-          const docRef = db.collection('subscriptions').doc(token);
-          batch.delete(docRef);
+      // Firestore の in クエリ上限 (30件ずつ) に分割して実行
+      const IN_LIMIT = 30;
+      let deletedCount = 0;
+
+      for (let i = 0; i < failedTokens.length; i += IN_LIMIT) {
+        const chunkFailedTokens = failedTokens.slice(i, i + IN_LIMIT);
+        
+        // token フィールドが一致するドキュメントを取得
+        const invalidDocsSnapshot = await db.collection('subscriptions')
+          .where('token', 'in', chunkFailedTokens)
+          .get();
+
+        if (!invalidDocsSnapshot.empty) {
+          const batch = db.batch();
+          invalidDocsSnapshot.forEach((doc) => {
+            batch.delete(doc.ref);
+            deletedCount++;
+          });
+          await batch.commit();
         }
-        await batch.commit();
       }
-      console.log(`[send-push] 🧹 ${failedTokens.length} 件の無効トークンを削除しました`);
+      console.log(`[send-push] 🧹 ${deletedCount} 件の無効トークン（ドキュメント）を完全に削除しました`);
     }
 
     // 📈 今月の送信数を加算して店舗ドキュメントを更新
