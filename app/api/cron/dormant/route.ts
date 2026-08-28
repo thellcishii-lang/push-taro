@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server';
 // import { supabase } from '@/lib/supabase';
 
 export async function GET(request: Request) {
+  const authHeader = request.headers.get('authorization');
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json(
+      { error: 'Unauthorized: Invalid cron secret' },
+      { status: 401 }
+    );
+  }
   try {
     const now = new Date();
     // 60日前の日付を計算
