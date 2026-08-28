@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { token, shopId } = body;
+    const { token, shopId, birthDate } = body; // 👈 birthDate を受け取る
 
     if (!token || !shopId) {
       return NextResponse.json({ error: 'tokenとshopIdが必要です' }, { status: 400 });
@@ -35,6 +35,18 @@ export async function POST(request: Request) {
     const shopDoc = await db.collection('shops').doc(shopId).get();
     if (!shopDoc.exists) {
       return NextResponse.json({ error: '店舗が見つかりません' }, { status: 404 });
+    }
+
+    // Proプランで送られてきた誕生日の数値化処理（月抽出用）
+    let birthMonth: number | null = null;
+    let birthDay: number | null = null;
+
+    if (birthDate) {
+      const dateObj = new Date(birthDate);
+      if (!isNaN(dateObj.getTime())) {
+        birthMonth = dateObj.getMonth() + 1; // 1〜12月
+        birthDay = dateObj.getDate();        // 1〜31日
+      }
     }
 
     const normalizedToken = token.trim();
@@ -49,11 +61,19 @@ export async function POST(request: Request) {
       const data = doc.data();
       const shopIds = data?.shopIds || [];
 
+      // 生年月日データオブジェクト
+      const birthDataUpdate = birthDate ? {
+        birthDate,
+        birthMonth,
+        birthDay,
+      } : {};
+
       // ✅ 同じ店舗が既に登録されているかチェック
       if (shopIds.includes(shopId)) {
-        // 同じ店舗 → 最終アクティブ日時を更新
+        // 同じ店舗 → 最終アクティブ日時および生年月日情報を更新
         console.log('[API] 同じ店舗への再登録（更新）:', shopId);
         await docRef.update({
+          ...birthDataUpdate,
           lastActive: FieldValue.serverTimestamp(),
         });
 
@@ -66,6 +86,7 @@ export async function POST(request: Request) {
         // 別の店舗 → 追加登録
         console.log('[API] 別の店舗を追加:', shopId);
         await docRef.update({
+          ...birthDataUpdate,
           shopIds: FieldValue.arrayUnion(shopId),
           topics: FieldValue.arrayUnion(topic),
           lastActive: FieldValue.serverTimestamp(),
@@ -78,12 +99,15 @@ export async function POST(request: Request) {
         }, { status: 200 });
       }
     } else {
-      // 新規トークン → 新規作成
-      console.log('[API] 新規登録:', { token: normalizedToken.slice(0, 20) + '...', shopId });
+      // 新規トークン → 新規作成（生年月日もセット）
+      console.log('[API] 新規登録:', { token: normalizedToken.slice(0, 20) + '...', shopId, birthDate });
       await docRef.set({
         token: normalizedToken,
         shopIds: [shopId],
         topics: [topic],
+        birthDate: birthDate || null,
+        birthMonth: birthMonth || null,
+        birthDay: birthDay || null,
         createdAt: FieldValue.serverTimestamp(),
         lastActive: FieldValue.serverTimestamp(),
       });
