@@ -3,6 +3,13 @@ import { db as adminDb } from '@/lib/firebase-admin';
 
 // 毎日深夜に自動実行されるCron処理
 export async function GET(request: Request) {
+  const authHeader = request.headers.get('authorization');
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json(
+      { error: 'Unauthorized: Invalid cron secret' },
+      { status: 401 }
+    );
+  }
   try {
     const now = new Date().toISOString();
 
