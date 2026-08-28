@@ -4,19 +4,8 @@ import { FieldValue } from 'firebase-admin/firestore';
 
 /**
  * 代理店の有効紹介数に応じて、超過累進方式で1件あたりの還元額を算出するヘルパー関数
- * @param activeCount 現在の有効紹介数（アクティブ店舗数）
- * @param monthlyFee プロプランの月額料金（今回は 10000 円）
  */
 function calculateTieredReward(activeCount: number, monthlyFee: number = 10000): number {
-  // 代理店でない場合や一般紹介の場合は、従来の固定30%（または10%）を別の場所で計算するため、
-  // ここでは代理店向けの「トータル報酬ではなく、今回決済された1件がどの枠に入るか」を判定するか、
-  // あるいは「現在の総アクティブ数から今回の報酬単価を割り出す」形にするとスマートです。
-
-  // 超過累進のルールに基づき、何件目の枠に該当するかで今回の還元率を決定する：
-  // ・1件目〜100件目までの枠：30% (3,000円)
-  // ・101件目〜200件目までの枠：36% (3,600円)
-  // ・201件目以降の枠：45% (4,500円)
-
   if (activeCount <= 100) {
     return Math.floor(monthlyFee * 0.30); // 3,000円
   } else if (activeCount <= 200) {
@@ -29,121 +18,208 @@ function calculateTieredReward(activeCount: number, monthlyFee: number = 10000):
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-
-    // SquareからのWebhookイベント種別を確認
     const eventType = body?.type;
-    if (eventType !== 'payment.updated' && eventType !== 'order.fulfillment.updated') {
-      return NextResponse.json({ received: true }, { status: 200 });
-    }
+    const dataObject = body?.data?.object;
 
-    const payment = body?.data?.object?.payment;
-    const customerEmail = payment?.buyer_email_address || body?.related_customer_email;
-    const note = payment?.note || ''; // 申込時の店舗名など
-    const paidAmount = payment?.amount_money?.amount || 10000; // プロプラン月額（10,000円）
-    
-    // 紹介コード
-    const referralCode = payment?.reference_id || ''; 
+    console.log(`[Square Webhook 受信] イベント種別: ${eventType}`);
 
-    if (!customerEmail) {
-      return NextResponse.json({ error: '顧客のメールアドレスが見つかりません' }, { status: 400 });
-    }
+    // =========================================================================
+    // 1. 引き落とし失敗（1回目警告 or 送信停止中の次回失敗による強制退会）
+    // =========================================================================
+    if (eventType === 'invoice.payment_failed') {
+      const invoice = dataObject?.invoice;
+      const customerEmail = invoice?.primary_recipient?.email_address;
+      const customerId = invoice?.customer_id;
 
-    // 1. ランダムな初期パスワードを生成
-    const temporaryPassword = Math.random().toString(36).slice(-8) + 'A1!';
+      if (!customerEmail && !customerId) {
+        return NextResponse.json({ received: true }, { status: 200 });
+      }
 
-    // 2. Firebase Authにアカウント（ID/パスワード）を自動作成
-    const userRecord = await authAdmin.createUser({
-      email: customerEmail,
-      password: temporaryPassword,
-      emailVerified: true,
-    });
+      // メールアドレスまたはSquare顧客IDから店舗ドキュメントを特定
+      let query = db.collection('shops').where('email', '==', customerEmail);
+      let shopSnap = await query.get();
 
-    const uid = userRecord.uid;
+      if (shopSnap.empty && customerId) {
+        shopSnap = await db.collection('shops').where('squareCustomerId', '==', customerId).get();
+      }
 
-    // 3. Firestoreに初期の店舗データを作成
-    const shopRef = db.collection('shops').doc();
-    await shopRef.set({
-      name: note || '未設定の店舗',
-      ownerUid: uid,
-      createdAt: FieldValue.serverTimestamp(),
-      coupon: { enabled: false, title: '', description: '', discountRate: 0 },
-      linkUrl: '',
-      iconUrl: '',
-    });
+      if (!shopSnap.empty) {
+        const shopDoc = shopSnap.docs[0];
+        const shopData = shopDoc.data();
+        const currentStatus = shopData.status || 'active';
 
-    // 4. 紹介コードがある場合、紹介者または代理店を探して報酬を計算・保存する
-    if (referralCode) {
-      try {
-        // 紹介コードを持っている店舗/代理店を検索
-        const referrerSnapshot = await db.collection('shops')
-          .where('referralCode', '==', referralCode)
-          .limit(1)
-          .get();
+        // ---------------------------------------------------------------------
+        // 【パターン1】 初回の引き落とし失敗 ➔ 7日間の猶予期間（payment_warning）
+        // ---------------------------------------------------------------------
+        if (currentStatus !== 'payment_warning' && currentStatus !== 'send_disabled') {
+          const gracePeriodUntil = new Date();
+          gracePeriodUntil.setDate(gracePeriodUntil.getDate() + 7); // 7日後の日付
 
-        if (!referrerSnapshot.empty) {
-          const referrerDoc = referrerSnapshot.docs[0];
-          const referrerData = referrerDoc.data();
-          const referrerId = referrerDoc.id;
-
-          const isAgency = referrerData.role === 'agency';
-          let rewardAmount = 0;
-          let effectiveRate = 0.10; // デフォルト一般紹介（10%）
-
-          if (isAgency) {
-            // --- 代理店の場合の超過累進報酬計算 ---
-            // 現在、この代理店が何件のアクティブな紹介店舗を持っているか（firestoreからカウント）
-            const activeRelationsSnapshot = await db.collection('referral_relations')
-              .where('referrerId', '==', referrerId)
-              .where('status', '==', 'active')
-              .get();
-            
-            // 今回新しく増える1件を含めたアクティブ数、または現在の数に基づき計算
-            const currentActiveCount = activeRelationsSnapshot.size;
-            
-            // 超過累進の単価関数に通す（100件目まで3,000円、101〜200件目3,600円、201件目以降4,500円）
-            rewardAmount = calculateTieredReward(currentActiveCount + 1, 10000);
-            effectiveRate = rewardAmount / 10000; // 表示用の還元率（0.30, 0.36, 0.45）
-          } else {
-            // --- 一般紹介の場合（一律10% = 1,000円） ---
-            effectiveRate = 0.10;
-            rewardAmount = Math.floor(paidAmount * effectiveRate);
-          }
-
-          const currentMonth = new Date().toISOString().slice(0, 7); // 例: '2026-08'
-
-          // ① 誰が誰を紹介したかの紐付け（active）を保存
-          await db.collection('referral_relations').add({
-            referrerId: referrerId,
-            referredTenantId: shopRef.id,
-            rewardRate: effectiveRate,
-            status: 'active',
-            createdAt: FieldValue.serverTimestamp(),
+          await shopDoc.ref.update({
+            status: 'payment_warning', // 警告状態（送信は7日間可能）
+            failedAt: FieldValue.serverTimestamp(),
+            gracePeriodUntil: gracePeriodUntil.toISOString(),
+            updatedAt: FieldValue.serverTimestamp(),
           });
 
-          // ② 毎月の報酬明細（monthly_rewards）に保存
-          await db.collection('monthly_rewards').add({
-            userId: referrerId,
-            sourceTenantId: shopRef.id,
-            amount: rewardAmount,
-            billingMonth: currentMonth,
-            status: 'unpaid', // 未払い（PayPay送金待ち）
-            createdAt: FieldValue.serverTimestamp(),
+          // 📧 TODO: メール送信①「【重要】お支払い失敗のお知らせとカード情報更新のお願い（7日間猶予）」
+          console.log(`[警告メール送信通知] 店舗: ${shopData.name} (${customerEmail}) / 7日間猶予期限: ${gracePeriodUntil.toISOString()}`);
+        } 
+        // ---------------------------------------------------------------------
+        // 【パターン2】 送信停止中（send_disabled）で次回引き落としも失敗 ➔ 強制退会（cancelled）
+        // ---------------------------------------------------------------------
+        else if (currentStatus === 'send_disabled' || currentStatus === 'payment_warning') {
+          await shopDoc.ref.update({
+            status: 'cancelled', // 強制退会（画面不可）
+            cancelledAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
           });
+
+          // 関連する紹介リレーションも無効化 (inactive)
+          const relSnap = await db.collection('referral_relations')
+            .where('referredTenantId', '==', shopDoc.id)
+            .get();
+          
+          relSnap.docs.forEach(async (relDoc) => {
+            await relDoc.ref.update({ status: 'inactive' });
+          });
+
+          // 📧 TODO: メール送信③「【Push-taro】退会手続き完了のお知らせ」
+          console.log(`[強制退会完了] 店舗: ${shopData.name} (${customerEmail}) のアカウントを閉鎖しました。`);
         }
-      } catch (refError) {
-        console.error('[square-webhook] 紹介報酬の処理エラー:', refError);
+      }
+
+      return NextResponse.json({ success: true, message: '引き落とし失敗処理完了' }, { status: 200 });
+    }
+
+    // =========================================================================
+    // 2. 決済成功・新規購入・次回自動引き落とし成功時
+    // =========================================================================
+    if (eventType === 'payment.updated' || eventType === 'order.fulfillment.updated' || eventType === 'invoice.payment_made') {
+      const payment = dataObject?.payment || dataObject?.invoice;
+      const paymentStatus = payment?.status;
+
+      // 決済未完了の場合は何もしない
+      if (eventType === 'payment.updated' && paymentStatus !== 'COMPLETED') {
+        return NextResponse.json({ received: true }, { status: 200 });
+      }
+
+      const customerEmail = payment?.buyer_email_address || payment?.primary_recipient?.email_address || body?.related_customer_email;
+      const customerId = payment?.customer_id;
+      const note = payment?.note || '';
+      const paidAmount = payment?.amount_money?.amount || 10000;
+      const referralCode = payment?.reference_id || '';
+
+      if (!customerEmail) {
+        return NextResponse.json({ error: '顧客のメールアドレスが見つかりません' }, { status: 400 });
+      }
+
+      // 既存の店舗アカウントがあるか確認（既存店舗の継続課金成功か、新規決済か）
+      const existingShopSnap = await db.collection('shops').where('email', '==', customerEmail).get();
+
+      if (!existingShopSnap.empty) {
+        // --- A. 既存アカウントの継続引き落とし成功（復活処理） ---
+        const shopDoc = existingShopSnap.docs[0];
+        await shopDoc.ref.update({
+          status: 'active', // 警告や停止から正常(active)に復活
+          squareCustomerId: customerId || shopDoc.data().squareCustomerId || '',
+          failedAt: null,
+          gracePeriodUntil: null,
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+
+        console.log(`[アカウント自動復活/更新] 店舗: ${shopDoc.data().name} (${customerEmail})`);
+        return NextResponse.json({ success: true, message: '契約ステータスを有効に更新しました' }, { status: 200 });
+
+      } else {
+        // --- B. 新規購入時：アカウント作成 ＋ 紹介報酬処理 ---
+        const temporaryPassword = Math.random().toString(36).slice(-8) + 'A1!';
+
+        // Firebase Auth ユーザー作成
+        const userRecord = await authAdmin.createUser({
+          email: customerEmail,
+          password: temporaryPassword,
+          emailVerified: true,
+        });
+
+        const uid = userRecord.uid;
+
+        // 店舗ドキュメントの作成
+        const shopRef = db.collection('shops').doc();
+        await shopRef.set({
+          name: note || '未設定の店舗',
+          email: customerEmail,
+          ownerUid: uid,
+          squareCustomerId: customerId || '',
+          plan: 'pro',
+          status: 'active',
+          createdAt: FieldValue.serverTimestamp(),
+          coupon: { enabled: false, title: '', description: '', discountRate: 0 },
+          linkUrl: '',
+          iconUrl: '',
+        });
+
+        // 紹介コードが存在する場合の処理
+        if (referralCode) {
+          try {
+            const referrerSnapshot = await db.collection('shops')
+              .where('referralCode', '==', referralCode)
+              .limit(1)
+              .get();
+
+            if (!referrerSnapshot.empty) {
+              const referrerDoc = referrerSnapshot.docs[0];
+              const referrerData = referrerDoc.data();
+              const referrerId = referrerDoc.id;
+
+              const isAgency = referrerData.role === 'agency';
+              let rewardAmount = 0;
+              let effectiveRate = 0.10;
+
+              if (isAgency) {
+                const activeRelationsSnapshot = await db.collection('referral_relations')
+                  .where('referrerId', '==', referrerId)
+                  .where('status', '==', 'active')
+                  .get();
+
+                const currentActiveCount = activeRelationsSnapshot.size;
+                rewardAmount = calculateTieredReward(currentActiveCount + 1, 10000);
+                effectiveRate = rewardAmount / 10000;
+              } else {
+                effectiveRate = 0.10;
+                rewardAmount = Math.floor(paidAmount * effectiveRate);
+              }
+
+              const currentMonth = new Date().toISOString().slice(0, 7);
+
+              await db.collection('referral_relations').add({
+                referrerId: referrerId,
+                referredTenantId: shopRef.id,
+                rewardRate: effectiveRate,
+                status: 'active',
+                createdAt: FieldValue.serverTimestamp(),
+              });
+
+              await db.collection('monthly_rewards').add({
+                userId: referrerId,
+                sourceTenantId: shopRef.id,
+                amount: rewardAmount,
+                billingMonth: currentMonth,
+                status: 'unpaid',
+                createdAt: FieldValue.serverTimestamp(),
+              });
+            }
+          } catch (refError) {
+            console.error('[square-webhook] 紹介報酬の処理エラー:', refError);
+          }
+        }
+
+        console.log(`[新規アカウント自動発行完了] メール: ${customerEmail}`);
+        return NextResponse.json({ success: true, message: 'アカウントを自動発行しました' }, { status: 200 });
       }
     }
 
-    const loginUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://example.com'}/admin`;
-
-    console.log('--- 【プッシュ太郎】アカウント自動発行＆超過累進紹介処理完了 ---');
-    console.log(`宛先: ${customerEmail}`);
-    console.log(`紹介コード: ${referralCode || 'なし'}`);
-    console.log(`管理画面URL: ${loginUrl}`);
-    console.log('------------------------------------------------------------');
-
-    return NextResponse.json({ success: true, message: 'アカウントを自動発行しました' }, { status: 200 });
+    return NextResponse.json({ received: true }, { status: 200 });
 
   } catch (error: any) {
     console.error('[square-webhook] エラー:', error);
