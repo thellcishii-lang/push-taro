@@ -30,9 +30,14 @@ export default function AgencyDashboard() {
       : 100;
 
   const copyReferralLink = () => {
-    const link = `https://pushtaro.com/signup?ref=${agencyData.referralCode}`;
+    const link = `https://push-taro.com/signup?ref=${agencyData.referralCode}`;
     navigator.clipboard.writeText(link);
     alert('紹介用リンクをコピーしました！');
+  };
+
+  const handleExportCSV = () => {
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    window.open(`/api/referrals/export-csv?ref=${agencyData.referralCode}&month=${currentMonth}`, '_blank');
   };
 
   return (
@@ -40,17 +45,25 @@ export default function AgencyDashboard() {
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
         
         {/* ヘッダー */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px' }}>
           <div>
             <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#1a202c', margin: 0 }}>代理店パートナー管理画面</h1>
             <p style={{ color: '#718096', fontSize: '14px', margin: '4px 0 0 0' }}>現在の実績と報酬ステータスをご確認いただけます。</p>
           </div>
-          <button 
-            onClick={copyReferralLink}
-            style={{ background: '#3182ce', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', fontSize: '14px', cursor: 'pointer', boxShadow: '0 2px 6px rgba(49,130,206,0.3)' }}
-          >
-            紹介用リンクをコピー
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button 
+              onClick={handleExportCSV}
+              style={{ background: '#edf2f7', color: '#2d3748', border: '1px solid #cbd5e1', padding: '10px 16px', borderRadius: '8px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}
+            >
+              📥 明細CSV出力
+            </button>
+            <button 
+              onClick={copyReferralLink}
+              style={{ background: '#3182ce', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', fontSize: '14px', cursor: 'pointer', boxShadow: '0 2px 6px rgba(49,130,206,0.3)' }}
+            >
+              紹介用リンクをコピー
+            </button>
+          </div>
         </div>
 
         {/* スタッツ（数値カード） */}
@@ -67,11 +80,11 @@ export default function AgencyDashboard() {
 
           {/* 当月見込み報酬 */}
           <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-            <div style={{ fontSize: '13px', color: '#718096', fontWeight: '600' }}>当月報酬見込み（PayPay送金予定）</div>
+            <div style={{ fontSize: '13px', color: '#718096', fontWeight: '600' }}>当月報酬見込み（一括請求・相殺予定）</div>
             <div style={{ fontSize: '36px', fontWeight: '900', color: '#38a169', margin: '8px 0' }}>
               ¥{agencyData.monthlyEstimatedReward.toLocaleString()}
             </div>
-            <div style={{ fontSize: '12px', color: '#718096' }}>※毎月末締め・翌月送金</div>
+            <div style={{ fontSize: '12px', color: '#718096' }}>※毎月末締め・まとめて請求精算に統合</div>
           </div>
 
         </div>
@@ -104,7 +117,7 @@ export default function AgencyDashboard() {
             紹介コード: <code style={{ background: '#edf2f7', padding: '4px 8px', borderRadius: '4px', fontWeight: '700', color: '#2d3748' }}>{agencyData.referralCode}</code>
           </p>
           <p style={{ fontSize: '13px', color: '#718096', margin: 0 }}>
-            ※店舗様が新規登録またはSquare決済の際に、紹介コードをご入力いただくと自動であなたの紹介として紐づきます。
+            ※店舗様が新規登録またはSquare決済の際に、紹介コードをご入力いただくと自動であなたの紹介として紐づきます。代理店アカウントでの報酬は毎月の請求まとめて精算時に自動で控除・相殺されます。
           </p>
         </div>
 
