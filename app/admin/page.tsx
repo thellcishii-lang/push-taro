@@ -19,15 +19,24 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // 店舗情報
+  // 店舗情報 & プラン・ロールステート
   const [shopId, setShopId] = useState<string | null>(null);
   const [shopName, setShopName] = useState('');
+  const [plan, setPlan] = useState<'light' | 'standard' | 'pro'>('light'); // デフォルト: light
+  const [role, setRole] = useState<'pro' | 'agency'>('pro'); // デフォルト: pro
   const [couponEnabled, setCouponEnabled] = useState(false);
   const [couponTitle, setCouponTitle] = useState('');
   const [couponDesc, setCouponDesc] = useState('');
   const [couponRate, setCouponRate] = useState(0);
   const [clientLinkUrl, setClientLinkUrl] = useState('');
   const [shopIconUrl, setShopIconUrl] = useState('');
+
+  // 振込先口座情報（Proプラン用）
+  const [bankName, setBankName] = useState('');
+  const [branchName, setBranchName] = useState('');
+  const [accountType, setAccountType] = useState<'savings' | 'checking'>('savings');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [accountHolder, setAccountHolder] = useState('');
 
   // 送信フォーム
   const [title, setTitle] = useState('');
@@ -39,6 +48,7 @@ export default function AdminPage() {
   // UI開閉用ステート
   const [shopInfoOpen, setShopInfoOpen] = useState(false);
   const [referralInfoOpen, setReferralInfoOpen] = useState(false);
+  const [bankInfoOpen, setBankInfoOpen] = useState(false);
 
   // 履歴＆受取許可件数
   const [history, setHistory] = useState<PushHistory[]>([]);
@@ -67,6 +77,9 @@ export default function AdminPage() {
           if (data.success) {
             setShopId(data.shopId);
             setShopName(data.shop?.name || '');
+            if (data.shop?.plan) setPlan(data.shop.plan);
+            if (data.shop?.role) setRole(data.shop.role);
+
             if (data.shop?.coupon) {
               setCouponEnabled(data.shop.coupon.enabled);
               setCouponTitle(data.shop.coupon.title || '');
@@ -75,6 +88,15 @@ export default function AdminPage() {
             }
             if (data.shop?.linkUrl) setClientLinkUrl(data.shop.linkUrl);
             if (data.shop?.iconUrl) setShopIconUrl(data.shop.iconUrl);
+
+            // 口座情報の初期セット
+            if (data.shop?.bankAccount) {
+              setBankName(data.shop.bankAccount.bankName || '');
+              setBranchName(data.shop.bankAccount.branchName || '');
+              setAccountType(data.shop.bankAccount.accountType || 'savings');
+              setAccountNumber(data.shop.bankAccount.accountNumber || '');
+              setAccountHolder(data.shop.bankAccount.accountHolder || '');
+            }
 
             // 受取許可件数の取得
             fetchSubscribersCount(data.shopId, idToken);
@@ -139,6 +161,14 @@ export default function AdminPage() {
           },
           linkUrl: clientLinkUrl,
           iconUrl: shopIconUrl,
+          // 口座情報の保存データ
+          bankAccount: {
+            bankName,
+            branchName,
+            accountType,
+            accountNumber,
+            accountHolder,
+          },
         }),
       });
       if (res.ok) {
@@ -269,7 +299,7 @@ export default function AdminPage() {
     );
   }
 
-  // 🔐 未ログイン時はログイン専用画面を表示（新規登録ボタンは削除）
+  // 🔐 未ログイン時画面
   if (!user) {
     return (
       <main style={{ maxWidth: '400px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif', textAlign: 'center' }}>
@@ -306,15 +336,30 @@ export default function AdminPage() {
     );
   }
 
-  const qrUrl = shopId ? `https://push-taro.vercel.app/?s=${shopId}` : '';
+  const qrUrl = shopId ? `https://push-taro.com/?s=${shopId}` : '';
 
   return (
     <main style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
-      {/* ヘッダー：アイコンと店舗名表示 */}
+      {/* ヘッダー：アイコン・店舗名・プランバッジ */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '10px', borderBottom: '2px solid #eee', paddingBottom: '15px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <img src={shopIconUrl || "/icon-192x192.png"} alt="アイコン" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #ddd' }} />
-          <h1 style={{ margin: 0, fontSize: '24px' }}>{shopName || 'プッシュ太郎'}</h1>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h1 style={{ margin: 0, fontSize: '24px' }}>{shopName || 'プッシュ太郎'}</h1>
+              {/* プラン＆ロールのタグ表示 */}
+              <span style={{
+                fontSize: '11px',
+                fontWeight: 'bold',
+                padding: '3px 8px',
+                borderRadius: '12px',
+                color: '#fff',
+                backgroundColor: role === 'agency' ? '#8b5cf6' : plan === 'pro' ? '#ff4500' : plan === 'standard' ? '#0284c7' : '#64748b'
+              }}>
+                {role === 'agency' ? '代理店' : `${plan.toUpperCase()} プラン`}
+              </span>
+            </div>
+          </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '14px', color: '#666' }}>{user.email}</span>
@@ -324,9 +369,9 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* 🏪 店舗情報ボタン（アコーディオン式に折りたたみ） */}
+      {/* 🏪 店舗情報ボタン */}
       {shopId && (
-        <div style={{ marginBottom: '30px' }}>
+        <div style={{ marginBottom: '20px' }}>
           <button
             onClick={() => setShopInfoOpen(!shopInfoOpen)}
             style={{ width: '100%', padding: '14px 20px', background: '#f8f9fa', border: '1px solid #ced4da', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
@@ -353,52 +398,6 @@ export default function AdminPage() {
                   currentUrl={shopIconUrl}
                 />
               </div>
-
-              {/* 🤝 紹介・代理店 報酬管理セクション（アコーディオン式） */}
-  {shopId && (
-    <div style={{ marginBottom: '30px' }}>
-      <button
-        onClick={() => setReferralInfoOpen(!referralInfoOpen)}
-        style={{ width: '100%', padding: '14px 20px', background: '#f0f4f8', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-      >
-        <span>🤝 紹介・代理店 報酬管理</span>
-        <span>{referralInfoOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
-      </button>
-
-      {referralInfoOpen && (
-        <div style={{ marginTop: '10px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-          
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
-            <div>
-              <h4 style={{ margin: '0 0 5px 0', fontSize: '16px' }}>今月の報酬明細</h4>
-              <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>紹介・代理店還元額の明細データをCSVでダウンロードできます。</p>
-            </div>
-            <button
-              onClick={() => {
-                const currentMonth = new Date().toISOString().slice(0, 7);
-                window.open(`/api/referrals/export-csv?referrer_id=${shopId}&month=${currentMonth}`, '_blank');
-              }}
-              style={{ padding: '10px 16px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}
-            >
-              📥 明細CSVダウンロード
-            </button>
-          </div>
-
-          <h4 style={{ marginBottom: '10px', fontSize: '16px' }}>紹介経由の店舗一覧（アクティブ）</h4>
-          <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '15px' }}>
-            ※紹介された店舗が解約（離脱）すると、この一覧から自動的に非表示になります。
-          </p>
-
-          {/* 紹介一覧のテーブルやリスト表示部分 */}
-          {/* ※あらかじめState等で取得した紹介店舗データをここにmapで展開します */}
-          <div style={{ background: '#fff', padding: '15px', borderRadius: '6px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b' }}>
-            現在、紹介しているアクティブな店舗はありません。
-          </div>
-
-        </div>
-      )}
-    </div>
-  )}
 
               <p style={{ fontSize: '14px', color: '#666' }}>店舗ID: <code>{shopId}</code></p>
               
@@ -463,11 +462,157 @@ export default function AdminPage() {
                   cursor: saving ? 'wait' : 'pointer',
                   fontSize: '16px',
                   fontWeight: 'bold',
-                  transition: 'background 0.2s',
                 }}
               >
                 {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 設定を保存'}
               </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 🏦 報酬お振り込み口座設定（Proプラン専用・代理店昇格時は相殺案内メッセージ） */}
+      {shopId && plan === 'pro' && (
+        <div style={{ marginBottom: '20px' }}>
+          <button
+            onClick={() => setBankInfoOpen(!bankInfoOpen)}
+            style={{ width: '100%', padding: '14px 20px', background: '#fff7ed', border: '1px solid #fdba74', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+          >
+            <span>🏦 紹介報酬受取 口座情報（Proプラン特典: 10%還元）</span>
+            <span>{bankInfoOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
+          </button>
+
+          {bankInfoOpen && (
+            <div style={{ marginTop: '10px', padding: '20px', background: '#fffdfb', borderRadius: '8px', border: '1px solid #fed7aa' }}>
+              {role === 'agency' ? (
+                /* 代理店昇格時の表示 */
+                <div style={{ padding: '15px', background: '#f3e8ff', border: '1px solid #d8b4fe', borderRadius: '6px', color: '#581c87' }}>
+                  <h4 style={{ margin: '0 0 5px 0' }}>🤝 代理店アカウント統合中</h4>
+                  <p style={{ margin: 0, fontSize: '14px' }}>
+                    代理店アカウントへの昇格に伴い、紹介報酬は30%へ引き上げられ、毎月のシステム利用料とのまとめて請求・相殺管理へ移行しました（個別自動振込は停止されています）。
+                  </p>
+                </div>
+              ) : (
+                /* Proプラン（通常）の自動振込用口座入力フォーム */
+                <div>
+                  <p style={{ fontSize: '13px', color: '#ea580c', marginBottom: '15px' }}>
+                    ※紹介手数料（10%）の累計額が **10,000円** に達すると、登録された口座へ自動的にお振り込みいたします。
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>金融機関名</label>
+                      <input
+                        type="text"
+                        placeholder="例: 〇〇銀行"
+                        value={bankName}
+                        onChange={(e) => setBankName(e.target.value)}
+                        style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>支店名</label>
+                      <input
+                        type="text"
+                        placeholder="例: △△支店"
+                        value={branchName}
+                        onChange={(e) => setBranchName(e.target.value)}
+                        style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>預金種目</label>
+                      <select
+                        value={accountType}
+                        onChange={(e: any) => setAccountType(e.target.value)}
+                        style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}
+                      >
+                        <option value="savings">普通</option>
+                        <option value="checking">当座</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>口座番号</label>
+                      <input
+                        type="text"
+                        placeholder="1234567"
+                        value={accountNumber}
+                        onChange={(e) => setAccountNumber(e.target.value)}
+                        style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>口座名義（カナ）</label>
+                      <input
+                        type="text"
+                        placeholder="ヤマダ タロウ"
+                        value={accountHolder}
+                        onChange={(e) => setAccountHolder(e.target.value)}
+                        style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                    <button
+                      onClick={handleSaveSettings}
+                      disabled={saving}
+                      style={{
+                        marginTop: '10px',
+                        padding: '10px',
+                        background: '#ea580c',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      口座情報を保存
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 🤝 紹介・代理店 報酬管理セクション */}
+      {shopId && (
+        <div style={{ marginBottom: '30px' }}>
+          <button
+            onClick={() => setReferralInfoOpen(!referralInfoOpen)}
+            style={{ width: '100%', padding: '14px 20px', background: '#f0f4f8', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+          >
+            <span>🤝 紹介・代理店 報酬管理</span>
+            <span>{referralInfoOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
+          </button>
+
+          {referralInfoOpen && (
+            <div style={{ marginTop: '10px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <h4 style={{ margin: '0 0 5px 0', fontSize: '16px' }}>今月の報酬明細</h4>
+                  <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>
+                    現在の適用料率: **{role === 'agency' ? '30%' : plan === 'pro' ? '10%' : '0% (Pro以上で適用)'}**
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    const currentMonth = new Date().toISOString().slice(0, 7);
+                    window.open(`/api/referrals/export-csv?referrer_id=${shopId}&month=${currentMonth}`, '_blank');
+                  }}
+                  style={{ padding: '10px 16px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}
+                >
+                  📥 明細CSVダウンロード
+                </button>
+              </div>
+
+              <h4 style={{ marginBottom: '10px', fontSize: '16px' }}>紹介経由の店舗一覧（アクティブ）</h4>
+              <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '15px' }}>
+                ※紹介された店舗が解約（離脱）すると、この一覧から自動的に非表示になります。
+              </p>
+
+              <div style={{ background: '#fff', padding: '15px', borderRadius: '6px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b' }}>
+                現在、紹介しているアクティブな店舗はありません。
+              </div>
             </div>
           )}
         </div>
@@ -534,7 +679,6 @@ export default function AdminPage() {
 
       {/* 履歴セクション */}
       <div style={{ borderTop: '2px solid #eee', paddingTop: '20px' }}>
-        {/* 現在の受取許可件数表示 */}
         <div style={{ marginBottom: '15px', padding: '12px 16px', background: '#e3f2fd', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: '15px', fontWeight: 'bold', color: '#0d47a1' }}>📱 現在の受取許可件数</span>
           <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#1565c0' }}>
