@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { auth } from '@/lib/firebase-client';
+import { onAuthStateChanged } from 'firebase/auth';
 
 // 紹介店舗のデータ型
 interface ReferredShop {
@@ -40,39 +42,37 @@ export default function AgencyPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // 初回ロード時にログイン状態とデータの取得
+  // 初回ロード時に Firebase Auth のログイン状態を監視しデータを取得
   useEffect(() => {
-    const checkAuthAndFetchData = async () => {
-      try {
-        // 例: Firebase Auth または トークン確認処理
-        // ログイン中の代理店IDがある場合はダッシュボード表示へ切替
-        const storedUserId = localStorage.getItem('agencyUserId'); // 実際の認証情報に併せて調整
-        if (storedUserId) {
-          setIsLoggedIn(true);
-          setUserId(storedUserId);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setIsLoggedIn(true);
+        setUserId(user.uid);
 
+        try {
           // 1. 紹介顧客リスト（店舗）の取得
-          const shopsRes = await fetch(`/api/agency/shops?userId=${storedUserId}`);
+          const shopsRes = await fetch(`/api/agency/shops?userId=${user.uid}`);
           if (shopsRes.ok) {
             const data = await shopsRes.json();
             setReferredShops(data.shops || []);
           }
 
           // 2. 新着通知の取得
-          const notifRes = await fetch(`/api/agency/notifications?userId=${storedUserId}`);
+          const notifRes = await fetch(`/api/agency/notifications?userId=${user.uid}`);
           if (notifRes.ok) {
             const data = await notifRes.json();
             setNotifications(data.notifications || []);
           }
+        } catch (err) {
+          console.error('ダッシュボードデータの取得失敗:', err);
         }
-      } catch (err) {
-        console.error('ダッシュボードデータの取得失敗:', err);
-      } finally {
-        setFetchingDashboard(false);
+      } else {
+        setIsLoggedIn(false);
       }
-    };
+      setFetchingDashboard(false);
+    });
 
-    checkAuthAndFetchData();
+    return () => unsubscribe();
   }, []);
 
   // 通知を既読にする処理
@@ -125,7 +125,7 @@ export default function AgencyPage() {
     }
   };
 
-  // --- 送信完了画面 ---
+  // 送信完了画面
   if (submitted) {
     return (
       <main style={{ maxWidth: '650px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif' }}>
@@ -267,7 +267,7 @@ export default function AgencyPage() {
           </div>
         ) : (
 
-          /* 未ログイン時：代理店申込フォーム（既存画面） */
+          /* 未ログイン時：代理店申込フォーム */
           <div style={{ maxWidth: '800px', margin: '0 auto', background: '#ffffff', padding: '40px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
             
             {/* ヘッダー */}
