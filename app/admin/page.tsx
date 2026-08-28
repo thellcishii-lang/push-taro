@@ -22,8 +22,8 @@ export default function AdminPage() {
   // 店舗情報 & プラン・ロールステート
   const [shopId, setShopId] = useState<string | null>(null);
   const [shopName, setShopName] = useState('');
-  const [plan, setPlan] = useState<'light' | 'standard' | 'pro'>('light'); // デフォルト: light
-  const [role, setRole] = useState<'pro' | 'agency'>('pro'); // デフォルト: pro
+  const [plan, setPlan] = useState<'light' | 'standard' | 'pro'>('light');
+  const [role, setRole] = useState<'pro' | 'agency'>('pro');
   const [couponEnabled, setCouponEnabled] = useState(false);
   const [couponTitle, setCouponTitle] = useState('');
   const [couponDesc, setCouponDesc] = useState('');
@@ -49,6 +49,13 @@ export default function AdminPage() {
   const [shopInfoOpen, setShopInfoOpen] = useState(false);
   const [referralInfoOpen, setReferralInfoOpen] = useState(false);
   const [bankInfoOpen, setBankInfoOpen] = useState(false);
+  const [cronInfoOpen, setCronInfoOpen] = useState(false);
+
+  // 自動配信（Cron）設定ステート
+  const [autoBirthdayEnabled, setAutoBirthdayEnabled] = useState(true);
+  const [autoDormantEnabled, setAutoDormantEnabled] = useState(true);
+  const [cronLogMessage, setCronLogMessage] = useState('');
+  const [cronLoading, setCronLoading] = useState(false);
 
   // 履歴＆受取許可件数
   const [history, setHistory] = useState<PushHistory[]>([]);
@@ -161,7 +168,6 @@ export default function AdminPage() {
           },
           linkUrl: clientLinkUrl,
           iconUrl: shopIconUrl,
-          // 口座情報の保存データ
           bankAccount: {
             bankName,
             branchName,
@@ -186,6 +192,31 @@ export default function AdminPage() {
       setMessage('❌ 保存エラー: ' + err.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleRunCron = async (type: 'birthday' | 'dormant' | 'special') => {
+    if (!user) return;
+    setCronLoading(true);
+    setCronLogMessage('⏳ Cron処理を実行中...');
+    try {
+      const idToken = await user.getIdToken();
+      const res = await fetch(`/api/cron/${type}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCronLogMessage(`✅ 実行完了: ${data.message || JSON.stringify(data)}`);
+      } else {
+        setCronLogMessage(`❌ 実行失敗: ${data.error || 'エラーが発生しました'}`);
+      }
+    } catch (err: any) {
+      setCronLogMessage(`❌ エラー: ${err.message}`);
+    } finally {
+      setCronLoading(false);
     }
   };
 
@@ -347,7 +378,6 @@ export default function AdminPage() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <h1 style={{ margin: 0, fontSize: '24px' }}>{shopName || 'プッシュ太郎'}</h1>
-              {/* プラン＆ロールのタグ表示 */}
               <span style={{
                 fontSize: '11px',
                 fontWeight: 'bold',
@@ -471,6 +501,97 @@ export default function AdminPage() {
         </div>
       )}
 
+      {/* 🤖 自動配信（Cron）設定 & 手動実行セクション */}
+      {shopId && (plan === 'pro' || role === 'agency') && (
+        <div style={{ marginBottom: '20px' }}>
+          <button
+            onClick={() => setCronInfoOpen(!cronInfoOpen)}
+            style={{
+              width: '100%',
+              padding: '14px 20px',
+              background: '#f0fdf4',
+              border: '1px solid #86efac',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '16px',
+              display: 'flex',
+              justify: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <span>🤖 自動配信（Cron）設定 & 手動実行</span>
+            <span>{cronInfoOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
+          </button>
+
+          {cronInfoOpen && (
+            <div style={{ marginTop: '10px', padding: '20px', background: '#f6fef9', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
+              {/* 💡 前文・ガイド表示 */}
+              <div style={{ padding: '12px 16px', background: '#e0f2fe', borderLeft: '4px solid #0284c7', borderRadius: '4px', marginBottom: '20px', color: '#0369a1', fontSize: '13px', lineHeight: '1.6' }}>
+                <p style={{ margin: '0 0 6px 0', fontWeight: 'bold', fontSize: '14px' }}>
+                  💡 自動配信（Cron処理）について
+                </p>
+                <p style={{ margin: 0 }}>
+                  本機能は、設定された条件（誕生日・最終来店日・契約ステータス等）に基づいて毎日深夜にサーバー側で全自動実行されます。<br />
+                  各配信の有効/無効の切り替えのほか、下の「テスト手動実行」ボタンを押すことで、定期配信時間を待たずに今すぐ動作確認を行うことができます。
+                </p>
+              </div>
+
+              <h4 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>⚙️ 自動配信機能のオン/オフ</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
+                  <input
+                    type="checkbox"
+                    checked={autoBirthdayEnabled}
+                    onChange={(e) => setAutoBirthdayEnabled(e.target.checked)}
+                  />
+                  🎂 誕生日自動お祝いクーポンの送信
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
+                  <input
+                    type="checkbox"
+                    checked={autoDormantEnabled}
+                    onChange={(e) => setAutoDormantEnabled(e.target.checked)}
+                  />
+                  👋 休眠顧客（60日未来店）フォローの自動送信
+                </label>
+              </div>
+
+              <h4 style={{ margin: '15px 0 10px 0', fontSize: '16px' }}>⚡️ テスト手動実行（動作確認用）</h4>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '15px' }}>
+                <button
+                  onClick={() => handleRunCron('birthday')}
+                  disabled={cronLoading}
+                  style={{ padding: '8px 14px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
+                >
+                  🎂 誕生日判定を実行
+                </button>
+                <button
+                  onClick={() => handleRunCron('dormant')}
+                  disabled={cronLoading}
+                  style={{ padding: '8px 14px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
+                >
+                  👋 休眠顧客判定を実行
+                </button>
+                <button
+                  onClick={() => handleRunCron('special')}
+                  disabled={cronLoading}
+                  style={{ padding: '8px 14px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
+                >
+                  ⚠️ 猶予期限チェックを実行
+                </button>
+              </div>
+
+              {cronLogMessage && (
+                <div style={{ padding: '10px 14px', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '13px', fontWeight: 'bold' }}>
+                  {cronLogMessage}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* 🏦 報酬お振り込み口座設定（Proプラン専用・代理店昇格時は相殺案内メッセージ） */}
       {shopId && plan === 'pro' && (
         <div style={{ marginBottom: '20px' }}>
@@ -485,7 +606,6 @@ export default function AdminPage() {
           {bankInfoOpen && (
             <div style={{ marginTop: '10px', padding: '20px', background: '#fffdfb', borderRadius: '8px', border: '1px solid #fed7aa' }}>
               {role === 'agency' ? (
-                /* 代理店昇格時の表示 */
                 <div style={{ padding: '15px', background: '#f3e8ff', border: '1px solid #d8b4fe', borderRadius: '6px', color: '#581c87' }}>
                   <h4 style={{ margin: '0 0 5px 0' }}>🤝 代理店アカウント統合中</h4>
                   <p style={{ margin: 0, fontSize: '14px' }}>
@@ -493,7 +613,6 @@ export default function AdminPage() {
                   </p>
                 </div>
               ) : (
-                /* Proプラン（通常）の自動振込用口座入力フォーム */
                 <div>
                   <p style={{ fontSize: '13px', color: '#ea580c', marginBottom: '15px' }}>
                     ※紹介手数料（10%）の累計額が **10,000円** に達すると、登録された口座へ自動的にお振り込みいたします。
