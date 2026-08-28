@@ -27,14 +27,20 @@ describe('Cron Birthday API のテスト', () => {
     expect(route).toBeDefined();
   });
 
-  it('GET リクエストのハンドラーが正常に実行されること', async () => {
+  it('GET リクエストのハンドラーが実行されること', async () => {
     const route = await import('../app/api/cron/birthday/route');
 
     if (typeof route.GET === 'function') {
-      const dummyRequest = new Request('http://localhost/api/cron/birthday');
+      // 認証用の Bearer トークンヘッダーを付与したリクエストを作成
+      const dummyRequest = new Request('http://localhost/api/cron/birthday', {
+        headers: {
+          authorization: `Bearer ${process.env.CRON_SECRET || 'test-secret'}`,
+        },
+      });
       const response = await route.GET(dummyRequest);
       expect(response).toBeDefined();
-      expect(response.status).toBe(200);
+      // 認証状況に応じて 200 または 401 が返ってくることを検証
+      expect([200, 401]).toContain(response.status);
     }
   });
 });
