@@ -1,5 +1,6 @@
 // app/actions/agencyActions.ts に追加
 import { sendEmail } from '@/lib/mailer';
+import { db } from '@/lib/firebase-admin';
 
 // 代理店申請の承認処理
 export async function approveAgency(agencyShopId: string, email: string) {
