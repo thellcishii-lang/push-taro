@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { name, referralCode } = body; // 👈 referralCode を受け取る
+    const { name, referralCode } = body;
 
     const existing = await db.collection('shops').where('ownerUid', '==', uid).limit(1).get();
     if (!existing.empty) {
@@ -64,7 +64,6 @@ export async function POST(request: Request) {
       iconUrl: '',
     };
 
-    // 紹介者が特定できた場合のみ店舗データに付与
     if (referrerInfo) {
       shopData.referrerId = referrerInfo.referrerId;
       shopData.referredByCode = referrerInfo.referredByCode;
@@ -73,9 +72,9 @@ export async function POST(request: Request) {
 
     await shopRef.set(shopData);
 
-    // 紹介者が存在する場合、ダッシュボード通知とメール通知を実行
+    // 紹介者が存在する場合、ダッシュボード通知とメール送信を実行
     if (referrerInfo) {
-      // 1. ダッシュボード通知（notifications）作成
+      // 1. ダッシュボード用通知（notifications）を作成
       await db.collection('notifications').add({
         targetUserId: referrerInfo.referrerId,
         type: 'new_referral',
@@ -86,14 +85,27 @@ export async function POST(request: Request) {
         createdAt: FieldValue.serverTimestamp(),
       });
 
-      // 2. メール通知（外部メールAPIやNodemailer呼び出し用のフック）
+      // 2. 紹介者へメール通知を送信
       if (referrerInfo.referrerEmail) {
-        try {
-          // ※必要に応じてメール送信APIをここで実行します
-          console.log(`[MAIL] Send notification to ${referrerInfo.referrerEmail}: ${shopName} registered with code ${referrerInfo.referredByCode}`);
-        } catch (mailError) {
-          console.error('[MAIL ERROR]', mailError);
-        }
+        const html = `
+          <div style="font-family: sans-serif; padding: 20px; line-height: 1.6;">
+            <h2>【プッシュ太郎】新規店舗のお申し込み</h2>
+            <p>ご設定の紹介コードを経由して、新しい店舗が登録されました。</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+            <ul>
+              <li><strong>店舗名（顧客名）:</strong> ${shopName}</li>
+              <li><strong>使用紹介コード:</strong> ${referrerInfo.referredByCode}</li>
+              <li><strong>対象プラン種別:</strong> ${referrerInfo.referrerType === 'agency' ? '代理店紹介' : 'Proユーザー紹介'}</li>
+            </ul>
+            <p>詳細および現在の顧客一覧はダッシュボードよりご確認ください。</p>
+          </div>
+        `;
+
+        await sendEmail({
+          to: referrerInfo.referrerEmail,
+          subject: `【プッシュ太郎】紹介コード [${referrerInfo.referredByCode}] から新店舗（${shopName}）が登録されました`,
+          html,
+        });
       }
     }
 
