@@ -3,29 +3,59 @@
 import Link from 'next/link';
 
 export default function LandingPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   return (
     <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', color: '#2d3748', background: '#f8fafc', minHeight: '100vh', margin: 0, padding: 0, lineHeight: 1.7 }}>
       
-      {/* ヘッダー / ナビゲーション */}
-      <nav style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
+     {/* ヘッダー / ナビゲーション */}
+    <nav style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '16px 20px', position: 'sticky', top: 0, zIndex: 100 }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontSize: '20px', fontWeight: '800', color: '#1a202c', letterSpacing: '-0.5px' }}>
           Push-taro<span style={{ color: '#3182ce', fontSize: '14px', marginLeft: '8px', fontWeight: 'normal' }}>本格派CRMツール</span>
         </div>
-        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-          <a href="#pro-referral" style={{ fontSize: '14px', fontWeight: '600', color: '#dd6b20', textDecoration: 'none' }}>
-            プロ紹介制度
-          </a>
-          <a href="#agency-intro" style={{ fontSize: '14px', fontWeight: '600', color: '#3182ce', textDecoration: 'none' }}>
-            代理店パートナー
-          </a>
-          <a href="#pricing" style={{ fontSize: '14px', fontWeight: '600', color: '#4a5568', textDecoration: 'none' }}>
-            料金プラン
-          </a>
-          <Link href="/signup" style={{ background: '#3182ce', color: '#fff', padding: '10px 20px', borderRadius: '6px', fontSize: '14px', fontWeight: '600', textDecoration: 'none', transition: 'background 0.2s' }}>
+
+        {/* PC用メニュー */}
+        <div className="desktop-menu" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+          <a href="#pro-referral" style={{ fontSize: '14px', fontWeight: '600', color: '#dd6b20', textDecoration: 'none' }}>プロ紹介制度</a>
+          <a href="#agency-intro" style={{ fontSize: '14px', fontWeight: '600', color: '#3182ce', textDecoration: 'none' }}>代理店パートナー</a>
+          <a href="#pricing" style={{ fontSize: '14px', fontWeight: '600', color: '#4a5568', textDecoration: 'none' }}>料金プラン</a>
+          <Link href="/signup" style={{ background: '#3182ce', color: '#fff', padding: '10px 20px', borderRadius: '6px', fontWeight: 'bold', textDecoration: 'none' }}>
             お申し込み
           </Link>
         </div>
-      </nav>
+
+        {/* スマホ用トグルボタン */}
+        <button
+          className="mobile-toggle"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', padding: '4px 8px', color: '#2d3748' }}
+        >
+          {mobileMenuOpen ? '✕' : '☰'}
+        </button>
+      </div>
+
+      {/* スマホ用開閉メニュー */}
+      {mobileMenuOpen && (
+        <div className="mobile-menu" style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #e2e8f0' }}>
+          <a href="#pro-referral" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '15px', fontWeight: '600', color: '#dd6b20', textDecoration: 'none' }}>プロ紹介制度</a>
+          <a href="#agency-intro" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '15px', fontWeight: '600', color: '#3182ce', textDecoration: 'none' }}>代理店パートナー</a>
+          <a href="#pricing" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '15px', fontWeight: '600', color: '#4a5568', textDecoration: 'none' }}>料金プラン</a>
+          <Link href="/signup" onClick={() => setMobileMenuOpen(false)} style={{ background: '#3182ce', color: '#fff', padding: '12px', borderRadius: '6px', fontWeight: 'bold', textDecoration: 'none', textAlign: 'center' }}>
+            お申し込み
+          </Link>
+        </div>
+      )}
+
+      {/* レスポンシブ切り替えCSS */}
+      <style jsx>{`
+        @media (min-width: 769px) {
+          .mobile-toggle, .mobile-menu { display: none !important; }
+        }
+        @media (max-width: 768px) {
+          .desktop-menu { display: none !important; }
+        }
+      `}</style>
+    </nav>
 
       {/* ヒーローセクション */}
       <header style={{ background: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)', color: '#fff', textAlign: 'center', padding: '100px 20px 80px 20px' }}>
