@@ -996,12 +996,11 @@ export default function AdminPage() {
 
      {/* 📊 月間送信数ゲージ（LIGHT・STANDARDプランのみ表示） */}
 {(() => {
-  // adminページ内で定義されている店舗データの変数を安全に参照
-  const currentShop = (typeof shopData !== 'undefined' ? shopData : null) 
-    || (typeof shop !== 'undefined' ? shop : null) 
-    || (typeof shopInfo !== 'undefined' ? shopInfo : null);
+  // adminページ内で定義されている変数名（shopData等）に合わせて調整してください
+  const currentShop = typeof shopData !== 'undefined' ? shopData : null;
+  if (!currentShop) return null;
 
-  const plan = currentShop?.plan || 'light';
+  const plan = currentShop.plan || 'light';
 
   // PROプランの場合はゲージを表示しない（専用バッジのみ）
   if (plan === 'pro') {
@@ -1023,15 +1022,15 @@ export default function AdminPage() {
           </span>
         </span>
         <span style={{ fontSize: '14px', fontWeight: '800', color: '#c2410c' }}>
-          今月の送信数: {(currentShop?.currentMonthSent || 0).toLocaleString()} 通（配信無制限）
+          今月の送信数: {(currentShop.currentMonthSent || 0).toLocaleString()} 通（配信無制限）
         </span>
       </div>
     );
   }
 
   // LIGHT（5,000通）/ STANDARD（15,000通）のみゲージを表示
-  const limit = currentShop?.monthlyLimit || (plan === 'standard' ? 15000 : 5000);
-  const currentSent = currentShop?.currentMonthSent || 0;
+  const limit = currentShop.monthlyLimit || (plan === 'standard' ? 15000 : 5000);
+  const currentSent = currentShop.currentMonthSent || 0;
   const percentage = Math.min(Math.round((currentSent / limit) * 100), 100);
 
   let gaugeColor = '#3182ce';
