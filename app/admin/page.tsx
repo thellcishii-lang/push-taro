@@ -397,6 +397,52 @@ export default function AdminPage() {
               }}>
                 {role === 'agency' ? '代理店' : `${plan.toUpperCase()} プラン`}
               </span>
+              {/* プラン別のアップグレードボタン */}
+        {role !== 'agency' && (
+          <>
+            {plan === 'light' && (
+              <Link
+                href="/#pricing"
+                style={{
+                  padding: '4px 10px',
+                  background: 'linear-gradient(135deg, #0284c7 0%, #ff4500 100%)',
+                  color: '#fff',
+                  borderRadius: '16px',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                ⚡️ 上位プランへアップグレード
+              </Link>
+            )}
+
+            {plan === 'standard' && (
+              <Link
+                href="/#pricing"
+                style={{
+                  padding: '4px 10px',
+                  background: 'linear-gradient(135deg, #ff4500 0%, #ff8c00 100%)',
+                  color: '#fff',
+                  borderRadius: '16px',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  boxShadow: '0 2px 4px rgba(255, 69, 0, 0.2)'
+                }}
+              >
+                ⚡️ PROプランへアップグレード
+              </Link>
+            )}
+          </>
+        )}
             </div>
           </div>
         </div>
@@ -701,49 +747,104 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* 🤝 紹介・代理店 報酬管理セクション */}
-      {shopId && (
-        <div style={{ marginBottom: '30px' }}>
-          <button
-            onClick={() => setReferralInfoOpen(!referralInfoOpen)}
-            style={{ width: '100%', padding: '14px 20px', background: '#f0f4f8', border: '1px solid #cbd5e1', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-          >
-            <span>🤝 紹介・代理店 報酬管理</span>
-            <span>{referralInfoOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
-          </button>
-
-          {referralInfoOpen && (
-            <div style={{ marginTop: '10px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
-                <div>
-                  <h4 style={{ margin: '0 0 5px 0', fontSize: '16px' }}>今月の報酬明細</h4>
-                  <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>
-                    現在の適用料率: **{role === 'agency' ? '30%' : plan === 'pro' ? '10%' : '0% (Pro以上で適用)'}**
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    const currentMonth = new Date().toISOString().slice(0, 7);
-                    window.open(`/api/referrals/export-csv?referrer_id=${shopId}&month=${currentMonth}`, '_blank');
-                  }}
-                  style={{ padding: '10px 16px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}
-                >
-                  📥 明細CSVダウンロード
-                </button>
-              </div>
-
-              <h4 style={{ marginBottom: '10px', fontSize: '16px' }}>紹介経由の店舗一覧（アクティブ）</h4>
-              <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '15px' }}>
-                ※紹介された店舗が解約（離脱）すると、この一覧から自動的に非表示になります。
-              </p>
-
-              <div style={{ background: '#fff', padding: '15px', borderRadius: '6px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b' }}>
-                現在、紹介しているアクティブな店舗はありません。
-              </div>
-            </div>
-          )}
-        </div>
+      {/* ★ 1. プラン別アップグレード訴求バナー (LIGHT / STANDARDのみ表示) */}
+{shopId && role !== 'agency' && plan !== 'pro' && (
+  <div style={{
+    marginBottom: '20px',
+    padding: '16px 20px',
+    background: plan === 'light' ? 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)' : 'linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%)',
+    border: plan === 'light' ? '1px solid #bae6fd' : '1px solid #fed7aa',
+    borderRadius: '8px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '12px'
+  }}>
+    <div>
+      {plan === 'light' ? (
+        <>
+          <div style={{ fontWeight: 'bold', color: '#0369a1', fontSize: '15px', marginBottom: '4px' }}>
+            🚀 STANDARD または PRO プランへアップグレード
+          </div>
+          <div style={{ fontSize: '13px', color: '#0c4a6e' }}>
+            配信数の上限解除やSquare連携機能、紹介報酬（PRO限定 10%還元）をご利用いただけます。
+          </div>
+        </>
+      ) : (
+        <>
+          <div style={{ fontWeight: 'bold', color: '#c2410c', fontSize: '15px', marginBottom: '4px' }}>
+            🔥 PROプランにアップグレード（紹介報酬 10%還元）
+          </div>
+          <div style={{ fontSize: '13px', color: '#78350f' }}>
+            他店舗を紹介して毎月のシステム利用料を相殺・成果報酬を獲得しましょう。
+          </div>
+        </>
       )}
+    </div>
+
+    <Link
+      href="/#pricing"
+      style={{
+        padding: '8px 16px',
+        background: plan === 'light' ? '#0284c7' : '#ea580c',
+        color: '#fff',
+        borderRadius: '6px',
+        fontSize: '13px',
+        fontWeight: 'bold',
+        textDecoration: 'none',
+        whiteSpace: 'nowrap'
+      }}
+    >
+      {plan === 'light' ? 'プラン比較・変更' : 'PROへ変更'}
+    </Link>
+  </div>
+)}
+
+
+{/* ★ 2. 🤝 紹介・代理店 報酬管理 (PROプランまたは代理店アカウントのみ表示) */}
+{shopId && (plan === 'pro' || role === 'agency') && (
+  <div style={{ marginBottom: '30px' }}>
+    <button
+      onClick={() => setReferralInfoOpen(!referralInfoOpen)}
+      style={{ width: '100%', padding: '14px 20px', background: '#f0f4f8', border: '1px solid #cbd5e0', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+    >
+      <span>🤝 紹介・代理店 報酬管理</span>
+      <span>{referralInfoOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
+    </button>
+
+    {referralInfoOpen && (
+      <div style={{ marginTop: '10px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+          <div>
+            <h4 style={{ margin: '0 0 5px 0', fontSize: '16px' }}>今月の報酬明細</h4>
+            <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>
+              現在の適用料率: <strong>{role === 'agency' ? '30%' : '10%'}</strong>
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              const currentMonth = new Date().toISOString().slice(0, 7);
+              window.open(`/api/referrals/export-csv?referrer_id=${shopId}&month=${currentMonth}`, '_blank');
+            }}
+            style={{ padding: '10px 16px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}
+          >
+            📥 明細CSVダウンロード
+          </button>
+        </div>
+
+        <h4 style={{ marginBottom: '10px', fontSize: '16px' }}>紹介経由の店舗一覧（アクティブ）</h4>
+        <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '15px' }}>
+          ※紹介された店舗が解約（離脱）すると、この一覧から自動的に非表示になります。
+        </p>
+
+        <div style={{ background: '#fff', padding: '15px', borderRadius: '6px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b' }}>
+          現在、紹介しているアクティブな店舗はありません。
+        </div>
+      </div>
+    )}
+  </div>
+)}
 
       {/* 送信フォーム */}
       <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '40px', background: '#fff', padding: '20px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
