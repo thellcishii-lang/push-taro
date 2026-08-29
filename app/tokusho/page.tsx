@@ -8,7 +8,7 @@ export default function TokushoPage() {
       <div style={{ maxWidth: '850px', margin: '0 auto', background: '#fff', padding: '40px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
         
         <p style={{ marginBottom: '20px' }}>
-          <Link href="/" style={{ color: '#3182ce', textDecoration: 'none', fontWeight: 'bold' }}>← トップページに戻る</Link>
+          <Link href="/lp" style={{ color: '#3182ce', textDecoration: 'none', fontWeight: 'bold' }}>← トップページに戻る</Link>
         </p>
         
         <h1 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '24px', color: '#1a202c', borderBottom: '3px solid #3182ce', paddingBottom: '10px' }}>
