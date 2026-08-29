@@ -996,7 +996,7 @@ export default function AdminPage() {
 
      {/* 📊 月間送信数ゲージ（LIGHT・STANDARDプランのみ表示） */}
 {(() => {
-  const plan = shopData?.plan || 'light';
+  const plan = shop.plan || 'light';
 
   // PROプランの場合はゲージを表示しない
   if (plan === 'pro') {
@@ -1025,8 +1025,8 @@ export default function AdminPage() {
   }
 
   // LIGHT（5,000通）/ STANDARD（15,000通）のみゲージを表示
-  const limit = shopData?.monthlyLimit || (plan === 'standard' ? 15000 : 5000);
-  const currentSent = shopData?.currentMonthSent || 0;
+  const limit = shop.monthlyLimit || (plan === 'standard' ? 15000 : 5000);
+  const currentSent = shop.currentMonthSent || 0;
   const percentage = Math.min(Math.round((currentSent / limit) * 100), 100);
 
   // 70%以上で黄（オレンジ）、90%以上で赤
