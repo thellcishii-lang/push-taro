@@ -169,12 +169,12 @@ function ProUpgradeContent() {
             <div>
               <label style={{ display: 'block', marginBottom: '2px', fontWeight: 'bold', fontSize: '13px' }}>所在地 / 住所</label>
               <p style={{ margin: '0 0 6px 0', fontSize: '11px', color: '#e11d48', fontWeight: 'bold' }}>
-                ※上記住所などは正式な登録住所で書いてください。
+                ※住所などは正式な登録住所で書いてください。
               </p>
               <input
                 type="text"
                 required
-                placeholder="埼玉県飯能市中藤下郷２３−２１"
+                placeholder="○○県〇〇市〇〇１２３−４"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
