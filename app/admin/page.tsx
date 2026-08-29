@@ -800,9 +800,9 @@ export default function AdminPage() {
                     ¥3,800 <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#666' }}>/月（税別）</span>
                   </div>
                   <ul style={{ fontSize: '12px', color: '#4a5568', paddingLeft: '18px', margin: 0, lineHeight: 1.6 }}>
-                    <li>Web Push無制限配信</li>
-                    <li>Square自動連携・自動配信機能</li>
-                    <li>各種アナリティクス閲覧</li>
+                    <li>月間15,000配信</li>
+                    <li>LIGHTプランの３倍の配信量</li>
+                    <li>クーポン機能搭載</li>
                   </ul>
                 </div>
 
@@ -826,9 +826,9 @@ export default function AdminPage() {
                     ¥10,000 <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#666' }}>/月（税別）</span>
                   </div>
                   <ul style={{ fontSize: '12px', color: '#4a5568', paddingLeft: '18px', margin: 0, lineHeight: 1.6 }}>
-                    <li>STANDARDの全機能</li>
-                    <li><strong>10%紹介成果報酬還元（自動相殺）</strong></li>
-                    <li>優先専任サポーター対応</li>
+                    <li><strong>バースデー自動配信</strong></li>
+                    <li><strong>各種自動配信</strong></li>
+                    <li><strong>10%紹介成果報酬還元</strong></li>
                   </ul>
                 </div>
 
