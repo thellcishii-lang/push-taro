@@ -996,9 +996,14 @@ export default function AdminPage() {
 
      {/* 📊 月間送信数ゲージ（LIGHT・STANDARDプランのみ表示） */}
 {(() => {
-  const plan = shop.plan || 'light';
+  // adminページ内で定義されている店舗データの変数を安全に参照
+  const currentShop = (typeof shopData !== 'undefined' ? shopData : null) 
+    || (typeof shop !== 'undefined' ? shop : null) 
+    || (typeof shopInfo !== 'undefined' ? shopInfo : null);
 
-  // PROプランの場合はゲージを表示しない
+  const plan = currentShop?.plan || 'light';
+
+  // PROプランの場合はゲージを表示しない（専用バッジのみ）
   if (plan === 'pro') {
     return (
       <div style={{
@@ -1012,24 +1017,23 @@ export default function AdminPage() {
         alignItems: 'center'
       }}>
         <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#c2410c', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          🔥 月间送信ステータス
+          🔥 月間送信ステータス
           <span style={{ fontSize: '11px', background: '#ea580c', color: '#fff', padding: '2px 8px', borderRadius: '12px' }}>
             PROプラン
           </span>
         </span>
         <span style={{ fontSize: '14px', fontWeight: '800', color: '#c2410c' }}>
-          今月の送信数: {(shopData?.currentMonthSent || 0).toLocaleString()} 通（配信無制限）
+          今月の送信数: {(currentShop?.currentMonthSent || 0).toLocaleString()} 通（配信無制限）
         </span>
       </div>
     );
   }
 
   // LIGHT（5,000通）/ STANDARD（15,000通）のみゲージを表示
-  const limit = shop.monthlyLimit || (plan === 'standard' ? 15000 : 5000);
-  const currentSent = shop.currentMonthSent || 0;
+  const limit = currentShop?.monthlyLimit || (plan === 'standard' ? 15000 : 5000);
+  const currentSent = currentShop?.currentMonthSent || 0;
   const percentage = Math.min(Math.round((currentSent / limit) * 100), 100);
 
-  // 70%以上で黄（オレンジ）、90%以上で赤
   let gaugeColor = '#3182ce';
   let bgColor = '#ebf8ff';
   let textColor = '#2b6cb0';
@@ -1064,7 +1068,6 @@ export default function AdminPage() {
         </span>
       </div>
 
-      {/* ゲージ本体 */}
       <div style={{ width: '100%', height: '12px', background: '#e2e8f0', borderRadius: '6px', overflow: 'hidden' }}>
         <div
           style={{
@@ -1077,7 +1080,6 @@ export default function AdminPage() {
         />
       </div>
 
-      {/* 90%超過時のアラート */}
       {percentage >= 90 && (
         <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#e53e3e', fontWeight: 'bold' }}>
           ⚠️ 送信上限（90%超）に近づいています。上位プランへアップグレードすると上限を拡大できます。
