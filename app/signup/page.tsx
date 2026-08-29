@@ -106,7 +106,7 @@ export default function SignupPage() {
               }}
             >
               <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#475569' }}>LIGHT</div>
-              <div style={{ fontSize: '18px', fontWeight: '800', margin: '4px 0' }}>¥2,980<span style={{ fontSize: '10px', fontWeight: 'normal' }}>/月</span></div>
+              <div style={{ fontSize: '18px', fontWeight: '800', margin: '4px 0' }}>¥1,980<span style={{ fontSize: '10px', fontWeight: 'normal' }}>/月</span></div>
               <div style={{ fontSize: '11px', color: '#64748b' }}>手軽に試せる基本プラン</div>
             </div>
 
@@ -121,7 +121,7 @@ export default function SignupPage() {
               }}
             >
               <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#0284c7' }}>STANDARD</div>
-              <div style={{ fontSize: '18px', fontWeight: '800', margin: '4px 0' }}>¥9,800<span style={{ fontSize: '10px', fontWeight: 'normal' }}>/月</span></div>
+              <div style={{ fontSize: '18px', fontWeight: '800', margin: '4px 0' }}>¥3,800<span style={{ fontSize: '10px', fontWeight: 'normal' }}>/月</span></div>
               <div style={{ fontSize: '11px', color: '#0369a1' }}>無制限配信・Square連携</div>
             </div>
 
@@ -136,7 +136,7 @@ export default function SignupPage() {
               }}
             >
               <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ff4500' }}>PRO</div>
-              <div style={{ fontSize: '18px', fontWeight: '800', margin: '4px 0' }}>¥29,800<span style={{ fontSize: '10px', fontWeight: 'normal' }}>/月</span></div>
+              <div style={{ fontSize: '18px', fontWeight: '800', margin: '4px 0' }}>¥10,000<span style={{ fontSize: '10px', fontWeight: 'normal' }}>/月</span></div>
               <div style={{ fontSize: '11px', color: '#c2410c' }}>全機能 ＋ 10%紹介報酬還元</div>
             </div>
 
@@ -298,35 +298,42 @@ export default function SignupPage() {
             </div>
           )}
 
-          {/* 4. 利用規約 */}
+          {/* 4. 利用規約 (正式文言) */}
           <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px', color: '#2d3748' }}>
             4. 利用規約への同意
           </h3>
 
           <div style={{
-            height: '140px',
+            height: '160px',
             overflowY: 'scroll',
             background: '#f8fafc',
             border: '1px solid #cbd5e0',
-            padding: '12px 16px',
+            padding: '14px 16px',
             borderRadius: '6px',
             fontSize: '12px',
             color: '#475569',
-            lineHeight: '1.6',
+            lineHeight: '1.7',
             marginBottom: '15px'
           }}>
-            <p style={{ fontWeight: 'bold', margin: '0 0 6px 0' }}>プッシュ太郎 サービス利用規約</p>
-            <p style={{ margin: '0 0 8px 0' }}>
-              本規約は、プッシュ太郎（以下「本サービス」）の利用条件を定めるものです。利用者は本規約に同意の上、サービスを利用するものとします。
+            <p style={{ fontWeight: 'bold', margin: '0 0 8px 0', fontSize: '13px', color: '#1a202c' }}>利用規約</p>
+            <p style={{ margin: '0 0 10px 0' }}>
+              この利用規約（以下、「本規約」といいます。）は、Push-taro（以下、「当サービス」といいます。）が提供する店舗向けプッシュ通知・CRMプラットフォームの利用条件を定めるものです。ご利用者様（以下、「ユーザー」といいます。）には、本規約に従って当サービスをご利用いただきます。
             </p>
-            <p style={{ margin: '0 0 8px 0' }}>
-              <strong>1. 料金および支払い:</strong> 利用者は選択したプランに応じた月額料金を期日までに支払うものとします。月途中の解約に伴う日割り返金は行われません。
+            <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: '#2d3748' }}>第1条（適用）</p>
+            <p style={{ margin: '0 0 10px 0' }}>
+              本規約は、ユーザーと当サービス運営者との間の当サービスの利用に関わる一切の関係に適用されるものとします。
             </p>
-            <p style={{ margin: '0 0 8px 0' }}>
-              <strong>2. 配信内容の責任:</strong> 送信されるプッシュ通知のメッセージ内容に関する全責任は契約ユーザーに帰属します。不法行為・迷惑行為にあたる配信は即時停止対象となります。
+            <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: '#2d3748' }}>第2条（利用料金と支払い方法）</p>
+            <p style={{ margin: '0 0 10px 0' }}>
+              ユーザーは、当サービスの有料プラン（ライト、スタンダード、プロ）の対価として、別途定め、本サイトに表示する利用料金を、所定の決済方法（Square等）により支払うものとします。
             </p>
-            <p style={{ margin: '0 0 8px 0' }}>
-              <strong>3. 紹介報酬制度（PRO限定）:</strong> 紹介成果が発生した場合、解約確認完了後の翌々月末までに指定口座へ成果報酬（10%）が振り込まれます。
+            <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: '#2d3748' }}>第3条（禁止事項）</p>
+            <p style={{ margin: '0 0 10px 0' }}>
+              ユーザーは、当サービスの利用にあたり、法令や公序良俗に違反する行為、または運営を妨害するおそれのある行為を行ってはならないものとします。
+            </p>
+            <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: '#2d3748' }}>第4条（規約の変更）</p>
+            <p style={{ margin: '0 0 6px 0' }}>
+              運営者は、必要と判断した場合には、ユーザーに通知することなくいつでも本規約を変更することができるものとします。
             </p>
           </div>
 
