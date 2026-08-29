@@ -20,7 +20,7 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // 店舗情報 & プラン・ロールステート（roleの初期値をnormalに設定）
+  // 店舗情報 & プラン・ロールステート（初期値 normal）
   const [shopId, setShopId] = useState<string | null>(null);
   const [shopName, setShopName] = useState('');
   const [plan, setPlan] = useState<'light' | 'standard' | 'pro'>('light');
@@ -367,7 +367,7 @@ export default function AdminPage() {
 
   return (
     <main style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
-      {/* ヘッダー：アイコン・店舗名・プランバッジ ＋ プラン別アップグレードボタン */}
+      {/* ヘッダー：アイコン・店舗名・プランバッジ ＋ アップグレードリンク */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '10px', borderBottom: '2px solid #eee', paddingBottom: '15px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <img src={shopIconUrl || "/icon-192x192.png"} alt="アイコン" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #ddd' }} />
@@ -385,11 +385,11 @@ export default function AdminPage() {
                 {role === 'agency' ? '代理店' : `${plan.toUpperCase()} プラン`}
               </span>
 
-              {/* プラン別のアップグレードボタン */}
+              {/* プラン別のアップグレードボタン（アンカーリンク修正） */}
               {role !== 'agency' && (
                 <>
                   {plan === 'light' && (
-                    <Link
+                    <a
                       href="/#pricing"
                       style={{
                         padding: '4px 10px',
@@ -406,11 +406,11 @@ export default function AdminPage() {
                       }}
                     >
                       ⚡️ 上位プランへアップグレード
-                    </Link>
+                    </a>
                   )}
 
                   {plan === 'standard' && (
-                    <Link
+                    <a
                       href="/#pricing"
                       style={{
                         padding: '4px 10px',
@@ -427,7 +427,7 @@ export default function AdminPage() {
                       }}
                     >
                       ⚡️ PROプランへアップグレード
-                    </Link>
+                    </a>
                   )}
                 </>
               )}
@@ -735,7 +735,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* プラン別アップグレード訴求カード (LIGHT / STANDARDのみ表示) */}
+      {/* プラン別アップグレード訴求カード (文言修正 & アンカー修正済み) */}
       {shopId && role !== 'agency' && plan !== 'pro' && (
         <div style={{
           marginBottom: '20px',
@@ -756,7 +756,7 @@ export default function AdminPage() {
                   🚀 STANDARD または PRO プランへアップグレード
                 </div>
                 <div style={{ fontSize: '13px', color: '#0c4a6e' }}>
-                  配信数の上限解除やSquare連携機能、紹介報酬（PRO限定 10%還元）をご利用いただけます。
+                  配信数の上限拡大や、Proプランでは紹介報酬（PRO限定 10%還元）をご利用いただけます。
                 </div>
               </>
             ) : (
@@ -771,7 +771,7 @@ export default function AdminPage() {
             )}
           </div>
 
-          <Link
+          <a
             href="/#pricing"
             style={{
               padding: '8px 16px',
@@ -785,7 +785,7 @@ export default function AdminPage() {
             }}
           >
             {plan === 'light' ? 'プラン比較・変更' : 'PROへ変更'}
-          </Link>
+          </a>
         </div>
       )}
 
