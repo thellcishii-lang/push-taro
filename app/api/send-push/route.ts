@@ -17,8 +17,8 @@ function guessPlatform(token: string): string {
 // 📦 プランごとの月間送信上限
 const PLAN_LIMITS: Record<string, { name: string; limit: number }> = {
   light: { name: 'ライトプラン', limit: 5000 },
-  standard: { name: 'スタンダードプラン', limit: 10000 },
-  pro: { name: 'プロプラン', limit: 30000 },
+  standard: { name: 'スタンダードプラン', limit: 15000 },
+  pro: { name: 'プロプラン', limit: 5000000 }, // 登録5万人・無制限対応
 };
 
 export async function POST(request: Request) {
@@ -51,39 +51,53 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'タイトルと本文は必須です' }, { status: 400 });
     }
 
-    // 📋 トークン取得（店舗に登録されている全トークン）
-    const tokensSnapshot = await db.collection('subscriptions')
-      .where('shopIds', 'array-contains', shopId)
-      .get();
+    // ----------------------------------------------------
+    // ⚡️ 1. チャンク保存データ（5,000件まとめ）から高速一括取得
+    // ----------------------------------------------------
+    let registrationTokens: string[] = [];
+    const chunksSnapshot = await db.collection('shops').doc(shopId).collection('token_chunks').get();
 
-    console.log(`[send-push] 📋 該当ドキュメント数: ${tokensSnapshot.size}`);
-
-    if (tokensSnapshot.empty) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'この店舗に登録されている端末がありません' 
-      }, { status: 404 });
+    if (!chunksSnapshot.empty) {
+      chunksSnapshot.forEach((chunkDoc) => {
+        const chunkData = chunkDoc.data();
+        if (Array.isArray(chunkData.tokens)) {
+          registrationTokens = registrationTokens.concat(chunkData.tokens);
+        }
+      });
+      console.log(`[send-push] ⚡️ チャンクからトークン一括取得完了 (${chunksSnapshot.size} ドキュメント / 計 ${registrationTokens.length} 件)`);
     }
 
-    const registrationTokens: string[] = [];
-    tokensSnapshot.forEach(doc => {
-      const data = doc.data();
-      if (data.token) {
-        registrationTokens.push(data.token);
-      }
-    });
+    // ----------------------------------------------------
+    // 🛡️ 2. フォールバック（既存の subscriptions コレクションから取得）
+    // ----------------------------------------------------
+    if (registrationTokens.length === 0) {
+      const tokensSnapshot = await db.collection('subscriptions')
+        .where('shopIds', 'array-contains', shopId)
+        .get();
 
-    console.log(`[send-push] 📱 取得したトークン数: ${registrationTokens.length}`);
+      console.log(`[send-push] 📋 従来の subscriptions ドキュメント数: ${tokensSnapshot.size}`);
+
+      tokensSnapshot.forEach(doc => {
+        const data = doc.data();
+        if (data.token) {
+          registrationTokens.push(data.token);
+        }
+      });
+    }
+
+    // 重複を除去
+    registrationTokens = Array.from(new Set(registrationTokens));
+    console.log(`[send-push] 📱 最終ターゲットトークン数: ${registrationTokens.length}`);
 
     if (registrationTokens.length === 0) {
       return NextResponse.json({ 
         success: false, 
-        error: '有効なトークンがありません' 
+        error: 'この店舗に登録されている端末（有効なトークン）がありません' 
       }, { status: 404 });
     }
 
     // 🛡️ プランと月間送信上限のチェック
-    const planKey = shopData.plan || 'standard'; // デフォルトはスタンダード
+    const planKey = shopData.plan || 'standard';
     const planInfo = PLAN_LIMITS[planKey] || PLAN_LIMITS['standard'];
     const monthlyLimit = shopData.monthlyLimit || planInfo.limit;
 
@@ -99,9 +113,9 @@ export async function POST(request: Request) {
       currentMonthSent = 0;
     }
 
-    // 今回送信することで上限を超えるかチェック
+    // PROプラン以外で上限オーバーのチェック（PROプランは無制限扱い）
     const targetCount = registrationTokens.length;
-    if (currentMonthSent + targetCount > monthlyLimit) {
+    if (planKey !== 'pro' && (currentMonthSent + targetCount > monthlyLimit)) {
       return NextResponse.json({ 
         success: false, 
         error: `今月の送信上限（${planInfo.name}: ${monthlyLimit.toLocaleString()}件）に達するため送信できません。今月の送信済み数: ${currentMonthSent.toLocaleString()}件` 
@@ -141,7 +155,7 @@ export async function POST(request: Request) {
 
     console.log(`[send-push] 🚀 送信開始 (総件数: ${targetCount} 件)`);
 
-    // 🛡️ 500件の上限に対して安全に「450件ずつ」に分割（チャンク処理）
+    // 🛡️ FCM上限(500件)に対して安全に「450件ずつ」に分割（バッチ処理）
     const CHUNK_SIZE = 450;
     let totalSuccessCount = 0;
     let totalFailureCount = 0;
@@ -149,7 +163,7 @@ export async function POST(request: Request) {
 
     for (let i = 0; i < registrationTokens.length; i += CHUNK_SIZE) {
       const chunkTokens = registrationTokens.slice(i, i + CHUNK_SIZE);
-      console.log(`[send-push] 📦 チャンク送信中: ${i + 1} 〜 ${i + chunkTokens.length} 件目`);
+      console.log(`[send-push] 📦 バッチ送信中: ${i + 1} 〜 ${i + chunkTokens.length} 件目`);
 
       const message = {
         ...baseMessage,
@@ -170,23 +184,22 @@ export async function POST(request: Request) {
           }
         });
       } catch (chunkError) {
-        console.error(`[send-push] ❌ チャンク送信エラー (index ${i}):`, chunkError);
+        console.error(`[send-push] ❌ バッチ送信エラー (index ${i}):`, chunkError);
         totalFailureCount += chunkTokens.length;
       }
     }
 
     console.log(`[send-push] ✅ 合計成功: ${totalSuccessCount}, ❌ 合計失敗: ${totalFailureCount}`);
 
-   // 🗑️ 失敗した全トークンを Firestore からクエリで検索して確実に削除
+    // 🧹 失敗した全トークンを Firestore (subscriptions & token_chunks) から完全削除
     if (failedTokens.length > 0) {
-      // Firestore の in クエリ上限 (30件ずつ) に分割して実行
       const IN_LIMIT = 30;
       let deletedCount = 0;
 
+      // 1. subscriptions から削除
       for (let i = 0; i < failedTokens.length; i += IN_LIMIT) {
         const chunkFailedTokens = failedTokens.slice(i, i + IN_LIMIT);
         
-        // token フィールドが一致するドキュメントを取得
         const invalidDocsSnapshot = await db.collection('subscriptions')
           .where('token', 'in', chunkFailedTokens)
           .get();
@@ -200,7 +213,24 @@ export async function POST(request: Request) {
           await batch.commit();
         }
       }
-      console.log(`[send-push] 🧹 ${deletedCount} 件の無効トークン（ドキュメント）を完全に削除しました`);
+
+      // 2. token_chunks 配列からも失敗トークンをクリーニング
+      if (!chunksSnapshot.empty) {
+        for (const chunkDoc of chunksSnapshot.docs) {
+          const chunkData = chunkDoc.data();
+          if (Array.isArray(chunkData.tokens)) {
+            const updatedTokens = chunkData.tokens.filter((t: string) => !failedTokens.includes(t));
+            if (updatedTokens.length !== chunkData.tokens.length) {
+              await chunkDoc.ref.update({
+                tokens: updatedTokens,
+                updatedAt: FieldValue.serverTimestamp(),
+              });
+            }
+          }
+        }
+      }
+
+      console.log(`[send-push] 🧹 ${deletedCount} 件の無効トークンを完全に削除・整理しました`);
     }
 
     // 📈 今月の送信数を加算して店舗ドキュメントを更新
