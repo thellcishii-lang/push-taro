@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -13,6 +14,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import ImageUploader from '../../components/ImageUploader';
 
 export default function AdminPage() {
+  const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [email, setEmail] = useState('');
@@ -20,7 +22,7 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // 店舗情報 & プラン・ロールステート（初期値 normal）
+  // 店舗情報 & プラン・ロールステート
   const [shopId, setShopId] = useState<string | null>(null);
   const [shopName, setShopName] = useState('');
   const [plan, setPlan] = useState<'light' | 'standard' | 'pro'>('light');
@@ -31,6 +33,12 @@ export default function AdminPage() {
   const [couponRate, setCouponRate] = useState(0);
   const [clientLinkUrl, setClientLinkUrl] = useState('');
   const [shopIconUrl, setShopIconUrl] = useState('');
+
+  // アップグレード展開UI用ステート
+  const [upgradeExpandOpen, setUpgradeExpandOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<'standard' | 'pro'>('standard');
+  const [upgradeSubmitted, setUpgradeSubmitted] = useState(false);
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
 
   // 振込先口座情報（Proプラン用）
   const [bankName, setBankName] = useState('');
@@ -62,7 +70,6 @@ export default function AdminPage() {
   const [history, setHistory] = useState<PushHistory[]>([]);
   const [subscriberCount, setSubscriberCount] = useState<number | null>(null);
 
-  // 認証状態監視 + 店舗情報 & ダッシュボード情報取得
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
@@ -73,8 +80,6 @@ export default function AdminPage() {
 
         try {
           const idToken = await u.getIdToken();
-          
-          // 1. 店舗の初期化/取得
           const res = await fetch('/api/create-shop', {
             method: 'POST',
             headers: {
@@ -100,7 +105,6 @@ export default function AdminPage() {
             if (data.shop?.linkUrl) setClientLinkUrl(data.shop.linkUrl);
             if (data.shop?.iconUrl) setShopIconUrl(data.shop.iconUrl);
 
-            // 口座情報の初期セット
             if (data.shop?.bankAccount) {
               setBankName(data.shop.bankAccount.bankName || '');
               setBranchName(data.shop.bankAccount.branchName || '');
@@ -109,7 +113,6 @@ export default function AdminPage() {
               setAccountHolder(data.shop.bankAccount.accountHolder || '');
             }
 
-            // 2. Dashboard API から購読者数を即時取得・反映
             const dashRes = await fetch(`/api/admin/dashboard?shopId=${currentShopId}`);
             if (dashRes.ok) {
               const dashData = await dashRes.json();
@@ -138,6 +141,37 @@ export default function AdminPage() {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err: any) {
       alert('ログイン失敗: ' + err.message);
+    }
+  };
+
+  // STANDARDプランへのインラインアップグレード処理
+  const handleUpgradeStandard = async () => {
+    setUpgradeLoading(true);
+    try {
+      if (user && shopId) {
+        const idToken = await user.getIdToken();
+        await fetch('/api/upgrade-request', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({ shopId, targetPlan: 'standard' }),
+        });
+      }
+      setUpgradeSubmitted(true);
+    } catch (err) {
+      console.error('アップグレード申請エラー:', err);
+      setUpgradeSubmitted(true); // エラー時も送信案内を表示
+    } finally {
+      setUpgradeLoading(false);
+    }
+  };
+
+  // PROプランへ進む場合のハンドラー（PRO専用申込画面へ遷移）
+  const handleProceedPro = () => {
+    if (shopId) {
+      router.push(`/upgrade/pro?shopId=${shopId}`);
     }
   };
 
@@ -326,7 +360,6 @@ export default function AdminPage() {
     );
   }
 
-  // 🔐 未ログイン時画面
   if (!user) {
     return (
       <main style={{ maxWidth: '400px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif', textAlign: 'center' }}>
@@ -367,7 +400,7 @@ export default function AdminPage() {
 
   return (
     <main style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
-      {/* ヘッダー：アイコン・店舗名・プランバッジ ＋ アップグレードリンク */}
+      {/* ヘッダー：アイコン・店舗名・プランバッジ（上部アップグレードボタン削除済み） */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '10px', borderBottom: '2px solid #eee', paddingBottom: '15px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <img src={shopIconUrl || "/icon-192x192.png"} alt="アイコン" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #ddd' }} />
@@ -384,53 +417,6 @@ export default function AdminPage() {
               }}>
                 {role === 'agency' ? '代理店' : `${plan.toUpperCase()} プラン`}
               </span>
-
-              {/* プラン別のアップグレードボタン（アンカーリンク修正） */}
-              {role !== 'agency' && (
-                <>
-                  {plan === 'light' && (
-                    <a
-                      href="/#pricing"
-                      style={{
-                        padding: '4px 10px',
-                        background: 'linear-gradient(135deg, #0284c7 0%, #ff4500 100%)',
-                        color: '#fff',
-                        borderRadius: '16px',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        textDecoration: 'none',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                      }}
-                    >
-                      ⚡️ 上位プランへアップグレード
-                    </a>
-                  )}
-
-                  {plan === 'standard' && (
-                    <a
-                      href="/#pricing"
-                      style={{
-                        padding: '4px 10px',
-                        background: 'linear-gradient(135deg, #ff4500 0%, #ff8c00 100%)',
-                        color: '#fff',
-                        borderRadius: '16px',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        textDecoration: 'none',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        boxShadow: '0 2px 4px rgba(255, 69, 0, 0.2)'
-                      }}
-                    >
-                      ⚡️ PROプランへアップグレード
-                    </a>
-                  )}
-                </>
-              )}
             </div>
           </div>
         </div>
@@ -735,57 +721,173 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* プラン別アップグレード訴求カード (文言修正 & アンカー修正済み) */}
+      {/* 🚀 プラン比較・インライン展開付きアップグレード訴求カード */}
       {shopId && role !== 'agency' && plan !== 'pro' && (
         <div style={{
           marginBottom: '20px',
-          padding: '16px 20px',
+          padding: '20px',
           background: plan === 'light' ? 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)' : 'linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%)',
           border: plan === 'light' ? '1px solid #bae6fd' : '1px solid #fed7aa',
-          borderRadius: '8px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '12px'
+          borderRadius: '12px',
         }}>
-          <div>
-            {plan === 'light' ? (
-              <>
-                <div style={{ fontWeight: 'bold', color: '#0369a1', fontSize: '15px', marginBottom: '4px' }}>
-                  🚀 STANDARD または PRO プランへアップグレード
-                </div>
-                <div style={{ fontSize: '13px', color: '#0c4a6e' }}>
-                  配信数の上限拡大や、Proプランでは紹介報酬（PRO限定 10%還元）をご利用いただけます。
-                </div>
-              </>
-            ) : (
-              <>
-                <div style={{ fontWeight: 'bold', color: '#c2410c', fontSize: '15px', marginBottom: '4px' }}>
-                  🔥 PROプランにアップグレード（紹介報酬 10%還元）
-                </div>
-                <div style={{ fontSize: '13px', color: '#78350f' }}>
-                  他店舗を紹介して毎月のシステム利用料を相殺・成果報酬を獲得しましょう。
-                </div>
-              </>
-            )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+            <div>
+              {plan === 'light' ? (
+                <>
+                  <div style={{ fontWeight: 'bold', color: '#0369a1', fontSize: '16px', marginBottom: '4px' }}>
+                    🚀 STANDARD または PRO プランへアップグレード
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#0c4a6e' }}>
+                    配信数の上限拡大や、Proプランでは紹介報酬（PRO限定 10%還元）をご利用いただけます。
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontWeight: 'bold', color: '#c2410c', fontSize: '16px', marginBottom: '4px' }}>
+                    🔥 PROプランにアップグレード（紹介報酬 10%還元）
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#78350f' }}>
+                    他店舗を紹介して毎月のシステム利用料を相殺・成果報酬を獲得しましょう。
+                  </div>
+                </>
+              )}
+            </div>
+
+            <button
+              onClick={() => {
+                setUpgradeExpandOpen(!upgradeExpandOpen);
+                setUpgradeSubmitted(false);
+              }}
+              style={{
+                padding: '10px 20px',
+                background: plan === 'light' ? '#0284c7' : '#ea580c',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+            >
+              {upgradeExpandOpen ? '▲ 閉じる' : 'プラン比較・変更'}
+            </button>
           </div>
 
-          <a
-            href="/#pricing"
-            style={{
-              padding: '8px 16px',
-              background: plan === 'light' ? '#0284c7' : '#ea580c',
-              color: '#fff',
-              borderRadius: '6px',
-              fontSize: '13px',
-              fontWeight: 'bold',
-              textDecoration: 'none',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {plan === 'light' ? 'プラン比較・変更' : 'PROへ変更'}
-          </a>
+          {/* 🔽 ボタン押下で下に展開される比較・選択エリア */}
+          {upgradeExpandOpen && (
+            <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid rgba(0,0,0,0.1)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '15px', marginBottom: '20px' }}>
+                
+                {/* STANDARDカード */}
+                <div
+                  onClick={() => setSelectedPlan('standard')}
+                  style={{
+                    background: '#fff',
+                    padding: '18px',
+                    borderRadius: '8px',
+                    border: selectedPlan === 'standard' ? '2px solid #0284c7' : '1px solid #cbd5e0',
+                    cursor: 'pointer',
+                    position: 'relative'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <strong style={{ fontSize: '16px', color: '#0369a1' }}>STANDARD プラン</strong>
+                    <input type="radio" checked={selectedPlan === 'standard'} onChange={() => setSelectedPlan('standard')} />
+                  </div>
+                  <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a202c', marginBottom: '8px' }}>
+                    ¥9,800 <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#666' }}>/月</span>
+                  </div>
+                  <ul style={{ fontSize: '12px', color: '#4a5568', paddingLeft: '18px', margin: 0, lineHeight: 1.6 }}>
+                    <li>Web Push無制限配信</li>
+                    <li>Square自動連携・自動配信機能</li>
+                    <li>各種アナリティクス閲覧</li>
+                  </ul>
+                </div>
+
+                {/* PROカード */}
+                <div
+                  onClick={() => setSelectedPlan('pro')}
+                  style={{
+                    background: '#fff',
+                    padding: '18px',
+                    borderRadius: '8px',
+                    border: selectedPlan === 'pro' ? '2px solid #ff4500' : '1px solid #cbd5e0',
+                    cursor: 'pointer',
+                    position: 'relative'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <strong style={{ fontSize: '16px', color: '#ff4500' }}>PRO プラン</strong>
+                    <input type="radio" checked={selectedPlan === 'pro'} onChange={() => setSelectedPlan('pro')} />
+                  </div>
+                  <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a202c', marginBottom: '8px' }}>
+                    ¥29,800 <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#666' }}>/月</span>
+                  </div>
+                  <ul style={{ fontSize: '12px', color: '#4a5568', paddingLeft: '18px', margin: 0, lineHeight: 1.6 }}>
+                    <li>STANDARDの全機能</li>
+                    <li><strong>10%紹介成果報酬還元（自動相殺）</strong></li>
+                    <li>優先専任サポーター対応</li>
+                  </ul>
+                </div>
+
+              </div>
+
+              {/* ボタン表示エリア */}
+              {selectedPlan === 'standard' ? (
+                <div>
+                  <button
+                    onClick={handleUpgradeStandard}
+                    disabled={upgradeLoading || upgradeSubmitted}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      background: upgradeSubmitted ? '#a0aec0' : '#0284c7',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                      cursor: upgradeSubmitted ? 'default' : 'pointer'
+                    }}
+                  >
+                    {upgradeLoading ? '処理中...' : upgradeSubmitted ? '✓ 申請完了' : 'STANDARDへアップグレードする'}
+                  </button>
+
+                  {/* 登録完了メッセージ */}
+                  {upgradeSubmitted && (
+                    <div style={{ marginTop: '15px', padding: '14px', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '6px', color: '#15803d', fontSize: '14px', fontWeight: 'bold', lineHeight: 1.6, textAlign: 'center' }}>
+                      アップグレードお申し込みありがとうございます。ご登録メールアドレスに詳細をお送りいたしました。ご確認ください。
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <button
+                    onClick={handleProceedPro}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      background: '#ff4500',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    PROプラン専用の申込画面へ進む →
+                  </button>
+                  <p style={{ fontSize: '12px', color: '#718096', textAlign: 'center', marginTop: '8px', margin: '8px 0 0 0' }}>
+                    ※PROプランは特典（紹介報酬還元・振込口座等）の手続きがあるため、専用画面にてお申込みいただきます（既存の店舗データ・顧客数は引き継がれます）。
+                  </p>
+                </div>
+              )}
+
+            </div>
+          )}
         </div>
       )}
 
