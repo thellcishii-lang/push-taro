@@ -994,6 +994,98 @@ export default function AdminPage() {
         )}
       </form>
 
+     {/* 📊 月間送信数ゲージ（LIGHT・STANDARDプランのみ表示） */}
+{(() => {
+  const plan = shopData?.plan || 'light';
+
+  // PROプランの場合はゲージを表示しない
+  if (plan === 'pro') {
+    return (
+      <div style={{
+        background: '#fff7ed',
+        border: '1px solid #fed7aa',
+        borderRadius: '10px',
+        padding: '12px 20px',
+        marginBottom: '16px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#c2410c', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          🔥 月间送信ステータス
+          <span style={{ fontSize: '11px', background: '#ea580c', color: '#fff', padding: '2px 8px', borderRadius: '12px' }}>
+            PROプラン
+          </span>
+        </span>
+        <span style={{ fontSize: '14px', fontWeight: '800', color: '#c2410c' }}>
+          今月の送信数: {(shopData?.currentMonthSent || 0).toLocaleString()} 通（配信無制限）
+        </span>
+      </div>
+    );
+  }
+
+  // LIGHT（5,000通）/ STANDARD（15,000通）のみゲージを表示
+  const limit = shopData?.monthlyLimit || (plan === 'standard' ? 15000 : 5000);
+  const currentSent = shopData?.currentMonthSent || 0;
+  const percentage = Math.min(Math.round((currentSent / limit) * 100), 100);
+
+  // 70%以上で黄（オレンジ）、90%以上で赤
+  let gaugeColor = '#3182ce';
+  let bgColor = '#ebf8ff';
+  let textColor = '#2b6cb0';
+
+  if (percentage >= 90) {
+    gaugeColor = '#e53e3e';
+    bgColor = '#fff5f5';
+    textColor = '#c53030';
+  } else if (percentage >= 70) {
+    gaugeColor = '#dd6b20';
+    bgColor = '#fffaf0';
+    textColor = '#c05621';
+  }
+
+  return (
+    <div style={{
+      background: bgColor,
+      border: `1px solid ${gaugeColor}40`,
+      borderRadius: '10px',
+      padding: '16px 20px',
+      marginBottom: '16px',
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <span style={{ fontSize: '14px', fontWeight: 'bold', color: textColor, display: 'flex', alignItems: 'center', gap: '6px' }}>
+          📈 今月の送信上限使用率
+          <span style={{ fontSize: '11px', background: gaugeColor, color: '#fff', padding: '2px 8px', borderRadius: '12px' }}>
+            {plan.toUpperCase()}プラン
+          </span>
+        </span>
+        <span style={{ fontSize: '15px', fontWeight: '800', color: textColor }}>
+          {currentSent.toLocaleString()} / {limit.toLocaleString()} 通 ({percentage}%)
+        </span>
+      </div>
+
+      {/* ゲージ本体 */}
+      <div style={{ width: '100%', height: '12px', background: '#e2e8f0', borderRadius: '6px', overflow: 'hidden' }}>
+        <div
+          style={{
+            width: `${percentage}%`,
+            height: '100%',
+            background: gaugeColor,
+            borderRadius: '6px',
+            transition: 'width 0.5s ease-in-out',
+          }}
+        />
+      </div>
+
+      {/* 90%超過時のアラート */}
+      {percentage >= 90 && (
+        <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#e53e3e', fontWeight: 'bold' }}>
+          ⚠️ 送信上限（90%超）に近づいています。上位プランへアップグレードすると上限を拡大できます。
+        </p>
+      )}
+    </div>
+  );
+})()}
       {/* 履歴セクション */}
       <div style={{ borderTop: '2px solid #eee', paddingTop: '20px' }}>
         <div style={{ marginBottom: '15px', padding: '12px 16px', background: '#e3f2fd', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
