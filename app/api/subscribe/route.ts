@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { token, shopId, birthDate } = body; // 👈 birthDate を受け取る
+    const { token, shopId, birthDate } = body;
 
     if (!token || !shopId) {
       return NextResponse.json({ error: 'tokenとshopIdが必要です' }, { status: 400 });
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: '店舗が見つかりません' }, { status: 404 });
     }
 
-    // Proプランで送られてきた誕生日の数値化処理（月抽出用）
+    // Proプラン用 生年月日の数値化処理
     let birthMonth: number | null = null;
     let birthDay: number | null = null;
 
@@ -57,20 +57,54 @@ export async function POST(request: Request) {
     // FCM トピック登録
     await messaging.subscribeToTopic([normalizedToken], topic);
 
+    // ----------------------------------------------------
+    // ⚡️ 5,000件チャンク保存（5万人一括配信コスト削減用）
+    // ----------------------------------------------------
+    const chunksRef = db.collection('shops').doc(shopId).collection('token_chunks');
+    const snapshot = await chunksRef.orderBy('createdAt', 'desc').limit(1).get();
+
+    let targetDocRef;
+    let currentTokens: string[] = [];
+
+    if (snapshot.empty) {
+      targetDocRef = chunksRef.doc('chunk_1');
+    } else {
+      const lastDoc = snapshot.docs[0];
+      const data = lastDoc.data();
+      currentTokens = data.tokens || [];
+
+      if (currentTokens.length >= 5000) {
+        const nextIndex = snapshot.docs.length + 1;
+        targetDocRef = chunksRef.doc(`chunk_${nextIndex}`);
+        currentTokens = [];
+      } else {
+        targetDocRef = lastDoc.ref;
+      }
+    }
+
+    if (!currentTokens.includes(normalizedToken)) {
+      currentTokens.push(normalizedToken);
+      await targetDocRef.set({
+        tokens: currentTokens,
+        updatedAt: FieldValue.serverTimestamp(),
+        createdAt: currentTokens.length === 1 ? FieldValue.serverTimestamp() : undefined,
+      }, { merge: true });
+    }
+
+    // ----------------------------------------------------
+    // 👤 個別顧客プロファイル（subscriptions）の保存/更新
+    // ----------------------------------------------------
     if (doc.exists) {
       const data = doc.data();
       const shopIds = data?.shopIds || [];
 
-      // 生年月日データオブジェクト
       const birthDataUpdate = birthDate ? {
         birthDate,
         birthMonth,
         birthDay,
       } : {};
 
-      // ✅ 同じ店舗が既に登録されているかチェック
       if (shopIds.includes(shopId)) {
-        // 同じ店舗 → 最終アクティブ日時および生年月日情報を更新
         console.log('[API] 同じ店舗への再登録（更新）:', shopId);
         await docRef.update({
           ...birthDataUpdate,
@@ -83,7 +117,6 @@ export async function POST(request: Request) {
           message: '既存の登録を更新しました',
         }, { status: 200 });
       } else {
-        // 別の店舗 → 追加登録
         console.log('[API] 別の店舗を追加:', shopId);
         await docRef.update({
           ...birthDataUpdate,
@@ -99,7 +132,6 @@ export async function POST(request: Request) {
         }, { status: 200 });
       }
     } else {
-      // 新規トークン → 新規作成（生年月日もセット）
       console.log('[API] 新規登録:', { token: normalizedToken.slice(0, 20) + '...', shopId, birthDate });
       await docRef.set({
         token: normalizedToken,
