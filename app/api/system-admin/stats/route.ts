@@ -6,19 +6,40 @@ export async function GET(request: Request) {
   try {
     // 1. 全店舗データの取得
     const shopsSnapshot = await db.collection('shops').get();
-    const shops = shopsSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    
+    // 2. 全ユーザー（Push購読者）データの取得と店舗ごとのカウント集計
+    const usersSnapshot = await db.collection('users').get();
+    const subscriberCounts: Record<string, number> = {};
 
-    // 2. 全代理店データの取得
+    usersSnapshot.docs.forEach((doc) => {
+      const data = doc.data();
+      if (data.shopId) {
+        subscriberCounts[data.shopId] = (subscriberCounts[data.shopId] || 0) + 1;
+      }
+    });
+
+    let totalSubscribers = 0;
+
+    const shops = shopsSnapshot.docs.map((doc) => {
+      const shopData = doc.data();
+      const subscriberCount = subscriberCounts[doc.id] || 0;
+      totalSubscribers += subscriberCount;
+
+      return {
+        id: doc.id,
+        ...shopData,
+        subscriberCount, // 各店舗の購読者数をセット
+      };
+    });
+
+    // 3. 全代理店データの取得
     const agenciesSnapshot = await db.collection('agencies').get();
     const agencies = agenciesSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
 
-    // 3. プラン別・流通区分別の集計計算
+    // 4. プラン別・流通区分別の集計計算
     let lightCount = 0;
     let standardCount = 0;
     let proCount = 0;
@@ -27,13 +48,11 @@ export async function GET(request: Request) {
     let agencyCount = 0;
 
     shops.forEach((shop: any) => {
-      // プラン集計
       const plan = shop.plan?.toLowerCase() || 'light';
       if (plan === 'pro') proCount++;
       else if (plan === 'standard') standardCount++;
       else lightCount++;
 
-      // 流入区分集計
       if (shop.agencyId) agencyCount++;
       else if (shop.referrerId) referralCount++;
       else directCount++;
@@ -41,6 +60,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       summary: {
+        totalSubscribers, // 全店舗合計の登録顧客数
         lightCount,
         standardCount,
         proCount,
