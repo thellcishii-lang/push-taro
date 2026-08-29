@@ -23,7 +23,7 @@ export default function AdminPage() {
   const [shopId, setShopId] = useState<string | null>(null);
   const [shopName, setShopName] = useState('');
   const [plan, setPlan] = useState<'light' | 'standard' | 'pro'>('light');
-  const [role, setRole] = useState<'pro' | 'agency'>('pro');
+  const [role, setRole] = useState<'normal' | 'pro' | 'agency'>('normal');
   const [couponEnabled, setCouponEnabled] = useState(false);
   const [couponTitle, setCouponTitle] = useState('');
   const [couponDesc, setCouponDesc] = useState('');
