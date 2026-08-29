@@ -1,298 +1,370 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function SignupPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  // プラン選択
   const [selectedPlan, setSelectedPlan] = useState<'light' | 'standard' | 'pro'>('light');
-  const [shopName, setShopName] = useState('');
-  const [ownerName, setOwnerName] = useState('');
-  const [address, setAddress] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  
-  // プロプラン専用の追加フィールド
+
+  // 基本会員情報
   const [companyName, setCompanyName] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
-  const [referralCode, setReferralCode] = useState('');
-  const [bankInfo, setBankInfo] = useState('');
+  const [address, setAddress] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const [agreed, setAgreed] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // Proプラン用 口座情報詳細
+  const [bankName, setBankName] = useState('');
+  const [branchName, setBranchName] = useState('');
+  const [accountType, setAccountType] = useState('savings');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [accountHolder, setAccountHolder] = useState('');
+
+  // 利用規約同意
+  const [termsAgreed, setTermsAgreed] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!agreed) {
-      alert('利用規約に同意してください。');
+
+    if (!termsAgreed) {
+      alert('利用規約への同意が必要です。');
       return;
     }
 
     setLoading(true);
+
     try {
-      // 申込データを送信するAPIを叩く処理（後ほど実装）
-      // const res = await fetch('/api/signup', { ... });
-      
-      setSubmitted(true);
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password,
+          plan: selectedPlan,
+          companyName,
+          invoiceNumber,
+          address,
+          phone,
+          bankAccount: selectedPlan === 'pro' ? {
+            bankName,
+            branchName,
+            accountType,
+            accountNumber,
+            accountHolder,
+          } : null,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || '登録に失敗しました。');
+      }
+
+      alert('登録が完了しました！管理画面へログインしてください。');
+      router.push('/admin');
     } catch (err: any) {
-      alert('エラーが発生しました: ' + err.message);
+      alert('エラー: ' + err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  if (submitted) {
-    return (
-      <main style={{ maxWidth: '600px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
-        <div style={{ background: '#f0f8ff', padding: '30px', borderRadius: '8px', textAlign: 'center', border: '1px solid #b0e0e6' }}>
-          <h2 style={{ color: '#2c3e50', marginBottom: '15px' }}>導入ありがとうございます！</h2>
-          <p style={{ lineHeight: '1.6', color: '#333', marginBottom: '20px' }}>
-            お申し込みを受け付けました。ご登録いただいたメールアドレス宛に、申込書と利用規約、およびSquare決済リンクをお送りしましたのでご確認ください。
-          </p>
-          <div style={{ background: '#fff', padding: '20px', borderRadius: '6px', border: '1px solid #ddd', marginBottom: '20px' }}>
-            <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>💳 Square決済へお進みください</p>
-            <a
-              href="https://square.link/u/YOUR_PAYMENT_LINK"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-block',
-                background: selectedPlan === 'pro' ? '#dd6b20' : '#006aff',
-                color: '#fff',
-                padding: '12px 24px',
-                borderRadius: '4px',
-                textDecoration: 'none',
-                fontWeight: 'bold',
-              }}
-            >
-              Square決済ページを開く
-            </a>
-          </div>
-          <p style={{ fontSize: '12px', color: '#666' }}>
-            決済完了後、数分以内にログイン用のIDとパスワードがメールで自動送信されます。
+  return (
+    <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+      <main style={{ maxWidth: '650px', margin: '0 auto', background: '#fff', padding: '36px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+        
+        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+          <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#1a202c', margin: '0 0 8px 0' }}>
+            プッシュ太郎 新規アカウント登録
+          </h1>
+          <p style={{ color: '#718096', fontSize: '14px', margin: 0 }}>
+            Web Push通知配信サービスを今すぐ始めましょう。
           </p>
         </div>
-      </main>
-    );
-  }
 
-  return (
-    <main style={{ maxWidth: '650px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
-      <p style={{ marginBottom: '15px' }}><Link href="/lp" style={{ color: '#3182ce', textDecoration: 'none', fontSize: '14px' }}>← LPに戻る</Link></p>
-      
-      <h1 style={{ fontSize: '24px', marginBottom: '10px', textAlign: 'center' }}>Push-taro お申し込みフォーム</h1>
-      <p style={{ color: '#666', textAlign: 'center', marginBottom: '25px', fontSize: '14px' }}>
-        ご希望のプランを選択し、必要事項をご入力の上お申し込みください。
-      </p>
-
-      <form onSubmit={handleSubmit} style={{ background: '#fafafa', padding: '25px', borderRadius: '8px', border: '1px solid #e1e1e1' }}>
-        
-        {/* プラン選択タブ */}
-        <div style={{ marginBottom: '25px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', fontSize: '14px' }}>ご希望プラン <span style={{ color: 'red' }}>*</span></label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-            <button
-              type="button"
+        <form onSubmit={handleSubmit}>
+          {/* 1. プラン選択 */}
+          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px', color: '#2d3748' }}>
+            1. ご契約プランを選択
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '10px', marginBottom: '30px' }}>
+            
+            <div
               onClick={() => setSelectedPlan('light')}
               style={{
-                padding: '12px 8px',
-                borderRadius: '6px',
-                border: selectedPlan === 'light' ? '2px solid #3182ce' : '1px solid #ccc',
-                background: selectedPlan === 'light' ? '#ebf8ff' : '#fff',
-                color: selectedPlan === 'light' ? '#2b6cb0' : '#333',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                fontSize: '13px'
+                padding: '14px',
+                borderRadius: '8px',
+                border: selectedPlan === 'light' ? '2px solid #64748b' : '1px solid #cbd5e0',
+                background: selectedPlan === 'light' ? '#f8fafc' : '#fff',
+                cursor: 'pointer'
               }}
             >
-              ライト<br /><span style={{ fontSize: '11px', fontWeight: 'normal' }}>1,980円/月</span>
-            </button>
-            <button
-              type="button"
+              <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#475569' }}>LIGHT</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', margin: '4px 0' }}>¥2,980<span style={{ fontSize: '10px', fontWeight: 'normal' }}>/月</span></div>
+              <div style={{ fontSize: '11px', color: '#64748b' }}>手軽に試せる基本プラン</div>
+            </div>
+
+            <div
               onClick={() => setSelectedPlan('standard')}
               style={{
-                padding: '12px 8px',
-                borderRadius: '6px',
-                border: selectedPlan === 'standard' ? '2px solid #3182ce' : '1px solid #ccc',
-                background: selectedPlan === 'standard' ? '#ebf8ff' : '#fff',
-                color: selectedPlan === 'standard' ? '#2b6cb0' : '#333',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                fontSize: '13px'
+                padding: '14px',
+                borderRadius: '8px',
+                border: selectedPlan === 'standard' ? '2px solid #0284c7' : '1px solid #cbd5e0',
+                background: selectedPlan === 'standard' ? '#f0f9ff' : '#fff',
+                cursor: 'pointer'
               }}
             >
-              スタンダード<br /><span style={{ fontSize: '11px', fontWeight: 'normal' }}>3,800円/月</span>
-            </button>
-            <button
-              type="button"
+              <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#0284c7' }}>STANDARD</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', margin: '4px 0' }}>¥9,800<span style={{ fontSize: '10px', fontWeight: 'normal' }}>/月</span></div>
+              <div style={{ fontSize: '11px', color: '#0369a1' }}>無制限配信・Square連携</div>
+            </div>
+
+            <div
               onClick={() => setSelectedPlan('pro')}
               style={{
-                padding: '12px 8px',
-                borderRadius: '6px',
-                border: selectedPlan === 'pro' ? '2px solid #dd6b20' : '1px solid #ccc',
-                background: selectedPlan === 'pro' ? '#fffaf0' : '#fff',
-                color: selectedPlan === 'pro' ? '#c05621' : '#333',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                fontSize: '13px'
+                padding: '14px',
+                borderRadius: '8px',
+                border: selectedPlan === 'pro' ? '2px solid #ff4500' : '1px solid #cbd5e0',
+                background: selectedPlan === 'pro' ? '#fff7ed' : '#fff',
+                cursor: 'pointer'
               }}
             >
-              プロ (最高峰)<br /><span style={{ fontSize: '11px', fontWeight: 'normal' }}>9,800円/月</span>
-            </button>
+              <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ff4500' }}>PRO</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', margin: '4px 0' }}>¥29,800<span style={{ fontSize: '10px', fontWeight: 'normal' }}>/月</span></div>
+              <div style={{ fontSize: '11px', color: '#c2410c' }}>全機能 ＋ 10%紹介報酬還元</div>
+            </div>
+
           </div>
-        </div>
 
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>店舗名（屋号）</label>
-          <input
-            type="text"
-            required
-            value={shopName}
-            onChange={(e) => setShopName(e.target.value)}
-            placeholder="例: カフェ・プッシュ太郎"
-            style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}
-          />
-        </div>
+          {/* 2. 会社・店舗基本情報 */}
+          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px', color: '#2d3748' }}>
+            2. ご契約者様（会社・店舗）情報
+          </h3>
 
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>ご担当者様のお名前</label>
-          <input
-            type="text"
-            required
-            value={ownerName}
-            onChange={(e) => setOwnerName(e.target.value)}
-            placeholder="例: 山田 太郎"
-            style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}
-          />
-        </div>
-
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>ご住所</label>
-          <input
-            type="text"
-            required
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="例: 東京都渋谷区..."
-            style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}
-          />
-        </div>
-
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>メールアドレス</label>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="例: info@example.com"
-            style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}
-          />
-        </div>
-
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>お電話番号</label>
-          <input
-            type="tel"
-            required
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="例: 090-1234-5678"
-            style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}
-          />
-        </div>
-
-        {/* プロプラン選択時のみ表示する追加項目（インボイス・法人・口座） */}
-        {selectedPlan === 'pro' && (
-          <div style={{ background: '#fffaf0', border: '1px solid #fbd38d', padding: '20px', borderRadius: '6px', marginBottom: '20px' }}>
-            <h3 style={{ fontSize: '15px', fontWeight: 'bold', color: '#c05621', marginBottom: '15px', borderBottom: '1px solid #feebc8', paddingBottom: '8px' }}>
-              ⭐ プロプラン専用項目（インボイス・紹介制度対応）
-            </h3>
-
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '13px', color: '#2d3748' }}>法人名 / 正式な事業者名（請求書記載用）</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '30px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>会社名 / 屋号</label>
               <input
                 type="text"
+                required
+                placeholder="株式会社〇〇 または 店舗屋号"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                placeholder="例: 株式会社プッシュタロウ"
-                style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', background: '#fff' }}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
               />
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '13px', color: '#2d3748' }}>適格請求書発行事業者登録番号（インボイス番号）</label>
+            <div>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>インボイス登録番号（任意）</label>
               <input
                 type="text"
+                placeholder="T1234567890123"
                 value={invoiceNumber}
                 onChange={(e) => setInvoiceNumber(e.target.value)}
-                placeholder="T1234567890123"
-                style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', background: '#fff' }}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
               />
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '13px', color: '#2d3748' }}>紹介コード（お持ちの方のみ）</label>
+            <div>
+              <label style={{ display: 'block', marginBottom: '2px', fontWeight: 'bold', fontSize: '13px' }}>所在地 / 住所</label>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', color: '#e11d48', fontWeight: 'bold' }}>
+                ※上記住所などは正式な登録住所で書いてください。
+              </p>
               <input
                 type="text"
-                value={referralCode}
-                onChange={(e) => setReferralCode(e.target.value)}
-                placeholder="紹介者のコード"
-                style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', background: '#fff' }}
+                required
+                placeholder="東京都渋谷区〇〇 1-2-3 〇〇ビル4F"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
               />
             </div>
 
-            <div style={{ marginBottom: '5px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '13px', color: '#2d3748' }}>紹介報酬（ポイント還元）の振込先口座情報</label>
-              <p style={{ fontSize: '11px', color: '#666', marginBottom: '5px' }}>※1万円以上の出金申請時に使用します（PayPay銀行等対応）</p>
+            <div>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>電話番号</label>
               <input
-                type="text"
-                value={bankInfo}
-                onChange={(e) => setBankInfo(e.target.value)}
-                placeholder="金融機関名・支店名・口座番号・名義人"
-                style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', background: '#fff' }}
+                type="tel"
+                required
+                placeholder="03-1234-5678"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>ログイン用メールアドレス</label>
+              <input
+                type="email"
+                required
+                placeholder="owner@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>ログイン用パスワード</label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                placeholder="6文字以上のパスワード"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
               />
             </div>
           </div>
-        )}
 
-        {/* 利用規約エリア */}
-        <div style={{ marginBottom: '20px', background: '#fff', padding: '15px', borderRadius: '4px', border: '1px solid #ddd', maxHeight: '120px', overflowY: 'scroll', fontSize: '13px', color: '#555' }}>
-          <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>利用規約</p>
-          <p>ここにPush-taroの利用規約が入ります。本規約に同意の上、お申し込みを行ってください。不正利用の禁止やサービス内容についての記載がここに含まれます。</p>
-        </div>
+          {/* 3. PROプラン選択時限定：受取用口座情報入力欄 */}
+          {selectedPlan === 'pro' && (
+            <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', padding: '20px', borderRadius: '8px', marginBottom: '30px' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '6px', color: '#c2410c' }}>
+                🏦 10%紹介報酬 受取口座の登録
+              </h3>
+              <p style={{ fontSize: '12px', color: '#78350f', margin: '0 0 16px 0' }}>
+                PROプラン特典として、他店舗をご紹介いただいた際の成果報酬（10%）をお振り込みする口座を指定してください。
+              </p>
 
-        <div style={{ marginBottom: '25px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <input
-            type="checkbox"
-            id="agreed"
-            checked={agreed}
-            onChange={(e) => setAgreed(e.target.checked)}
-            style={{ width: '18px', height: '18px' }}
-          />
-          <label htmlFor="agreed" style={{ fontSize: '14px', cursor: 'pointer', fontWeight: 'bold' }}>
-            <Link href="/terms" target="_blank" style={{ color: '#3182ce' }}>利用規約</Link> および <Link href="/privacy" target="_blank" style={{ color: '#3182ce' }}>プライバシーポリシー</Link> に同意する
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>金融機関名</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="例: 〇〇銀行"
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box', background: '#fff' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>支店名</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="例: △△支店"
+                    value={branchName}
+                    onChange={(e) => setBranchName(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box', background: '#fff' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>預金種目</label>
+                  <select
+                    value={accountType}
+                    onChange={(e) => setAccountType(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box', background: '#fff' }}
+                  >
+                    <option value="savings">普通</option>
+                    <option value="checking">当座</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>口座番号</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="1234567"
+                    value={accountNumber}
+                    onChange={(e) => setAccountNumber(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box', background: '#fff' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>口座名義（カナ）</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="ヤマダ タロウ"
+                    value={accountHolder}
+                    onChange={(e) => setAccountHolder(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box', background: '#fff' }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 4. 利用規約 */}
+          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px', color: '#2d3748' }}>
+            4. 利用規約への同意
+          </h3>
+
+          <div style={{
+            height: '140px',
+            overflowY: 'scroll',
+            background: '#f8fafc',
+            border: '1px solid #cbd5e0',
+            padding: '12px 16px',
+            borderRadius: '6px',
+            fontSize: '12px',
+            color: '#475569',
+            lineHeight: '1.6',
+            marginBottom: '15px'
+          }}>
+            <p style={{ fontWeight: 'bold', margin: '0 0 6px 0' }}>プッシュ太郎 サービス利用規約</p>
+            <p style={{ margin: '0 0 8px 0' }}>
+              本規約は、プッシュ太郎（以下「本サービス」）の利用条件を定めるものです。利用者は本規約に同意の上、サービスを利用するものとします。
+            </p>
+            <p style={{ margin: '0 0 8px 0' }}>
+              <strong>1. 料金および支払い:</strong> 利用者は選択したプランに応じた月額料金を期日までに支払うものとします。月途中の解約に伴う日割り返金は行われません。
+            </p>
+            <p style={{ margin: '0 0 8px 0' }}>
+              <strong>2. 配信内容の責任:</strong> 送信されるプッシュ通知のメッセージ内容に関する全責任は契約ユーザーに帰属します。不法行為・迷惑行為にあたる配信は即時停止対象となります。
+            </p>
+            <p style={{ margin: '0 0 8px 0' }}>
+              <strong>3. 紹介報酬制度（PRO限定）:</strong> 紹介成果が発生した場合、解約確認完了後の翌々月末までに指定口座へ成果報酬（10%）が振り込まれます。
+            </p>
+          </div>
+
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '25px', fontSize: '14px', fontWeight: 'bold', color: '#1a202c' }}>
+            <input
+              type="checkbox"
+              required
+              checked={termsAgreed}
+              onChange={(e) => setTermsAgreed(e.target.checked)}
+            />
+            利用規約に同意して申込む
           </label>
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: '16px',
+              background: '#ff4500',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: 'bold',
+              fontSize: '18px',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              boxShadow: '0 4px 12px rgba(255, 69, 0, 0.3)'
+            }}
+          >
+            {loading ? '登録処理中...' : 'アカウントを登録して開始する'}
+          </button>
+        </form>
+
+        <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '13px' }}>
+          <Link href="/admin" style={{ color: '#0284c7', textDecoration: 'none' }}>すでにアカウントをお持ちの方（ログイン）</Link>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            width: '100%',
-            background: loading ? '#ccc' : selectedPlan === 'pro' ? '#dd6b20' : '#28a745',
-            color: '#fff',
-            border: 'none',
-            padding: '14px',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            borderRadius: '4px',
-            cursor: loading ? 'not-allowed' : 'pointer',
-          }}
-        >
-          {loading ? '送信中...' : selectedPlan === 'pro' ? 'プロプランで申し込む' : '申し込む'}
-        </button>
-      </form>
-    </main>
+      </main>
+    </div>
   );
 }
