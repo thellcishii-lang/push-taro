@@ -298,7 +298,7 @@ export default function LandingPage() {
                   10,000円<span style={{ fontSize: '14px', color: '#718096', fontWeight: 'normal' }}>/月 (税別)</span>
                 </div>
                 <p style={{ fontSize: '14px', color: '#e53e3e', fontWeight: '700', marginBottom: '16px' }}>
-                  月間配信上限: 50,000通 (5万通)
+                  登録者数５万人　配信無制限
                 </p>
                 <p style={{ fontSize: '14px', color: '#718096', marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
                   本格的な自動CRM・ファン育成を極める最高峰プラン
