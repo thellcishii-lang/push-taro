@@ -7,28 +7,31 @@ export async function GET(request: Request) {
     // 1. 全店舗データの取得
     const shopsSnapshot = await db.collection('shops').get();
     
-    // 2. 全ユーザー（Push購読者）データの取得と店舗ごとのカウント集計
-    const usersSnapshot = await db.collection('users').get();
+    // 2. subscriptions（購読データ）から店舗ごとのカウント集計
+    const subsSnapshot = await db.collection('subscriptions').get();
     const subscriberCounts: Record<string, number> = {};
 
-    usersSnapshot.docs.forEach((doc) => {
+    subsSnapshot.docs.forEach((doc) => {
       const data = doc.data();
-      if (data.shopId) {
+      if (Array.isArray(data.shopIds)) {
+        data.shopIds.forEach((sId: string) => {
+          subscriberCounts[sId] = (subscriberCounts[sId] || 0) + 1;
+        });
+      } else if (data.shopId) {
         subscriberCounts[data.shopId] = (subscriberCounts[data.shopId] || 0) + 1;
       }
     });
 
-    let totalSubscribers = 0;
+    const totalSubscribers = subsSnapshot.size; // 全購読ドキュメント数
 
     const shops = shopsSnapshot.docs.map((doc) => {
       const shopData = doc.data();
       const subscriberCount = subscriberCounts[doc.id] || 0;
-      totalSubscribers += subscriberCount;
 
       return {
         id: doc.id,
         ...shopData,
-        subscriberCount, // 各店舗の購読者数をセット
+        subscriberCount,
       };
     });
 
@@ -39,7 +42,7 @@ export async function GET(request: Request) {
       ...doc.data(),
     }));
 
-    // 4. プラン別・流通区分別の集計計算
+    // 4. プラン別・流入区分別の集計
     let lightCount = 0;
     let standardCount = 0;
     let proCount = 0;
@@ -60,7 +63,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       summary: {
-        totalSubscribers, // 全店舗合計の登録顧客数
+        totalSubscribers,
         lightCount,
         standardCount,
         proCount,
