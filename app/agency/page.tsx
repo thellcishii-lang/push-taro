@@ -8,9 +8,17 @@ import { onAuthStateChanged } from 'firebase/auth';
 // 紹介店舗のデータ型
 interface ReferredShop {
   id: string;
-  name: string;
-  referredByCode: string;
+  name?: string;
+  plan?: string;
+  status?: string;
   createdAt?: any;
+}
+
+// 統計データの型
+interface AgencyStats {
+  referredShopCount: number;
+  pendingPayout: number;
+  totalEarned: number;
 }
 
 // 通知データ型
@@ -27,6 +35,11 @@ export default function AgencyPage() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [userId, setUserId] = useState<string>('');
   const [referredShops, setReferredShops] = useState<ReferredShop[]>([]);
+  const [stats, setStats] = useState<AgencyStats>({
+    referredShopCount: 0,
+    pendingPayout: 0,
+    totalEarned: 0,
+  });
   const [notifications, setNotifications] = useState<AgencyNotification[]>([]);
   const [fetchingDashboard, setFetchingDashboard] = useState<boolean>(true);
 
@@ -50,18 +63,25 @@ export default function AgencyPage() {
         setUserId(user.uid);
 
         try {
-          // 1. 紹介顧客リスト（店舗）の取得
-          const shopsRes = await fetch(`/api/agency/shops?userId=${user.uid}`);
-          if (shopsRes.ok) {
-            const data = await shopsRes.json();
+          // 1. 新設した agency/stats API から統計情報・紹介店舗一覧を取得
+          const statsRes = await fetch(`/api/agency/stats?agencyId=${user.uid}`);
+          if (statsRes.ok) {
+            const data = await statsRes.json();
             setReferredShops(data.shops || []);
+            if (data.stats) {
+              setStats(data.stats);
+            }
           }
 
-          // 2. 新着通知の取得
-          const notifRes = await fetch(`/api/agency/notifications?userId=${user.uid}`);
-          if (notifRes.ok) {
-            const data = await notifRes.json();
-            setNotifications(data.notifications || []);
+          // 2. 新着通知の取得 (任意)
+          try {
+            const notifRes = await fetch(`/api/agency/notifications?userId=${user.uid}`);
+            if (notifRes.ok) {
+              const data = await notifRes.json();
+              setNotifications(data.notifications || []);
+            }
+          } catch (e) {
+            // 通知機能が無い場合のフォールバック
           }
         } catch (err) {
           console.error('ダッシュボードデータの取得失敗:', err);
@@ -198,13 +218,37 @@ export default function AgencyPage() {
         {/* ログイン済み：代理店ダッシュボード画面 */}
         {isLoggedIn ? (
           <div>
-            <div style={{ background: '#ffffff', padding: '30px', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '30px' }}>
+            <div style={{ background: '#ffffff', padding: '30px', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
               <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#1a202c', marginBottom: '8px' }}>
                 代理店ダッシュボード
               </h1>
-              <p style={{ color: '#718096', fontSize: '14px' }}>
-                あなたの紹介コード経由で登録された店舗（顧客）一覧と通知を確認できます。
+              <p style={{ color: '#718096', fontSize: '14px', margin: 0 }}>
+                紹介店舗の実績状況と、発生した代理店報酬（未振込・累計）をリアルタイムで確認できます。
               </p>
+            </div>
+
+            {/* 📊 報酬・実績サマリーカード */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+              <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#718096', marginBottom: '8px' }}>紹介獲得店舗数</div>
+                <div style={{ fontSize: '32px', fontWeight: '800', color: '#2b6cb0' }}>
+                  {fetchingDashboard ? '...' : `${stats.referredShopCount} 店舗`}
+                </div>
+              </div>
+
+              <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#718096', marginBottom: '8px' }}>次回お振込予定（未払報酬）</div>
+                <div style={{ fontSize: '32px', fontWeight: '800', color: '#dd6b20' }}>
+                  {fetchingDashboard ? '...' : `${stats.pendingPayout.toLocaleString()} 円`}
+                </div>
+              </div>
+
+              <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#718096', marginBottom: '8px' }}>累計獲得報酬</div>
+                <div style={{ fontSize: '32px', fontWeight: '800', color: '#38a169' }}>
+                  {fetchingDashboard ? '...' : `${stats.totalEarned.toLocaleString()} 円`}
+                </div>
+              </div>
             </div>
 
             {/* 未読通知アラートボックス */}
@@ -235,27 +279,44 @@ export default function AgencyPage() {
                 紹介顧客リスト（店舗一覧）
               </h2>
 
-              {referredShops.length === 0 ? (
+              {fetchingDashboard ? (
+                <p style={{ color: '#a0aec0', fontSize: '14px', textAlign: 'center', padding: '30px 0' }}>
+                  データを読み込み中...
+                </p>
+              ) : referredShops.length === 0 ? (
                 <p style={{ color: '#a0aec0', fontSize: '14px', textAlign: 'center', padding: '40px 0' }}>
-                  現在、紹介コード経由で登録された店舗はありません。
+                  現在、紹介経由で登録された店舗はありません。
                 </p>
               ) : (
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
                     <thead>
                       <tr style={{ background: '#f7fafc', borderBottom: '2px solid #edf2f7' }}>
-                        <th style={{ padding: '12px', color: '#4a5568' }}>店舗名（顧客名）</th>
-                        <th style={{ padding: '12px', color: '#4a5568' }}>使用紹介コード</th>
-                        <th style={{ padding: '12px', color: '#4a5568' }}>登録日時</th>
+                        <th style={{ padding: '12px', color: '#4a5568' }}>店舗ID / 店舗名</th>
+                        <th style={{ padding: '12px', color: '#4a5568' }}>プラン</th>
+                        <th style={{ padding: '12px', color: '#4a5568' }}>ステータス</th>
                       </tr>
                     </thead>
                     <tbody>
                       {referredShops.map(shop => (
                         <tr key={shop.id} style={{ borderBottom: '1px solid #edf2f7' }}>
-                          <td style={{ padding: '16px 12px', fontWeight: 'bold', color: '#2d3748' }}>{shop.name}</td>
-                          <td style={{ padding: '16px 12px', color: '#3182ce', fontWeight: 'bold' }}>{shop.referredByCode}</td>
-                          <td style={{ padding: '16px 12px', color: '#718096' }}>
-                            {shop.createdAt ? new Date(shop.createdAt.seconds * 1000).toLocaleDateString('ja-JP') : '-'}
+                          <td style={{ padding: '16px 12px', fontWeight: 'bold', color: '#2d3748' }}>
+                            {shop.name || shop.id}
+                          </td>
+                          <td style={{ padding: '16px 12px', color: '#3182ce', fontWeight: 'bold' }}>
+                            {shop.plan ? shop.plan.toUpperCase() : 'STANDARD'}
+                          </td>
+                          <td style={{ padding: '16px 12px' }}>
+                            <span style={{
+                              padding: '4px 8px',
+                              borderRadius: '12px',
+                              fontSize: '12px',
+                              fontWeight: 'bold',
+                              background: shop.status === 'active' || !shop.status ? '#c6f6d5' : '#fed7d7',
+                              color: shop.status === 'active' || !shop.status ? '#22543d' : '#9b2c2c'
+                            }}>
+                              {shop.status === 'active' || !shop.status ? '契約中' : '解約 / 停止'}
+                            </span>
                           </td>
                         </tr>
                       ))}
