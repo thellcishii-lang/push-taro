@@ -174,7 +174,7 @@ function ProUpgradeContent() {
               <input
                 type="text"
                 required
-                placeholder="東京都渋谷区〇〇 1-2-3 〇〇ビル4F"
+                placeholder="埼玉県飯能市中藤下郷２３−２１"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
@@ -263,13 +263,13 @@ function ProUpgradeContent() {
             </div>
           </div>
 
-          {/* 3. 利用規約 (正式文言) */}
+          {/* 3. 利用規約 (全12条の正式全文を搭載) */}
           <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px', color: '#2d3748' }}>
             3. 利用規約への同意
           </h3>
 
           <div style={{
-            height: '160px',
+            height: '180px',
             overflowY: 'scroll',
             background: '#f8fafc',
             border: '1px solid #cbd5e0',
@@ -282,24 +282,50 @@ function ProUpgradeContent() {
           }}>
             <p style={{ fontWeight: 'bold', margin: '0 0 8px 0', fontSize: '13px', color: '#1a202c' }}>利用規約</p>
             <p style={{ margin: '0 0 10px 0' }}>
-              この利用規約（以下、「本規約」といいます。）は、Push-taro（以下、「当サービス」といいます。）が提供する店舗向けプッシュ通知・CRMプラットフォームの利用条件を定めるものです。ご利用者様（以下、「ユーザー」といいます。）には、本規約に従って当サービスをご利用いただきます。
+              この利用規約（以下、「本規約」といいます。）は、the合同会社（以下、「当社」といいます。）が提供するPush-taro（以下、「当サービス」といいます。）の利用条件を定めるものです。ご利用者様（以下、「ユーザー」といいます。）には、本規約に従って当サービスをご利用いただきます。
             </p>
-            <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: '#2d3748' }}>第1条（適用）</p>
-            <p style={{ margin: '0 0 10px 0' }}>
-              本規約は、ユーザーと当サービス運営者との間の当サービスの利用に関わる一切の関係に適用されるものとします。
-            </p>
-            <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: '#2d3748' }}>第2条（利用料金と支払い方法）</p>
-            <p style={{ margin: '0 0 10px 0' }}>
-              ユーザーは、当サービスの有料プラン（ライト、スタンダード、プロ）の対価として、別途定め、本サイトに表示する利用料金を、所定の決済方法（Square等）により支払うものとします。
-            </p>
-            <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: '#2d3748' }}>第3条（禁止事項）</p>
-            <p style={{ margin: '0 0 10px 0' }}>
-              ユーザーは、当サービスの利用にあたり、法令や公序良俗に違反する行為、または運営を妨害するおそれのある行為を行ってはならないものとします。
-            </p>
-            <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: '#2d3748' }}>第4条（規約の変更）</p>
-            <p style={{ margin: '0 0 6px 0' }}>
-              運営者は、必要と判断した場合には、ユーザーに通知することなくいつでも本規約を変更することができるものとします。
-            </p>
+            
+            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#2d3748' }}>第1条（適用）</p>
+            <p style={{ margin: '0 0 8px 0' }}>本規約は、ユーザーと当社との間の当サービスの利用に関わる一切の関係に適用されるものとします。ユーザーが本サービスのお申し込みまたはご利用を開始した時点で、本規約の全条項に同意したものとみなします。</p>
+
+            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#2d3748' }}>第2条（アカウント登録と管理）</p>
+            <p style={{ margin: '0 0 8px 0' }}>1. ユーザーは、真実かつ正確な情報をもってアカウント登録を行うものとします。<br />2. ユーザーは、自己の責任においてアカウントIDおよびパスワードを厳重に管理するものとし、第三者への譲渡・貸与等はできません。<br />3. アカウント情報の管理不十分による損害の責任はユーザーが負うものとします。</p>
+
+            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#2d3748' }}>第3条（利用料金および支払い方法）</p>
+            <p style={{ margin: '0 0 8px 0' }}>1. ユーザーは、当サービスが定める各プラン（ライトプラン: 1,980円/月、スタンダードプラン: 3,800円/月、プロプラン: 10,000円/月、いずれも税別）の利用料金を、当社指定の決済手段（Square等）により支払うものとします。<br />2. 月の途中でアカウントの開通または解約が行われた場合であっても、日割り計算による返金・精算は行いません。<br />3. ユーザーが利用料金の支払いを遅延した場合、年14.6%の割合による遅延損害金を支払うものとします。</p>
+
+            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#2d3748' }}>第4条（送信メッセージおよびコンテンツの責任）</p>
+            <p style={{ margin: '0 0 8px 0' }}>1. 当サービスを通じてエンドユーザー（通知購読者）へ配信されるメッセージの内容に関する責任は、一切ユーザー自身に帰属します。<br />2. ユーザーは、特定電子メール法等の関連法令を遵守し、承諾を得ていない不特定多数への迷惑通知（スパム配信）を行ってはなりません。</p>
+
+            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#2d3748' }}>第5条（禁止事項）</p>
+            <p style={{ margin: '0 0 8px 0' }}>ユーザーは、法令違反行為、知的財産権の侵害、サーバーへの過度な負荷行為、虚偽情報の配信、反社会的勢力への利益供与行為等を行ってはならないものとします。</p>
+
+            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#2d3748' }}>第6条（サービスの提供停止・変更・終了）</p>
+            <p style={{ margin: '0 0 8px 0' }}>当社は、保守点検・障害復旧・天災地変等により事前に通知することなくサービス提供を中断・停止することがあります。</p>
+
+            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#2d3748' }}>第7条（紹介成果報酬制度・PRO特典）</p>
+            <p style={{ margin: '0 0 8px 0' }}>1. プロプランユーザーが他店舗を紹介した場合、所定のロジックに基づき10%相当の成果報酬権利が発生します。<br />2. 発生した成果報酬は毎月の請求精算時に自動控除・相殺にて精算されます。</p>
+
+            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#2d3748' }}>第8条（契約解除および利用制限）</p>
+            <p style={{ margin: '0 0 8px 0' }}>ユーザーが本規約に違反した場合、または利用料金の支払いを怠った場合、当社は即座にサービス利用の停止、あるいは契約を解除することができます。</p>
+
+            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#2d3748' }}>第9条（免責事項）</p>
+            <p style={{ margin: '0 0 8px 0' }}>1. 当社は、当サービスが特定の目的に適合することや期待する売上向上成果が得られることを保証するものではありません。<br />2. 当社が損害賠償責任を負う場合であっても、過去1ヶ月間にユーザーが支払った利用料相当額を上限とします。</p>
+
+            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#2d3748' }}>第10条（秘密保持および個人情報の取扱い）</p>
+            <p style={{ margin: '0 0 8px 0' }}>個人情報の取扱いについては、別途定める「プライバシーポリシー」に従うものとします。</p>
+
+            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#2d3748' }}>第11条（規約の変更）</p>
+            <p style={{ margin: '0 0 8px 0' }}>当社は、必要と判断した場合には、事前に適切な方法で通知することにより、いつでも本規約を変更することができるものとします。</p>
+
+            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#2d3748' }}>第12条（準拠法および裁判管轄）</p>
+            <p style={{ margin: '0 0 8px 0' }}>本規約の解釈にあたっては日本法を準拠法とし、当社の本社所在地を管轄する裁判所を専属的合意管轄とします。</p>
+
+            <div style={{ marginTop: '12px', paddingTop: '8px', borderTop: '1px solid #cbd5e0', fontSize: '11px', color: '#64748b' }}>
+              【事業者名】the合同会社<br />
+              【所在地】〒357-0123 埼玉県飯能市中藤下郷２３−２１<br />
+              【連絡先】pushtaro-info@gmail.com
+            </div>
           </div>
 
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '25px', fontSize: '14px', fontWeight: 'bold', color: '#1a202c' }}>
