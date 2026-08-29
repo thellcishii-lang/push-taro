@@ -797,7 +797,7 @@ export default function AdminPage() {
                     <input type="radio" checked={selectedPlan === 'standard'} onChange={() => setSelectedPlan('standard')} />
                   </div>
                   <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a202c', marginBottom: '8px' }}>
-                    ¥9,800 <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#666' }}>/月</span>
+                    ¥3,800 <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#666' }}>/月（税別）</span>
                   </div>
                   <ul style={{ fontSize: '12px', color: '#4a5568', paddingLeft: '18px', margin: 0, lineHeight: 1.6 }}>
                     <li>Web Push無制限配信</li>
@@ -823,7 +823,7 @@ export default function AdminPage() {
                     <input type="radio" checked={selectedPlan === 'pro'} onChange={() => setSelectedPlan('pro')} />
                   </div>
                   <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a202c', marginBottom: '8px' }}>
-                    ¥29,800 <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#666' }}>/月</span>
+                    ¥10,000 <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#666' }}>/月（税別）</span>
                   </div>
                   <ul style={{ fontSize: '12px', color: '#4a5568', paddingLeft: '18px', margin: 0, lineHeight: 1.6 }}>
                     <li>STANDARDの全機能</li>
