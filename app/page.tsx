@@ -34,8 +34,10 @@ export default function LandingPage() {
       const saved = localStorage.getItem('push_taro_shop_id');
       if (saved) {
         setShopId(saved);
+      } else {
+        setStatus('error');
+        setMessage('無効なアクセスです。QRコードからアクセスしてください。');
       }
-      // ❌ ここで即 setStatus('error') を呼んでいたのを削除しました
     }
   }, []);
 
