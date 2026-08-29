@@ -1,4 +1,4 @@
-'use client';
+うkuse client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -106,7 +106,7 @@ export default function SignupPage() {
               }}
             >
               <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#475569' }}>LIGHT</div>
-              <div style={{ fontSize: '18px', fontWeight: '800', margin: '4px 0' }}>¥1,980<span style={{ fontSize: '10px', fontWeight: 'normal' }}>/月</span></div>
+              <div style={{ fontSize: '18px', fontWeight: '800', margin: '4px 0' }}>¥1,980<span style={{ fontSize: '10px', fontWeight: 'normal' }}>/月（税別）</span></div>
               <div style={{ fontSize: '11px', color: '#64748b' }}>手軽に試せる基本プラン</div>
             </div>
 
@@ -121,8 +121,8 @@ export default function SignupPage() {
               }}
             >
               <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#0284c7' }}>STANDARD</div>
-              <div style={{ fontSize: '18px', fontWeight: '800', margin: '4px 0' }}>¥3,800<span style={{ fontSize: '10px', fontWeight: 'normal' }}>/月</span></div>
-              <div style={{ fontSize: '11px', color: '#0369a1' }}>無制限配信・Square連携</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', margin: '4px 0' }}>¥3,800<span style={{ fontSize: '10px', fontWeight: 'normal' }}>/月（税別）</span></div>
+              <div style={{ fontSize: '11px', color: '#0369a1' }}>月間１万5千配信。LIGHTプランの３倍の配信量</div>
             </div>
 
             <div
@@ -136,8 +136,8 @@ export default function SignupPage() {
               }}
             >
               <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#ff4500' }}>PRO</div>
-              <div style={{ fontSize: '18px', fontWeight: '800', margin: '4px 0' }}>¥10,000<span style={{ fontSize: '10px', fontWeight: 'normal' }}>/月</span></div>
-              <div style={{ fontSize: '11px', color: '#c2410c' }}>全機能 ＋ 10%紹介報酬還元</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', margin: '4px 0' }}>¥10,000<span style={{ fontSize: '10px', fontWeight: 'normal' }}>/月（税別）</span></div>
+              <div style={{ fontSize: '11px', color: '#c2410c' }}>配信無制限　全機能 ＋ 10%紹介報酬還元</div>
             </div>
 
           </div>
@@ -161,7 +161,7 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>インボイス登録番号（任意）</label>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>インボイス登録番号（任意）PROプラン</label>
               <input
                 type="text"
                 placeholder="T1234567890123"
@@ -174,12 +174,12 @@ export default function SignupPage() {
             <div>
               <label style={{ display: 'block', marginBottom: '2px', fontWeight: 'bold', fontSize: '13px' }}>所在地 / 住所</label>
               <p style={{ margin: '0 0 6px 0', fontSize: '11px', color: '#e11d48', fontWeight: 'bold' }}>
-                ※上記住所などは正式な登録住所で書いてください。
+                ※住所などは正式な登録住所で書いてください。
               </p>
               <input
                 type="text"
                 required
-                placeholder="埼玉県飯能市中藤下郷２３−２１"
+                placeholder="〇〇県〇〇市〇〇１２３−４５"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
