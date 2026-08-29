@@ -108,8 +108,14 @@ export default function AdminPage() {
               setAccountHolder(data.shop.bankAccount.accountHolder || '');
             }
 
-            // 2. 新設した Dashboard API から顧客数・統計データを取得
-            fetchDashboardStats(currentShopId);
+            // 2. Dashboard API から購読者数を即時取得・反映
+            const dashRes = await fetch(`/api/admin/dashboard?shopId=${currentShopId}`);
+            if (dashRes.ok) {
+              const dashData = await dashRes.json();
+              if (dashData.stats && typeof dashData.stats.subscriberCount === 'number') {
+                setSubscriberCount(dashData.stats.subscriberCount);
+              }
+            }
           }
         } catch (err) {
           console.error('店舗情報取得エラー:', err);
