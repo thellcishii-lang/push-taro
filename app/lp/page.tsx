@@ -235,7 +235,7 @@ export default function LandingPage() {
               <div>
                 <h3 style={{ fontSize: '18px', color: '#4a5568', fontWeight: '700', marginBottom: '8px' }}>ライトプラン</h3>
                 <div style={{ fontSize: '36px', fontWeight: '800', color: '#1a202c', marginBottom: '16px' }}>
-                  1,980円<span style={{ fontSize: '14px', color: '#718096', fontWeight: 'normal' }}>/月 (税込)</span>
+                  1,980円<span style={{ fontSize: '14px', color: '#718096', fontWeight: 'normal' }}>/月 (税別)</span>
                 </div>
                 <p style={{ fontSize: '14px', color: '#e53e3e', fontWeight: '700', marginBottom: '16px' }}>
                   月間配信上限: 5,000通
@@ -265,17 +265,17 @@ export default function LandingPage() {
               <div>
                 <h3 style={{ fontSize: '18px', color: '#3182ce', fontWeight: '700', marginBottom: '8px' }}>スタンダードプラン</h3>
                 <div style={{ fontSize: '36px', fontWeight: '800', color: '#1a202c', marginBottom: '16px' }}>
-                  3,800円<span style={{ fontSize: '14px', color: '#718096', fontWeight: 'normal' }}>/月 (税込)</span>
+                  3,800円<span style={{ fontSize: '14px', color: '#718096', fontWeight: 'normal' }}>/月 (税別)</span>
                 </div>
                 <p style={{ fontSize: '14px', color: '#e53e3e', fontWeight: '700', marginBottom: '16px' }}>
-                  月間配信上限: 10,000通 (1万通)
+                  月間配信上限: 15,000通 (1万5千通)
                 </p>
                 <p style={{ fontSize: '14px', color: '#718096', marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
                   充実の配信枠と手厚いサポートで集客を加速
                 </p>
                 <ul style={{ fontSize: '14px', color: '#2d3748', paddingLeft: '20px', lineHeight: '2' }}>
                   <li>ライトプランの全機能</li>
-                  <li>拡大された配信枠（月1万通）</li>
+                  <li>拡大された配信枠（月1万5千通）</li>
                   <li>優先サポート対応</li>
                 </ul>
               </div>
@@ -295,7 +295,7 @@ export default function LandingPage() {
               <div>
                 <h3 style={{ fontSize: '18px', color: '#dd6b20', fontWeight: '700', marginBottom: '8px' }}>プロプラン</h3>
                 <div style={{ fontSize: '36px', fontWeight: '800', color: '#1a202c', marginBottom: '16px' }}>
-                  10,000円<span style={{ fontSize: '14px', color: '#718096', fontWeight: 'normal' }}>/月 (税込)</span>
+                  10,000円<span style={{ fontSize: '14px', color: '#718096', fontWeight: 'normal' }}>/月 (税別)</span>
                 </div>
                 <p style={{ fontSize: '14px', color: '#e53e3e', fontWeight: '700', marginBottom: '16px' }}>
                   月間配信上限: 50,000通 (5万通)
