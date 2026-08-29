@@ -7,10 +7,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja">
       <head>
-        <link rel="manifest" href="/manifest" />
+        {/* Manifestのパスを /manifest.json に修正 */}
+        <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#ff6b6b" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
+
+        {/* 📱 iOS (Safari) をアプリ（スタンドアロンモード）で起動させるための必須タグ */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="プッシュ太郎" />
       </head>
       <body style={{ margin: 0, background: '#fafafa' }}>{children}</body>
     </html>
