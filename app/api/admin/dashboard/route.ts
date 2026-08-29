@@ -1,6 +1,6 @@
 // app/api/admin/dashboard/route.ts
 import { NextResponse } from 'next/server';
-import { dbAdmin } from '@/lib/firebase-admin';
+import { db as dbAdmin } from '@/lib/firebase-admin';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
