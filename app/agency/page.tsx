@@ -205,12 +205,20 @@ export default function AgencyPage() {
               />
             </div>
 
+            {/* 📜 代理店利用規約（全文復元版） */}
             <div style={{ background: '#f8fafc', border: '1px solid #cbd5e0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1a202c', marginBottom: '8px' }}>代理店利用規約（概要）</h3>
-              <div style={{ height: '140px', overflowY: 'auto', fontSize: '12px', color: '#4a5568', background: '#ffffff', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0', lineHeight: '1.7', marginBottom: '12px' }}>
-                <p style={{ margin: '0 0 8px 0' }}><strong>第1条（目的）</strong> 本規約は代理店パートナーの販売促進活動および権利義務関係を定めるものです。</p>
-                <p style={{ margin: '0 0 8px 0' }}><strong>第2条（契約成立と費用）</strong> 審査通過後、加盟金（30万円・税別）および初月月額費用（3万円・税別）の決済完了をもって契約成立とします。</p>
-                <p style={{ margin: '0 0 8px 0' }}><strong>第3条（解約・返金）</strong> 理由の如何を問わず、支払済みの加盟金の返金は行われません。</p>
+              <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1a202c', marginBottom: '8px' }}>代理店利用規約（全文）</h3>
+              <div style={{ height: '220px', overflowY: 'auto', fontSize: '12px', color: '#4a5568', background: '#ffffff', padding: '14px', borderRadius: '6px', border: '1px solid #e2e8f0', lineHeight: '1.8', marginBottom: '12px' }}>
+                <p style={{ margin: '0 0 10px 0' }}><strong>第1条（総則および目的）</strong><br />本規約は、Push-taro（以下「当社」）が提供するLINE風Web Push通知・CRMサービス（以下「本サービス」）の販売パートナー（以下「代理店」）との間の権利義務関係および取扱い条件を定めるものです。</p>
+                <p style={{ margin: '0 0 10px 0' }}><strong>第2条（契約の成立）</strong><br />代理店希望者が本申込みフォームより申請を行い、当社の審査を通過した上で、加盟金および初月代理店月額費用の決済を完了した時点で本契約が成立します。</p>
+                <p style={{ margin: '0 0 10px 0' }}><strong>第3条（加盟金および月額費用）</strong><br />1. 代理店は加盟金（初期費用）として 300,000円（税別）を支払うものとします。<br />2. 代理店は月額システム利用・管理費として 30,000円/月（税別）を毎月当社に支払うものとします。</p>
+                <p style={{ margin: '0 0 10px 0' }}><strong>第4条（成果報酬の支払い・相殺管理）</strong><br />1. 当社は、代理店の紹介コードを経由して契約・維持されているアクティブな店舗（顧客）数に応じて、所定の還元率に基づく紹介報酬を算定します。<br />2. 発生した紹介報酬は、代理店の毎月のシステム利用料とのまとめて請求精算・自動控除（相殺）にて処理されるものとします。</p>
+                <p style={{ margin: '0 0 10px 0' }}><strong>第5条（返金不能）</strong><br />決済完了後、理由の如何（審査後の自己都合キャンセル、中途解約など）を問わず、既にお支払いいただいた加盟金および月額費用の返金には応じかねます。</p>
+                <p style={{ margin: '0 0 10px 0' }}><strong>第6条（禁止事項）</strong><br />代理店は以下の行為を行ってはなりません。<br />① 当社の事前許可を得ない虚偽・誇大広告による勧誘<br />② 不正な紹介コードの複製、第三者への譲渡または二次貸与<br />③ 当社または第三者の著作権・商標権・信用を毀損する行為</p>
+                <p style={{ margin: '0 0 10px 0' }}><strong>第7条（秘密保持）</strong><br />代理店は、本事業に関して知り得た当社の営業上・技術上および顧客に関する情報を、事前の書面による承諾なく第三者に漏洩してはなりません。</p>
+                <p style={{ margin: '0 0 10px 0' }}><strong>第8条（反社会的な勢力の排除）</strong><br />代理店は、自らまたはその役員が暴力団、暴力団関係企業、総会屋等の反社会勢力に該当しないことを表明し、保証するものとします。</p>
+                <p style={{ margin: '0 0 10px 0' }}><strong>第9条（契約解除）</strong><br />代理店が本規約に違反した場合、または月額費用等の支払いを怠った場合、当社は事前の催告なく即座に代理店契約を解除し、紹介報酬の支払いを停止することができます。</p>
+                <p style={{ margin: '0 0 5px 0' }}><strong>第10条（管轄裁判所）</strong><br />本規約に関して紛争が生じた場合、当社の本社所在地を管轄する地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
               </div>
               
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -222,7 +230,7 @@ export default function AgencyPage() {
                   style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                 />
                 <label htmlFor="agreement" style={{ fontSize: '14px', fontWeight: '600', color: '#2d3748', cursor: 'pointer' }}>
-                  「代理店利用規約」の内容を確認し、同意します。
+                  「代理店利用規約」の全条項を確認し、同意します。
                 </label>
               </div>
             </div>
