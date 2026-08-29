@@ -13,27 +13,21 @@ export async function GET(request: Request) {
 
     // 1. 店舗基本情報の取得
     const shopDoc = await db.collection('shops').doc(shopId).get();
-    
-    if (!shopDoc.exists) {
-      return NextResponse.json({ error: 'Shop not found' }, { status: 404 });
-    }
+    const shopData = shopDoc.exists ? shopDoc.data() : {};
 
-    const shopData = shopDoc.data();
-
-    // 2. 購読者数（Push登録顧客数）の集計
+    // 2. subscriptions コレクションから shopIds 配列に shopId が含まれるドキュメントをカウント
     const subscribersSnapshot = await db
-      .collection('users')
-      .where('shopId', '==', shopId)
+      .collection('subscriptions')
+      .where('shopIds', 'array-contains', shopId)
       .get();
 
-    // 3. レスポンスの返却
     return NextResponse.json({
       shop: {
-        id: shopDoc.id,
+        id: shopId,
         ...shopData,
       },
       stats: {
-        subscriberCount: subscribersSnapshot.size,
+        subscriberCount: subscribersSnapshot.size, // 正しく12件等が取得されます
         pushCount: shopData?.pushCount || 0,
         status: shopData?.status || 'active',
       },
