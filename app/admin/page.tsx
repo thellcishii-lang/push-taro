@@ -61,7 +61,7 @@ export default function AdminPage() {
   const [history, setHistory] = useState<PushHistory[]>([]);
   const [subscriberCount, setSubscriberCount] = useState<number | null>(null);
 
-  // 認証状態監視 + 店舗情報取得
+  // 認証状態監視 + 店舗情報 & ダッシュボード情報取得
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
@@ -72,6 +72,8 @@ export default function AdminPage() {
 
         try {
           const idToken = await u.getIdToken();
+          
+          // 1. 店舗の初期化/取得
           const res = await fetch('/api/create-shop', {
             method: 'POST',
             headers: {
@@ -82,7 +84,8 @@ export default function AdminPage() {
           });
           const data = await res.json();
           if (data.success) {
-            setShopId(data.shopId);
+            const currentShopId = data.shopId;
+            setShopId(currentShopId);
             setShopName(data.shop?.name || '');
             if (data.shop?.plan) setPlan(data.shop.plan);
             if (data.shop?.role) setRole(data.shop.role);
@@ -105,8 +108,8 @@ export default function AdminPage() {
               setAccountHolder(data.shop.bankAccount.accountHolder || '');
             }
 
-            // 受取許可件数の取得
-            fetchSubscribersCount(data.shopId, idToken);
+            // 2. 新設した Dashboard API から顧客数・統計データを取得
+            fetchDashboardStats(currentShopId);
           }
         } catch (err) {
           console.error('店舗情報取得エラー:', err);
@@ -117,17 +120,17 @@ export default function AdminPage() {
     return () => unsub();
   }, []);
 
-  const fetchSubscribersCount = async (sId: string, idToken: string) => {
+  // Dashboard API 呼び出し関数
+  const fetchDashboardStats = async (sId: string) => {
     try {
-      const res = await fetch(`/api/shop-info?s=${sId}`, {
-        headers: { 'Authorization': `Bearer ${idToken}` },
-      });
+      const res = await fetch(`/api/admin/dashboard?shopId=${sId}`);
+      if (!res.ok) return;
       const data = await res.json();
-      if (data.success && typeof data.subscriberCount === 'number') {
-        setSubscriberCount(data.subscriberCount);
+      if (data.stats && typeof data.stats.subscriberCount === 'number') {
+        setSubscriberCount(data.stats.subscriberCount);
       }
     } catch (e) {
-      console.error('購読者数取得エラー:', e);
+      console.error('ダッシュボード統計情報取得エラー:', e);
     }
   };
 
