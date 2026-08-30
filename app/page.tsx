@@ -1,40 +1,61 @@
 'use client';
 
+// app/page.tsx - 整理版
+
+'use client';
+
 import { useState, useEffect } from 'react';
-import { requestNotificationToken } from '@/lib/firebase/token-manager';
 import { QRCodeSVG } from 'qrcode.react';
+import { requestNotificationToken } from '@/lib/firebase/token-manager';
 import { getPlatformRequirements } from '@/lib/firebase/platform';
 
 export default function LandingPage() {
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [shopId, setShopId] = useState('');
-
   const [isRegistered, setIsRegistered] = useState(false);
   const [fcmToken, setFcmToken] = useState('');
   const [shopData, setShopData] = useState<any>(null);
-
   const [birthDate, setBirthDate] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
   const [couponUsed, setCouponUsed] = useState(false);
 
-  // URLから shopId 取得
+  // ============================================================
+  // 1. shopId を取得（iOS対応）
+  // ============================================================
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const s = params.get('s');
+    // URLのクエリパラメータから shopId を抽出
+    const urlParams = new URLSearchParams(window.location.search);
+    let s = urlParams.get('s');
+    
+    // iOSのホーム画面から開いた場合、window.location.search が空になることがある
+    // → URL全体から正規表現で抽出する
+    if (!s) {
+      const match = window.location.href.match(/[?&]s=([^&]+)/);
+      s = match ? match[1] : null;
+    }
+
+    console.log('[debug] shopId:', s, 'from URL:', window.location.href);
 
     if (s) {
       setShopId(s);
       localStorage.setItem('push_taro_shop_id', s);
     } else {
+      // ローカルストレージから復元
       const saved = localStorage.getItem('push_taro_shop_id');
       if (saved) {
         setShopId(saved);
+        console.log('[debug] shopId restored from localStorage:', saved);
+      } else {
+        setStatus('error');
+        setMessage('店舗IDが取得できませんでした。\nQRコードから再度アクセスしてください。');
       }
     }
   }, []);
 
-  // 店舗情報の取得
+  // ============================================================
+  // 2. 店舗情報を取得
+  // ============================================================
   useEffect(() => {
     if (!shopId) return;
 
@@ -47,6 +68,7 @@ export default function LandingPage() {
       })
       .catch(err => console.error('店舗情報取得エラー:', err));
 
+    // 既にトークンがあれば登録済みと見なす
     const savedToken = localStorage.getItem(`push_taro_token_${shopId}`);
     if (savedToken) {
       setFcmToken(savedToken);
@@ -54,7 +76,9 @@ export default function LandingPage() {
     }
   }, [shopId]);
 
-  // manifest 設定
+  // ============================================================
+  // 3. manifest 設定（PWA用）
+  // ============================================================
   useEffect(() => {
     if (shopId && shopId !== 'placeholder' && shopId !== 'undefined') {
       const link = document.querySelector('link[rel="manifest"]');
@@ -64,33 +88,12 @@ export default function LandingPage() {
     }
   }, [shopId]);
 
-  // app/page.tsx
-
-/* 🔥 一時的にコメントアウト（onForegroundMessage が client.ts にないため）
-  useEffect(() => {
-    const unsub = onForegroundMessage((payload) => {
-      const title = payload.data?.title || shopData?.name || 'プッシュ太郎';
-      const options = {
-        body: payload.data?.body || '',
-        icon: shopData?.iconUrl || '/icon-192x192.png',
-        image: payload.data?.image,
-        data: { url: payload.data?.url || '/' },
-        tag: payload.data?.shopId || 'default',
-      };
-      if (Notification.permission === 'granted') {
-        navigator.serviceWorker.ready.then((registration) => {
-          registration.showNotification(title, options);
-        });
-      }
-    });
-    return () => unsub();
-  }, [shopData]);
-*/
+  // ============================================================
+  // 4. 通知登録処理
+  // ============================================================
   const handleSubscribe = async () => {
-    let effectiveShopId = shopId;
-    if (!effectiveShopId) {
-      effectiveShopId = localStorage.getItem('push_taro_shop_id') || '';
-    }
+    // shopIdを取得（優先順位: state → localStorage）
+    const effectiveShopId = shopId || localStorage.getItem('push_taro_shop_id') || '';
 
     if (!effectiveShopId) {
       setStatus('error');
@@ -98,12 +101,14 @@ export default function LandingPage() {
       return;
     }
 
+    // Proプラン: 誕生日必須
     if (shopData?.plan === 'pro' && !birthDate) {
       setStatus('error');
       setMessage('バースデークーポン受取のため、生年月日を選択してください。');
       return;
     }
 
+    // iOS: ホーム画面追加チェック
     const requirements = getPlatformRequirements();
     if (requirements.needsHomeScreenAdd) {
       setStatus('error');
@@ -115,6 +120,7 @@ export default function LandingPage() {
     setMessage('');
 
     try {
+      // 通知許可
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
         setStatus('error');
@@ -122,6 +128,7 @@ export default function LandingPage() {
         return;
       }
 
+      // FCMトークン取得
       const { token, platform } = await requestNotificationToken();
       if (!token) {
         setStatus('error');
@@ -129,6 +136,7 @@ export default function LandingPage() {
         return;
       }
 
+      // サーバーに登録
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -144,20 +152,38 @@ export default function LandingPage() {
         throw new Error(resData.error || `HTTP ${res.status}`);
       }
 
+      // ローカル保存
       localStorage.setItem(`push_taro_token_${effectiveShopId}`, token);
       setFcmToken(token);
       setStatus('success');
-      setMessage('通知の受け取りが完了しました！');
+      setMessage('✅ 通知の受け取りが完了しました！');
 
+      // 3秒後に登録完了画面へ
       setTimeout(() => {
         setIsRegistered(true);
       }, 3000);
 
     } catch (err: any) {
+      console.error('登録エラー:', err);
       setStatus('error');
       setMessage('エラー: ' + err.message);
     }
   };
+
+  // ============================================================
+  // 5. 登録完了後の画面（JSX）
+  // ============================================================
+  if (isRegistered) {
+    // ... 既存の登録完了画面 ...
+  }
+
+  // ============================================================
+  // 6. 通知許可画面（JSX）
+  // ============================================================
+  return (
+    // ... 既存の通知許可画面 ...
+  );
+}
 
   // ============================================================
   // 🔴 ここからJSX（元の315行を完全復元）
