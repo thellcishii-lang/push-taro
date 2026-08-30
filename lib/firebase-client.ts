@@ -1,7 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
-import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { getMessaging, getToken, isSupported } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,27 +12,21 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-console.log('[firebase-client.ts] Firebase設定 projectId:', firebaseConfig.projectId);
-
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 export const storage = getStorage(app);
-export const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
 
-// 🔴 修正点: Service Worker を正しいスコープで登録する
+// 🟢 安全に Service Worker を登録する
 async function registerServiceWorker() {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
-    console.log('[SW] サービスワーカー非対応ブラウザ');
     return null;
   }
 
   try {
-    console.log('[SW] サービスワーカー登録開始...');
     const registration = await navigator.serviceWorker.register(
       '/firebase-messaging-sw.js',
-      { scope: '/' }  // ← これが重要！
+      { scope: '/' }
     );
-    console.log('[SW] 登録成功！スコープ:', registration.scope);
     return registration;
   } catch (err) {
     console.error('[SW] 登録失敗:', err);
@@ -40,35 +34,31 @@ async function registerServiceWorker() {
   }
 }
 
+// 🟢 FCMトークン取得（FCM未対応ブラウザ・iOS非対応モードでのクラッシュを完全防止）
 export async function requestFCMToken(): Promise<string | null> {
-  console.log('[firebase-client.ts] requestFCMToken 呼び出し');
-  
-  if (!messaging) {
-    console.warn('[firebase-client.ts] messagingがnull（SSR中？）');
-    return null;
-  }
+  if (typeof window === 'undefined') return null;
 
   try {
-    // 🔴 修正点: トークン取得前に必ずSWを登録する
-    await registerServiceWorker();
+    // ブラウザが FCM に対応しているか判定
+    const supported = await isSupported().catch(() => false);
+    if (!supported) {
+      console.warn('[FCM] このブラウザ/環境は FCM 通知に対応していません');
+      return null;
+    }
 
-    console.log('[firebase-client.ts] getToken 開始');
+    const messaging = getMessaging(app);
+
+    // トークン取得前に SW を登録
+    const swRegistration = await registerServiceWorker();
+
     const token = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+      serviceWorkerRegistration: swRegistration || undefined,
     });
-    console.log('[firebase-client.ts] getToken 結果:', token ? '取得成功' : 'null返却');
+
     return token;
   } catch (err) {
-    console.error('[firebase-client.ts] FCMトークン取得失敗:', err);
+    console.error('[FCM ERROR] FCMトークン取得失敗:', err);
     return null;
   }
-}
-
-export function onForegroundMessage(callback: (payload: any) => void) {
-  console.log('[firebase-client.ts] onForegroundMessage 設定');
-  if (!messaging) return () => {};
-  return onMessage(messaging, (payload) => {
-    console.log('[firebase-client.ts] onMessage 受信:', payload);
-    callback(payload);
-  });
 }
