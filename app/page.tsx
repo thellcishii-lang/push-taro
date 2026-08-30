@@ -21,26 +21,42 @@ export default function LandingPage() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [couponUsed, setCouponUsed] = useState(false);
 
-  // 1. URLから shopId 取得 + localStorage 復元
+  // 1. URLから shopId を強力かつ最優先で取得
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    try {
+    const resolveShopId = () => {
+      // URLから取得
       const urlParams = new URLSearchParams(window.location.search);
-      const s = urlParams.get('s') || urlParams.get('shopid');
+      let s = urlParams.get('s') || urlParams.get('shopid');
 
-      if (s && s !== 'undefined' && s !== 'null' && s.trim() !== '') {
-        setShopId(s);
-        localStorage.setItem('push_taro_shop_id', s);
-      } else {
-        const saved = localStorage.getItem('push_taro_shop_id');
-        if (saved && saved !== 'undefined' && saved !== 'null' && saved.trim() !== '') {
-          setShopId(saved);
+      // # ハッシュ対策
+      if (!s && window.location.href.includes('?')) {
+        const queryString = window.location.href.split('?')[1];
+        if (queryString) {
+          const params = new URLSearchParams(queryString.split('#')[0]);
+          s = params.get('s') || params.get('shopid');
         }
       }
-    } catch (e) {
-      console.error('shopId取得エラー:', e);
-    }
+
+      if (s && s !== 'undefined' && s !== 'null' && s.trim() !== '') {
+        const cleanId = s.trim();
+        setShopId(cleanId);
+        localStorage.setItem('push_taro_shop_id', cleanId);
+        return cleanId;
+      }
+
+      // URLに無ければ localStorage から復元
+      const saved = localStorage.getItem('push_taro_shop_id');
+      if (saved && saved !== 'undefined' && saved !== 'null' && saved.trim() !== '') {
+        setShopId(saved);
+        return saved;
+      }
+
+      return '';
+    };
+
+    resolveShopId();
   }, []);
 
   // 2. 店舗情報の取得 & 登録済みチェック
@@ -51,7 +67,7 @@ export default function LandingPage() {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          setShopData(data.shop || data);
+          setShopData(data);
         }
       })
       .catch(err => console.error('店舗情報取得エラー:', err));
@@ -78,26 +94,20 @@ export default function LandingPage() {
 
   // 🔔 登録ボタンを押した時の処理
   const handleSubscribe = async () => {
-    // ボタンを押した瞬間に、URL・ステート・localStorage のすべてから泥臭く ID を探索
+    // 実行時に再度 URL / LocalStorage を確認
     let effectiveShopId = shopId;
 
-    if (!effectiveShopId || effectiveShopId === 'undefined' || effectiveShopId === 'null' || effectiveShopId.trim() === '') {
+    if (!effectiveShopId || effectiveShopId === 'undefined' || effectiveShopId === 'null') {
       if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search);
         effectiveShopId = urlParams.get('s') || urlParams.get('shopid') || localStorage.getItem('push_taro_shop_id') || '';
       }
     }
 
-    if (!effectiveShopId || effectiveShopId === 'undefined' || effectiveShopId === 'null' || effectiveShopId.trim() === '') {
+    if (!effectiveShopId || effectiveShopId === 'undefined' || effectiveShopId === 'null') {
       setStatus('error');
-      setMessage('店舗IDが取得できていません。QRコードから再度アクセスしてください。');
+      setMessage('店舗IDが取得できていません。URLに ?s=店舗ID が含まれているか確認してください。');
       return;
-    }
-
-    // 取得したIDを保持
-    setShopId(effectiveShopId);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('push_taro_shop_id', effectiveShopId);
     }
 
     // Proプラン生年月日チェック
