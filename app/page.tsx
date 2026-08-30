@@ -20,23 +20,24 @@ export default function LandingPage() {
   const [couponUsed, setCouponUsed] = useState(false);
 
   // URLから shopId 取得 + localStorage 復元
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const s = params.get('s');
+  // URLから shopId 取得 + localStorage 復元（修正版）
+useEffect(() => {
+  if (typeof window === 'undefined') return;
 
-    if (s) {
-      setShopId(s);
-      localStorage.setItem('push_taro_shop_id', s);
-    } else {
-      const saved = localStorage.getItem('push_taro_shop_id');
-      if (saved) {
-        setShopId(saved);
-      } else {
-        setStatus('error');
-        setMessage('無効なアクセスです。QRコードからアクセスしてください。');
-      }
+  const params = new URLSearchParams(window.location.search);
+  // ?s= でも ?shopid= でもどちらからでも取得可能にする
+  const s = params.get('s') || params.get('shopid');
+
+  if (s && s !== 'undefined' && s !== 'null') {
+    setShopId(s);
+    localStorage.setItem('push_taro_shop_id', s);
+  } else {
+    const saved = localStorage.getItem('push_taro_shop_id');
+    if (saved && saved !== 'undefined' && saved !== 'null') {
+      setShopId(saved);
     }
-  }, []);
+  }
+}, []);
 
   // 店舗情報の取得
   useEffect(() => {
