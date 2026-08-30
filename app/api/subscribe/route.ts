@@ -44,8 +44,8 @@ export async function POST(request: Request) {
     if (birthDate) {
       const dateObj = new Date(birthDate);
       if (!isNaN(dateObj.getTime())) {
-        birthMonth = dateObj.getMonth() + 1;
-        birthDay = dateObj.getDate();
+        birthMonth = dateObj.getMonth() + 1; // 1〜12月
+        birthDay = dateObj.getDate();        // 1〜31日
       }
     }
 
@@ -55,14 +55,10 @@ export async function POST(request: Request) {
     const doc = await docRef.get();
 
     // FCM トピック登録
-    try {
-      await messaging.subscribeToTopic([normalizedToken], topic);
-    } catch (fcmError) {
-      console.error('[subscribe] FCM subscribe error:', fcmError);
-    }
+    await messaging.subscribeToTopic([normalizedToken], topic);
 
     // ----------------------------------------------------
-    // ⚡️ 5,000件チャンク保存
+    // ⚡️ 5,000件チャンク保存（5万人一括配信コスト削減用）
     // ----------------------------------------------------
     const chunksRef = db.collection('shops').doc(shopId).collection('token_chunks');
     const snapshot = await chunksRef.orderBy('createdAt', 'desc').limit(1).get();
@@ -88,51 +84,31 @@ export async function POST(request: Request) {
 
     if (!currentTokens.includes(normalizedToken)) {
       currentTokens.push(normalizedToken);
-      
-      // 🔴 修正: createdAt と updatedAt を明示的に設定
-      const chunkData: any = {
+      await targetDocRef.set({
         tokens: currentTokens,
         updatedAt: FieldValue.serverTimestamp(),
-      };
-      
-      // 新規ドキュメントの場合のみ createdAt を設定
-      if (currentTokens.length === 1 && !snapshot.empty) {
-        // 新規チャンクの場合
-        chunkData.createdAt = FieldValue.serverTimestamp();
-      } else if (snapshot.empty) {
-        // 最初のチャンクの場合
-        chunkData.createdAt = FieldValue.serverTimestamp();
-      }
-      
-      await targetDocRef.set(chunkData, { merge: true });
+        createdAt: currentTokens.length === 1 ? FieldValue.serverTimestamp() : undefined,
+      }, { merge: true });
     }
 
     // ----------------------------------------------------
     // 👤 個別顧客プロファイル（subscriptions）の保存/更新
     // ----------------------------------------------------
-    
-    // 🔴 修正: 保存するデータを明示的に構築（undefinedを排除）
-    const baseData: any = {
-      token: normalizedToken,
-      lastActive: FieldValue.serverTimestamp(),
-    };
-
-    // birthDate がある場合のみ追加
-    if (birthDate) {
-      baseData.birthDate = birthDate;
-      baseData.birthMonth = birthMonth;
-      baseData.birthDay = birthDay;
-    }
-
     if (doc.exists) {
       const data = doc.data();
       const shopIds = data?.shopIds || [];
 
+      const birthDataUpdate = birthDate ? {
+        birthDate,
+        birthMonth,
+        birthDay,
+      } : {};
+
       if (shopIds.includes(shopId)) {
-        // 更新: 既存店舗
+        console.log('[API] 同じ店舗への再登録（更新）:', shopId);
         await docRef.update({
-          ...baseData,
-          // 🔴 修正: 更新時は createdAt を上書きしない
+          ...birthDataUpdate,
+          lastActive: FieldValue.serverTimestamp(),
         });
 
         return NextResponse.json({
@@ -141,12 +117,12 @@ export async function POST(request: Request) {
           message: '既存の登録を更新しました',
         }, { status: 200 });
       } else {
-        // 更新: 新しい店舗を追加
+        console.log('[API] 別の店舗を追加:', shopId);
         await docRef.update({
-          ...baseData,
+          ...birthDataUpdate,
           shopIds: FieldValue.arrayUnion(shopId),
           topics: FieldValue.arrayUnion(topic),
-          // 🔴 修正: createdAt は既存のものを保持
+          lastActive: FieldValue.serverTimestamp(),
         });
 
         return NextResponse.json({
@@ -156,23 +132,17 @@ export async function POST(request: Request) {
         }, { status: 200 });
       }
     } else {
-      // 新規登録
-      const newDocData: any = {
+      console.log('[API] 新規登録:', { token: normalizedToken.slice(0, 20) + '...', shopId, birthDate });
+      await docRef.set({
         token: normalizedToken,
         shopIds: [shopId],
         topics: [topic],
+        birthDate: birthDate || null,
+        birthMonth: birthMonth || null,
+        birthDay: birthDay || null,
         createdAt: FieldValue.serverTimestamp(),
         lastActive: FieldValue.serverTimestamp(),
-      };
-
-      // birthDate がある場合のみ追加
-      if (birthDate) {
-        newDocData.birthDate = birthDate;
-        newDocData.birthMonth = birthMonth;
-        newDocData.birthDay = birthDay;
-      }
-
-      await docRef.set(newDocData);
+      });
 
       return NextResponse.json({
         success: true,
