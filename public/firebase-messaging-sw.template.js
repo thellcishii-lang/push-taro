@@ -25,30 +25,14 @@ messaging.onBackgroundMessage((payload) => {
   const image = payload.data?.image;
   const url = payload.data?.url || '/';
   
-  // ✅ 送信されたタイムスタンプ（数値）を取得、無ければ現在時刻
-  const notificationTime = payload.data?.timestamp ? Number(payload.data.timestamp) : Date.now();
-
-  // ✅ メッセージごとに一意の tag を生成して過去の通知履歴の上書き・消去を防止
-  const uniqueTag = payload.data?.msgId || `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-
-  // ✅ 基本通知オプション
-  const notificationOptions = {
+  self.registration.showNotification(title, {
     body: body,
     icon: '/icon-192x192.png',
+    image: image,
     data: { url: url },
-    tag: uniqueTag,                           // 👈 過去の通知履歴を上書き消去させない
-    timestamp: notificationTime,             // 👈 日時ズレ（「2日前」等）を防止
-    silent: false,                           // 👈 音を鳴らす明示設定
-    renotify: true,                          // 👈 通知受信時に音・バイブを鳴らす
+    tag: payload.data?.shopId || 'default',
     requireInteraction: false,
-  };
-
-  // ⚠️ 空文字列や undefined の image をセットすると PC/Android の Chrome でエラードロップするため存在チェックを行う
-  if (image && typeof image === 'string' && image.trim() !== '') {
-    notificationOptions.image = image;
-  }
-
-  self.registration.showNotification(title, notificationOptions);
+  });
 });
 
 self.addEventListener('install', (event) => {
