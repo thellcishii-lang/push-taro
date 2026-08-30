@@ -1,61 +1,49 @@
 'use client';
 
-// app/page.tsx - 整理版
-
-'use client';
-
 import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { requestNotificationToken } from '@/lib/firebase/token-manager';
+import { onForegroundMessage } from '@/lib/firebase/client';
 import { getPlatformRequirements } from '@/lib/firebase/platform';
 
 export default function LandingPage() {
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [shopId, setShopId] = useState('');
+  
+  // 画面状態管理
   const [isRegistered, setIsRegistered] = useState(false);
   const [fcmToken, setFcmToken] = useState('');
   const [shopData, setShopData] = useState<any>(null);
+
+  // 🎂 誕生日入力用ステート（Proプラン専用）
   const [birthDate, setBirthDate] = useState('');
+  
+  // 折りたたみ（アコーディオン）用のステート
+  const [tokenOpen, setTokenOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [couponUsed, setCouponUsed] = useState(false);
 
-  // ============================================================
-  // 1. shopId を取得（iOS対応）
-  // ============================================================
+  // URLから shopId 取得 + localStorage 復元
   useEffect(() => {
-    // URLのクエリパラメータから shopId を抽出
-    const urlParams = new URLSearchParams(window.location.search);
-    let s = urlParams.get('s');
-    
-    // iOSのホーム画面から開いた場合、window.location.search が空になることがある
-    // → URL全体から正規表現で抽出する
-    if (!s) {
-      const match = window.location.href.match(/[?&]s=([^&]+)/);
-      s = match ? match[1] : null;
-    }
-
-    console.log('[debug] shopId:', s, 'from URL:', window.location.href);
+    const params = new URLSearchParams(window.location.search);
+    const s = params.get('s');
 
     if (s) {
       setShopId(s);
       localStorage.setItem('push_taro_shop_id', s);
     } else {
-      // ローカルストレージから復元
       const saved = localStorage.getItem('push_taro_shop_id');
       if (saved) {
         setShopId(saved);
-        console.log('[debug] shopId restored from localStorage:', saved);
       } else {
         setStatus('error');
-        setMessage('店舗IDが取得できませんでした。\nQRコードから再度アクセスしてください。');
+        setMessage('無効なアクセスです。QRコードからアクセスしてください。');
       }
     }
   }, []);
 
-  // ============================================================
-  // 2. 店舗情報を取得
-  // ============================================================
+  // 店舗情報の取得
   useEffect(() => {
     if (!shopId) return;
 
@@ -63,12 +51,12 @@ export default function LandingPage() {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          setShopData(data.shop || data);
+          setShopData(data.shop || data); // shopデータ直下・階層双方に対応
         }
       })
       .catch(err => console.error('店舗情報取得エラー:', err));
 
-    // 既にトークンがあれば登録済みと見なす
+    // すでに登録済み（トークンがある）なら顧客画面へ直行
     const savedToken = localStorage.getItem(`push_taro_token_${shopId}`);
     if (savedToken) {
       setFcmToken(savedToken);
@@ -76,9 +64,7 @@ export default function LandingPage() {
     }
   }, [shopId]);
 
-  // ============================================================
-  // 3. manifest 設定（PWA用）
-  // ============================================================
+  // manifest や iOS用メタタグの設定
   useEffect(() => {
     if (shopId && shopId !== 'placeholder' && shopId !== 'undefined') {
       const link = document.querySelector('link[rel="manifest"]');
@@ -88,12 +74,33 @@ export default function LandingPage() {
     }
   }, [shopId]);
 
-  // ============================================================
-  // 4. 通知登録処理
-  // ============================================================
+  // フォアグラウンド通知受信
+  useEffect(() => {
+    const unsub = onForegroundMessage((payload) => {
+      const title = payload.data?.title || shopData?.name || 'プッシュ太郎';
+      const options = {
+        body: payload.data?.body || '',
+        icon: shopData?.iconUrl || '/icon-192x192.png',
+        image: payload.data?.image,
+        data: { url: payload.data?.url || '/' },
+        tag: payload.data?.shopId || 'default',
+      };
+
+      if (Notification.permission === 'granted') {
+        navigator.serviceWorker.ready.then((registration) => {
+          registration.showNotification(title, options);
+        });
+      }
+    });
+
+    return () => unsub();
+  }, [shopData]);
+
   const handleSubscribe = async () => {
-    // shopIdを取得（優先順位: state → localStorage）
-    const effectiveShopId = shopId || localStorage.getItem('push_taro_shop_id') || '';
+    let effectiveShopId = shopId;
+    if (!effectiveShopId) {
+      effectiveShopId = localStorage.getItem('push_taro_shop_id') || '';
+    }
 
     if (!effectiveShopId) {
       setStatus('error');
@@ -101,18 +108,22 @@ export default function LandingPage() {
       return;
     }
 
-    // Proプラン: 誕生日必須
+    // 🎂 Proプランの場合は誕生日の入力を必須チェック
     if (shopData?.plan === 'pro' && !birthDate) {
       setStatus('error');
       setMessage('バースデークーポン受取のため、生年月日を選択してください。');
       return;
     }
 
-    // iOS: ホーム画面追加チェック
-    const requirements = getPlatformRequirements();
-    if (requirements.needsHomeScreenAdd) {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isStandalone = (window.navigator as any).standalone === true;
+
+    if (isIOS && !isStandalone) {
       setStatus('error');
-      setMessage(requirements.message || '');
+      setMessage(
+        'iPhoneでは「ホーム画面に追加」が必要です。\n' +
+        'Safariの「共有」→「ホーム画面に追加」を行ってから、このアプリを開いてください。'
+      );
       return;
     }
 
@@ -120,7 +131,6 @@ export default function LandingPage() {
     setMessage('');
 
     try {
-      // 通知許可
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
         setStatus('error');
@@ -128,22 +138,21 @@ export default function LandingPage() {
         return;
       }
 
-      // FCMトークン取得
-      const { token, platform } = await requestNotificationToken();
+      const token = await requestFCMToken();
       if (!token) {
         setStatus('error');
         setMessage('トークン取得に失敗しました。');
         return;
       }
 
-      // サーバーに登録
+      // 登録API呼び出し（birthDate を追加送信）
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           token,
           shopId: effectiveShopId,
-          birthDate: shopData?.plan === 'pro' ? birthDate : null,
+          birthDate: shopData?.plan === 'pro' ? birthDate : null, // Proプランの場合のみ送信
         }),
       });
 
@@ -152,103 +161,34 @@ export default function LandingPage() {
         throw new Error(resData.error || `HTTP ${res.status}`);
       }
 
-      // ローカル保存
       localStorage.setItem(`push_taro_token_${effectiveShopId}`, token);
       setFcmToken(token);
       setStatus('success');
-      setMessage('✅ 通知の受け取りが完了しました！');
+      setMessage('通知の受け取りが完了しました！');
 
-      // 3秒後に登録完了画面へ
+      // ⏳ 3秒後に顧客画面へ切り替え
       setTimeout(() => {
         setIsRegistered(true);
       }, 3000);
 
     } catch (err: any) {
-      console.error('登録エラー:', err);
       setStatus('error');
       setMessage('エラー: ' + err.message);
     }
   };
 
-  // ============================================================
-  // 5. 登録完了後の画面（JSX）
-  // ============================================================
-  if (isRegistered) {
-    // ... 既存の登録完了画面 ...
-  }
-
-  // ============================================================
-  // 6. 通知許可画面（JSX）
-  // ============================================================
-  return (
-    <main style={{ padding: 24, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', textAlign: 'center' }}>
-      <div style={{ marginTop: 40, marginBottom: 20 }}>
-        {shopData?.iconUrl ? (
-          <img src={shopData.iconUrl} alt="店舗アイコン" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }} />
-        ) : (
-          <div style={{ width: 64, height: 64, background: '#f0f0f0', borderRadius: '50%', margin: '0 auto 10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>🏪</div>
-        )}
-        <h1 style={{ fontSize: 22, margin: '0 0 8px 0' }}>{shopData?.name || 'プッシュ太郎'}</h1>
-        <p style={{ color: '#666', fontSize: 14 }}>お得な情報をプッシュ通知でお届けします</p>
-      </div>
-
-      {shopData?.plan === 'pro' && status !== 'success' && (
-        <div style={{ marginBottom: 20, textAlign: 'left', background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-          <label style={{ display: 'block', marginBottom: 6, fontWeight: 'bold', fontSize: 14 }}>🎂 生年月日</label>
-          <input
-            type="date"
-            value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
-            style={{ width: '100%', padding: 12, fontSize: 16, borderRadius: 6, border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
-          />
-          <p style={{ fontSize: 11, color: '#64748b', margin: '6px 0 0 0' }}>※バースデークーポン送信用</p>
-        </div>
-      )}
-
-      {status === 'success' ? (
-        <div style={{ marginTop: 30 }}>
-          <div style={{ fontSize: 54 }}>✅</div>
-          <p style={{ fontWeight: 'bold', color: '#2e7d32', fontSize: 16 }}>通知の受け取りが完了しました！</p>
-        </div>
-      ) : (
-        <button
-          onClick={handleSubscribe}
-          disabled={status === 'requesting'}
-          style={{
-            width: '100%',
-            padding: 16,
-            fontSize: 16,
-            background: status === 'requesting' ? '#ccc' : '#ff4500',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 8,
-            cursor: status === 'requesting' ? 'wait' : 'pointer',
-            fontWeight: 'bold',
-          }}
-        >
-          {status === 'requesting' ? '登録中...' : '🔔 通知を受け取る'}
-        </button>
-      )}
-
-      {status === 'error' && (
-        <p style={{ color: 'red', marginTop: 16, whiteSpace: 'pre-line', fontSize: 14 }}>{message}</p>
-      )}
-    </main>
-  );
-
-  // ============================================================
-  // 🔴 ここからJSX（元の315行を完全復元）
-  // ============================================================
-
+  // --- 📱 【登録完了後の顧客画面】 ---
   if (isRegistered) {
     return (
       <main style={{ padding: 20, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif' }}>
-        {/* 店舗情報 */}
+        {/* 1. 店舗情報（アイコン・店名・リンク） */}
         <div style={{ textAlign: 'center', marginBottom: '30px', marginTop: '20px' }}>
           {shopData?.iconUrl ? (
             <img src={shopData.iconUrl} alt="店舗アイコン" style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }} />
           ) : (
-            <div style={{ width: '64px', height: '64px', background: '#e0e0e0', borderRadius: '50%', margin: '0 auto 10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🏪</div>
+            <div style={{ width: '64px', height: '64px', background: '#e0e0e0', borderRadius: '50%', margin: '0 auto 10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
+              🏪
+            </div>
           )}
           <h2 style={{ margin: '0 0 8px 0' }}>{shopData?.name || '登録店舗'}</h2>
           {shopData?.linkUrl && (
@@ -258,28 +198,37 @@ export default function LandingPage() {
           )}
         </div>
 
-        {/* 初回クーポン */}
+        {/* 2. 初回クーポン（使うと消える仕様） */}
         {shopData?.coupon?.enabled && !couponUsed && (
           <div style={{ background: '#fff3e0', border: '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
             <h3 style={{ margin: '0 0 8px 0', color: '#e65100' }}>🎁 {shopData.coupon.title || '初回限定クーポン'}</h3>
             <p style={{ fontSize: '14px', color: '#333', marginBottom: '12px' }}>{shopData.coupon.description}</p>
+            
             <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '12px' }}>
               <QRCodeSVG value={shopId} size={150} />
             </div>
+
             <div>
-              <button onClick={() => setCouponUsed(true)} style={{ padding: '8px 16px', background: '#ff9800', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
-                クーポンを使用済みにする
+              <button
+                onClick={() => setCouponUsed(true)}
+                style={{ padding: '8px 16px', background: '#ff9800', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
+              >
+                クーポンを使用済みにする（消す）
               </button>
             </div>
           </div>
         )}
 
-        {/* 通知履歴 */}
+        {/* 3. 通知履歴（履歴ボタンで展開） */}
         <div style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
-          <button onClick={() => setHistoryOpen(!historyOpen)} style={{ width: '100%', padding: '12px', background: '#f5f5f5', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <button
+            onClick={() => setHistoryOpen(!historyOpen)}
+            style={{ width: '100%', padding: '12px', background: '#f5f5f5', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+          >
             <span>📜 通知履歴</span>
             <span>{historyOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
           </button>
+
           {historyOpen && (
             <div style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <p style={{ fontSize: '13px', color: '#666', textAlign: 'center', margin: '10px 0' }}>
@@ -292,23 +241,23 @@ export default function LandingPage() {
     );
   }
 
-  // ============================================================
-  // 通知許可画面
-  // ============================================================
+  // --- 🔔 【初期の通知許可画面】 ---
   return (
     <main style={{ padding: 24, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', textAlign: 'center' }}>
-      {/* 店舗アイコンと店舗名 */}
+      {/* 店舗アイコンと店舗名を動的に表示（未取得時はデフォルト） */}
       <div style={{ marginTop: 40, marginBottom: 20 }}>
         {shopData?.iconUrl ? (
           <img src={shopData.iconUrl} alt="店舗アイコン" style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }} />
         ) : (
-          <div style={{ width: '64px', height: '64px', background: '#f0f0f0', borderRadius: '50%', margin: '0 auto 10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>🏪</div>
+          <div style={{ width: '64px', height: '64px', background: '#f0f0f0', borderRadius: '50%', margin: '0 auto 10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>
+            🏪
+          </div>
         )}
         <h1 style={{ fontSize: '22px', margin: '0 0 8px 0' }}>{shopData?.name || 'プッシュ太郎'}</h1>
         <p style={{ color: '#666', fontSize: '14px' }}>お得な情報をプッシュ通知でお届けします</p>
       </div>
 
-      {/* Proプラン店舗限定：生年月日入力フォーム */}
+      {/* 🎂 🎂 Proプラン店舗限定：生年月日入力フォーム 🎂 🎂 */}
       {shopData?.plan === 'pro' && status !== 'success' && (
         <div style={{ marginBottom: '20px', textAlign: 'left', background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
           <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', fontSize: '14px', color: '#334155' }}>
