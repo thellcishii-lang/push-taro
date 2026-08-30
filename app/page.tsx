@@ -25,19 +25,19 @@ export default function LandingPage() {
 useEffect(() => {
   if (typeof window === 'undefined') return;
 
-  const getAndSaveShopId = () => {
-    // URLのクエリ文字列を直接解析
-    const urlParams = new URLSearchParams(window.location.search);
-    const s = urlParams.get('s') || urlParams.get('shopid');
+  const urlParams = new URLSearchParams(window.location.search);
+  const s = urlParams.get('s') || urlParams.get('shopid');
 
-    if (s && s !== 'undefined' && s !== 'null' && s.trim() !== '') {
-      console.log('URLからShopIDを取得:', s);
-      setShopId(s);
-      localStorage.setItem('push_taro_shop_id', s);
-      return true;
+  if (s && s !== 'undefined' && s !== 'null' && s.trim() !== '') {
+    setShopId(s);
+    localStorage.setItem('push_taro_shop_id', s);
+  } else {
+    const saved = localStorage.getItem('push_taro_shop_id');
+    if (saved && saved !== 'undefined' && saved !== 'null' && saved.trim() !== '') {
+      setShopId(saved);
     }
-    return false;
-  };
+  }
+}, []);
 
   // 即時実行
   const found = getAndSaveShopId();
@@ -87,17 +87,22 @@ useEffect(() => {
     }
   }, [shopId]);
 
-  const handleSubscribe = async () => {
-    let effectiveShopId = shopId;
-    if (!effectiveShopId || effectiveShopId === 'undefined') {
-      effectiveShopId = localStorage.getItem('push_taro_shop_id') || '';
-    }
+ const handleSubscribe = async () => {
+  // ステート、URLパラメータ、localStorage から順に取得を試みる
+  let effectiveShopId = shopId;
 
-    if (!effectiveShopId) {
-      setStatus('error');
-      setMessage('店舗IDが取得できていません。QRコードから再度アクセスしてください。');
-      return;
+  if (!effectiveShopId || effectiveShopId === 'undefined' || effectiveShopId === 'null') {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      effectiveShopId = urlParams.get('s') || urlParams.get('shopid') || localStorage.getItem('push_taro_shop_id') || '';
     }
+  }
+
+  if (!effectiveShopId || effectiveShopId === 'undefined' || effectiveShopId === 'null') {
+    setStatus('error');
+    setMessage('店舗IDが取得できていません。QRコードから再度アクセスしてください。');
+    return;
+  }
 
     // Proプランの場合は誕生日の入力を必須チェック
     if (shopData?.plan === 'pro' && !birthDate) {
