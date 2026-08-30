@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { requestFCMToken, onForegroundMessage } from '../lib/firebase-client';
+import { requestFCMToken } from '../lib/firebase-client';
 import { QRCodeSVG } from 'qrcode.react';
 
 export default function LandingPage() {
