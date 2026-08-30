@@ -39,26 +39,30 @@ useEffect(() => {
   }
 }, []);
 
-  // 店舗情報の取得
-  useEffect(() => {
-    if (!shopId) return;
+  // 店舗情報の取得（修正版）
+useEffect(() => {
+  // 不正な shopId の場合は処理をスキップ（Android等の無駄な通信・エラー防止）
+  if (!shopId || shopId === 'undefined' || shopId === 'null') return;
 
-    fetch(`/api/shop-info?s=${shopId}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          setShopData(data);
-        }
-      })
-      .catch(err => console.error('店舗情報取得エラー:', err));
+  fetch(`/api/shop-info?s=${shopId}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        // shopプロパティ配下、または直下のデータ構造に対応
+        setShopData(data.shop || data);
+      }
+    })
+    .catch(err => console.error('店舗情報取得エラー:', err));
 
-    // すでに登録済み（トークンがある）なら顧客画面へ直行
+  // すでに登録済み（トークンがある）なら顧客画面へ直行
+  if (typeof window !== 'undefined') {
     const savedToken = localStorage.getItem(`push_taro_token_${shopId}`);
     if (savedToken) {
       setFcmToken(savedToken);
       setIsRegistered(true);
     }
-  }, [shopId]);
+  }
+}, [shopId]);
 
   // manifest や iOS用メタタグの設定
   useEffect(() => {
