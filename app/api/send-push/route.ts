@@ -126,7 +126,7 @@ export async function POST(request: Request) {
     const nowTimestamp = Date.now();
     const uniqueMsgId = `msg_${nowTimestamp}_${Math.random().toString(36).substring(2, 7)}`;
 
-    // ✅ 基本のメッセージ構造 (修正後)
+    // ✅ 基本のメッセージ構造（Android/PCで確実に受信できるよう再調整）
     const baseMessage = {
       data: {
         title: title,
@@ -134,8 +134,8 @@ export async function POST(request: Request) {
         image: imageUrl || '',
         url: linkUrl || '',
         shopId: shopId,
-        msgId: uniqueMsgId,                // 👈 追加: 通知履歴の上書き防止用ID
-        timestamp: String(nowTimestamp),   // 👈 追加: 正しい時刻の伝達用
+        msgId: uniqueMsgId,                // 通知履歴の上書き防止用ID
+        timestamp: String(nowTimestamp),   // 正しい時刻の伝達用
       },
       apns: {
         payload: {
@@ -148,21 +148,10 @@ export async function POST(request: Request) {
       },
       android: {
         priority: 'high' as const,
-        notification: {
-          sound: 'default',
-          defaultSound: true,
-          defaultVibrateTimings: true,
-        },
       },
       webpush: {
         headers: {
           Urgency: 'high',
-        },
-        notification: {                   // 👈 追加: PC/Web標準の音声・通知挙動設定
-          sound: 'default',
-          silent: false,
-          renotify: true,
-          timestamp: nowTimestamp,
         },
       },
     };
