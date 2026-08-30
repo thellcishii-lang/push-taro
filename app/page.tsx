@@ -181,8 +181,60 @@ export default function LandingPage() {
   // 6. 通知許可画面（JSX）
   // ============================================================
   return (
+    <main style={{ padding: 24, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', textAlign: 'center' }}>
+      <div style={{ marginTop: 40, marginBottom: 20 }}>
+        {shopData?.iconUrl ? (
+          <img src={shopData.iconUrl} alt="店舗アイコン" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }} />
+        ) : (
+          <div style={{ width: 64, height: 64, background: '#f0f0f0', borderRadius: '50%', margin: '0 auto 10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>🏪</div>
+        )}
+        <h1 style={{ fontSize: 22, margin: '0 0 8px 0' }}>{shopData?.name || 'プッシュ太郎'}</h1>
+        <p style={{ color: '#666', fontSize: 14 }}>お得な情報をプッシュ通知でお届けします</p>
+      </div>
+
+      {shopData?.plan === 'pro' && status !== 'success' && (
+        <div style={{ marginBottom: 20, textAlign: 'left', background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+          <label style={{ display: 'block', marginBottom: 6, fontWeight: 'bold', fontSize: 14 }}>🎂 生年月日</label>
+          <input
+            type="date"
+            value={birthDate}
+            onChange={(e) => setBirthDate(e.target.value)}
+            style={{ width: '100%', padding: 12, fontSize: 16, borderRadius: 6, border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+          />
+          <p style={{ fontSize: 11, color: '#64748b', margin: '6px 0 0 0' }}>※バースデークーポン送信用</p>
+        </div>
+      )}
+
+      {status === 'success' ? (
+        <div style={{ marginTop: 30 }}>
+          <div style={{ fontSize: 54 }}>✅</div>
+          <p style={{ fontWeight: 'bold', color: '#2e7d32', fontSize: 16 }}>通知の受け取りが完了しました！</p>
+        </div>
+      ) : (
+        <button
+          onClick={handleSubscribe}
+          disabled={status === 'requesting'}
+          style={{
+            width: '100%',
+            padding: 16,
+            fontSize: 16,
+            background: status === 'requesting' ? '#ccc' : '#ff4500',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 8,
+            cursor: status === 'requesting' ? 'wait' : 'pointer',
+            fontWeight: 'bold',
+          }}
+        >
+          {status === 'requesting' ? '登録中...' : '🔔 通知を受け取る'}
+        </button>
+      )}
+
+      {status === 'error' && (
+        <p style={{ color: 'red', marginTop: 16, whiteSpace: 'pre-line', fontSize: 14 }}>{message}</p>
+      )}
+    </main>
   );
-}
 
   // ============================================================
   // 🔴 ここからJSX（元の315行を完全復元）
