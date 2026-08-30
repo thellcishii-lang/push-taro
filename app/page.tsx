@@ -138,7 +138,7 @@ export default function LandingPage() {
         return;
       }
 
-      const token = await requestFCMToken();
+      const { token } = await requestNotificationToken();
       if (!token) {
         setStatus('error');
         setMessage('トークン取得に失敗しました。');
