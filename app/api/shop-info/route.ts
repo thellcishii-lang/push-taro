@@ -1,6 +1,6 @@
 // api/shop-info/route.ts
 import { NextResponse } from 'next/server';
-import { getShop } from '@/lib/firebase/admin';
+import { getShop } from '@/lib/firebase/services/shop.service';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
