@@ -1,6 +1,5 @@
-// api/shop-info/route.ts
 import { NextResponse } from 'next/server';
-import { getShop } from '@/lib/firebase/services/shop.service';
+import { db } from '../../../lib/firebase-admin';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -11,22 +10,22 @@ export async function GET(request: Request) {
   }
 
   try {
-    const shop = await getShop(shopId);
-    if (!shop) {
+    const doc = await db.collection('shops').doc(shopId).get();
+    if (!doc.exists) {
       return NextResponse.json({ error: '店舗が見つかりません' }, { status: 404 });
     }
 
+    const data = doc.data();
     return NextResponse.json({
       success: true,
-      shopId: shop.id,
-      name: shop.name,
-      coupon: shop.coupon,
-      linkUrl: shop.linkUrl,
-      iconUrl: shop.iconUrl,
-      plan: shop.plan,
+      shopId: doc.id,
+      name: data?.name,
+      coupon: data?.coupon,
+      linkUrl: data?.linkUrl,
+      iconUrl: data?.iconUrl, // 👈 ここを追加！
     }, { status: 200 });
   } catch (error: any) {
-    console.error('[shop-info] Error:', error);
+    console.error('[shop-info] エラー:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
