@@ -2,7 +2,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
-import { getMessaging, isSupported } from 'firebase/messaging';
+import { getMessaging, isSupported, onMessage } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -17,7 +17,6 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 
-// メッセージングは遅延初期化 (iOS対応)
 let messagingInstance: any = null;
 let messagingInitPromise: Promise<void> | null = null;
 
@@ -42,3 +41,16 @@ export async function initMessaging() {
 }
 
 export { messagingInstance as messaging };
+
+// 🔥 これを追加！
+export function onForegroundMessage(callback: (payload: any) => void) {
+  console.log('[firebase-client] onForegroundMessage 設定');
+  if (!messagingInstance) {
+    console.warn('[firebase-client] messaging not initialized');
+    return () => {};
+  }
+  return onMessage(messagingInstance, (payload) => {
+    console.log('[firebase-client] onMessage 受信:', payload);
+    callback(payload);
+  });
+}
