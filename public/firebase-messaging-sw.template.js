@@ -1,5 +1,3 @@
-// firebase-messaging-sw.template.js (修正後)
-
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
 
@@ -27,23 +25,30 @@ messaging.onBackgroundMessage((payload) => {
   const image = payload.data?.image;
   const url = payload.data?.url || '/';
   
-  // ✅ 送信されたタイムスタンプがあれば使用、無ければ現在時刻
+  // ✅ 送信されたタイムスタンプ（数値）を取得、無ければ現在時刻
   const notificationTime = payload.data?.timestamp ? Number(payload.data.timestamp) : Date.now();
 
-  // ✅ 固定の shopId ではなく、メッセージごとに一意の tag を生成して履歴消去を防止
+  // ✅ メッセージごとに一意の tag を生成して過去の通知履歴の上書き・消去を防止
   const uniqueTag = payload.data?.msgId || `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
-  self.registration.showNotification(title, {
+  // ✅ 基本通知オプション
+  const notificationOptions = {
     body: body,
     icon: '/icon-192x192.png',
-    image: image,
     data: { url: url },
-    tag: uniqueTag,                           // 👈 修正: 過去の通知履歴を削除させない
-    timestamp: notificationTime,             // 👈 修正: 日時ズレ（「2日前」等）を防止
-    silent: false,                           // 👈 修正: 音を鳴らす明示設定
-    renotify: true,                          // 👈 修正: 通知受信時に音・バイブを鳴らす
+    tag: uniqueTag,                           // 👈 過去の通知履歴を上書き消去させない
+    timestamp: notificationTime,             // 👈 日時ズレ（「2日前」等）を防止
+    silent: false,                           // 👈 音を鳴らす明示設定
+    renotify: true,                          // 👈 通知受信時に音・バイブを鳴らす
     requireInteraction: false,
-  });
+  };
+
+  // ⚠️ 空文字列や undefined の image をセットすると PC/Android の Chrome でエラードロップするため存在チェックを行う
+  if (image && typeof image === 'string' && image.trim() !== '') {
+    notificationOptions.image = image;
+  }
+
+  self.registration.showNotification(title, notificationOptions);
 });
 
 self.addEventListener('install', (event) => {
