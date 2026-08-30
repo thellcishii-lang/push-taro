@@ -8,7 +8,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from 'firebase/auth';
-import { auth } from '../../lib/firebase-client';
+import { auth } from '@/lib/firebase/client';
 import { db as localDb, exportHistoryToJSON, importHistoryFromJSON, PushHistory } from '../../lib/db';
 import { QRCodeSVG } from 'qrcode.react';
 import ImageUploader from '../../components/ImageUploader';
