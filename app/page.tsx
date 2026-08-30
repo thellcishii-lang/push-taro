@@ -21,28 +21,36 @@ export default function LandingPage() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [couponUsed, setCouponUsed] = useState(false);
 
-  // 1. URLから shopId 取得 + localStorage 復元 (安全なクライアントサイド実行)
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
+  // 1. URLから shopId 取得 + localStorage 復元（堅牢化修正版）
+useEffect(() => {
+  if (typeof window === 'undefined') return;
 
-    try {
-      const params = new URLSearchParams(window.location.search);
-      // ?s= または ?shopid= のどちらからでも取得可能
-      const s = params.get('s') || params.get('shopid');
+  const getAndSaveShopId = () => {
+    // URLのクエリ文字列を直接解析
+    const urlParams = new URLSearchParams(window.location.search);
+    const s = urlParams.get('s') || urlParams.get('shopid');
 
-      if (s && s !== 'undefined' && s !== 'null') {
-        setShopId(s);
-        localStorage.setItem('push_taro_shop_id', s);
-      } else {
-        const saved = localStorage.getItem('push_taro_shop_id');
-        if (saved && saved !== 'undefined' && saved !== 'null') {
-          setShopId(saved);
-        }
-      }
-    } catch (e) {
-      console.error('URL解析エラー:', e);
+    if (s && s !== 'undefined' && s !== 'null' && s.trim() !== '') {
+      console.log('URLからShopIDを取得:', s);
+      setShopId(s);
+      localStorage.setItem('push_taro_shop_id', s);
+      return true;
     }
-  }, []);
+    return false;
+  };
+
+  // 即時実行
+  const found = getAndSaveShopId();
+
+  // URLになかった場合のみ localStorage から復元
+  if (!found) {
+    const saved = localStorage.getItem('push_taro_shop_id');
+    if (saved && saved !== 'undefined' && saved !== 'null' && saved.trim() !== '') {
+      console.log('StorageからShopIDを復元:', saved);
+      setShopId(saved);
+    }
+  }
+}, []);
 
   // 2. 店舗情報の取得 & 登録済みチェック
   useEffect(() => {
