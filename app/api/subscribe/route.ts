@@ -10,20 +10,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'tokenとshopIdが必要です' }, { status: 400 });
     }
 
-    // 店舗存在確認
     const shop = await getShop(shopId);
     if (!shop) {
       return NextResponse.json({ error: '店舗が見つかりません' }, { status: 404 });
     }
 
-    // FCMトピック登録
     const topic = `shop_${shopId}_users`;
     await subscribeToTopic([token], topic);
-
-    // サブスクリプション保存
     await saveSubscription(token, shopId, birthDate);
-
-    // チャンク保存 (5,000件単位)
     await saveTokenChunk(shopId, token);
 
     return NextResponse.json({
