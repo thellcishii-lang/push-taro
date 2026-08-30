@@ -7,7 +7,8 @@ import { QRCodeSVG } from 'qrcode.react';
 export default function LandingPage() {
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
-  const [shopId, setShopId] = useState('');
+  const [shopId, setShopId] = useState<string>('');
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
   
   // 画面状態管理
   const [isRegistered, setIsRegistered] = useState(false);
@@ -21,47 +22,48 @@ export default function LandingPage() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [couponUsed, setCouponUsed] = useState(false);
 
-  // 1. URLから shopId を強力かつ最優先で取得
+  // 1. URLから shopId を泥臭く確実に取得
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const resolveShopId = () => {
-      // URLから取得
-      const urlParams = new URLSearchParams(window.location.search);
-      let s = urlParams.get('s') || urlParams.get('shopid');
+    let detectedId = '';
 
-      // # ハッシュ対策
-      if (!s && window.location.href.includes('?')) {
-        const queryString = window.location.href.split('?')[1];
-        if (queryString) {
-          const params = new URLSearchParams(queryString.split('#')[0]);
-          s = params.get('s') || params.get('shopid');
+    try {
+      // 方法A: 標準の URLSearchParams
+      const urlParams = new URLSearchParams(window.location.search);
+      detectedId = urlParams.get('s') || urlParams.get('shopid') || '';
+
+      // 方法B: href 全体からの文字列切り出し (方法Aで取れなかった場合のバックアップ)
+      if (!detectedId && window.location.href.includes('?')) {
+        const queryPart = window.location.href.split('?')[1] || '';
+        const params = new URLSearchParams(queryPart.split('#')[0]);
+        detectedId = params.get('s') || params.get('shopid') || '';
+      }
+
+      // 方法C: localStorage からの復元
+      if (!detectedId) {
+        const saved = localStorage.getItem('push_taro_shop_id');
+        if (saved && saved !== 'undefined' && saved !== 'null') {
+          detectedId = saved;
         }
       }
 
-      if (s && s !== 'undefined' && s !== 'null' && s.trim() !== '') {
-        const cleanId = s.trim();
+      // 取得できた場合、セット & 保存
+      if (detectedId && detectedId !== 'undefined' && detectedId !== 'null') {
+        const cleanId = detectedId.trim();
         setShopId(cleanId);
         localStorage.setItem('push_taro_shop_id', cleanId);
-        return cleanId;
       }
-
-      // URLに無ければ localStorage から復元
-      const saved = localStorage.getItem('push_taro_shop_id');
-      if (saved && saved !== 'undefined' && saved !== 'null' && saved.trim() !== '') {
-        setShopId(saved);
-        return saved;
-      }
-
-      return '';
-    };
-
-    resolveShopId();
+    } catch (e) {
+      console.error('ID取得処理例外:', e);
+    } finally {
+      setIsLoaded(true);
+    }
   }, []);
 
   // 2. 店舗情報の取得 & 登録済みチェック
   useEffect(() => {
-    if (!shopId || shopId === 'undefined' || shopId === 'null') return;
+    if (!shopId) return;
 
     fetch(`/api/shop-info?s=${shopId}`)
       .then(res => res.json())
@@ -84,7 +86,7 @@ export default function LandingPage() {
   // 3. PWA Manifest 設定
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (shopId && shopId !== 'placeholder' && shopId !== 'undefined' && shopId !== 'null') {
+    if (shopId) {
       const link = document.querySelector('link[rel="manifest"]');
       if (link) {
         link.setAttribute('href', `/manifest/${shopId}`);
@@ -94,19 +96,19 @@ export default function LandingPage() {
 
   // 🔔 登録ボタンを押した時の処理
   const handleSubscribe = async () => {
-    // 実行時に再度 URL / LocalStorage を確認
+    // 実行時に再度全方位から探索
     let effectiveShopId = shopId;
 
-    if (!effectiveShopId || effectiveShopId === 'undefined' || effectiveShopId === 'null') {
+    if (!effectiveShopId) {
       if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search);
         effectiveShopId = urlParams.get('s') || urlParams.get('shopid') || localStorage.getItem('push_taro_shop_id') || '';
       }
     }
 
-    if (!effectiveShopId || effectiveShopId === 'undefined' || effectiveShopId === 'null') {
+    if (!effectiveShopId) {
       setStatus('error');
-      setMessage('店舗IDが取得できていません。URLに ?s=店舗ID が含まれているか確認してください。');
+      setMessage('店舗IDが取得できていません。URLの末尾に ?s=店舗ID がついているかご確認ください。');
       return;
     }
 
@@ -178,6 +180,15 @@ export default function LandingPage() {
       setMessage('エラー: ' + err.message);
     }
   };
+
+  // 読み込み完了前のチラつき防止
+  if (!isLoaded) {
+    return (
+      <main style={{ padding: 24, textAlign: 'center', fontFamily: 'sans-serif' }}>
+        <p>読み込み中...</p>
+      </main>
+    );
+  }
 
   // 📱 【登録完了後の画面】
   if (isRegistered) {
