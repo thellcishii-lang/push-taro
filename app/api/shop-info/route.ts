@@ -5,33 +5,24 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const shopId = searchParams.get('s') || searchParams.get('shopid');
 
-  // shopId が存在しない、または 'undefined' / 'null' 文字列の場合
   if (!shopId || shopId === 'undefined' || shopId === 'null' || shopId.trim() === '') {
     return NextResponse.json(
-      { success: false, error: '有効な shopId が必要です' },
-      { 
-        status: 400,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Cache-Control': 'no-store, max-age=0',
-        }
-      }
+      { success: false, error: 'URLパラメータ（?s=店舗ID）が正しく渡されていません' },
+      { status: 400, headers: { 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' } }
     );
   }
 
   try {
-    const doc = await db.collection('shops').doc(shopId.trim()).get();
+    const cleanId = shopId.trim();
+    const doc = await db.collection('shops').doc(cleanId).get();
 
     if (!doc.exists) {
       return NextResponse.json(
-        { success: false, error: '店舗が見つかりません' },
         { 
-          status: 404,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Cache-Control': 'no-store, max-age=0',
-          }
-        }
+          success: false, 
+          error: `店舗ID [${cleanId}] はFirestoreに存在しません。admin画面で店舗作成を完了させてください。` 
+        },
+        { status: 404, headers: { 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' } }
       );
     }
 
@@ -44,25 +35,13 @@ export async function GET(request: Request) {
       linkUrl: data?.linkUrl || '',
       iconUrl: data?.iconUrl || '',
       plan: data?.plan || 'free',
-    }, { 
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Cache-Control': 'no-store, max-age=0',
-      }
-    });
+    }, { status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' } });
 
   } catch (error: any) {
     console.error('[shop-info] エラー:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
-      { 
-        status: 500,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Cache-Control': 'no-store, max-age=0',
-        }
-      }
+      { success: false, error: `サーバー内部エラー: ${error.message}` },
+      { status: 500, headers: { 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' } }
     );
   }
 }
