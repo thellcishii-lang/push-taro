@@ -3,7 +3,7 @@
 import { useCallback, useState, useEffect } from 'react'; // ← useEffect を追加
 import { useDropzone } from 'react-dropzone';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../lib/firebase-client';
+import { storage } from '@/lib/firebase/client';
 
 interface ImageUploaderProps {
   onImageUploaded: (url: string) => void;
