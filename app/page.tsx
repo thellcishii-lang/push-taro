@@ -1,9 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { requestNotificationToken } from '@/lib/firebase/token-manager';
-import { onForegroundMessage } from '@/lib/firebase/client';
-import { getPlatformRequirements } from '@/lib/firebase/platform';
+import { requestFCMToken, onForegroundMessage } from '../lib/firebase-client';
 import { QRCodeSVG } from 'qrcode.react';
 
 export default function LandingPage() {
@@ -15,9 +13,6 @@ export default function LandingPage() {
   const [isRegistered, setIsRegistered] = useState(false);
   const [fcmToken, setFcmToken] = useState('');
   const [shopData, setShopData] = useState<any>(null);
-
-  // 🎂 誕生日入力用ステート（Proプラン専用）
-  const [birthDate, setBirthDate] = useState('');
   
   // 折りたたみ（アコーディオン）用のステート
   const [tokenOpen, setTokenOpen] = useState(false);
@@ -51,7 +46,7 @@ export default function LandingPage() {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          setShopData(data.shop || data); // shopデータ直下・階層双方に対応
+          setShopData(data);
         }
       })
       .catch(err => console.error('店舗情報取得エラー:', err));
@@ -108,13 +103,6 @@ export default function LandingPage() {
       return;
     }
 
-    // 🎂 Proプランの場合は誕生日の入力を必須チェック
-    if (shopData?.plan === 'pro' && !birthDate) {
-      setStatus('error');
-      setMessage('バースデークーポン受取のため、生年月日を選択してください。');
-      return;
-    }
-
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const isStandalone = (window.navigator as any).standalone === true;
 
@@ -138,22 +126,17 @@ export default function LandingPage() {
         return;
       }
 
-      const { token } = await requestNotificationToken();
+      const token = await requestFCMToken();
       if (!token) {
         setStatus('error');
         setMessage('トークン取得に失敗しました。');
         return;
       }
 
-      // 登録API呼び出し（birthDate を追加送信）
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          token,
-          shopId: effectiveShopId,
-          birthDate: shopData?.plan === 'pro' ? birthDate : null, // Proプランの場合のみ送信
-        }),
+        body: JSON.stringify({ token, shopId: effectiveShopId }),
       });
 
       const resData = await res.json().catch(() => ({}));
@@ -256,33 +239,6 @@ export default function LandingPage() {
         <h1 style={{ fontSize: '22px', margin: '0 0 8px 0' }}>{shopData?.name || 'プッシュ太郎'}</h1>
         <p style={{ color: '#666', fontSize: '14px' }}>お得な情報をプッシュ通知でお届けします</p>
       </div>
-
-      {/* 🎂 🎂 Proプラン店舗限定：生年月日入力フォーム 🎂 🎂 */}
-      {shopData?.plan === 'pro' && status !== 'success' && (
-        <div style={{ marginBottom: '20px', textAlign: 'left', background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-          <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', fontSize: '14px', color: '#334155' }}>
-            🎂 生年月日（バースデークーポン受取用）
-          </label>
-          <input
-            type="date"
-            value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
-            required
-            style={{
-              width: '100%',
-              padding: '12px',
-              fontSize: '16px',
-              borderRadius: '6px',
-              border: '1px solid #cbd5e1',
-              boxSizing: 'border-box',
-              background: '#fff',
-            }}
-          />
-          <p style={{ fontSize: '11px', color: '#64748b', margin: '6px 0 0 0' }}>
-            ※お誕生月のお得なクーポンをお送りするために使用します。
-          </p>
-        </div>
-      )}
 
       {status === 'success' ? (
         <div style={{ marginTop: 30 }}>
