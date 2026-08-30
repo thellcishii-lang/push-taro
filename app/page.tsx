@@ -14,28 +14,32 @@ export default function LandingPage() {
   const [fcmToken, setFcmToken] = useState('');
   const [shopData, setShopData] = useState<any>(null);
 
-  // 🎂 誕生日入力用ステート（Proプラン専用）
+  // 生年月日（Proプラン専用）
   const [birthDate, setBirthDate] = useState('');
   
-  // 折りたたみ（アコーディオン）用のステート
+  // アコーディオン・クーポン表示用
   const [historyOpen, setHistoryOpen] = useState(false);
   const [couponUsed, setCouponUsed] = useState(false);
 
-// 1. URLから shopId 取得 + localStorage 復元
+  // 1. URLから shopId 取得 + localStorage 復元
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const s = urlParams.get('s') || urlParams.get('shopid');
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const s = urlParams.get('s') || urlParams.get('shopid');
 
-    if (s && s !== 'undefined' && s !== 'null' && s.trim() !== '') {
-      setShopId(s);
-      localStorage.setItem('push_taro_shop_id', s);
-    } else {
-      const saved = localStorage.getItem('push_taro_shop_id');
-      if (saved && saved !== 'undefined' && saved !== 'null' && saved.trim() !== '') {
-        setShopId(saved);
+      if (s && s !== 'undefined' && s !== 'null' && s.trim() !== '') {
+        setShopId(s);
+        localStorage.setItem('push_taro_shop_id', s);
+      } else {
+        const saved = localStorage.getItem('push_taro_shop_id');
+        if (saved && saved !== 'undefined' && saved !== 'null' && saved.trim() !== '') {
+          setShopId(saved);
+        }
       }
+    } catch (e) {
+      console.error('shopId取得エラー:', e);
     }
   }, []);
 
@@ -61,7 +65,7 @@ export default function LandingPage() {
     }
   }, [shopId]);
 
-  // 3. manifest 設定
+  // 3. PWA Manifest 設定
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (shopId && shopId !== 'placeholder' && shopId !== 'undefined' && shopId !== 'null') {
@@ -72,38 +76,46 @@ export default function LandingPage() {
     }
   }, [shopId]);
 
- const handleSubscribe = async () => {
-  // ステート、URLパラメータ、localStorage から順に取得を試みる
-  let effectiveShopId = shopId;
+  // 🔔 登録ボタンを押した時の処理
+  const handleSubscribe = async () => {
+    // ボタンを押した瞬間に、URL・ステート・localStorage のすべてから泥臭く ID を探索
+    let effectiveShopId = shopId;
 
-  if (!effectiveShopId || effectiveShopId === 'undefined' || effectiveShopId === 'null') {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      effectiveShopId = urlParams.get('s') || urlParams.get('shopid') || localStorage.getItem('push_taro_shop_id') || '';
+    if (!effectiveShopId || effectiveShopId === 'undefined' || effectiveShopId === 'null' || effectiveShopId.trim() === '') {
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        effectiveShopId = urlParams.get('s') || urlParams.get('shopid') || localStorage.getItem('push_taro_shop_id') || '';
+      }
     }
-  }
 
-  if (!effectiveShopId || effectiveShopId === 'undefined' || effectiveShopId === 'null') {
-    setStatus('error');
-    setMessage('店舗IDが取得できていません。QRコードから再度アクセスしてください。');
-    return;
-  }
+    if (!effectiveShopId || effectiveShopId === 'undefined' || effectiveShopId === 'null' || effectiveShopId.trim() === '') {
+      setStatus('error');
+      setMessage('店舗IDが取得できていません。QRコードから再度アクセスしてください。');
+      return;
+    }
 
-    // Proプランの場合は誕生日の入力を必須チェック
+    // 取得したIDを保持
+    setShopId(effectiveShopId);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('push_taro_shop_id', effectiveShopId);
+    }
+
+    // Proプラン生年月日チェック
     if (shopData?.plan === 'pro' && !birthDate) {
       setStatus('error');
       setMessage('バースデークーポン受取のため、生年月日を選択してください。');
       return;
     }
 
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isStandalone = (window.navigator as any).standalone === true;
+    // iPhone Home画面追加チェック
+    const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isStandalone = typeof window !== 'undefined' && (window.navigator as any).standalone === true;
 
     if (isIOS && !isStandalone) {
       setStatus('error');
       setMessage(
         'iPhoneでは「ホーム画面に追加」が必要です。\n' +
-        'Safariの「共有」→「ホーム画面に追加」を行ってから、このアプリを開いてください。'
+        'Safariの「共有ボタン」→「ホーム画面に追加」を行ってから、ホーム画面のアイコンより開いてください。'
       );
       return;
     }
@@ -126,7 +138,7 @@ export default function LandingPage() {
         return;
       }
 
-      // 登録API呼び出し
+      // 登録APIへ送信
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -157,7 +169,7 @@ export default function LandingPage() {
     }
   };
 
-  // --- 📱 【登録完了後の顧客画面】 ---
+  // 📱 【登録完了後の画面】
   if (isRegistered) {
     return (
       <main style={{ padding: 20, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif' }}>
@@ -177,7 +189,6 @@ export default function LandingPage() {
           )}
         </div>
 
-        {/* クーポン表示 */}
         {shopData?.coupon?.enabled && !couponUsed && (
           <div style={{ background: '#fff3e0', border: '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
             <h3 style={{ margin: '0 0 8px 0', color: '#e65100' }}>🎁 {shopData.coupon.title || '初回限定クーポン'}</h3>
@@ -192,13 +203,12 @@ export default function LandingPage() {
                 onClick={() => setCouponUsed(true)}
                 style={{ padding: '8px 16px', background: '#ff9800', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
               >
-                クーポンを使用済みにする（消す）
+                クーポンを使用済みにする
               </button>
             </div>
           </div>
         )}
 
-        {/* 通知履歴 */}
         <div style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
           <button
             onClick={() => setHistoryOpen(!historyOpen)}
@@ -220,7 +230,7 @@ export default function LandingPage() {
     );
   }
 
-  // --- 🔔 【初期の通知許可画面】 ---
+  // 🔔 【初期の登録画面】
   return (
     <main style={{ padding: 24, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', textAlign: 'center' }}>
       <div style={{ marginTop: 40, marginBottom: 20 }}>
