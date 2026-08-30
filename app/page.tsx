@@ -21,23 +21,23 @@ export default function LandingPage() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [couponUsed, setCouponUsed] = useState(false);
 
-  // 1. URLから shopId 取得 + localStorage 復元（堅牢化修正版）
-useEffect(() => {
-  if (typeof window === 'undefined') return;
+// 1. URLから shopId 取得 + localStorage 復元
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const s = urlParams.get('s') || urlParams.get('shopid');
+    const urlParams = new URLSearchParams(window.location.search);
+    const s = urlParams.get('s') || urlParams.get('shopid');
 
-  if (s && s !== 'undefined' && s !== 'null' && s.trim() !== '') {
-    setShopId(s);
-    localStorage.setItem('push_taro_shop_id', s);
-  } else {
-    const saved = localStorage.getItem('push_taro_shop_id');
-    if (saved && saved !== 'undefined' && saved !== 'null' && saved.trim() !== '') {
-      setShopId(saved);
+    if (s && s !== 'undefined' && s !== 'null' && s.trim() !== '') {
+      setShopId(s);
+      localStorage.setItem('push_taro_shop_id', s);
+    } else {
+      const saved = localStorage.getItem('push_taro_shop_id');
+      if (saved && saved !== 'undefined' && saved !== 'null' && saved.trim() !== '') {
+        setShopId(saved);
+      }
     }
-  }
-}, []);
+  }, []);
 
   // 即時実行
   const found = getAndSaveShopId();
