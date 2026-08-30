@@ -65,23 +65,23 @@ export default function LandingPage() {
   }, [shopId]);
 
   // フォアグラウンド通知受信
-  useEffect(() => {
-    const unsub = onForegroundMessage((payload) => {
-      const title = payload.data?.title || shopData?.name || 'プッシュ太郎';
-      const options = {
-        body: payload.data?.body || '',
-        icon: shopData?.iconUrl || '/icon-192x192.png',
-        image: payload.data?.image,
-        data: { url: payload.data?.url || '/' },
-        tag: payload.data?.shopId || 'default',
-      };
+  //useEffect(() => {
+    //const unsub = onForegroundMessage((payload) => {
+      //const title = payload.data?.title || shopData?.name || 'プッシュ太郎';
+      //const options = {
+        //body: payload.data?.body || '',
+        //icon: shopData?.iconUrl || '/icon-192x192.png',
+        //image: payload.data?.image,
+        //data: { url: payload.data?.url || '/' },
+        //tag: payload.data?.shopId || 'default',
+      //};
 
-      if (Notification.permission === 'granted') {
-        navigator.serviceWorker.ready.then((registration) => {
-          registration.showNotification(title, options);
-        });
-      }
-    });
+      //if (Notification.permission === 'granted') {
+        //navigator.serviceWorker.ready.then((registration) => {
+          //registration.showNotification(title, options);
+        //});
+      //}
+    //});
 
     return () => unsub();
   }, [shopData]);
