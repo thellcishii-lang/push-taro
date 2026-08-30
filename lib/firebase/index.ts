@@ -8,3 +8,7 @@ export * from './services';
 
 // プラットフォーム
 export { detectPlatform, isStandalone, getPlatformRequirements } from './platform';
+
+// トークン管理＆SW管理
+export * from './token-manager';
+export * from './sw-manager';
