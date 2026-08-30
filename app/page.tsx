@@ -13,73 +13,65 @@ export default function LandingPage() {
   const [isRegistered, setIsRegistered] = useState(false);
   const [fcmToken, setFcmToken] = useState('');
   const [shopData, setShopData] = useState<any>(null);
+
+  // 🎂 誕生日入力用ステート（Proプラン専用）
+  const [birthDate, setBirthDate] = useState('');
   
   // 折りたたみ（アコーディオン）用のステート
-  const [tokenOpen, setTokenOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [couponUsed, setCouponUsed] = useState(false);
 
-  // URLから shopId 取得 + localStorage 復元
-  // URLから shopId 取得 + localStorage 復元（修正版）
-useEffect(() => {
-  if (typeof window === 'undefined') return;
-
-  const params = new URLSearchParams(window.location.search);
-  // ?s= でも ?shopid= でもどちらからでも取得可能にする
-  const s = params.get('s') || params.get('shopid');
-
-  if (s && s !== 'undefined' && s !== 'null') {
-    setShopId(s);
-    localStorage.setItem('push_taro_shop_id', s);
-  } else {
-    const saved = localStorage.getItem('push_taro_shop_id');
-    if (saved && saved !== 'undefined' && saved !== 'null') {
-      setShopId(saved);
-    }
-  }
-}, []);
-
-  // 店舗情報の取得（修正版）
-useEffect(() => {
-  // 不正な shopId の場合は処理をスキップ（Android等の無駄な通信・エラー防止）
-  if (!shopId || shopId === 'undefined' || shopId === 'null') return;
-
-  fetch(`/api/shop-info?s=${shopId}`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        // shopプロパティ配下、または直下のデータ構造に対応
-        setShopData(data.shop || data);
-      }
-    })
-    .catch(err => console.error('店舗情報取得エラー:', err));
-
-  // すでに登録済み（トークンがある）なら顧客画面へ直行
-  if (typeof window !== 'undefined') {
-    const savedToken = localStorage.getItem(`push_taro_token_${shopId}`);
-    if (savedToken) {
-      setFcmToken(savedToken);
-      setIsRegistered(true);
-    }
-  }
-}, [shopId]);
-
-  // manifest や iOS用メタタグの設定// すでに登録済み（トークンがある）なら顧客画面へ直行（修正版）
-if (typeof window !== 'undefined' && shopId && shopId !== 'undefined' && shopId !== 'null') {
-  const savedToken = localStorage.getItem(`push_taro_token_${shopId}`);
-  
-  // トークンが存在し、かつブラウザの通知権限が「許可 (granted)」されている場合のみ顧客画面を表示
-  if (savedToken && Notification.permission === 'granted') {
-    setFcmToken(savedToken);
-    setIsRegistered(true);
-  } else if (Notification.permission !== 'granted') {
-    // もし通知権限が拒否されていたら、古くなったトークンをクリアして再登録を促す
-    localStorage.removeItem(`push_taro_token_${shopId}`);
-    setIsRegistered(false);
-  }
-}
+  // 1. URLから shopId 取得 + localStorage 復元 (安全なクライアントサイド実行)
   useEffect(() => {
-    if (shopId && shopId !== 'placeholder' && shopId !== 'undefined') {
+    if (typeof window === 'undefined') return;
+
+    try {
+      const params = new URLSearchParams(window.location.search);
+      // ?s= または ?shopid= のどちらからでも取得可能
+      const s = params.get('s') || params.get('shopid');
+
+      if (s && s !== 'undefined' && s !== 'null') {
+        setShopId(s);
+        localStorage.setItem('push_taro_shop_id', s);
+      } else {
+        const saved = localStorage.getItem('push_taro_shop_id');
+        if (saved && saved !== 'undefined' && saved !== 'null') {
+          setShopId(saved);
+        }
+      }
+    } catch (e) {
+      console.error('URL解析エラー:', e);
+    }
+  }, []);
+
+  // 2. 店舗情報の取得 & 登録済みチェック
+  useEffect(() => {
+    if (!shopId || shopId === 'undefined' || shopId === 'null') return;
+
+    // 店舗情報取得
+    fetch(`/api/shop-info?s=${shopId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setShopData(data.shop || data);
+        }
+      })
+      .catch(err => console.error('店舗情報取得エラー:', err));
+
+    // 登録済みチェック
+    if (typeof window !== 'undefined') {
+      const savedToken = localStorage.getItem(`push_taro_token_${shopId}`);
+      if (savedToken) {
+        setFcmToken(savedToken);
+        setIsRegistered(true);
+      }
+    }
+  }, [shopId]);
+
+  // 3. manifest 設定
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (shopId && shopId !== 'placeholder' && shopId !== 'undefined' && shopId !== 'null') {
       const link = document.querySelector('link[rel="manifest"]');
       if (link) {
         link.setAttribute('href', `/manifest/${shopId}`);
@@ -89,13 +81,20 @@ if (typeof window !== 'undefined' && shopId && shopId !== 'undefined' && shopId 
 
   const handleSubscribe = async () => {
     let effectiveShopId = shopId;
-    if (!effectiveShopId) {
+    if (!effectiveShopId || effectiveShopId === 'undefined') {
       effectiveShopId = localStorage.getItem('push_taro_shop_id') || '';
     }
 
     if (!effectiveShopId) {
       setStatus('error');
-      setMessage('店舗IDが取得できていません。QRコードからアクセスしてください。');
+      setMessage('店舗IDが取得できていません。QRコードから再度アクセスしてください。');
+      return;
+    }
+
+    // Proプランの場合は誕生日の入力を必須チェック
+    if (shopData?.plan === 'pro' && !birthDate) {
+      setStatus('error');
+      setMessage('バースデークーポン受取のため、生年月日を選択してください。');
       return;
     }
 
@@ -129,10 +128,15 @@ if (typeof window !== 'undefined' && shopId && shopId !== 'undefined' && shopId 
         return;
       }
 
+      // 登録API呼び出し
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, shopId: effectiveShopId }),
+        body: JSON.stringify({
+          token,
+          shopId: effectiveShopId,
+          birthDate: shopData?.plan === 'pro' ? birthDate : null,
+        }),
       });
 
       const resData = await res.json().catch(() => ({}));
@@ -145,10 +149,9 @@ if (typeof window !== 'undefined' && shopId && shopId !== 'undefined' && shopId 
       setStatus('success');
       setMessage('通知の受け取りが完了しました！');
 
-      // ⏳ 3秒後に顧客画面へ切り替え
       setTimeout(() => {
         setIsRegistered(true);
-      }, 3000);
+      }, 2000);
 
     } catch (err: any) {
       setStatus('error');
@@ -160,7 +163,6 @@ if (typeof window !== 'undefined' && shopId && shopId !== 'undefined' && shopId 
   if (isRegistered) {
     return (
       <main style={{ padding: 20, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif' }}>
-        {/* 1. 店舗情報（アイコン・店名・リンク） */}
         <div style={{ textAlign: 'center', marginBottom: '30px', marginTop: '20px' }}>
           {shopData?.iconUrl ? (
             <img src={shopData.iconUrl} alt="店舗アイコン" style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }} />
@@ -177,7 +179,7 @@ if (typeof window !== 'undefined' && shopId && shopId !== 'undefined' && shopId 
           )}
         </div>
 
-        {/* 2. 初回クーポン（使うと消える仕様） */}
+        {/* クーポン表示 */}
         {shopData?.coupon?.enabled && !couponUsed && (
           <div style={{ background: '#fff3e0', border: '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
             <h3 style={{ margin: '0 0 8px 0', color: '#e65100' }}>🎁 {shopData.coupon.title || '初回限定クーポン'}</h3>
@@ -198,7 +200,7 @@ if (typeof window !== 'undefined' && shopId && shopId !== 'undefined' && shopId 
           </div>
         )}
 
-        {/* 3. 通知履歴（履歴ボタンで展開） */}
+        {/* 通知履歴 */}
         <div style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
           <button
             onClick={() => setHistoryOpen(!historyOpen)}
@@ -211,7 +213,7 @@ if (typeof window !== 'undefined' && shopId && shopId !== 'undefined' && shopId 
           {historyOpen && (
             <div style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <p style={{ fontSize: '13px', color: '#666', textAlign: 'center', margin: '10px 0' }}>
-                （受信した通知がここに最大20件表示されます）
+                （受信した通知が表示されます）
               </p>
             </div>
           )}
@@ -223,7 +225,6 @@ if (typeof window !== 'undefined' && shopId && shopId !== 'undefined' && shopId 
   // --- 🔔 【初期の通知許可画面】 ---
   return (
     <main style={{ padding: 24, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', textAlign: 'center' }}>
-      {/* 店舗アイコンと店舗名を動的に表示（未取得時はデフォルト） */}
       <div style={{ marginTop: 40, marginBottom: 20 }}>
         {shopData?.iconUrl ? (
           <img src={shopData.iconUrl} alt="店舗アイコン" style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }} />
@@ -235,6 +236,29 @@ if (typeof window !== 'undefined' && shopId && shopId !== 'undefined' && shopId 
         <h1 style={{ fontSize: '22px', margin: '0 0 8px 0' }}>{shopData?.name || 'プッシュ太郎'}</h1>
         <p style={{ color: '#666', fontSize: '14px' }}>お得な情報をプッシュ通知でお届けします</p>
       </div>
+
+      {shopData?.plan === 'pro' && status !== 'success' && (
+        <div style={{ marginBottom: '20px', textAlign: 'left', background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', fontSize: '14px', color: '#334155' }}>
+            🎂 生年月日（バースデークーポン受取用）
+          </label>
+          <input
+            type="date"
+            value={birthDate}
+            onChange={(e) => setBirthDate(e.target.value)}
+            required
+            style={{
+              width: '100%',
+              padding: '12px',
+              fontSize: '16px',
+              borderRadius: '6px',
+              border: '1px solid #cbd5e1',
+              boxSizing: 'border-box',
+              background: '#fff',
+            }}
+          />
+        </div>
+      )}
 
       {status === 'success' ? (
         <div style={{ marginTop: 30 }}>
