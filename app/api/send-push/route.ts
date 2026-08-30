@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { messaging, db, authAdmin } from '../../../lib/firebase-admin';
+import { messaging, db, authAdmin } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
 
 // 🔍 トークンからプラットフォームを推測する簡易関数
