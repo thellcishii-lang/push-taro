@@ -22,10 +22,24 @@ export default function LandingPage() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [couponUsed, setCouponUsed] = useState(false);
 
+  // 🔴 iOS関連のステート
+  const [isIOS, setIsIOS] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
+
   // URLから shopId 取得 + localStorage 復元
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const s = params.get('s');
+
+    // iOS判定
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const standalone = (window.navigator as any).standalone === true;
+    setIsIOS(ios);
+    setIsStandalone(standalone);
+
+    if (ios && !standalone) {
+      console.log('[iOS] ホーム画面未追加状態でのアクセス');
+    }
 
     if (s) {
       setShopId(s);
@@ -49,7 +63,7 @@ export default function LandingPage() {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          setShopData(data.shop || data); // shopデータ直下・階層双方に対応
+          setShopData(data.shop || data);
         }
       })
       .catch(err => console.error('店舗情報取得エラー:', err));
@@ -113,14 +127,17 @@ export default function LandingPage() {
       return;
     }
 
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isStandalone = (window.navigator as any).standalone === true;
+    // iOSチェック: ホーム画面追加済みか確認（エラーメッセージ改善）
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const standalone = (window.navigator as any).standalone === true;
 
-    if (isIOS && !isStandalone) {
+    if (ios && !standalone) {
       setStatus('error');
       setMessage(
-        'iPhoneでは「ホーム画面に追加」が必要です。\n' +
-        'Safariの「共有」→「ホーム画面に追加」を行ってから、このアプリを開いてください。'
+        '📱 iPhoneでは「ホーム画面に追加」が必要です。\n\n' +
+        '① Safariの「共有」ボタン（□に↑のアイコン）をタップ\n' +
+        '② 「ホーム画面に追加」を選択\n' +
+        '③ ホーム画面に追加されたアイコンから再度開いてください。'
       );
       return;
     }
@@ -132,14 +149,54 @@ export default function LandingPage() {
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
         setStatus('error');
-        setMessage('通知を許可しないと受け取れません。');
+        setMessage(
+          '🔕 通知が許可されていません。\n\n' +
+          (ios 
+            ? 'iPhoneの設定 → 通知 → Safari → 通知を許可 に変更してください。'
+            : 'ブラウザの設定から通知を許可してください。'
+          )
+        );
         return;
       }
 
-      const token = await requestFCMToken();
+      // requestFCMToken を try-catch でラップ（エラー処理強化）
+      let token: string | null = null;
+      try {
+        token = await requestFCMToken();
+      } catch (fcmError: any) {
+        console.error('[handleSubscribe] FCM Error:', fcmError);
+        
+        if (fcmError.message === 'IOS_REQUIRES_STANDALONE') {
+          setStatus('error');
+          setMessage(
+            '📱 iPhoneでは「ホーム画面に追加」が必要です。\n\n' +
+            'Safariの「共有」→「ホーム画面に追加」を実行し、\n' +
+            'ホーム画面のアイコンから再度開いてください。'
+          );
+          return;
+        }
+        if (fcmError.message === 'PERMISSION_BLOCKED') {
+          setStatus('error');
+          setMessage(
+            '🔕 通知がブロックされています。\n\n' +
+            'iPhoneの設定 → 通知 → Safari → 通知を許可 に変更してください。'
+          );
+          return;
+        }
+        if (fcmError.message === 'MESSAGING_NOT_AVAILABLE') {
+          setStatus('error');
+          setMessage(
+            '⚠️ お使いのブラウザはプッシュ通知に対応していません。\n' +
+            'Chrome / Safari 最新版をご使用ください。'
+          );
+          return;
+        }
+        throw fcmError;
+      }
+
       if (!token) {
         setStatus('error');
-        setMessage('トークン取得に失敗しました。');
+        setMessage('トークン取得に失敗しました。\n数秒待ってからもう一度お試しください。');
         return;
       }
 
@@ -150,7 +207,7 @@ export default function LandingPage() {
         body: JSON.stringify({
           token,
           shopId: effectiveShopId,
-          birthDate: shopData?.plan === 'pro' ? birthDate : null, // Proプランの場合のみ送信
+          birthDate: shopData?.plan === 'pro' ? birthDate : null,
         }),
       });
 
@@ -162,7 +219,7 @@ export default function LandingPage() {
       localStorage.setItem(`push_taro_token_${effectiveShopId}`, token);
       setFcmToken(token);
       setStatus('success');
-      setMessage('通知の受け取りが完了しました！');
+      setMessage('✅ 通知の受け取りが完了しました！');
 
       // ⏳ 3秒後に顧客画面へ切り替え
       setTimeout(() => {
@@ -170,8 +227,9 @@ export default function LandingPage() {
       }, 3000);
 
     } catch (err: any) {
+      console.error('[handleSubscribe] Error:', err);
       setStatus('error');
-      setMessage('エラー: ' + err.message);
+      setMessage('❌ エラーが発生しました: ' + err.message);
     }
   };
 
@@ -255,7 +313,27 @@ export default function LandingPage() {
         <p style={{ color: '#666', fontSize: '14px' }}>お得な情報をプッシュ通知でお届けします</p>
       </div>
 
-      {/* 🎂 🎂 Proプラン店舗限定：生年月日入力フォーム 🎂 🎂 */}
+      {/* iOSホーム画面未追加の警告表示 */}
+      {isIOS && !isStandalone && (
+        <div style={{ 
+          marginBottom: '20px', 
+          padding: '16px', 
+          background: '#fff3cd', 
+          border: '1px solid #ffc107', 
+          borderRadius: '8px',
+          textAlign: 'left'
+        }}>
+          <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', color: '#856404' }}>
+            📱 iPhoneをご利用の方へ
+          </p>
+          <p style={{ margin: 0, fontSize: '13px', color: '#856404' }}>
+            通知を受け取るには、まず <strong>「ホーム画面に追加」</strong> が必要です。<br />
+            Safariの「共有」ボタン →「ホーム画面に追加」を実行してください。
+          </p>
+        </div>
+      )}
+
+      {/* 🎂 Proプラン店舗限定：生年月日入力フォーム */}
       {shopData?.plan === 'pro' && status !== 'success' && (
         <div style={{ marginBottom: '20px', textAlign: 'left', background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
           <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', fontSize: '14px', color: '#334155' }}>
@@ -309,7 +387,24 @@ export default function LandingPage() {
       )}
 
       {status === 'error' && (
-        <p style={{ color: 'red', marginTop: 16, whiteSpace: 'pre-line', fontSize: '14px' }}>{message}</p>
+        <div style={{ 
+          marginTop: 16, 
+          padding: '14px', 
+          background: '#f8d7da', 
+          borderRadius: '8px', 
+          border: '1px solid #f5c6cb',
+          textAlign: 'left'
+        }}>
+          <p style={{ 
+            color: '#721c24', 
+            whiteSpace: 'pre-line', 
+            fontSize: '14px', 
+            margin: 0,
+            lineHeight: 1.6
+          }}>
+            {message}
+          </p>
+        </div>
       )}
     </main>
   );
