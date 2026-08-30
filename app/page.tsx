@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { requestNotificationToken } from '@/lib/firebase/token-manager';
 import { onForegroundMessage } from '@/lib/firebase/client';
 import { getPlatformRequirements } from '@/lib/firebase/platform';
+import { QRCodeSVG } from 'qrcode.react';
 
 export default function LandingPage() {
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
