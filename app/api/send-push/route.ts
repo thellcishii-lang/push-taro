@@ -122,39 +122,9 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-   // 現在時刻とユニークIDの生成
+    // 現在時刻とユニークIDの生成
     const nowTimestamp = Date.now();
     const uniqueMsgId = `msg_${nowTimestamp}_${Math.random().toString(36).substring(2, 7)}`;
-
-    // ✅ 基本のメッセージ構造
-    const baseMessage = {
-      data: {
-        title: title,
-        body: body,
-        image: imageUrl || '',
-        url: linkUrl || '',
-        shopId: shopId,
-        msgId: uniqueMsgId,
-        timestamp: String(nowTimestamp),
-      },
-      apns: {
-        payload: {
-          aps: {
-            sound: 'default',
-            badge: 1,
-            'content-available': 1,
-          },
-        },
-      },
-      android: {
-        priority: 'high' as const,
-      },
-      webpush: {
-        headers: {
-          Urgency: 'high',
-        },
-      },
-    };
 
     console.log(`[send-push] 🚀 送信開始 (総件数: ${targetCount} 件)`);
 
@@ -168,13 +138,39 @@ export async function POST(request: Request) {
       const chunkTokens = registrationTokens.slice(i, i + CHUNK_SIZE);
       console.log(`[send-push] 📦 バッチ送信中: ${i + 1} 〜 ${i + chunkTokens.length} 件目`);
 
-      const message = {
-        ...baseMessage,
+      // ✅ FCM MulticastMessage の正解データ構造
+      const multicastMessage = {
         tokens: chunkTokens,
+        data: {
+          title: title,
+          body: body,
+          image: imageUrl || '',
+          url: linkUrl || '',
+          shopId: shopId,
+          msgId: uniqueMsgId,
+          timestamp: String(nowTimestamp),
+        },
+        apns: {
+          payload: {
+            aps: {
+              sound: 'default',
+              badge: 1,
+              'content-available': 1,
+            },
+          },
+        },
+        android: {
+          priority: 'high' as const,
+        },
+        webpush: {
+          headers: {
+            Urgency: 'high',
+          },
+        },
       };
 
       try {
-        const response = await messaging.sendEachForMulticast(message);
+        const response = await messaging.sendEachForMulticast(multicastMessage);
         totalSuccessCount += response.successCount;
         totalFailureCount += response.failureCount;
 
