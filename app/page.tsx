@@ -64,7 +64,20 @@ useEffect(() => {
   }
 }, [shopId]);
 
-  // manifest や iOS用メタタグの設定
+  // manifest や iOS用メタタグの設定// すでに登録済み（トークンがある）なら顧客画面へ直行（修正版）
+if (typeof window !== 'undefined' && shopId && shopId !== 'undefined' && shopId !== 'null') {
+  const savedToken = localStorage.getItem(`push_taro_token_${shopId}`);
+  
+  // トークンが存在し、かつブラウザの通知権限が「許可 (granted)」されている場合のみ顧客画面を表示
+  if (savedToken && Notification.permission === 'granted') {
+    setFcmToken(savedToken);
+    setIsRegistered(true);
+  } else if (Notification.permission !== 'granted') {
+    // もし通知権限が拒否されていたら、古くなったトークンをクリアして再登録を促す
+    localStorage.removeItem(`push_taro_token_${shopId}`);
+    setIsRegistered(false);
+  }
+}
   useEffect(() => {
     if (shopId && shopId !== 'placeholder' && shopId !== 'undefined') {
       const link = document.querySelector('link[rel="manifest"]');
