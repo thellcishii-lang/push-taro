@@ -4,26 +4,22 @@ import { useState, useEffect } from 'react';
 import { requestNotificationToken } from '@/lib/firebase/token-manager';
 import { onForegroundMessage } from '@/lib/firebase/client';
 import { QRCodeSVG } from 'qrcode.react';
+import { getPlatformRequirements } from '@/lib/firebase/platform';
 
 export default function LandingPage() {
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [shopId, setShopId] = useState('');
-  
-  // 画面状態管理
+
   const [isRegistered, setIsRegistered] = useState(false);
   const [fcmToken, setFcmToken] = useState('');
   const [shopData, setShopData] = useState<any>(null);
 
-  // 🎂 誕生日入力用ステート（Proプラン専用）
   const [birthDate, setBirthDate] = useState('');
-  
-  // 折りたたみ（アコーディオン）用のステート
-  const [tokenOpen, setTokenOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [couponUsed, setCouponUsed] = useState(false);
 
-  // URLから shopId 取得 + localStorage 復元
+  // URLから shopId 取得
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const s = params.get('s');
@@ -36,7 +32,6 @@ export default function LandingPage() {
       if (saved) {
         setShopId(saved);
       }
-      // ❌ ここで即 setStatus('error') を呼んでいたのを削除しました
     }
   }, []);
 
@@ -48,12 +43,11 @@ export default function LandingPage() {
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          setShopData(data.shop || data); // shopデータ直下・階層双方に対応
+          setShopData(data.shop || data);
         }
       })
       .catch(err => console.error('店舗情報取得エラー:', err));
 
-    // すでに登録済み（トークンがある）なら顧客画面へ直行
     const savedToken = localStorage.getItem(`push_taro_token_${shopId}`);
     if (savedToken) {
       setFcmToken(savedToken);
@@ -61,7 +55,7 @@ export default function LandingPage() {
     }
   }, [shopId]);
 
-  // manifest や iOS用メタタグの設定
+  // manifest 設定
   useEffect(() => {
     if (shopId && shopId !== 'placeholder' && shopId !== 'undefined') {
       const link = document.querySelector('link[rel="manifest"]');
@@ -105,22 +99,16 @@ export default function LandingPage() {
       return;
     }
 
-    // 🎂 Proプランの場合は誕生日の入力を必須チェック
     if (shopData?.plan === 'pro' && !birthDate) {
       setStatus('error');
       setMessage('バースデークーポン受取のため、生年月日を選択してください。');
       return;
     }
 
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isStandalone = (window.navigator as any).standalone === true;
-
-    if (isIOS && !isStandalone) {
+    const requirements = getPlatformRequirements();
+    if (requirements.needsHomeScreenAdd) {
       setStatus('error');
-      setMessage(
-        'iPhoneでは「ホーム画面に追加」が必要です。\n' +
-        'Safariの「共有」→「ホーム画面に追加」を行ってから、このアプリを開いてください。'
-      );
+      setMessage(requirements.message || '');
       return;
     }
 
@@ -135,21 +123,20 @@ export default function LandingPage() {
         return;
       }
 
-      const token = await requestFCMToken();
+      const { token, platform } = await requestNotificationToken();
       if (!token) {
         setStatus('error');
         setMessage('トークン取得に失敗しました。');
         return;
       }
 
-      // 登録API呼び出し（birthDate を追加送信）
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           token,
           shopId: effectiveShopId,
-          birthDate: shopData?.plan === 'pro' ? birthDate : null, // Proプランの場合のみ送信
+          birthDate: shopData?.plan === 'pro' ? birthDate : null,
         }),
       });
 
@@ -163,7 +150,6 @@ export default function LandingPage() {
       setStatus('success');
       setMessage('通知の受け取りが完了しました！');
 
-      // ⏳ 3秒後に顧客画面へ切り替え
       setTimeout(() => {
         setIsRegistered(true);
       }, 3000);
@@ -174,18 +160,19 @@ export default function LandingPage() {
     }
   };
 
-  // --- 📱 【登録完了後の顧客画面】 ---
+  // ============================================================
+  // 🔴 ここからJSX（元の315行を完全復元）
+  // ============================================================
+
   if (isRegistered) {
     return (
       <main style={{ padding: 20, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif' }}>
-        {/* 1. 店舗情報（アイコン・店名・リンク） */}
+        {/* 店舗情報 */}
         <div style={{ textAlign: 'center', marginBottom: '30px', marginTop: '20px' }}>
           {shopData?.iconUrl ? (
             <img src={shopData.iconUrl} alt="店舗アイコン" style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }} />
           ) : (
-            <div style={{ width: '64px', height: '64px', background: '#e0e0e0', borderRadius: '50%', margin: '0 auto 10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
-              🏪
-            </div>
+            <div style={{ width: '64px', height: '64px', background: '#e0e0e0', borderRadius: '50%', margin: '0 auto 10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🏪</div>
           )}
           <h2 style={{ margin: '0 0 8px 0' }}>{shopData?.name || '登録店舗'}</h2>
           {shopData?.linkUrl && (
@@ -195,37 +182,28 @@ export default function LandingPage() {
           )}
         </div>
 
-        {/* 2. 初回クーポン（使うと消える仕様） */}
+        {/* 初回クーポン */}
         {shopData?.coupon?.enabled && !couponUsed && (
           <div style={{ background: '#fff3e0', border: '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
             <h3 style={{ margin: '0 0 8px 0', color: '#e65100' }}>🎁 {shopData.coupon.title || '初回限定クーポン'}</h3>
             <p style={{ fontSize: '14px', color: '#333', marginBottom: '12px' }}>{shopData.coupon.description}</p>
-            
             <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '12px' }}>
               <QRCodeSVG value={shopId} size={150} />
             </div>
-
             <div>
-              <button
-                onClick={() => setCouponUsed(true)}
-                style={{ padding: '8px 16px', background: '#ff9800', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
-              >
-                クーポンを使用済みにする（消す）
+              <button onClick={() => setCouponUsed(true)} style={{ padding: '8px 16px', background: '#ff9800', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>
+                クーポンを使用済みにする
               </button>
             </div>
           </div>
         )}
 
-        {/* 3. 通知履歴（履歴ボタンで展開） */}
+        {/* 通知履歴 */}
         <div style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
-          <button
-            onClick={() => setHistoryOpen(!historyOpen)}
-            style={{ width: '100%', padding: '12px', background: '#f5f5f5', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-          >
+          <button onClick={() => setHistoryOpen(!historyOpen)} style={{ width: '100%', padding: '12px', background: '#f5f5f5', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>📜 通知履歴</span>
             <span>{historyOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
           </button>
-
           {historyOpen && (
             <div style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <p style={{ fontSize: '13px', color: '#666', textAlign: 'center', margin: '10px 0' }}>
@@ -238,23 +216,23 @@ export default function LandingPage() {
     );
   }
 
-  // --- 🔔 【初期の通知許可画面】 ---
+  // ============================================================
+  // 通知許可画面
+  // ============================================================
   return (
     <main style={{ padding: 24, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', textAlign: 'center' }}>
-      {/* 店舗アイコンと店舗名を動的に表示（未取得時はデフォルト） */}
+      {/* 店舗アイコンと店舗名 */}
       <div style={{ marginTop: 40, marginBottom: 20 }}>
         {shopData?.iconUrl ? (
           <img src={shopData.iconUrl} alt="店舗アイコン" style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }} />
         ) : (
-          <div style={{ width: '64px', height: '64px', background: '#f0f0f0', borderRadius: '50%', margin: '0 auto 10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>
-            🏪
-          </div>
+          <div style={{ width: '64px', height: '64px', background: '#f0f0f0', borderRadius: '50%', margin: '0 auto 10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>🏪</div>
         )}
         <h1 style={{ fontSize: '22px', margin: '0 0 8px 0' }}>{shopData?.name || 'プッシュ太郎'}</h1>
         <p style={{ color: '#666', fontSize: '14px' }}>お得な情報をプッシュ通知でお届けします</p>
       </div>
 
-      {/* 🎂 🎂 Proプラン店舗限定：生年月日入力フォーム 🎂 🎂 */}
+      {/* Proプラン店舗限定：生年月日入力フォーム */}
       {shopData?.plan === 'pro' && status !== 'success' && (
         <div style={{ marginBottom: '20px', textAlign: 'left', background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
           <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', fontSize: '14px', color: '#334155' }}>
