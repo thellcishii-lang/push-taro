@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
 import { requestNotificationToken } from '@/lib/firebase/token-manager';
 import { onForegroundMessage } from '@/lib/firebase/client';
 import { getPlatformRequirements } from '@/lib/firebase/platform';
