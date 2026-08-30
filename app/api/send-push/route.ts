@@ -1,4 +1,6 @@
+// api/send-push/route.ts
 import { NextResponse } from 'next/server';
+// 🔥 修正: lib/firebase からインポート
 import { messaging, db, authAdmin } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
 
@@ -18,7 +20,7 @@ function guessPlatform(token: string): string {
 const PLAN_LIMITS: Record<string, { name: string; limit: number }> = {
   light: { name: 'ライトプラン', limit: 5000 },
   standard: { name: 'スタンダードプラン', limit: 15000 },
-  pro: { name: 'プロプラン', limit: 5000000 }, // 登録5万人・無制限対応
+  pro: { name: 'プロプラン', limit: 5000000 },
 };
 
 export async function POST(request: Request) {
@@ -101,19 +103,16 @@ export async function POST(request: Request) {
     const planInfo = PLAN_LIMITS[planKey] || PLAN_LIMITS['standard'];
     const monthlyLimit = shopData.monthlyLimit || planInfo.limit;
 
-    // 現在の年月（例: "2026-08"）
     const now = new Date();
     const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
     let currentMonthSent = shopData.currentMonthSent || 0;
     const lastSentMonth = shopData.lastSentMonth || '';
 
-    // 月が変わっていたら送信数をリセット
     if (lastSentMonth !== currentMonthStr) {
       currentMonthSent = 0;
     }
 
-    // PROプラン以外で上限オーバーのチェック（PROプランは無制限扱い）
     const targetCount = registrationTokens.length;
     if (planKey !== 'pro' && (currentMonthSent + targetCount > monthlyLimit)) {
       return NextResponse.json({ 
@@ -155,7 +154,6 @@ export async function POST(request: Request) {
 
     console.log(`[send-push] 🚀 送信開始 (総件数: ${targetCount} 件)`);
 
-    // 🛡️ FCM上限(500件)に対して安全に「450件ずつ」に分割（バッチ処理）
     const CHUNK_SIZE = 450;
     let totalSuccessCount = 0;
     let totalFailureCount = 0;
@@ -191,12 +189,11 @@ export async function POST(request: Request) {
 
     console.log(`[send-push] ✅ 合計成功: ${totalSuccessCount}, ❌ 合計失敗: ${totalFailureCount}`);
 
-    // 🧹 失敗した全トークンを Firestore (subscriptions & token_chunks) から完全削除
+    // 🧹 失敗した全トークンを Firestore から削除
     if (failedTokens.length > 0) {
       const IN_LIMIT = 30;
       let deletedCount = 0;
 
-      // 1. subscriptions から削除
       for (let i = 0; i < failedTokens.length; i += IN_LIMIT) {
         const chunkFailedTokens = failedTokens.slice(i, i + IN_LIMIT);
         
@@ -214,7 +211,6 @@ export async function POST(request: Request) {
         }
       }
 
-      // 2. token_chunks 配列からも失敗トークンをクリーニング
       if (!chunksSnapshot.empty) {
         for (const chunkDoc of chunksSnapshot.docs) {
           const chunkData = chunkDoc.data();
@@ -233,7 +229,7 @@ export async function POST(request: Request) {
       console.log(`[send-push] 🧹 ${deletedCount} 件の無効トークンを完全に削除・整理しました`);
     }
 
-    // 📈 今月の送信数を加算して店舗ドキュメントを更新
+    // 📈 今月の送信数を加算
     const newMonthSentCount = currentMonthSent + totalSuccessCount;
     await shopDoc.ref.update({
       currentMonthSent: newMonthSentCount,
