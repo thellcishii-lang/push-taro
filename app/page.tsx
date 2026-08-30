@@ -39,24 +39,10 @@ export default function LandingPage() {
     }
   }, []);
 
-  // 即時実行
-  const found = getAndSaveShopId();
-
-  // URLになかった場合のみ localStorage から復元
-  if (!found) {
-    const saved = localStorage.getItem('push_taro_shop_id');
-    if (saved && saved !== 'undefined' && saved !== 'null' && saved.trim() !== '') {
-      console.log('StorageからShopIDを復元:', saved);
-      setShopId(saved);
-    }
-  }
-}, []);
-
   // 2. 店舗情報の取得 & 登録済みチェック
   useEffect(() => {
     if (!shopId || shopId === 'undefined' || shopId === 'null') return;
 
-    // 店舗情報取得
     fetch(`/api/shop-info?s=${shopId}`)
       .then(res => res.json())
       .then(data => {
@@ -66,7 +52,6 @@ export default function LandingPage() {
       })
       .catch(err => console.error('店舗情報取得エラー:', err));
 
-    // 登録済みチェック
     if (typeof window !== 'undefined') {
       const savedToken = localStorage.getItem(`push_taro_token_${shopId}`);
       if (savedToken) {
