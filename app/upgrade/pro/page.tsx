@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { auth } from '../lib/firebase-client';
+import { auth } from '../../../lib/firebase-client';
 import { onAuthStateChanged } from 'firebase/auth';
 
 function ProUpgradeContent() {
