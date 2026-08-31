@@ -20,15 +20,14 @@ export async function GET(request: Request) {
 
     const messaging = firebase.messaging();
 
-    // バックグラウンド通知受信時の処理
     messaging.onBackgroundMessage((payload) => {
       console.log('[firebase-messaging-sw.js] バックグラウンド通知受信:', payload);
 
-      // payload 内の指定が優先、無ければ動的に取得した店舗名・アイコン、最終デフォルトは Push-taro
+      // タイトルの優先順位: 1.送られたtitle 2.送られたnotification.title 3.店舗名 4.Push-taro
       const title = payload.data?.title || payload.notification?.title || ${JSON.stringify(shopName)};
       const body = payload.data?.body || payload.notification?.body || '';
       const image = payload.data?.image || payload.notification?.image;
-      const icon = payload.data?.icon || ${JSON.stringify(iconUrl)};
+      const icon = payload.data?.icon || payload.notification?.icon || ${JSON.stringify(iconUrl)};
       const url = payload.data?.url || '/';
 
       self.registration.showNotification(title, {
