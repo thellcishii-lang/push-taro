@@ -1,6 +1,6 @@
 // app/api/agency/stats/route.ts
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase-admin';
+import { db } from '../../../../lib/firebase-admin';
 
 export async function GET(request: Request) {
   try {
