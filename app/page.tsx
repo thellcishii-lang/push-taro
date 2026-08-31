@@ -33,7 +33,7 @@ export default function LandingPage() {
       const urlParams = new URLSearchParams(window.location.search);
       detectedId = urlParams.get('s') || urlParams.get('shopid') || '';
 
-      // 方法B: href 全体からの文字列切り出し (方法Aで取れなかった場合のバックアップ)
+      // 方法B: href 全体からの文字列切り出し
       if (!detectedId && window.location.href.includes('?')) {
         const queryPart = window.location.href.split('?')[1] || '';
         const params = new URLSearchParams(queryPart.split('#')[0]);
@@ -48,7 +48,6 @@ export default function LandingPage() {
         }
       }
 
-      // 取得できた場合、セット & 保存
       if (detectedId && detectedId !== 'undefined' && detectedId !== 'null') {
         const cleanId = detectedId.trim();
         setShopId(cleanId);
@@ -146,10 +145,12 @@ export default function LandingPage() {
         return;
       }
 
-     let token: string | null = '';
-try {
-  token = await requestFCMToken();
-} catch (fcmErr: any) {
+      let token: string | null = '';
+      try {
+        token = await requestFCMToken();
+      } catch (fcmErr: any) {
+        throw new Error(`FCMトークン取得エラー: ${fcmErr.message || fcmErr}`);
+      }
 
       if (!token) {
         setStatus('error');
