@@ -121,33 +121,62 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // ✅ 基本のメッセージ構造
+    // 店舗情報から動的にタイトル・アイコンを取得
+    const displayTitle = title || shopData.name || 'Push-taro';
+    const displayIcon = shopData.iconUrl || '/icon-192x192.png';
+    const targetUrl = linkUrl || `/subscribe?s=${shopId}`;
+
+    // ✅ 各OSに特化した全端末対応メッセージ構造
     const baseMessage = {
       data: {
-        title: title,
+        title: displayTitle,
         body: body,
+        icon: displayIcon,
         image: imageUrl || '',
-        url: linkUrl || '',
+        url: targetUrl,
         shopId: shopId,
       },
+      // iOS（APNs）設定：通知表示＋サウンドを定義
       apns: {
         payload: {
           aps: {
+            alert: {
+              title: displayTitle,
+              body: body,
+            },
             sound: 'default',
             badge: 1,
             'content-available': 1,
           },
         },
+        fcmOptions: {
+          image: imageUrl || undefined,
+        },
       },
+      // Android 設定：サウンドと高優先度
       android: {
         priority: 'high' as const,
         notification: {
+          title: displayTitle,
+          body: body,
+          icon: displayIcon,
           sound: 'default',
         },
       },
+      // Web (PC / Safari PWA) 設定
       webpush: {
         headers: {
           Urgency: 'high',
+        },
+        notification: {
+          title: displayTitle,
+          body: body,
+          icon: displayIcon,
+          badge: displayIcon,
+          image: imageUrl || undefined,
+        },
+        fcmOptions: {
+          link: targetUrl,
         },
       },
     };
