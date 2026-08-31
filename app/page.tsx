@@ -146,12 +146,10 @@ export default function LandingPage() {
         return;
       }
 
-      let token = '';
-      try {
-        token = await requestFCMToken();
-      } catch (fcmErr: any) {
-        throw new Error(`FCMトークン取得エラー: ${fcmErr.message || fcmErr}`);
-      }
+     let token: string | null = '';
+try {
+  token = await requestFCMToken();
+} catch (fcmErr: any) {
 
       if (!token) {
         setStatus('error');
