@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../../lib/firebase-admin';
+import { db as adminDb } from '../../../../lib/firebase-admin';
 
 // 毎日深夜に自動実行されるCron処理
 export async function GET(request: Request) {
