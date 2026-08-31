@@ -54,40 +54,23 @@ export async function POST(request: Request) {
     }
 
     // ----------------------------------------------------
-    // ⚡️ 1. チャンク保存データ（5,000件まとめ）から高速一括取得
+    // 📱 subscriptions から最新のトークンを取得（二重取得の防止）
     // ----------------------------------------------------
+    const tokensSnapshot = await db.collection('subscriptions')
+      .where('shopIds', 'array-contains', shopId)
+      .get();
+
     let registrationTokens: string[] = [];
-    const chunksSnapshot = await db.collection('shops').doc(shopId).collection('token_chunks').get();
+    tokensSnapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.token) {
+        registrationTokens.push(data.token);
+      }
+    });
 
-    if (!chunksSnapshot.empty) {
-      chunksSnapshot.forEach((chunkDoc) => {
-        const chunkData = chunkDoc.data();
-        if (Array.isArray(chunkData.tokens)) {
-          registrationTokens = registrationTokens.concat(chunkData.tokens);
-        }
-      });
-      console.log(`[send-push] ⚡️ チャンクからトークン一括取得完了 (${chunksSnapshot.size} ドキュメント / 計 ${registrationTokens.length} 件)`);
-    }
-
-    // ----------------------------------------------------
-    // 🛡️ 2. フォールバック（既存の subscriptions コレクションから取得）
-    // ----------------------------------------------------
-    if (registrationTokens.length === 0) {
-     const tokensSnapshot = await db.collection('subscriptions')
-  .where('shopIds', 'array-contains', shopId)
-  .get();
-
-let registrationTokens: string[] = [];
-tokensSnapshot.forEach(doc => {
-  const data = doc.data();
-  if (data.token) {
-    registrationTokens.push(data.token);
-  }
-});
-
-// 重複を除去
-registrationTokens = Array.from(new Set(registrationTokens));
-console.log(`[send-push] 📱 最終ターゲットトークン数: ${registrationTokens.length}`);
+    // 重複を除去
+    registrationTokens = Array.from(new Set(registrationTokens));
+    console.log(`[send-push] 📱 最終ターゲットトークン数: ${registrationTokens.length}`);
 
     if (registrationTokens.length === 0) {
       return NextResponse.json({ 
@@ -119,12 +102,11 @@ console.log(`[send-push] 📱 最終ターゲットトークン数: ${registrati
       }, { status: 400 });
     }
 
-    // 店舗情報から動的にタイトル・アイコンを取得
     const displayTitle = title || shopData.name || 'Push-taro';
     const displayIcon = shopData.iconUrl || '/icon-192x192.png';
     const targetUrl = linkUrl || `/subscribe?s=${shopId}`;
 
-   // ✅ 各OSに特化した全端末対応メッセージ構造（型エラー修正版）
+    // ✅ 各OSに特化した全端末対応メッセージ構造
     const baseMessage = {
       data: {
         title: String(displayTitle),
@@ -134,7 +116,6 @@ console.log(`[send-push] 📱 最終ターゲットトークン数: ${registrati
         url: String(targetUrl),
         shopId: String(shopId),
       },
-      // iOS（APNs）設定：通知表示＋サウンドを定義
       apns: {
         payload: {
           aps: {
@@ -149,7 +130,6 @@ console.log(`[send-push] 📱 最終ターゲットトークン数: ${registrati
         },
         ...(imageUrl ? { fcmOptions: { imageUrl: imageUrl } } : {}),
       },
-      // Android 設定：サウンドと高優先度
       android: {
         priority: 'high' as const,
         notification: {
@@ -159,7 +139,6 @@ console.log(`[send-push] 📱 最終ターゲットトークン数: ${registrati
           sound: 'default',
         },
       },
-      // Web (PC / Safari PWA) 設定
       webpush: {
         headers: {
           Urgency: 'high',
@@ -233,21 +212,6 @@ console.log(`[send-push] 📱 最終ターゲットトークン数: ${registrati
             deletedCount++;
           });
           await batch.commit();
-        }
-      }
-
-      if (!chunksSnapshot.empty) {
-        for (const chunkDoc of chunksSnapshot.docs) {
-          const chunkData = chunkDoc.data();
-          if (Array.isArray(chunkData.tokens)) {
-            const updatedTokens = chunkData.tokens.filter((t: string) => !failedTokens.includes(t));
-            if (updatedTokens.length !== chunkData.tokens.length) {
-              await chunkDoc.ref.update({
-                tokens: updatedTokens,
-                updatedAt: FieldValue.serverTimestamp(),
-              });
-            }
-          }
         }
       }
 
