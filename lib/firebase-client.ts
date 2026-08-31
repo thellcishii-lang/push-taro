@@ -1,6 +1,7 @@
-import { initializeApp, getApps } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getMessaging, getToken } from 'firebase/messaging';
 import { getAuth } from 'firebase/auth';
+import { getStorage } from 'firebase/storage'; // 👈 追加
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,12 +12,13 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+// 重複初期化の防止
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// 管理画面用の auth を export
+// 各機能の export
 export const auth = getAuth(app);
+export const storage = getStorage(app); // 👈 画像アップロード用（追加）
 
-// FCMトークン取得処理
 export async function requestFCMToken(): Promise<string | null> {
   if (typeof window === 'undefined') return null;
 
@@ -26,14 +28,14 @@ export async function requestFCMToken(): Promise<string | null> {
 
     const messaging = getMessaging(app);
 
-    const currentToken = await getToken(messaging, {
+    const token = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
       serviceWorkerRegistration: registration,
     });
 
-    return currentToken || null;
+    return token || null;
   } catch (err) {
-    console.error('FCM Token 取得失敗詳細:', err);
+    console.error('FCM Token 取得エラー:', err);
     throw err;
   }
 }
