@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { db, auth } from '../../../lib/firebase-client';
-import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { auth } from '../../../lib/firebase-client';
+import { getFirestore } from 'firebase/firestore';
+import { app } from '../../../lib/firebase-client';
 
 export default function TestConsolePage() {
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
