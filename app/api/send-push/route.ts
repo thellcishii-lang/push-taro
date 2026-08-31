@@ -1,7 +1,7 @@
 // api/send-push/route.ts
 import { NextResponse } from 'next/server';
-// 🔥 修正: lib/firebase からインポート
-import { messaging, db, authAdmin } from '../../../lib/firebase-admin';
+import { messaging, db } from '../../../lib/firebase-admin';
+import { getAuth } from 'firebase-admin/auth';
 import { FieldValue } from 'firebase-admin/firestore';
 
 // 🔍 トークンからプラットフォームを推測する簡易関数
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   let uid: string;
   try {
     const idToken = authHeader.split('Bearer ')[1];
-    const decoded = await auth.verifyIdToken(idToken);
+    const decoded = await getAuth().verifyIdToken(idToken);
     uid = decoded.uid;
   } catch {
     return NextResponse.json({ error: '無効な認証トークンです' }, { status: 401 });
