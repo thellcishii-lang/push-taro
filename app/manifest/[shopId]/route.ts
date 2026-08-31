@@ -1,29 +1,54 @@
 import { NextResponse } from 'next/server';
+import { db } from '../../../../lib/firebase-admin';
 
 export async function GET(
   request: Request,
   { params }: { params: { shopId: string } }
 ) {
   const shopId = params.shopId;
+  
+  let shopName = 'プッシュ太郎';
+  let iconUrl = '/icon-192x192.png';
+
+  try {
+    const doc = await db.collection('shops').doc(shopId).get();
+    if (doc.exists) {
+      const data = doc.data();
+      if (data?.name) shopName = data.name;
+      if (data?.iconUrl) iconUrl = data.iconUrl;
+    }
+  } catch (e) {
+    console.error('Manifest店舗取得エラー:', e);
+  }
 
   const manifest = {
-    name: 'プッシュ太郎',
-    short_name: 'Push太郎',
-    start_url: shopId ? `/?s=${shopId}` : '/',
+    name: shopName,
+    short_name: shopName,
+    description: `${shopName} の公式通知アプリ`,
+    start_url: `/subscribe?s=${shopId}`, // PWA起動時に店舗ID付きで開く
     display: 'standalone',
     background_color: '#ffffff',
-    theme_color: '#ff6b6b',
+    theme_color: '#ff4500',
     icons: [
-      { src: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
-      { src: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
-    ],
-    gcm_sender_id: '103953800507',
+      {
+        src: iconUrl,
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'any maskable'
+      },
+      {
+        src: iconUrl,
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'any maskable'
+      }
+    ]
   };
 
   return NextResponse.json(manifest, {
     headers: {
-      'Content-Type': 'application/json',
       'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Content-Type': 'application/manifest+json',
     },
   });
 }
