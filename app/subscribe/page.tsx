@@ -18,12 +18,37 @@ export default function SubscribePage() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [couponUsed, setCouponUsed] = useState(false);
 
-  // 1. URLから shopId を抽出
+  // 📜 通知履歴用ステート
+  const [historyList, setHistoryList] = useState<any[]>([]);
+  const [displayCount, setDisplayCount] = useState<number>(10);
+
+  // 1. IndexedDB から通知履歴を取得する関数
+  const loadNotificationHistory = () => {
+    if (typeof window === 'undefined') return;
+    const request = indexedDB.open('PushTaroDB', 1);
+
+    request.onsuccess = (e: any) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('notifications')) return;
+
+      const tx = db.transaction('notifications', 'readonly');
+      const store = tx.objectStore('notifications');
+      const getAllReq = store.getAll();
+
+      getAllReq.onsuccess = () => {
+        const items = getAllReq.result || [];
+        // 降順（新しい順）に並び替え
+        items.sort((a: any, b: any) => b.timestamp - a.timestamp);
+        setHistoryList(items);
+      };
+    };
+  };
+
+  // 2. URLから shopId を抽出
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     let detectedId = '';
-
     try {
       const searchParams = new URLSearchParams(window.location.search);
       detectedId = searchParams.get('s') || searchParams.get('shopid') || '';
@@ -52,7 +77,7 @@ export default function SubscribePage() {
     }
   }, []);
 
-  // 2. 店舗情報の取得 & 登録状態のクリア・読み込み
+  // 3. 店舗情報取得 & 履歴の定期読み込み
   useEffect(() => {
     if (!shopId) return;
 
@@ -61,8 +86,6 @@ export default function SubscribePage() {
       .then(data => {
         if (data.success) {
           setShopData(data);
-        } else if (data.error) {
-          console.warn('店舗情報エラー:', data.error);
         }
       })
       .catch(err => console.error('通信エラー:', err));
@@ -73,10 +96,11 @@ export default function SubscribePage() {
         setFcmToken(savedToken);
         setIsRegistered(true);
       }
+      loadNotificationHistory();
     }
   }, [shopId]);
 
-  // 3. 店舗ごとの動的 PWA Manifest の適用
+  // 4. 動的 PWA Manifest の適用
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (shopId) {
@@ -174,6 +198,7 @@ export default function SubscribePage() {
 
       setTimeout(() => {
         setIsRegistered(true);
+        loadNotificationHistory();
       }, 2000);
 
     } catch (err: any) {
@@ -195,19 +220,11 @@ export default function SubscribePage() {
     return (
       <main style={{ padding: 20, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif' }}>
         <div style={{ textAlign: 'center', marginBottom: '30px', marginTop: '20px' }}>
-          {shopData?.iconUrl ? (
-            <img
-              src={shopData.iconUrl}
-              alt={shopData?.name || 'Push-taro'}
-              style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
-            />
-          ) : (
-            <img
-              src="/icon-192x192.png"
-              alt="Push-taro"
-              style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
-            />
-          )}
+          <img
+            src={shopData?.iconUrl || '/icon-192x192.png'}
+            alt={shopData?.name || 'Push-taro'}
+            style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
+          />
           <h2 style={{ margin: '0 0 8px 0' }}>{shopData?.name || 'Push-taro'}</h2>
           {shopData?.linkUrl && (
             <a href={shopData.linkUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#2196F3', fontSize: '14px', wordBreak: 'break-all' }}>
@@ -220,11 +237,9 @@ export default function SubscribePage() {
           <div style={{ background: '#fff3e0', border: '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
             <h3 style={{ margin: '0 0 8px 0', color: '#e65100' }}>🎁 {shopData.coupon.title || '初回限定クーポン'}</h3>
             <p style={{ fontSize: '14px', color: '#333', marginBottom: '12px' }}>{shopData.coupon.description}</p>
-            
             <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '12px' }}>
               <QRCodeSVG value={shopId} size={150} />
             </div>
-
             <div>
               <button
                 onClick={() => setCouponUsed(true)}
@@ -236,20 +251,55 @@ export default function SubscribePage() {
           </div>
         )}
 
+        {/* 📜 【通知履歴エリア】 */}
         <div style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
           <button
-            onClick={() => setHistoryOpen(!historyOpen)}
+            onClick={() => {
+              setHistoryOpen(!historyOpen);
+              if (!historyOpen) loadNotificationHistory();
+            }}
             style={{ width: '100%', padding: '12px', background: '#f5f5f5', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
           >
-            <span>📜 通知履歴</span>
+            <span>📜 通知履歴 ({historyList.length}件)</span>
             <span>{historyOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
           </button>
 
           {historyOpen && (
             <div style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <p style={{ fontSize: '13px', color: '#666', textAlign: 'center', margin: '10px 0' }}>
-                （受信した通知が表示されます）
-              </p>
+              {historyList.length === 0 ? (
+                <p style={{ fontSize: '13px', color: '#888', textAlign: 'center', margin: '15px 0' }}>
+                  受信した通知履歴はまだありません。
+                </p>
+              ) : (
+                <>
+                  {historyList.slice(0, displayCount).map((item, index) => (
+                    <div key={index} style={{ border: '1px solid #e2e8f0', padding: '12px', borderRadius: '8px', background: '#fff' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                        <h4 style={{ margin: 0, fontSize: '14px', color: '#1e293b' }}>{item.title}</h4>
+                        <span style={{ fontSize: '10px', color: '#94a3b8' }}>
+                          {new Date(item.timestamp).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: '13px', color: '#475569', whiteSpace: 'pre-wrap' }}>{item.body}</p>
+                      {item.url && item.url !== '/' && (
+                        <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginTop: '6px', fontSize: '12px', color: '#2563eb' }}>
+                          詳細を見る 🔗
+                        </a>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* 10件ずつ増やす「もっと見る」ボタン */}
+                  {displayCount < historyList.length && (
+                    <button
+                      onClick={() => setDisplayCount(prev => prev + 10)}
+                      style={{ width: '100%', padding: '10px', background: '#e2e8f0', color: '#334155', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', marginTop: '5px' }}
+                    >
+                      もっと見る ({historyList.length - displayCount}件)
+                    </button>
+                  )}
+                </>
+              )}
             </div>
           )}
         </div>
@@ -261,19 +311,11 @@ export default function SubscribePage() {
   return (
     <main style={{ padding: 24, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', textAlign: 'center' }}>
       <div style={{ marginTop: 40, marginBottom: 20 }}>
-        {shopData?.iconUrl ? (
-          <img
-            src={shopData.iconUrl}
-            alt={shopData?.name || 'Push-taro'}
-            style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
-          />
-        ) : (
-          <img
-            src="/icon-192x192.png"
-            alt="Push-taro"
-            style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
-          />
-        )}
+        <img
+          src={shopData?.iconUrl || '/icon-192x192.png'}
+          alt={shopData?.name || 'Push-taro'}
+          style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
+        />
         <h1 style={{ fontSize: '22px', margin: '0 0 8px 0' }}>{shopData?.name || 'Push-taro'}</h1>
         <p style={{ color: '#666', fontSize: '14px' }}>お得な情報をプッシュ通知でお届けします</p>
       </div>
@@ -288,15 +330,7 @@ export default function SubscribePage() {
             value={birthDate}
             onChange={(e) => setBirthDate(e.target.value)}
             required
-            style={{
-              width: '100%',
-              padding: '12px',
-              fontSize: '16px',
-              borderRadius: '6px',
-              border: '1px solid #cbd5e1',
-              boxSizing: 'border-box',
-              background: '#fff',
-            }}
+            style={{ width: '100%', padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box', background: '#fff' }}
           />
         </div>
       )}
@@ -311,17 +345,7 @@ export default function SubscribePage() {
         <button
           onClick={handleSubscribe}
           disabled={status === 'requesting'}
-          style={{
-            width: '100%',
-            padding: 16,
-            fontSize: 16,
-            background: status === 'requesting' ? '#ccc' : '#ff4500',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 8,
-            cursor: status === 'requesting' ? 'wait' : 'pointer',
-            fontWeight: 'bold',
-          }}
+          style={{ width: '100%', padding: 16, fontSize: 16, background: status === 'requesting' ? '#ccc' : '#ff4500', color: '#fff', border: 'none', borderRadius: 8, cursor: status === 'requesting' ? 'wait' : 'pointer', fontWeight: 'bold' }}
         >
           {status === 'requesting' ? '登録中...' : '🔔 通知を受け取る'}
         </button>
