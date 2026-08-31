@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db, authAdmin } from '../../../lib/firebase-admin';
+import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
 
