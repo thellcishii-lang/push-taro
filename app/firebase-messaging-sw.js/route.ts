@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const shopName = searchParams.get('shopName') || 'Push-taro';
+  const iconUrl = searchParams.get('iconUrl') || '/icon-192x192.png';
+
   const swScript = `
     importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js');
     importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
@@ -16,21 +20,26 @@ export async function GET() {
 
     const messaging = firebase.messaging();
 
+    // バックグラウンド通知受信時の処理
     messaging.onBackgroundMessage((payload) => {
       console.log('[firebase-messaging-sw.js] バックグラウンド通知受信:', payload);
-      
-      const title = payload.data?.title || 'プッシュ太郎';
-      const body = payload.data?.body || '';
-      const image = payload.data?.image;
+
+      // payload 内の指定が優先、無ければ動的に取得した店舗名・アイコン、最終デフォルトは Push-taro
+      const title = payload.data?.title || payload.notification?.title || ${JSON.stringify(shopName)};
+      const body = payload.data?.body || payload.notification?.body || '';
+      const image = payload.data?.image || payload.notification?.image;
+      const icon = payload.data?.icon || ${JSON.stringify(iconUrl)};
       const url = payload.data?.url || '/';
-      
+
       self.registration.showNotification(title, {
         body: body,
-        icon: '/icon-192x192.png',
+        icon: icon,
         image: image,
         data: { url: url },
         tag: payload.data?.shopId || 'default',
-        requireInteraction: false,
+        requireInteraction: true,
+        vibrate: [200, 100, 200, 100, 200],
+        silent: false
       });
     });
 
@@ -40,7 +49,19 @@ export async function GET() {
     self.addEventListener('notificationclick', (event) => {
       event.notification.close();
       const url = event.notification.data?.url || '/';
-      event.waitUntil(self.clients.openWindow(url));
+
+      event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+          for (const client of clientList) {
+            if (client.url.includes(url) && 'focus' in client) {
+              return client.focus();
+            }
+          }
+          if (clients.openWindow) {
+            return clients.openWindow(url);
+          }
+        })
+      );
     });
   `;
 
