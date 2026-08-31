@@ -73,23 +73,21 @@ export async function POST(request: Request) {
     // 🛡️ 2. フォールバック（既存の subscriptions コレクションから取得）
     // ----------------------------------------------------
     if (registrationTokens.length === 0) {
-      const tokensSnapshot = await db.collection('subscriptions')
-        .where('shopIds', 'array-contains', shopId)
-        .get();
+     const tokensSnapshot = await db.collection('subscriptions')
+  .where('shopIds', 'array-contains', shopId)
+  .get();
 
-      console.log(`[send-push] 📋 従来の subscriptions ドキュメント数: ${tokensSnapshot.size}`);
+let registrationTokens: string[] = [];
+tokensSnapshot.forEach(doc => {
+  const data = doc.data();
+  if (data.token) {
+    registrationTokens.push(data.token);
+  }
+});
 
-      tokensSnapshot.forEach(doc => {
-        const data = doc.data();
-        if (data.token) {
-          registrationTokens.push(data.token);
-        }
-      });
-    }
-
-    // 重複を除去
-    registrationTokens = Array.from(new Set(registrationTokens));
-    console.log(`[send-push] 📱 最終ターゲットトークン数: ${registrationTokens.length}`);
+// 重複を除去
+registrationTokens = Array.from(new Set(registrationTokens));
+console.log(`[send-push] 📱 最終ターゲットトークン数: ${registrationTokens.length}`);
 
     if (registrationTokens.length === 0) {
       return NextResponse.json({ 
