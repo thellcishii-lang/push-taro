@@ -1,7 +1,5 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getStorage } from 'firebase/storage';
-import { getMessaging, getToken, isSupported } from 'firebase/messaging';
+import { initializeApp, getApps } from 'firebase/app';
+import { getMessaging, getToken } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,53 +10,32 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-export const auth = getAuth(app);
-export const storage = getStorage(app);
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
-// 🟢 安全に Service Worker を登録する
-async function registerServiceWorker() {
-  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
-    return null;
-  }
-
-  try {
-    const registration = await navigator.serviceWorker.register(
-      '/firebase-messaging-sw.js',
-      { scope: '/' }
-    );
-    return registration;
-  } catch (err) {
-    console.error('[SW] 登録失敗:', err);
-    return null;
-  }
-}
-
-// 🟢 FCMトークン取得（FCM未対応ブラウザ・iOS非対応モードでのクラッシュを完全防止）
 export async function requestFCMToken(): Promise<string | null> {
   if (typeof window === 'undefined') return null;
 
   try {
-    // ブラウザが FCM に対応しているか判定
-    const supported = await isSupported().catch(() => false);
-    if (!supported) {
-      console.warn('[FCM] このブラウザ/環境は FCM 通知に対応していません');
-      return null;
-    }
+    // Service Worker の登録確認
+    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    await navigator.serviceWorker.ready;
 
     const messaging = getMessaging(app);
 
-    // トークン取得前に SW を登録
-    const swRegistration = await registerServiceWorker();
-
-    const token = await getToken(messaging, {
+    // FCM トークンを強制発行取得
+    const currentToken = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
-      serviceWorkerRegistration: swRegistration || undefined,
+      serviceWorkerRegistration: registration,
     });
 
-    return token;
+    if (currentToken) {
+      return currentToken;
+    } else {
+      console.warn('FCMトークンが空で返却されました。通知権限を確認してください。');
+      return null;
+    }
   } catch (err) {
-    console.error('[FCM ERROR] FCMトークン取得失敗:', err);
-    return null;
+    console.error('FCM Token 取得失敗詳細:', err);
+    throw err;
   }
 }
