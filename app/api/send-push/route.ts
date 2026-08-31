@@ -68,7 +68,7 @@ export async function POST(request: Request) {
       }
     });
 
-    // 重複を除去
+    // 重複を完全に除去
     registrationTokens = Array.from(new Set(registrationTokens));
     console.log(`[send-push] 📱 最終ターゲットトークン数: ${registrationTokens.length}`);
 
