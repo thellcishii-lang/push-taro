@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   let uid: string;
   try {
     const idToken = authHeader.split('Bearer ')[1];
-    const decoded = await authAdmin.verifyIdToken(idToken);
+    const decoded = await auth.verifyIdToken(idToken);
     uid = decoded.uid;
   } catch {
     return NextResponse.json({ error: '無効な認証トークンです' }, { status: 401 });
