@@ -4,6 +4,21 @@ import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getMessaging } from 'firebase-admin/messaging';
 
+// Firebase Admin 初期化（ファイル冒頭で一度だけ実行）
+if (!getApps().length) {
+  initializeApp({
+    credential: cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    }),
+  });
+}
+
+const adminAuth = getAuth();
+const adminDb = getFirestore();
+const adminMessaging = getMessaging();
+
 export async function POST(req: NextRequest) {
   try {
     // 1. 認証トークンの確認
@@ -20,7 +35,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '無効な認証トークンです' }, { status: 401 });
     }
 
-    const body = await req.parseBody ? await req.parseBody() : await req.json();
+    const body = await req.json();
     const { shopId, title, body: msgBody, iconUrl, linkUrl, targetToken } = body;
 
     if (!title || !msgBody) {
