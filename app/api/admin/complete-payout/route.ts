@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase-admin'; // `@/` エイリアスで絶対パス指定
+import { db } from '../../../lib/firebase-admin'; // `@/` エイリアスで絶対パス指定
 
 // ユーザー通知メール送信用のヘルパー関数
 async function sendUserPayoutEmail({ to, amount, bankHolder }: { to: string; amount: number; bankHolder?: string }) {
