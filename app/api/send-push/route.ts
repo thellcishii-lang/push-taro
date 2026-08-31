@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 // 🔥 修正: lib/firebase からインポート
 import { messaging, db, } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
-..
+
 // 🔍 トークンからプラットフォームを推測する簡易関数
 function guessPlatform(token: string): string {
   if (!token) return 'unknown';
