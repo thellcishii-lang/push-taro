@@ -70,9 +70,11 @@ export default function LandingPage() {
       .then(data => {
         if (data.success) {
           setShopData(data);
+        } else if (data.error) {
+          console.warn('店舗APIエラー:', data.error);
         }
       })
-      .catch(err => console.error('店舗情報取得エラー:', err));
+      .catch(err => console.error('店舗情報取得通信エラー:', err));
 
     if (typeof window !== 'undefined') {
       const savedToken = localStorage.getItem(`push_taro_token_${shopId}`);
@@ -96,7 +98,6 @@ export default function LandingPage() {
 
   // 🔔 登録ボタンを押した時の処理
   const handleSubscribe = async () => {
-    // 実行時に再度全方位から探索
     let effectiveShopId = shopId;
 
     if (!effectiveShopId) {
@@ -108,26 +109,28 @@ export default function LandingPage() {
 
     if (!effectiveShopId) {
       setStatus('error');
-      setMessage('店舗IDが取得できていません。URLの末尾に ?s=店舗ID がついているかご確認ください。');
+      setMessage('❌ 店舗IDが取得できていません。URLの末尾に ?s=店舗ID がついているかご確認ください。');
       return;
     }
 
     // Proプラン生年月日チェック
     if (shopData?.plan === 'pro' && !birthDate) {
       setStatus('error');
-      setMessage('バースデークーポン受取のため、生年月日を選択してください。');
+      setMessage('⚠️ バースデークーポン受取のため、生年月日を選択してください。');
       return;
     }
 
-    // iPhone Home画面追加チェック
+    // iPhone PWA（ホーム画面追加）案内チェック
     const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isStandalone = typeof window !== 'undefined' && (window.navigator as any).standalone === true;
+    const isStandalone = typeof window !== 'undefined' && ((window.navigator as any).standalone === true || window.matchMedia('(display-mode: standalone)').matches);
 
     if (isIOS && !isStandalone) {
       setStatus('error');
       setMessage(
-        'iPhoneでは「ホーム画面に追加」が必要です。\n' +
-        'Safariの「共有ボタン」→「ホーム画面に追加」を行ってから、ホーム画面のアイコンより開いてください。'
+        '📱 iPhoneではWeb通知の受け取りに「ホーム画面に追加」が必要です。\n\n' +
+        '1. Safari下部の「共有ボタン（□に↑）」をタップ\n' +
+        '2. 「ホーム画面に追加」を選択\n' +
+        '3. ホーム画面に作成されたアイコンから開いて再操作してください。'
       );
       return;
     }
@@ -139,14 +142,20 @@ export default function LandingPage() {
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
         setStatus('error');
-        setMessage('通知を許可しないと受け取れません。');
+        setMessage('❌ 通知が拒否されました。ブラウザの設定から通知を許可してください。');
         return;
       }
 
-      const token = await requestFCMToken();
+      let token = '';
+      try {
+        token = await requestFCMToken();
+      } catch (fcmErr: any) {
+        throw new Error(`FCMトークン取得エラー: ${fcmErr.message || fcmErr}`);
+      }
+
       if (!token) {
         setStatus('error');
-        setMessage('トークン取得に失敗しました。');
+        setMessage('❌ トークンの発行に失敗しました（VAPIDキー未設定またはSW未起動）。');
         return;
       }
 
@@ -169,7 +178,7 @@ export default function LandingPage() {
       localStorage.setItem(`push_taro_token_${effectiveShopId}`, token);
       setFcmToken(token);
       setStatus('success');
-      setMessage('通知の受け取りが完了しました！');
+      setMessage('✨ 通知の受け取りが完了しました！');
 
       setTimeout(() => {
         setIsRegistered(true);
@@ -177,7 +186,7 @@ export default function LandingPage() {
 
     } catch (err: any) {
       setStatus('error');
-      setMessage('エラー: ' + err.message);
+      setMessage('❌ ' + err.message);
     }
   };
 
