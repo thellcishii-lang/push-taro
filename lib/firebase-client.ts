@@ -1,7 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getMessaging, getToken } from 'firebase/messaging';
 import { getAuth } from 'firebase/auth';
-import { getStorage } from 'firebase/storage'; // 👈 追加
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,18 +12,21 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// 重複初期化の防止
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// 各機能の export
 export const auth = getAuth(app);
-export const storage = getStorage(app); // 👈 画像アップロード用（追加）
+export const storage = getStorage(app);
 
-export async function requestFCMToken(): Promise<string | null> {
+export async function requestFCMToken(options?: { shopName?: string; iconUrl?: string }): Promise<string | null> {
   if (typeof window === 'undefined') return null;
 
   try {
-    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    const params = new URLSearchParams();
+    if (options?.shopName) params.set('shopName', options.shopName);
+    if (options?.iconUrl) params.set('iconUrl', options.iconUrl);
+
+    const swUrl = `/firebase-messaging-sw.js${params.toString() ? `?${params.toString()}` : ''}`;
+    const registration = await navigator.serviceWorker.register(swUrl);
     await navigator.serviceWorker.ready;
 
     const messaging = getMessaging(app);
