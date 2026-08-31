@@ -1,140 +1,251 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getApps, initializeApp, cert } from 'firebase-admin/app';
+// api/send-push/route.ts
+import { NextResponse } from 'next/server';
+import { messaging, db } from '../../../lib/firebase-admin';
 import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
-import { getMessaging } from 'firebase-admin/messaging';
+import { FieldValue } from 'firebase-admin/firestore';
 
-// Firebase Admin 初期化（ファイル冒頭で一度だけ実行）
-if (!getApps().length) {
-  initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
+// 🔍 トークンからプラットフォームを推測する簡易関数
+function guessPlatform(token: string): string {
+  if (!token) return 'unknown';
+  if (token.startsWith('c-') || token.startsWith('d-')) {
+    return 'iPhone (APNs)';
+  }
+  if (token.includes('APA91')) {
+    return 'Web (PC/Android)';
+  }
+  return 'unknown';
 }
 
-const adminAuth = getAuth();
-const adminDb = getFirestore();
-const adminMessaging = getMessaging();
+// 📦 プランごとの月間送信上限
+const PLAN_LIMITS: Record<string, { name: string; limit: number }> = {
+  light: { name: 'ライトプラン', limit: 5000 },
+  standard: { name: 'スタンダードプラン', limit: 15000 },
+  pro: { name: 'プロプラン', limit: 5000000 },
+};
 
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
+  }
+
+  let uid: string;
   try {
-    // 1. 認証トークンの確認
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: '認証ヘッダーが不足しています' }, { status: 401 });
-    }
-
     const idToken = authHeader.split('Bearer ')[1];
-    let decodedToken;
-    try {
-      decodedToken = await adminAuth.verifyIdToken(idToken);
-    } catch (e) {
-      return NextResponse.json({ error: '無効な認証トークンです' }, { status: 401 });
+    const decoded = await getAuth().verifyIdToken(idToken);
+    uid = decoded.uid;
+  } catch {
+    return NextResponse.json({ error: '無効な認証トークンです' }, { status: 401 });
+  }
+
+  try {
+    const shopQuery = await db.collection('shops').where('ownerUid', '==', uid).limit(1).get();
+    if (shopQuery.empty) {
+      return NextResponse.json({ error: '店舗が見つかりません' }, { status: 403 });
     }
+    const shopDoc = shopQuery.docs[0];
+    const shopId = shopDoc.id;
+    const shopData = shopDoc.data();
+    console.log(`[send-push] 🏪 店舗ID: ${shopId}`);
 
-    const body = await req.json();
-    const { shopId, title, body: msgBody, iconUrl, linkUrl, targetToken } = body;
-
-    if (!title || !msgBody) {
+    const { title, body, imageUrl, linkUrl } = await request.json();
+    if (!title || !body) {
       return NextResponse.json({ error: 'タイトルと本文は必須です' }, { status: 400 });
     }
 
-    // 2. トークン一覧の取得（重複を排除）
-    let tokensToEvaluate: string[] = [];
+    // ----------------------------------------------------
+    // 📱 subscriptions から最新のトークンを取得（二重取得の防止）
+    // ----------------------------------------------------
+    const tokensSnapshot = await db.collection('subscriptions')
+      .where('shopIds', 'array-contains', shopId)
+      .get();
 
-    // ピンポイント送信（テストコンソール用）の場合
-    if (targetToken) {
-      tokensToEvaluate = [targetToken];
-    } else {
-      if (!shopId) {
-        return NextResponse.json({ error: '店舗IDが指定されていません' }, { status: 400 });
+    let registrationTokens: string[] = [];
+    tokensSnapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.token) {
+        registrationTokens.push(data.token);
       }
+    });
 
-      // subscriptions コレクションのみから取得（token_chunksは重複の原因のため参照しない）
-      const subSnapshot = await adminDb.collection('subscriptions')
-        .where('shopId', '==', shopId)
-        .get();
+    // 重複を完全に除去
+    registrationTokens = Array.from(new Set(registrationTokens));
+    console.log(`[send-push] 📱 最終ターゲットトークン数: ${registrationTokens.length}`);
 
-      const subTokens = subSnapshot.docs
-        .map(doc => doc.data().token)
-        .filter((t): t is string => typeof t === 'string' && t.length > 0);
-
-      // Set を使って重複したトークンを完全に1つへ絞り込む
-      tokensToEvaluate = Array.from(new Set(subTokens));
+    if (registrationTokens.length === 0) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'この店舗に登録されている端末（有効なトークン）がありません' 
+      }, { status: 404 });
     }
 
-    if (tokensToEvaluate.length === 0) {
-      return NextResponse.json({ success: true, successCount: 0, failureCount: 0, message: '送信対象のトークンが存在しません' });
+    // 🛡️ プランと月間送信上限のチェック
+    const planKey = shopData.plan || 'standard';
+    const planInfo = PLAN_LIMITS[planKey] || PLAN_LIMITS['standard'];
+    const monthlyLimit = shopData.monthlyLimit || planInfo.limit;
+
+    const now = new Date();
+    const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    let currentMonthSent = shopData.currentMonthSent || 0;
+    const lastSentMonth = shopData.lastSentMonth || '';
+
+    if (lastSentMonth !== currentMonthStr) {
+      currentMonthSent = 0;
     }
 
-    // 3. FCM送信メッセージの構築（Android / iOS / Web 共通）
-    const message = {
-      tokens: tokensToEvaluate,
+    const targetCount = registrationTokens.length;
+    if (planKey !== 'pro' && (currentMonthSent + targetCount > monthlyLimit)) {
+      return NextResponse.json({ 
+        success: false, 
+        error: `今月の送信上限（${planInfo.name}: ${monthlyLimit.toLocaleString()}件）に達するため送信できません。今月の送信済み数: ${currentMonthSent.toLocaleString()}件` 
+      }, { status: 400 });
+    }
+
+    const displayTitle = title || shopData.name || 'Push-taro';
+    const displayIcon = shopData.iconUrl || '/icon-192x192.png';
+    const targetUrl = linkUrl || `/subscribe?s=${shopId}`;
+
+    // ✅ 各OSに特化した全端末対応メッセージ構造
+    const baseMessage = {
       data: {
-        title: title,
-        body: msgBody,
-        icon: iconUrl || '/icon-192x192.png',
-        url: linkUrl || '/',
-        shopId: shopId || 'default',
+        title: String(displayTitle),
+        body: String(body),
+        icon: String(displayIcon),
+        image: String(imageUrl || ''),
+        url: String(targetUrl),
+        shopId: String(shopId),
       },
-      // 🔥 Android宛て設定（バックグラウンドで高優先度起動させる）
-      android: {
-        priority: 'high' as const,
-        notification: {
-          title: title,
-          body: msgBody,
-          icon: iconUrl || '/icon-192x192.png',
-          sound: 'default',
-          channelId: 'default',
-          clickAction: linkUrl || '/',
-        },
-      },
-      // 📱 iOS (APNs) 宛て設定
       apns: {
         payload: {
           aps: {
             alert: {
-              title: title,
-              body: msgBody,
+              title: displayTitle,
+              body: body,
             },
             sound: 'default',
+            badge: 1,
             'content-available': 1,
           },
         },
+        ...(imageUrl ? { fcmOptions: { imageUrl: imageUrl } } : {}),
       },
-      // 💻 Web/PC 宛て設定
-      webpush: {
+      android: {
+        priority: 'high' as const,
         notification: {
-          title: title,
-          body: msgBody,
-          icon: iconUrl || '/icon-192x192.png',
+          title: displayTitle,
+          body: body,
+          icon: displayIcon,
+          sound: 'default',
+        },
+      },
+      webpush: {
+        headers: {
+          Urgency: 'high',
+        },
+        notification: {
+          title: displayTitle,
+          body: body,
+          icon: displayIcon,
+          badge: displayIcon,
+          ...(imageUrl ? { image: imageUrl } : {}),
         },
         fcmOptions: {
-          link: linkUrl || '/',
+          link: targetUrl,
         },
       },
     };
 
-    // 4. 一括送信の実行
-    const response = await adminMessaging.sendEachForMulticast(message);
+    console.log(`[send-push] 🚀 送信開始 (総件数: ${targetCount} 件)`);
 
-    return NextResponse.json({
-      success: true,
-      successCount: response.successCount,
-      failureCount: response.failureCount,
-      tokensCount: tokensToEvaluate.length,
-      responses: response.responses.map((r, idx) => ({
-        token: tokensToEvaluate[idx].substring(0, 15) + '...',
-        success: r.success,
-        error: r.error ? r.error.message : null,
-      })),
+    const CHUNK_SIZE = 450;
+    let totalSuccessCount = 0;
+    let totalFailureCount = 0;
+    const failedTokens: string[] = [];
+
+    for (let i = 0; i < registrationTokens.length; i += CHUNK_SIZE) {
+      const chunkTokens = registrationTokens.slice(i, i + CHUNK_SIZE);
+      console.log(`[send-push] 📦 バッチ送信中: ${i + 1} 〜 ${i + chunkTokens.length} 件目`);
+
+      const message = {
+        ...baseMessage,
+        tokens: chunkTokens,
+      };
+
+      try {
+        const response = await messaging.sendEachForMulticast(message);
+        totalSuccessCount += response.successCount;
+        totalFailureCount += response.failureCount;
+
+        response.responses.forEach((resp, idx) => {
+          if (!resp.success) {
+            const token = chunkTokens[idx];
+            failedTokens.push(token);
+            const platform = guessPlatform(token);
+            console.error(`[send-push] ❌ 失敗: ${token.slice(0, 20)}... (${platform})`, resp.error);
+          }
+        });
+      } catch (chunkError) {
+        console.error(`[send-push] ❌ バッチ送信エラー (index ${i}):`, chunkError);
+        totalFailureCount += chunkTokens.length;
+      }
+    }
+
+    console.log(`[send-push] ✅ 合計成功: ${totalSuccessCount}, ❌ 合計失敗: ${totalFailureCount}`);
+
+    // 🧹 失敗した全トークンを Firestore から削除
+    if (failedTokens.length > 0) {
+      const IN_LIMIT = 30;
+      let deletedCount = 0;
+
+      for (let i = 0; i < failedTokens.length; i += IN_LIMIT) {
+        const chunkFailedTokens = failedTokens.slice(i, i + IN_LIMIT);
+        
+        const invalidDocsSnapshot = await db.collection('subscriptions')
+          .where('token', 'in', chunkFailedTokens)
+          .get();
+
+        if (!invalidDocsSnapshot.empty) {
+          const batch = db.batch();
+          invalidDocsSnapshot.forEach((doc) => {
+            batch.delete(doc.ref);
+            deletedCount++;
+          });
+          await batch.commit();
+        }
+      }
+
+      console.log(`[send-push] 🧹 ${deletedCount} 件の無効トークンを完全に削除・整理しました`);
+    }
+
+    // 📈 今月の送信数を加算
+    const newMonthSentCount = currentMonthSent + totalSuccessCount;
+    await shopDoc.ref.update({
+      currentMonthSent: newMonthSentCount,
+      lastSentMonth: currentMonthStr,
     });
 
+    // 📝 履歴保存
+    await db.collection('histories').add({
+      shopId,
+      title,
+      body,
+      imageUrl: imageUrl || null,
+      linkUrl: linkUrl || null,
+      sentAt: FieldValue.serverTimestamp(),
+      status: 'success',
+      successCount: totalSuccessCount,
+      failureCount: totalFailureCount,
+    });
+
+    return NextResponse.json({ 
+      success: true, 
+      successCount: totalSuccessCount,
+      failureCount: totalFailureCount,
+    }, { status: 200 });
+
   } catch (error: any) {
-    console.error('Send Push Error:', error);
-    return NextResponse.json({ error: error.message || '送信処理中に例外が発生しました' }, { status: 500 });
+    console.error('[send-push] エラー:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
