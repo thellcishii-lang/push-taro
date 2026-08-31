@@ -396,7 +396,7 @@ export default function AdminPage() {
     );
   }
 
-  const qrUrl = shopId ? `https://push-taro.com/?s=${shopId}` : '';
+ const qrUrl = `${window.location.origin}/subscribe?s=${shopId}`;
 
   return (
     <main style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
