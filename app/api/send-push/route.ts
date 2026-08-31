@@ -1,7 +1,7 @@
 // api/send-push/route.ts
 import { NextResponse } from 'next/server';
 // 🔥 修正: lib/firebase からインポート
-import { messaging, db, } from '../../../lib/firebase-admin';
+import { messaging, db, auth as authAdmin } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 
 // 🔍 トークンからプラットフォームを推測する簡易関数
