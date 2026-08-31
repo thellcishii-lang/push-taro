@@ -137,14 +137,14 @@ export default function SubscribePage() {
       }
 
       let token: string | null = '';
-try {
-  token = await requestFCMToken({
-    shopName: shopData?.name || 'Push-taro',
-    iconUrl: shopData?.iconUrl || '/icon-192x192.png',
-  });
-} catch (fcmErr: any) {
-  throw new Error(`FCMトークン取得エラー: ${fcmErr.message || fcmErr}`);
-}
+      try {
+        token = await requestFCMToken({
+          shopName: shopData?.name || 'Push-taro',
+          iconUrl: shopData?.iconUrl || '/icon-192x192.png',
+        });
+      } catch (fcmErr: any) {
+        throw new Error(`FCMトークン取得エラー: ${fcmErr.message || fcmErr}`);
+      }
 
       if (!token) {
         setStatus('error');
@@ -194,25 +194,21 @@ try {
   if (isRegistered) {
     return (
       <main style={{ padding: 20, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif' }}>
-       <div style={{ marginTop: 40, marginBottom: 20 }}>
-        {shopData?.iconUrl ? (
-          <img
-            src={shopData.iconUrl}
-            alt={shopData?.name || 'Push-taro'}
-            style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
-          />
-        ) : (
-          <img
-            src="/icon-192x192.png"
-            alt="Push-taro"
-            style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
-          />
-        )}
-        <h1 style={{ fontSize: '22px', margin: '0 0 8px 0' }}>{shopData?.name || 'Push-taro'}</h1>
-        <p style={{ color: '#666', fontSize: '14px' }}>お得な情報をプッシュ通知でお届けします</p>
-      </div>
+        <div style={{ textAlign: 'center', marginBottom: '30px', marginTop: '20px' }}>
+          {shopData?.iconUrl ? (
+            <img
+              src={shopData.iconUrl}
+              alt={shopData?.name || 'Push-taro'}
+              style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
+            />
+          ) : (
+            <img
+              src="/icon-192x192.png"
+              alt="Push-taro"
+              style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
+            />
           )}
-          <h2 style={{ margin: '0 0 8px 0' }}>{shopData?.name || '登録店舗'}</h2>
+          <h2 style={{ margin: '0 0 8px 0' }}>{shopData?.name || 'Push-taro'}</h2>
           {shopData?.linkUrl && (
             <a href={shopData.linkUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#2196F3', fontSize: '14px', wordBreak: 'break-all' }}>
               {shopData.linkUrl}
@@ -266,13 +262,19 @@ try {
     <main style={{ padding: 24, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', textAlign: 'center' }}>
       <div style={{ marginTop: 40, marginBottom: 20 }}>
         {shopData?.iconUrl ? (
-          <img src={shopData.iconUrl} alt="店舗アイコン" style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }} />
+          <img
+            src={shopData.iconUrl}
+            alt={shopData?.name || 'Push-taro'}
+            style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
+          />
         ) : (
-          <div style={{ width: '64px', height: '64px', background: '#f0f0f0', borderRadius: '50%', margin: '0 auto 10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>
-            🏪
-          </div>
+          <img
+            src="/icon-192x192.png"
+            alt="Push-taro"
+            style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
+          />
         )}
-        <h1 style={{ fontSize: '22px', margin: '0 0 8px 0' }}>{shopData?.name || '店舗通知登録'}</h1>
+        <h1 style={{ fontSize: '22px', margin: '0 0 8px 0' }}>{shopData?.name || 'Push-taro'}</h1>
         <p style={{ color: '#666', fontSize: '14px' }}>お得な情報をプッシュ通知でお届けします</p>
       </div>
 
