@@ -126,15 +126,15 @@ export async function POST(request: Request) {
     const displayIcon = shopData.iconUrl || '/icon-192x192.png';
     const targetUrl = linkUrl || `/subscribe?s=${shopId}`;
 
-    // ✅ 各OSに特化した全端末対応メッセージ構造
+   // ✅ 各OSに特化した全端末対応メッセージ構造（型エラー修正版）
     const baseMessage = {
       data: {
-        title: displayTitle,
-        body: body,
-        icon: displayIcon,
-        image: imageUrl || '',
-        url: targetUrl,
-        shopId: shopId,
+        title: String(displayTitle),
+        body: String(body),
+        icon: String(displayIcon),
+        image: String(imageUrl || ''),
+        url: String(targetUrl),
+        shopId: String(shopId),
       },
       // iOS（APNs）設定：通知表示＋サウンドを定義
       apns: {
@@ -149,9 +149,7 @@ export async function POST(request: Request) {
             'content-available': 1,
           },
         },
-        fcmOptions: {
-          image: imageUrl || undefined,
-        },
+        ...(imageUrl ? { fcmOptions: { imageUrl: imageUrl } } : {}),
       },
       // Android 設定：サウンドと高優先度
       android: {
@@ -173,7 +171,7 @@ export async function POST(request: Request) {
           body: body,
           icon: displayIcon,
           badge: displayIcon,
-          image: imageUrl || undefined,
+          ...(imageUrl ? { image: imageUrl } : {}),
         },
         fcmOptions: {
           link: targetUrl,
