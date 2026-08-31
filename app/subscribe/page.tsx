@@ -137,11 +137,14 @@ export default function SubscribePage() {
       }
 
       let token: string | null = '';
-      try {
-        token = await requestFCMToken();
-      } catch (fcmErr: any) {
-        throw new Error(`FCMトークン取得エラー: ${fcmErr.message || fcmErr}`);
-      }
+try {
+  token = await requestFCMToken({
+    shopName: shopData?.name || 'Push-taro',
+    iconUrl: shopData?.iconUrl || '/icon-192x192.png',
+  });
+} catch (fcmErr: any) {
+  throw new Error(`FCMトークン取得エラー: ${fcmErr.message || fcmErr}`);
+}
 
       if (!token) {
         setStatus('error');
@@ -191,13 +194,23 @@ export default function SubscribePage() {
   if (isRegistered) {
     return (
       <main style={{ padding: 20, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif' }}>
-        <div style={{ textAlign: 'center', marginBottom: '30px', marginTop: '20px' }}>
-          {shopData?.iconUrl ? (
-            <img src={shopData.iconUrl} alt="店舗アイコン" style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }} />
-          ) : (
-            <div style={{ width: '64px', height: '64px', background: '#e0e0e0', borderRadius: '50%', margin: '0 auto 10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
-              🏪
-            </div>
+       <div style={{ marginTop: 40, marginBottom: 20 }}>
+        {shopData?.iconUrl ? (
+          <img
+            src={shopData.iconUrl}
+            alt={shopData?.name || 'Push-taro'}
+            style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
+          />
+        ) : (
+          <img
+            src="/icon-192x192.png"
+            alt="Push-taro"
+            style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
+          />
+        )}
+        <h1 style={{ fontSize: '22px', margin: '0 0 8px 0' }}>{shopData?.name || 'Push-taro'}</h1>
+        <p style={{ color: '#666', fontSize: '14px' }}>お得な情報をプッシュ通知でお届けします</p>
+      </div>
           )}
           <h2 style={{ margin: '0 0 8px 0' }}>{shopData?.name || '登録店舗'}</h2>
           {shopData?.linkUrl && (
