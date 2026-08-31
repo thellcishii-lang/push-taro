@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getMessaging, getToken } from 'firebase/messaging';
+import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,28 +13,25 @@ const firebaseConfig = {
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
+// 管理画面用の auth を export
+export const auth = getAuth(app);
+
+// FCMトークン取得処理
 export async function requestFCMToken(): Promise<string | null> {
   if (typeof window === 'undefined') return null;
 
   try {
-    // Service Worker の登録確認
     const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
     await navigator.serviceWorker.ready;
 
     const messaging = getMessaging(app);
 
-    // FCM トークンを強制発行取得
     const currentToken = await getToken(messaging, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
       serviceWorkerRegistration: registration,
     });
 
-    if (currentToken) {
-      return currentToken;
-    } else {
-      console.warn('FCMトークンが空で返却されました。通知権限を確認してください。');
-      return null;
-    }
+    return currentToken || null;
   } catch (err) {
     console.error('FCM Token 取得失敗詳細:', err);
     throw err;
