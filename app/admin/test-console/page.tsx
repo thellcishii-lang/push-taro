@@ -5,58 +5,6 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
 
-// コンポーネント内の状態管理
-const [dummyEmail, setDummyEmail] = useState('test-shop@example.com');
-const [createdAccount, setCreatedAccount] = useState<{ shopId: string; email: string; password: string } | null>(null);
-
-const handleCreateTestShop = async () => {
-  const res = await fetch('/api/admin/create-test-shop', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: dummyEmail }),
-  });
-  const data = await res.json();
-
-  if (data.success) {
-    setCreatedAccount({
-      shopId: data.shopId,
-      email: data.email,
-      password: data.password,
-    });
-  } else {
-    alert('エラー: ' + data.error);
-  }
-};
-
-// JSX部分に差し込むフォーム
-<div className="p-4 border rounded bg-gray-50 mb-6">
-  <h3 className="font-bold mb-2">⚡️ テスト用店舗アカウント即時発行</h3>
-  <div className="flex gap-2 mb-2">
-    <input
-      type="email"
-      value={dummyEmail}
-      onChange={(e) => setDummyEmail(e.target.value)}
-      className="border p-2 rounded flex-1"
-      placeholder="架空のメールアドレス"
-    />
-    <button
-      onClick={handleCreateTestShop}
-      className="bg-blue-600 text-white px-4 py-2 rounded font-bold"
-    >
-      店舗ID＆パスワード生成
-    </button>
-  </div>
-
-  {createdAccount && (
-    <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-800 rounded">
-      <p className="font-bold">✅ アカウント発行完了</p>
-      <p>店舗ID (shopId): <code className="font-mono font-bold">{createdAccount.shopId}</code></p>
-      <p>メール: {createdAccount.email}</p>
-      <p>発行パスワード: <code className="font-mono font-bold bg-white px-2 py-1 border rounded">{createdAccount.password}</code></p>
-    </div>
-  )}
-</div>
-
 // firebase-client への依存を排除し、直接初期化
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -70,10 +18,16 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
+
 export default function TestConsolePage() {
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+
+  // ⚡️ テスト用店舗アカウント即時発行用の状態
+  const [dummyEmail, setDummyEmail] = useState('test-shop@example.com');
+  const [createdAccount, setCreatedAccount] = useState<{ shopId: string; email: string; password: string } | null>(null);
+  const [creatingShop, setCreatingShop] = useState(false);
 
   // 送信テスト用
   const [selectedToken, setSelectedToken] = useState('');
@@ -81,6 +35,33 @@ export default function TestConsolePage() {
   const [testBody, setTestBody] = useState('特定端末への個別ピンポイント送信です');
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<any>(null);
+
+  // ⚡️ テスト用店舗発行処理
+  const handleCreateTestShop = async () => {
+    setCreatingShop(true);
+    try {
+      const res = await fetch('/api/admin/create-test-shop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: dummyEmail }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setCreatedAccount({
+          shopId: data.shopId,
+          email: data.email,
+          password: data.password,
+        });
+      } else {
+        alert('エラー: ' + data.error);
+      }
+    } catch (err: any) {
+      alert('通信エラーが発生しました: ' + err.message);
+    } finally {
+      setCreatingShop(false);
+    }
+  };
 
   // 🔍 1. subscriptions コレクションの全件取得（点検機能）
   const fetchSubscriptions = async () => {
@@ -178,6 +159,40 @@ export default function TestConsolePage() {
           {message}
         </div>
       )}
+
+      {/* ⚡️ テスト用店舗アカウント即時発行フォーム */}
+      <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <h2 style={{ marginTop: 0, fontSize: 18, color: '#1e293b' }}>⚡️ テスト用店舗アカウント即時発行</h2>
+        <p style={{ fontSize: 12, color: '#64748b', marginTop: -8, marginBottom: 16 }}>
+          架空のメールアドレスを入力すると、Firebase Auth のユーザー作成と Firestore の店舗ドキュメント作成を同時に行い、テスト用の初期パスワードと shopId を発行します。
+        </p>
+
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+          <input
+            type="email"
+            value={dummyEmail}
+            onChange={(e) => setDummyEmail(e.target.value)}
+            style={{ flex: 1, padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 14 }}
+            placeholder="架空のメールアドレス"
+          />
+          <button
+            onClick={handleCreateTestShop}
+            disabled={creatingShop}
+            style={{ padding: '8px 16px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 6, cursor: creatingShop ? 'wait' : 'pointer', fontWeight: 'bold' }}
+          >
+            {creatingShop ? '発行中...' : '店舗ID＆パスワード生成'}
+          </button>
+        </div>
+
+        {createdAccount && (
+          <div style={{ padding: 14, background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 6, color: '#166534', fontSize: 13 }}>
+            <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', fontSize: 14 }}>✅ アカウント発行完了</p>
+            <p style={{ margin: '2px 0' }}>店舗ID (shopId): <code style={{ fontFamily: 'monospace', fontWeight: 'bold', background: '#fff', padding: '2px 6px', border: '1px solid #bbf7d0', borderRadius: 4, color: '#1d4ed8' }}>{createdAccount.shopId}</code></p>
+            <p style={{ margin: '2px 0' }}>メール: {createdAccount.email}</p>
+            <p style={{ margin: '2px 0' }}>発行パスワード: <code style={{ fontFamily: 'monospace', fontWeight: 'bold', background: '#fff', padding: '2px 6px', border: '1px solid #bbf7d0', borderRadius: 4, color: '#dc2626' }}>{createdAccount.password}</code></p>
+          </div>
+        )}
+      </section>
 
       {/* 📊 1. subscriptions 登録データ一覧（通知が届いているかの確認） */}
       <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
