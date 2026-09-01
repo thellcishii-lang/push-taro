@@ -228,6 +228,69 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, message: '本登録完了しました' }, { status: 200 });
       }
 
+// ============================================================================
+// 【追加】アップグレード決済の処理（upgradeStatus: 'pending_payment' を検索）
+// ============================================================================
+const upgradeShopSnap = await db.collection('shops')
+  .where('email', '==', customerEmail)
+  .where('upgradeStatus', '==', 'pending_payment')
+  .limit(1)
+  .get();
+
+if (!upgradeShopSnap.empty) {
+  const upgradeDoc = upgradeShopSnap.docs[0];
+  const upgradeData = upgradeDoc.data();
+  const targetPlan = upgradeData.upgradeTargetPlan || 'standard';
+
+  // アップグレード情報を確定
+  const updateData: any = {
+    plan: targetPlan,
+    upgradeStatus: 'completed',
+    upgradeCompletedAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+  };
+
+  // PROアップグレードの場合は口座情報も保存
+  if (targetPlan === 'pro' && upgradeData.upgradeData?.bankAccount) {
+    updateData.bankAccount = upgradeData.upgradeData.bankAccount;
+    updateData.unpaidRewardTotal = 0;
+    updateData.payoutStatus = 'none';
+    // 会社情報も更新
+    if (upgradeData.upgradeData.companyName) {
+      updateData.name = upgradeData.upgradeData.companyName;
+    }
+    if (upgradeData.upgradeData.address) {
+      updateData.address = upgradeData.upgradeData.address;
+    }
+    if (upgradeData.upgradeData.phone) {
+      updateData.phone = upgradeData.upgradeData.phone;
+    }
+    if (upgradeData.upgradeData.invoiceNumber) {
+      updateData.invoiceNumber = upgradeData.upgradeData.invoiceNumber;
+    }
+  }
+
+  await upgradeDoc.ref.update(updateData);
+
+  // アップグレード完了メールを送信
+  const planName = targetPlan === 'pro' ? 'PRO' : 'スタンダード';
+  await sendEmail({
+    to: customerEmail,
+    subject: `【プッシュ太郎】${planName}プランへのアップグレードが完了しました`,
+    html: `
+      <h2>${upgradeData.name || '店舗'} 様</h2>
+      <p>${planName}プランへのアップグレードが完了しました。</p>
+      <p>新プランの全機能をご利用いただけます。</p>
+      <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin">管理画面へログイン</a></p>
+      ${targetPlan === 'pro' ? '<p>紹介報酬機能も有効になりました。ぜひご活用ください。</p>' : ''}
+    `,
+  });
+
+  console.log(`[アップグレード完了] 店舗: ${upgradeData.name}, プラン: ${targetPlan}`);
+  return NextResponse.json({ success: true, message: 'アップグレード完了しました' }, { status: 200 });
+}
+
+
       // ------------------------------------------------------------------
       // ② pending が見つからなかった場合 → 既存の処理（既存アカウント or 新規（※通常は発生しない））
       // ------------------------------------------------------------------
