@@ -44,8 +44,14 @@ export async function POST(request: Request) {
     await shopRef.update({ referralCode });
 
     // ② Square決済リンクを生成（店舗ID・メール・プラン情報を埋め込む）
-    const amount = plan === 'pro' ? 10000 : plan === 'standard' ? 3800 : 1980;
-    const paymentUrl = generateSquarePaymentLink(shopId, email, amount);
+    let paymentUrl = '';
+if (plan === 'light') {
+  paymentUrl = 'https://square.link/u/YNVc0q6a';
+} else if (plan === 'standard') {
+  paymentUrl = 'https://square.link/u/BtRSrjym';
+} else if (plan === 'pro') {
+  paymentUrl = 'https://square.link/u/TU3aUtpg';  // ← 今回有効化
+}
 
     // ③ 「申し込み受付メール」を送信（決済案内＋決済リンク記載）
     await sendEmail({
