@@ -74,16 +74,16 @@ export async function POST(request: Request) {
 
     // アップグレード申請受付メール（決済案内）
     await sendEmail({
-      to: shopData.email,
-      subject: '【プッシュ太郎】PROプラン アップグレード申請受付',
-      html: `
-        <h2>${shopData.name || '店舗'} 様</h2>
-        <p>PROプランへのアップグレード申請を受け付けました。</p>
-        <p>以下のリンクより決済手続きをお進めください。</p>
-        <p><a href="${paymentUrl}" style="display:inline-block;padding:12px 24px;background:#ff4500;color:#fff;border-radius:6px;text-decoration:none;">決済画面へ進む</a></p>
-        <p>決済完了後、PROプランが有効になり、紹介報酬機能もご利用いただけます。</p>
-      `,
-    });
+  to: shopData?.email || '',  // ← オプショナルチェーン + フォールバック
+  subject: '【プッシュ太郎】PROプラン アップグレード申請受付',  // ← 正しい名称
+  html: `
+    <h2>${shopData?.name || '店舗'} 様</h2>  // ← オプショナルチェーン + フォールバック
+    <p>PROプランへのアップグレード申請を受け付けました。</p>
+    <p>以下のリンクより決済手続きをお進めください。</p>
+    <p><a href="${paymentUrl}" style="display:inline-block;padding:12px 24px;background:#ff4500;color:#fff;border-radius:6px;text-decoration:none;">決済画面へ進む</a></p>
+    <p>決済完了後、PROプランが有効になり、紹介報酬機能もご利用いただけます。</p>
+  `,
+});
 
     return NextResponse.json({
       success: true,
