@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from 'firebase-admin/auth';
-import { adminDb } from '@/lib/firebase-admin';
+import { getFirestore } from 'firebase-admin/firestore';
+import '@/lib/firebase-admin'; // 初期化のみ呼び出し
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,13 +11,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '有効なメールアドレスを入力してください' }, { status: 400 });
     }
 
-    // 1. Firebase Admin Auth のインスタンスを取得
+    // Auth および Firestore のインスタンスを取得
     const auth = getAuth();
+    const db = getFirestore();
 
-    // 2. ランダムな初期パスワードを生成
+    // ランダムな初期パスワードを生成
     const generatedPassword = 'pass-' + Math.random().toString(36).substring(2, 10);
 
-    // 3. ユーザーの作成（既存の場合は取得してパスワード更新）
+    // ユーザー作成（既存の場合は取得してパスワード更新）
     let userRecord;
     try {
       userRecord = await auth.createUser({
@@ -33,8 +35,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 4. Firestore `shops` コレクションに新店舗を作成
-    const shopRef = await adminDb.collection('shops').add({
+    // Firestore `shops` コレクションに新店舗を作成
+    const shopRef = await db.collection('shops').add({
       name: `テスト店舗 (${email})`,
       ownerUid: userRecord.uid,
       email: email,
