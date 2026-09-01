@@ -52,10 +52,10 @@ const referralCodeFromBody = body.referralCode || ''; // フロントから送�
 let referrerId: string | null = null;
 let referrerType: string | null = null;
 
-if (referralCode) {
+if (referralCodeFromBody) {
   // 紹介コードを検索（shops.referralCode で検索）
   const referrerSnapshot = await db.collection('shops')
-    .where('referralCode', '==', referralCode)
+    .where('referralCodeFromBody', '==', referralCodeFromBody)
     .limit(1)
     .get();
 
@@ -68,7 +68,7 @@ if (referralCode) {
     // 店舗に紹介者情報を保存（仮登録時点で保存）
     await shopRef.update({
       referrerId: referrerId,
-      referredByCode: referralCode,
+      referredByCode: referralCodeFromBody,
       referrerType: referrerType,
     });
 
@@ -85,10 +85,10 @@ if (referralCode) {
     // 紹介者へ通知メールを送信（※非同期で実行）
     await sendEmail({
       to: referrerData.email,
-      subject: `【プッシュ太郎】紹介コード [${referralCode}] から新規登録がありました`,
+      subject: `【プッシュ太郎】紹介コード [${referralCodeFromBody}] から新規登録がありました`,
       html: `
         <h2>${referrerData.name || '紹介者'} 様</h2>
-        <p>あなたの紹介コード（${referralCode}）を使用して、新しい店舗が登録されました。</p>
+        <p>あなたの紹介コード（${referralCodeFromBody}）を使用して、新しい店舗が登録されました。</p>
         <p><strong>店舗名:</strong> ${companyName || '未設定'}</p>
         <p>この店舗が決済を完了すると、紹介報酬が確定します。</p>
         <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin">ダッシュボードで確認する</a></p>
@@ -98,9 +98,6 @@ if (referralCode) {
     console.log(`[紹介コード] 紹介者: ${referrerId} (${referrerType}), 新規店舗: ${shopId}`);
   }
 }
-// ============================================================================
-// 【追加ここまで】
-// ============================================================================
 
     // ② Square決済リンクを生成（店舗ID・メール・プラン情報を埋め込む）
     let paymentUrl = '';
