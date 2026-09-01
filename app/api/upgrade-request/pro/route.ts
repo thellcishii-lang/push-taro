@@ -1,8 +1,8 @@
 // app/api/upgrade-request/pro/route.ts
 import { NextResponse } from 'next/server';
-import { db, authAdmin } from '../../../lib/firebase-admin';
+import { db, authAdmin } from '../../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
-import { sendEmail } from '../../../lib/mailer';
+import { sendEmail } from '../../../../lib/mailer';
 
 // PROプランのSquareリンク（環境変数から取得）
 const PRO_PAYMENT_URL = process.env.NEXT_PUBLIC_SQUARE_LINK_PRO || '';
