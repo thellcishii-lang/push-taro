@@ -11,13 +11,12 @@ export default function SignupPage() {
   // プラン選択
   const [selectedPlan, setSelectedPlan] = useState<'light' | 'standard' | 'pro'>('light');
 
-  // 基本会員情報
+  // 基本会員情報（パスワードなし）
   const [companyName, setCompanyName] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
   // Proプラン用 口座情報詳細
   const [bankName, setBankName] = useState('');
@@ -45,7 +44,6 @@ export default function SignupPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
-          password,
           plan: selectedPlan,
           companyName,
           invoiceNumber,
@@ -66,8 +64,14 @@ export default function SignupPage() {
         throw new Error(data.error || '登録に失敗しました。');
       }
 
-      alert('登録が完了しました！管理画面へログインしてください。');
-      router.push('/admin');
+      // ✅ 決済リンクがあればリダイレクト（Squareへ）
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      } else {
+        alert('申し込みを受け付けました。メールに記載された決済リンクからお手続きください。');
+        router.push('/');
+      }
+
     } catch (err: any) {
       alert('エラー: ' + err.message);
     } finally {
@@ -142,7 +146,7 @@ export default function SignupPage() {
 
           </div>
 
-          {/* 2. 会社・店舗基本情報 */}
+          {/* 2. 会社・店舗基本情報（パスワード欄を削除） */}
           <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px', color: '#2d3748' }}>
             2. ご契約者様（会社・店舗）情報
           </h3>
@@ -161,7 +165,7 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>インボイス登録番号（任意）PROプラン</label>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>インボイス登録番号（任意）</label>
               <input
                 type="text"
                 placeholder="T1234567890123"
@@ -210,18 +214,7 @@ export default function SignupPage() {
               />
             </div>
 
-            <div>
-              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>ログイン用パスワード</label>
-              <input
-                type="password"
-                required
-                minLength={6}
-                placeholder="6文字以上のパスワード"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-              />
-            </div>
+            {/* ❌ パスワード入力欄は削除（システム自動発行） */}
           </div>
 
           {/* 3. PROプラン選択時限定：受取用口座情報入力欄 */}
@@ -298,7 +291,7 @@ export default function SignupPage() {
             </div>
           )}
 
-          {/* 4. 利用規約 (全12条の正式全文を搭載) */}
+          {/* 4. 利用規約（全文掲載） */}
           <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px', color: '#2d3748' }}>
             4. 利用規約への同意
           </h3>
@@ -389,7 +382,7 @@ export default function SignupPage() {
               boxShadow: '0 4px 12px rgba(255, 69, 0, 0.3)'
             }}
           >
-            {loading ? '登録処理中...' : 'アカウントを登録して開始する'}
+            {loading ? '処理中...' : '申し込む（決済画面へ進む）'}
           </button>
         </form>
 
