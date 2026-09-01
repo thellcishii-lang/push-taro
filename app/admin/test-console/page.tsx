@@ -5,6 +5,58 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
 
+// コンポーネント内の状態管理
+const [dummyEmail, setDummyEmail] = useState('test-shop@example.com');
+const [createdAccount, setCreatedAccount] = useState<{ shopId: string; email: string; password: string } | null>(null);
+
+const handleCreateTestShop = async () => {
+  const res = await fetch('/api/admin/create-test-shop', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: dummyEmail }),
+  });
+  const data = await res.json();
+
+  if (data.success) {
+    setCreatedAccount({
+      shopId: data.shopId,
+      email: data.email,
+      password: data.password,
+    });
+  } else {
+    alert('エラー: ' + data.error);
+  }
+};
+
+// JSX部分に差し込むフォーム
+<div className="p-4 border rounded bg-gray-50 mb-6">
+  <h3 className="font-bold mb-2">⚡️ テスト用店舗アカウント即時発行</h3>
+  <div className="flex gap-2 mb-2">
+    <input
+      type="email"
+      value={dummyEmail}
+      onChange={(e) => setDummyEmail(e.target.value)}
+      className="border p-2 rounded flex-1"
+      placeholder="架空のメールアドレス"
+    />
+    <button
+      onClick={handleCreateTestShop}
+      className="bg-blue-600 text-white px-4 py-2 rounded font-bold"
+    >
+      店舗ID＆パスワード生成
+    </button>
+  </div>
+
+  {createdAccount && (
+    <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-800 rounded">
+      <p className="font-bold">✅ アカウント発行完了</p>
+      <p>店舗ID (shopId): <code className="font-mono font-bold">{createdAccount.shopId}</code></p>
+      <p>メール: {createdAccount.email}</p>
+      <p>発行パスワード: <code className="font-mono font-bold bg-white px-2 py-1 border rounded">{createdAccount.password}</code></p>
+    </div>
+  )}
+</div>
+
 // firebase-client への依存を排除し、直接初期化
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
