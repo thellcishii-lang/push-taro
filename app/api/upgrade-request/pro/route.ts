@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       upgradeTargetPlan: 'pro',
       upgradeRequestedAt: FieldValue.serverTimestamp(),
       upgradeData: {
-        companyName: companyName || shopData.name,
+        companyName: companyName || shopData?.name || '',
         invoiceNumber: invoiceNumber || '',
         address: address || '',
         phone: phone || '',
