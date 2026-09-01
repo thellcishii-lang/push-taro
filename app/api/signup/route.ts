@@ -47,7 +47,7 @@ export async function POST(request: Request) {
 // ============================================================================
 // 【追加】紹介コードの処理
 // ============================================================================
-const referralCode = body.referralCode || ''; // フロントから送信される紹介コード
+const referralCodeFromBody = body.referralCode || ''; // フロントから送信される紹介コード
 
 let referrerId: string | null = null;
 let referrerType: string | null = null;
