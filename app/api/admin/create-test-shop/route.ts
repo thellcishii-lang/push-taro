@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminAuth, adminDb } from '../../../../lib/firebase-admin';
+import { getAuth } from 'firebase-admin/auth';
+import { adminDb } from '@/lib/firebase-admin';
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,27 +10,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '有効なメールアドレスを入力してください' }, { status: 400 });
     }
 
-    // 1. ランダムな初期パスワードを生成 (例: test-8桁ランダム)
+    // 1. Firebase Admin Auth のインスタンスを取得
+    const auth = getAuth();
+
+    // 2. ランダムな初期パスワードを生成
     const generatedPassword = 'pass-' + Math.random().toString(36).substring(2, 10);
 
-    // 2. Firebase Authentication にユーザーを作成 (すでに存在する場合は取得・パスワード上書き)
+    // 3. ユーザーの作成（既存の場合は取得してパスワード更新）
     let userRecord;
     try {
-      userRecord = await adminAuth.createUser({
+      userRecord = await auth.createUser({
         email: email,
         password: generatedPassword,
         emailVerified: true,
       });
     } catch (e: any) {
       if (e.code === 'auth/email-already-exists') {
-        userRecord = await adminAuth.getUserByEmail(email);
-        await adminAuth.updateUser(userRecord.uid, { password: generatedPassword });
+        userRecord = await auth.getUserByEmail(email);
+        await auth.updateUser(userRecord.uid, { password: generatedPassword });
       } else {
         throw e;
       }
     }
 
-    // 3. Firestore `shops` コレクションに新店舗ドキュメントを作成
+    // 4. Firestore `shops` コレクションに新店舗を作成
     const shopRef = await adminDb.collection('shops').add({
       name: `テスト店舗 (${email})`,
       ownerUid: userRecord.uid,
