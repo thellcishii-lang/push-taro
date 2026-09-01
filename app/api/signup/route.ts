@@ -43,6 +43,65 @@ export async function POST(request: Request) {
     const referralCode = shopId.slice(0, 8).toUpperCase();
     await shopRef.update({ referralCode });
 
+    // 🔽 この位置（仮店舗作成後、paymentUrl生成前）に追加
+// ============================================================================
+// 【追加】紹介コードの処理
+// ============================================================================
+const referralCode = body.referralCode || ''; // フロントから送信される紹介コード
+
+let referrerId: string | null = null;
+let referrerType: string | null = null;
+
+if (referralCode) {
+  // 紹介コードを検索（shops.referralCode で検索）
+  const referrerSnapshot = await db.collection('shops')
+    .where('referralCode', '==', referralCode)
+    .limit(1)
+    .get();
+
+  if (!referrerSnapshot.empty) {
+    const referrerDoc = referrerSnapshot.docs[0];
+    const referrerData = referrerDoc.data();
+    referrerId = referrerDoc.id;
+    referrerType = referrerData.role === 'agency' ? 'agency' : 'pro';
+
+    // 店舗に紹介者情報を保存（仮登録時点で保存）
+    await shopRef.update({
+      referrerId: referrerId,
+      referredByCode: referralCode,
+      referrerType: referrerType,
+    });
+
+    // referral_relations を作成（status: pending）
+    await db.collection('referral_relations').add({
+      referrerId: referrerId,
+      referredTenantId: shopId,
+      rewardRate: referrerType === 'agency' ? 0.30 : 0.10, // 仮のレート（決済後に確定）
+      status: 'pending', // 決済完了後に active へ変更
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    // 紹介者へ通知メールを送信（※非同期で実行）
+    await sendEmail({
+      to: referrerData.email,
+      subject: `【プッシュ太郎】紹介コード [${referralCode}] から新規登録がありました`,
+      html: `
+        <h2>${referrerData.name || '紹介者'} 様</h2>
+        <p>あなたの紹介コード（${referralCode}）を使用して、新しい店舗が登録されました。</p>
+        <p><strong>店舗名:</strong> ${companyName || '未設定'}</p>
+        <p>この店舗が決済を完了すると、紹介報酬が確定します。</p>
+        <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin">ダッシュボードで確認する</a></p>
+      `,
+    });
+
+    console.log(`[紹介コード] 紹介者: ${referrerId} (${referrerType}), 新規店舗: ${shopId}`);
+  }
+}
+// ============================================================================
+// 【追加ここまで】
+// ============================================================================
+
     // ② Square決済リンクを生成（店舗ID・メール・プラン情報を埋め込む）
     let paymentUrl = '';
 if (plan === 'light') {
