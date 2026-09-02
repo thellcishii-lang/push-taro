@@ -173,6 +173,8 @@ export async function POST(request: Request) {
           }
         }
 
+        const plan = pendingShopData.plan || 'light';
+
         // 店舗更新（status: active, ownerUid 追加）
         await pendingShopDoc.ref.update({
           status: 'active',
