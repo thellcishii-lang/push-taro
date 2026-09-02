@@ -143,7 +143,7 @@ export default function SignupPage() {
         
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
           <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#1a202c', margin: '0 0 8px 0' }}>
-            プッシュ太郎 新規アカウント登録
+            Push-taro 新規アカウント登録
           </h1>
           <p style={{ color: '#718096', fontSize: '14px', margin: 0 }}>
             Web Push通知配信サービスを今すぐ始めましょう。
@@ -224,7 +224,7 @@ export default function SignupPage() {
 
             <div>
               <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>
-                インボイス登録番号 <span style={{ color: '#e11d48' }}>（法人の方は必須）</span>
+                インボイス登録番号 <span style={{ color: '#e11d48' }}>（記入がない場合１０％差し引かれてのお支払いとなります。）</span>
               </label>
               <input
                 type="text"
@@ -266,7 +266,7 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>ログイン用メールアドレス</label>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>ご登録メールアドレス</label>
               <input
                 type="email"
                 required
