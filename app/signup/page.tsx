@@ -87,10 +87,7 @@ export default function SignupPage() {
       }
     }
 
-    if (selectedPlan === 'pro' && !invoiceNumber) {
-  alert('PROプランではインボイス登録番号が必須です。');
-  return;
-}
+    
     // ============================================================
 
     setLoading(true);
@@ -293,15 +290,18 @@ export default function SignupPage() {
 
                 <div>
         <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>
-          インボイス登録番号 <span style={{ color: '#e11d48' }}>（必須）</span>
+          適格請求書発行事業者登録番号（インボイス番号）
         </label>
         <input
           type="text"
-          placeholder="T1234567890123"
+          placeholder="T1234567890123（任意）"
           value={invoiceNumber}
           onChange={(e) => setInvoiceNumber(e.target.value)}
           style={{ width: '100%', padding: '8px 10px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box', background: '#fff' }}
         />
+        <p style={{ fontSize: '11px', color: '#78350f', marginTop: '4px' }}>
+          ※ インボイス番号がない場合、紹介報酬の還元率が <strong>10% → 9%</strong> となります。
+        </p>
       </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>金融機関名</label>
