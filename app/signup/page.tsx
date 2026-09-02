@@ -10,7 +10,7 @@ import {
   PhoneAuthProvider,
   signInWithCredential,
 } from 'firebase/auth';
-import { app } from '@/lib/firebase-client';
+import { app } from '../../lib/firebase-client';
 
 const auth = getAuth(app);
 
