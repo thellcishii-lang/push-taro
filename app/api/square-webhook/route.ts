@@ -156,77 +156,88 @@ export async function POST(request: Request) {
         });
 
         // 紹介コードがあれば、紹介関係を作成し報酬を計算する
-        if (referralCode) {
-          try {
-            const referrerSnapshot = await db.collection('shops')
-              .where('referralCode', '==', referralCode)
-              .limit(1)
-              .get();
+if (referralCode) {
+  try {
+    const referrerSnapshot = await db.collection('shops')
+      .where('referralCode', '==', referralCode)
+      .limit(1)
+      .get();
 
-            if (!referrerSnapshot.empty) {
-              const referrerDoc = referrerSnapshot.docs[0];
-              const referrerData = referrerDoc.data();
-              const referrerId = referrerDoc.id;
+    if (!referrerSnapshot.empty) {
+      const referrerDoc = referrerSnapshot.docs[0];
+      const referrerData = referrerDoc.data();
+      const referrerId = referrerDoc.id;
 
-              const isAgency = referrerData.role === 'agency';
-              let rewardAmount = 0;
-              let effectiveRate = 0.10;
+      const isAgency = referrerData.role === 'agency';
+      let rewardAmount = 0;
+      let effectiveRate = 0.10;
 
-              if (isAgency) {
-                const activeRelationsSnapshot = await db.collection('referral_relations')
-                  .where('referrerId', '==', referrerId)
-                  .where('status', '==', 'active')
-                  .get();
-                const currentActiveCount = activeRelationsSnapshot.size;
-                rewardAmount = calculateTieredReward(currentActiveCount + 1, 10000);
-                effectiveRate = rewardAmount / 10000;
-              } else {
-                effectiveRate = 0.10;
-                rewardAmount = Math.floor(paidAmount * effectiveRate);
-                // Proプラン通常ユーザーの1万円到達判定（既存ロジックと同じ）
-                const currentUnpaid = (referrerData.unpaidRewardTotal || 0) + rewardAmount;
-                if (currentUnpaid >= 10000) {
-                  await referrerDoc.ref.update({
-                    unpaidRewardTotal: currentUnpaid,
-                    payoutStatus: 'pending',
-                    updatedAt: FieldValue.serverTimestamp(),
-                  });
-                  await sendAdminPayoutNotification(referrerData, referrerId, currentUnpaid);
-                } else {
-                  await referrerDoc.ref.update({
-                    unpaidRewardTotal: currentUnpaid,
-                    updatedAt: FieldValue.serverTimestamp(),
-                  });
-                }
-              }
-
-              const currentMonth = new Date().toISOString().slice(0, 7);
-
-              await db.collection('referral_relations').add({
-                referrerId: referrerId,
-                referredTenantId: shopId,
-                rewardRate: effectiveRate,
-                status: 'active',
-                createdAt: FieldValue.serverTimestamp(),
-              });
-
-              await db.collection('monthly_rewards').add({
-                userId: referrerId,
-                sourceTenantId: shopId,
-                amount: rewardAmount,
-                billingMonth: currentMonth,
-                status: 'unpaid',
-                createdAt: FieldValue.serverTimestamp(),
-              });
-            }
-          } catch (refError) {
-            console.error('[square-webhook] 紹介報酬の処理エラー:', refError);
-          }
+      if (isAgency) {
+        // 代理店の場合：累進報酬（30/36/45%）
+        const activeRelationsSnapshot = await db.collection('referral_relations')
+          .where('referrerId', '==', referrerId)
+          .where('status', '==', 'active')
+          .get();
+        const currentActiveCount = activeRelationsSnapshot.size;
+        rewardAmount = calculateTieredReward(currentActiveCount + 1, 10000);
+        effectiveRate = rewardAmount / 10000;
+      } else {
+        // 🔽 ここから修正（PROユーザーの場合）
+        // PROプランかどうかでインボイス番号の有無をチェック
+        if (referrerData?.plan === 'pro') {
+          // インボイス番号があれば10%、なければ9%
+          const hasInvoice = referrerData.invoiceNumber && referrerData.invoiceNumber.trim() !== '';
+          effectiveRate = hasInvoice ? 0.10 : 0.09;
+        } else {
+          effectiveRate = 0.10; // LIGHT/STANDARD は 10%（ただし実際にはPROのみが紹介者になる想定）
         }
+        // 🔼 ここまで修正
 
-        console.log(`[決済完了・本登録] 店舗ID: ${shopId}, メール: ${customerEmail}`);
-        return NextResponse.json({ success: true, message: '本登録完了しました' }, { status: 200 });
+        rewardAmount = Math.floor(paidAmount * effectiveRate);
+
+        // Proプラン通常ユーザーの1万円到達判定（既存ロジックと同じ）
+        const currentUnpaid = (referrerData.unpaidRewardTotal || 0) + rewardAmount;
+        if (currentUnpaid >= 10000) {
+          await referrerDoc.ref.update({
+            unpaidRewardTotal: currentUnpaid,
+            payoutStatus: 'pending',
+            updatedAt: FieldValue.serverTimestamp(),
+          });
+          await sendAdminPayoutNotification(referrerData, referrerId, currentUnpaid);
+        } else {
+          await referrerDoc.ref.update({
+            unpaidRewardTotal: currentUnpaid,
+            updatedAt: FieldValue.serverTimestamp(),
+          });
+        }
       }
+
+      const currentMonth = new Date().toISOString().slice(0, 7);
+
+      await db.collection('referral_relations').add({
+        referrerId: referrerId,
+        referredTenantId: shopId,
+        rewardRate: effectiveRate,
+        status: 'active',
+        createdAt: FieldValue.serverTimestamp(),
+      });
+
+      await db.collection('monthly_rewards').add({
+        userId: referrerId,
+        sourceTenantId: shopId,
+        amount: rewardAmount,
+        billingMonth: currentMonth,
+        status: 'unpaid',
+        createdAt: FieldValue.serverTimestamp(),
+      });
+    }
+  } catch (refError) {
+    console.error('[square-webhook] 紹介報酬の処理エラー:', refError);
+  }
+}
+
+console.log(`[決済完了・本登録] 店舗ID: ${shopId}, メール: ${customerEmail}`);
+return NextResponse.json({ success: true, message: '本登録完了しました' }, { status: 200 });
 
 // ============================================================================
 // 【追加】アップグレード決済の処理（upgradeStatus: 'pending_payment' を検索）
