@@ -87,11 +87,10 @@ export default function SignupPage() {
       }
     }
 
-    // ④ 法人の場合はインボイス番号が必須
-    if (companyName && !invoiceNumber) {
-      alert('法人の方はインボイス登録番号の入力をお願いします。');
-      return;
-    }
+    if (selectedPlan === 'pro' && !invoiceNumber) {
+  alert('PROプランではインボイス登録番号が必須です。');
+  return;
+}
     // ============================================================
 
     setLoading(true);
@@ -222,18 +221,6 @@ export default function SignupPage() {
               />
             </div>
 
-            <div>
-              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>
-                インボイス登録番号 <span style={{ color: '#e11d48' }}>（記入がない場合１０％差し引かれてのお支払いとなります。）</span>
-              </label>
-              <input
-                type="text"
-                placeholder="T1234567890123"
-                value={invoiceNumber}
-                onChange={(e) => setInvoiceNumber(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-              />
-            </div>
 
             <div>
               <label style={{ display: 'block', marginBottom: '2px', fontWeight: 'bold', fontSize: '13px' }}>所在地 / 住所</label>
