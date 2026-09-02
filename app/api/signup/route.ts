@@ -102,11 +102,11 @@ if (referralCodeFromBody) {
     // ② Square決済リンクを生成（店舗ID・メール・プラン情報を埋め込む）
     let paymentUrl = '';
 if (plan === 'light') {
-  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST;
+  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
 } else if (plan === 'standard') {
-  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST;
+  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
 } else if (plan === 'pro') {
-  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST;
+  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
 }
 
     // ③ 「申し込み受付メール」を送信（決済案内＋決済リンク記載）
