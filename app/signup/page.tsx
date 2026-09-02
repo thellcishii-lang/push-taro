@@ -577,27 +577,12 @@ export default function SignupPage() {
           </label>
 
           <button
-            type="submit"
-            disabled={loading || !phoneVerified}
-            style={{
-              width: '100%',
-              padding: '16px',
-              background: (!phoneVerified || loading) ? '#94a3b8' : '#ff4500',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              fontWeight: 'bold',
-              fontSize: '18px',
-              cursor: (!phoneVerified || loading) ? 'not-allowed' : 'pointer',
-              boxShadow: (!phoneVerified || loading) ? 'none' : '0 4px 12px rgba(255, 69, 0, 0.3)',
-            }}
-          >
-            {!phoneVerified
-              ? '📱 電話番号認証を完了してください'
-              : loading
-              ? '処理中...'
-              : '申し込む（決済画面へ進む）'}
-          </button>
+  type="submit"
+  disabled={loading}
+  style={{width: '100%', padding: '16px', backgroundColor: loading ? '#94a3b8' : '#ff4500', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '18px', cursor: loading ? 'not-allowed' : 'pointer', boxShadow: loading ? 'none' : '0 4px 12px rgba(255, 69, 0, 0.3)' }}
+>
+  {loading ? '処理中...' : '申し込む（決済画面へ進む）'}
+</button>
         </form>
 
         <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '13px' }}>
