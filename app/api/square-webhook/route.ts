@@ -148,8 +148,9 @@ export async function POST(request: Request) {
         .where('status', '==', 'pending_payment')
         .limit(1)
         .get();
-      // 🔥 冪等性チェック（同じ支払いIDで既に処理済みか）
-// ============================================================
+　　　　　　　　　　　　// ============================================================
+　　　　　　　　　　　// 🔥 冪等性チェック（最初にやる！）
+　　　　　　　　　　　// ============================================================
 if (paymentId) {
   const alreadyProcessed = await db.collection('shops')
     .where('squarePaymentId', '==', paymentId)
@@ -162,10 +163,19 @@ if (paymentId) {
   }
 }
 
-      if (!pendingShopSnap.empty) {
-        const pendingShopDoc = pendingShopSnap.docs[0];
-        const pendingShopData = pendingShopDoc.data();
-        const shopId = pendingShopDoc.id;
+// ============================================================
+// ① 仮登録店舗（pending_payment）の処理（処理済みチェックの後にやる）
+// ============================================================
+const pendingShopSnap = await db.collection('shops')
+  .where('email', '==', customerEmail)
+  .where('status', '==', 'pending_payment')
+  .limit(1)
+  .get();
+
+if (!pendingShopSnap.empty) {
+  const pendingShopDoc = pendingShopSnap.docs[0];
+  const pendingShopData = pendingShopDoc.data();
+  const shopId = pendingShopDoc.id;
 
         // パスワード自動生成
         const generatedPassword = 'Pass-' + Math.random().toString(36).slice(-8) + 'A1!';
