@@ -180,10 +180,10 @@ export default function SignupPage() {
     }
 
     // ③ SMS認証が完了しているかチェック
-    if (!phoneVerified) {
-      alert('📱 先に電話番号のSMS認証を完了してください。');
-      return;
-    }
+    //if (!phoneVerified) {
+     // alert('📱 先に電話番号のSMS認証を完了してください。');
+     // return;
+   // }
 
     // ④ PROプラン時は銀行口座が必須
     if (selectedPlan === 'pro') {
