@@ -115,13 +115,18 @@ if (plan === 'light') {
       subject: '【プッシュ太郎】申し込み受付のお知らせ（決済手続きのお願い）',
       html: `
         <h2>${companyName} 様</h2>
-        <p>この度はプッシュ太郎へのお申し込み、誠にありがとうございます。</p>
+        <p>この度はPush-taroへのお申し込み、誠にありがとうございます。</p>
         <p>ご登録を完了するには、以下のリンクより決済手続きをお進めください。</p>
         <p><a href="${paymentUrl}" style="display:inline-block;padding:12px 24px;background:#3182ce;color:#fff;border-radius:6px;text-decoration:none;">決済画面へ進む</a></p>
         <p>※決済完了後、改めて本登録完了のメールをお送りいたします。</p>
         <hr />
         <p>店舗ID: <code>${shopId}</code></p>
         <p>選択プラン: ${plan.toUpperCase()}</p>
+        <hr />
+        <p><strong>Push-taro.com</strong></p>
+        <p>運営会社：the合同会社</p>
+        <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
+        <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
       `,
     });
 
