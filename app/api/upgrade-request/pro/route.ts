@@ -5,7 +5,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../../lib/mailer';
 
 // PROプランのSquareリンク（環境変数から取得）
-const PRO_PAYMENT_URL = process.env.NEXT_PUBLIC_SQUARE_LINK_PRO || '';
+const PRO_PAYMENT_URL = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
 
 export async function POST(request: Request) {
   const authHeader = request.headers.get('Authorization');
