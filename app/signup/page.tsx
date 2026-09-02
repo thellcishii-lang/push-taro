@@ -65,57 +65,69 @@ export default function SignupPage() {
   // SMS送信処理
   // ============================================================
   const handleSendSms = async () => {
-    // 電話番号チェック（ハイフン除去後10〜11桁）
-    const phoneClean = phone.replace(/-/g, '');
+  // ハイフン除去
+  let phoneClean = phone.replace(/-/g, '');
+  
+  let phoneNumber: string;
+
+  // +81 で始まる場合（国際形式）
+  if (phoneClean.startsWith('+81')) {
+    const digitsOnly = phoneClean.slice(3).replace(/\D/g, '');
+    if (digitsOnly.length < 10 || digitsOnly.length > 11) {
+      alert('電話番号が正しくありません（+81の後は10〜11桁の数字で入力してください）。');
+      return;
+    }
+    phoneNumber = phoneClean;
+  } else {
+    // 国内形式（0から始まる）の場合
     if (phoneClean.length < 10 || phoneClean.length > 11) {
       alert('電話番号が正しくありません（10〜11桁の数字で入力してください）。');
       return;
     }
-
-    // 国際形式に変換（日本の場合は +81 を付与）
-    let phoneNumber = phoneClean;
-    if (phoneNumber.startsWith('0')) {
-      phoneNumber = '+81' + phoneNumber.slice(1);
-    } else if (!phoneNumber.startsWith('+')) {
-      phoneNumber = '+81' + phoneNumber;
+    // 国際形式に変換
+    if (phoneClean.startsWith('0')) {
+      phoneNumber = '+81' + phoneClean.slice(1);
+    } else {
+      phoneNumber = '+81' + phoneClean;
     }
+  }
 
-    setSendingSms(true);
-    setSmsError('');
+  setSendingSms(true);
+  setSmsError('');
 
-    try {
-      // reCAPTCHA の初期化（まだなければ）
-      if (!recaptchaRef.current) {
-        recaptchaRef.current = new RecaptchaVerifier(
-          auth,
-          'recaptcha-container',
-          {
-            size: 'invisible',
-            callback: () => {
-              console.log('[SMS] reCAPTCHA 成功');
-            },
-          }
-        );
-      }
-
-      const confirmation = await signInWithPhoneNumber(
+  try {
+    // reCAPTCHA の初期化
+    if (!recaptchaRef.current) {
+      recaptchaRef.current = new RecaptchaVerifier(
         auth,
-        phoneNumber,
-        recaptchaRef.current
+        'recaptcha-container',
+        {
+          size: 'invisible',
+          callback: () => {
+            console.log('[SMS] reCAPTCHA 成功');
+          },
+        }
       );
-      setVerificationId(confirmation.verificationId);
-      alert('📱 SMSを送信しました。届いた6桁のコードを入力してください。');
-    } catch (err: any) {
-      console.error('[SMS] 送信エラー:', err);
-      setSmsError('SMS送信に失敗しました: ' + (err.message || '不明なエラー'));
-      if (recaptchaRef.current) {
-        recaptchaRef.current.clear();
-        recaptchaRef.current = null;
-      }
-    } finally {
-      setSendingSms(false);
     }
-  };
+
+    const confirmation = await signInWithPhoneNumber(
+      auth,
+      phoneNumber,
+      recaptchaRef.current
+    );
+    setVerificationId(confirmation.verificationId);
+    alert('📱 SMSを送信しました。届いた6桁のコードを入力してください。');
+  } catch (err: any) {
+    console.error('[SMS] 送信エラー:', err);
+    setSmsError('SMS送信に失敗しました: ' + (err.message || '不明なエラー'));
+    if (recaptchaRef.current) {
+      recaptchaRef.current.clear();
+      recaptchaRef.current = null;
+    }
+  } finally {
+    setSendingSms(false);
+  }
+};
 
   // ============================================================
   // SMSコード検証処理
