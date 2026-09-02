@@ -115,6 +115,12 @@ export default function SignupPage() {
 
       const data = await res.json();
 
+      if (res.status === 409 && data.alreadyPaid) {
+  alert('このメールアドレスは既に決済が完了しています。\n管理画面からログインしてください。');
+  router.push('/admin');
+  return;
+}
+
       if (res.status === 409) {
   alert('このメールアドレスは既に使われております。');
   return;
