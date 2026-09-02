@@ -124,6 +124,7 @@ export async function POST(request: Request) {
     if (eventType === 'payment.updated' || eventType === 'order.fulfillment.updated' || eventType === 'invoice.payment_made') {
       const payment = dataObject?.payment || dataObject?.invoice;
       const paymentStatus = payment?.status;
+      const paymentId = payment?.id;
 
       if (eventType === 'payment.updated' && paymentStatus !== 'COMPLETED') {
         return NextResponse.json({ received: true }, { status: 200 });
@@ -147,6 +148,19 @@ export async function POST(request: Request) {
         .where('status', '==', 'pending_payment')
         .limit(1)
         .get();
+      // 🔥 冪等性チェック（同じ支払いIDで既に処理済みか）
+// ============================================================
+if (paymentId) {
+  const alreadyProcessed = await db.collection('shops')
+    .where('squarePaymentId', '==', paymentId)
+    .limit(1)
+    .get();
+
+  if (!alreadyProcessed.empty) {
+    console.log(`[Webhook] 既に処理済みの支払いID: ${paymentId}`);
+    return NextResponse.json({ received: true, alreadyProcessed: true }, { status: 200 });
+  }
+}
 
       if (!pendingShopSnap.empty) {
         const pendingShopDoc = pendingShopSnap.docs[0];
