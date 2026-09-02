@@ -55,10 +55,10 @@ let referrerType: string | null = null;
 if (referralCodeFromBody) {
   // 紹介コードを検索（shops.referralCode で検索）
   const referrerSnapshot = await db.collection('shops')
-  .where('referralCode', '==', referralCodeFromBody)  // ← shops のフィールド名は referralCode
-  .limit(1)
-  .get();
-  
+    .where('referralCode', '==', referralCodeFromBody)  // ← 修正！ referralCode が正しい
+    .limit(1)
+    .get();
+
   if (!referrerSnapshot.empty) {
     const referrerDoc = referrerSnapshot.docs[0];
     const referrerData = referrerDoc.data();
