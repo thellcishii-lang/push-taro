@@ -286,6 +286,198 @@ export default function TestConsolePage() {
           </div>
         )}
       </section>
+            {/* ============================================================ */}
+      {/* 🧪 今回追加した新機能のテストセクション */}
+      {/* ============================================================ */}
+      <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <h2 style={{ marginTop: 0, fontSize: 18, color: '#1e293b' }}>🧪 新機能テスト（紹介・アップグレード）</h2>
+        <p style={{ fontSize: 12, color: '#64748b', marginTop: -8, marginBottom: 16 }}>
+          各APIを直接呼び出して、決済前後のフローを実機なしで検証できます。
+          {auth.currentUser ? (
+            <span style={{ color: '#22c55e', fontWeight: 'bold' }}> ✅ 認証済み（{auth.currentUser.email}）</span>
+          ) : (
+            <span style={{ color: '#ef4444', fontWeight: 'bold' }}> ⚠️ 未認証（アップグレードテストにはログインが必要）</span>
+          )}
+        </p>
+
+        {/* -------- ① 紹介コード付き新規申し込みテスト -------- */}
+        <div style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: 16, marginBottom: 16, background: '#f8fafc' }}>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: 15, fontWeight: 'bold', color: '#0f172a' }}>① 紹介コード付き新規申し込み</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <input
+                type="text"
+                placeholder="紹介コード（例: ABC123）"
+                id="test-ref-code"
+                style={{ flex: 1, minWidth: 150, padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 13 }}
+              />
+              <input
+                type="email"
+                placeholder="テスト用メール"
+                id="test-ref-email"
+                style={{ flex: 1, minWidth: 200, padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 13 }}
+              />
+              <select
+                id="test-ref-plan"
+                style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 13 }}
+              >
+                <option value="light">LIGHT</option>
+                <option value="standard">STANDARD</option>
+                <option value="pro">PRO</option>
+              </select>
+            </div>
+            <button
+              onClick={async () => {
+                const code = (document.getElementById('test-ref-code') as HTMLInputElement)?.value;
+                const email = (document.getElementById('test-ref-email') as HTMLInputElement)?.value;
+                const plan = (document.getElementById('test-ref-plan') as HTMLSelectElement)?.value;
+                if (!email) { alert('メールアドレスを入力してください'); return; }
+                try {
+                  const res = await fetch('/api/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      email,
+                      plan,
+                      companyName: 'テスト店舗',
+                      address: 'テスト住所',
+                      phone: '000-0000-0000',
+                      referralCode: code || undefined,
+                    }),
+                  });
+                  const data = await res.json();
+                  alert(`✅ 申し込みレスポンス:\n${JSON.stringify(data, null, 2)}`);
+                } catch (err: any) {
+                  alert('❌ エラー: ' + err.message);
+                }
+              }}
+              style={{ padding: '8px 16px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              🚀 テスト実行（紹介コード付き申込）
+            </button>
+          </div>
+        </div>
+
+        {/* -------- ② Standardアップグレードテスト -------- */}
+        <div style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: 16, marginBottom: 16, background: '#f0f9ff' }}>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: 15, fontWeight: 'bold', color: '#0284c7' }}>② Standardアップグレード</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <input
+              type="text"
+              placeholder="店舗ID"
+              id="test-up-standard-shopid"
+              style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 13 }}
+            />
+            <button
+              onClick={async () => {
+                const shopId = (document.getElementById('test-up-standard-shopid') as HTMLInputElement)?.value;
+                if (!shopId) { alert('店舗IDを入力してください'); return; }
+                const user = auth.currentUser;
+                if (!user) { alert('アップグレードテストにはログインが必要です'); return; }
+                try {
+                  const idToken = await user.getIdToken();
+                  const res = await fetch('/api/upgrade-request', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${idToken}`,
+                    },
+                    body: JSON.stringify({ shopId }),
+                  });
+                  const data = await res.json();
+                  alert(`✅ Standardアップグレードレスポンス:\n${JSON.stringify(data, null, 2)}`);
+                } catch (err: any) {
+                  alert('❌ エラー: ' + err.message);
+                }
+              }}
+              style={{ padding: '8px 16px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              🚀 テスト実行（Standardアップグレード）
+            </button>
+          </div>
+        </div>
+
+        {/* -------- ③ PROアップグレードテスト -------- */}
+        <div style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: 16, marginBottom: 16, background: '#fff7ed' }}>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: 15, fontWeight: 'bold', color: '#ea580c' }}>③ PROアップグレード</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <input
+              type="text"
+              placeholder="店舗ID"
+              id="test-up-pro-shopid"
+              style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 13 }}
+            />
+            <button
+              onClick={async () => {
+                const shopId = (document.getElementById('test-up-pro-shopid') as HTMLInputElement)?.value;
+                if (!shopId) { alert('店舗IDを入力してください'); return; }
+                const user = auth.currentUser;
+                if (!user) { alert('アップグレードテストにはログインが必要です'); return; }
+                try {
+                  const idToken = await user.getIdToken();
+                  const res = await fetch('/api/upgrade-request/pro', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${idToken}`,
+                    },
+                    body: JSON.stringify({
+                      shopId,
+                      companyName: 'テスト会社',
+                      invoiceNumber: 'T1234567890123',
+                      address: 'テスト住所',
+                      phone: '000-0000-0000',
+                      bankAccount: {
+                        bankName: 'テスト銀行',
+                        branchName: 'テスト支店',
+                        accountType: 'savings',
+                        accountNumber: '1234567',
+                        accountHolder: 'テスト タロウ',
+                      },
+                    }),
+                  });
+                  const data = await res.json();
+                  alert(`✅ PROアップグレードレスポンス:\n${JSON.stringify(data, null, 2)}`);
+                } catch (err: any) {
+                  alert('❌ エラー: ' + err.message);
+                }
+              }}
+              style={{ padding: '8px 16px', background: '#ea580c', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              🚀 テスト実行（PROアップグレード）
+            </button>
+          </div>
+        </div>
+
+        {/* -------- ④ 紹介コード検証テスト -------- */}
+        <div style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: 16, background: '#f5f3ff' }}>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: 15, fontWeight: 'bold', color: '#7c3aed' }}>④ 紹介コード検証</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <input
+              type="text"
+              placeholder="紹介コード"
+              id="test-verify-code"
+              style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 13 }}
+            />
+            <button
+              onClick={async () => {
+                const code = (document.getElementById('test-verify-code') as HTMLInputElement)?.value;
+                if (!code) { alert('紹介コードを入力してください'); return; }
+                try {
+                  const res = await fetch(`/api/test/verify-referral?code=${code}`);
+                  const data = await res.json();
+                  alert(`✅ 検証結果:\n${JSON.stringify(data, null, 2)}`);
+                } catch (err: any) {
+                  alert('❌ エラー: ' + err.message);
+                }
+              }}
+              style={{ padding: '8px 16px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              🔍 検証実行
+            </button>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
