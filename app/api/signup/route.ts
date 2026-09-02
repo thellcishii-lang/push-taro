@@ -102,11 +102,11 @@ if (referralCodeFromBody) {
     // ② Square決済リンクを生成（店舗ID・メール・プラン情報を埋め込む）
     let paymentUrl = '';
 if (plan === 'light') {
-  paymentUrl = NEXT_PUBLIC_SQUARE_LINK_TEST;
+  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST;
 } else if (plan === 'standard') {
-  paymentUrl = NEXT_PUBLIC_SQUARE_LINK_TEST;
+  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST;
 } else if (plan === 'pro') {
-  paymentUrl = NEXT_PUBLIC_SQUARE_LINK_TEST;
+  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST;
 }
 
     // ③ 「申し込み受付メール」を送信（決済案内＋決済リンク記載）
