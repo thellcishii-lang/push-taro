@@ -22,6 +22,46 @@ export async function POST(request: Request) {
       );
     }
 
+    
+    // ============================================================
+// メールアドレスの重複チェック
+// ============================================================
+const existingShops = await db.collection('shops')
+  .where('email', '==', email)
+  .get();
+
+if (!existingShops.empty) {
+  let isPending = false;
+  let isActive = false;
+
+  for (const doc of existingShops.docs) {
+    const data = doc.data();
+    const status = data.status || 'active';
+    if (status === 'pending_payment') {
+      isPending = true;
+    } else if (status === 'active' || status === 'payment_warning' || status === 'send_disabled') {
+      isActive = true;
+    }
+  }
+
+  if (isPending) {
+    return NextResponse.json({
+      error: 'このメールアドレスはすでにお申し込み中です。決済をお済ませいただくか、別のメールアドレスをご使用ください。',
+      status: 'pending_payment',
+    }, { status: 409 });
+  }
+
+  if (isActive) {
+    return NextResponse.json({
+      error: 'このメールアドレスはすでにご登録済みです。管理画面よりログインしてください。',
+      status: 'already_registered',
+    }, { status: 409 });
+  }
+}
+// ============================================================
+// 重複チェックここまで
+// ============================================================
+
     // ① 仮店舗ドキュメントを作成（status: pending_payment）
     const shopData = {
       name: companyName,
