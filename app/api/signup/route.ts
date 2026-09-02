@@ -85,7 +85,7 @@ if (referralCodeFromBody) {
     // 紹介者へ通知メールを送信（※非同期で実行）
     await sendEmail({
       to: referrerData.email,
-      subject: `【プッシュ太郎】紹介コード [${referralCodeFromBody}] から新規登録がありました`,
+      subject: `【Push-taro】紹介コード [${referralCodeFromBody}] から新規登録がありました`,
       html: `
         <h2>${referrerData.name || '紹介者'} 様</h2>
         <p>あなたの紹介コード（${referralCodeFromBody}）を使用して、新しい店舗が登録されました。</p>
@@ -112,7 +112,7 @@ if (plan === 'light') {
     // ③ 「申し込み受付メール」を送信（決済案内＋決済リンク記載）
     await sendEmail({
       to: email,
-      subject: '【プッシュ太郎】申し込み受付のお知らせ（決済手続きのお願い）',
+      subject: '【Push-taro】申し込み受付のお知らせ（決済手続きのお願い）',
       html: `
         <h2>${companyName} 様</h2>
         <p>この度はPush-taroへのお申し込み、誠にありがとうございます。</p>
