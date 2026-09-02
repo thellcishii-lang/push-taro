@@ -190,7 +190,7 @@ export async function POST(request: Request) {
           subject: '【Push-taro】決済完了・本登録完了のお知らせ',
           html: `
             <h2>${pendingShopData.name || '店舗'} 様</h2>
-            <p>決済が完了いたしました。本登録が完了いたしました。</p>
+            <p>決済処理が完了して、本登録が完了いたしました。</p>
             <p>この度は、Push-taroにご登録頂き誠にありがとうございます。</p>
             <p>下記のリンクより、お客様のメールアドレスとパスワードでログインしてください。</p>
              <hr />
