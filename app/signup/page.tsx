@@ -36,6 +36,47 @@ export default function SignupPage() {
       return;
     }
 
+    // ============================================================
+    // 送信前バリデーション
+    // ============================================================
+
+    // ① メールアドレス確認（確認用フィールドの値を取得）
+    const emailConfirmInput = document.getElementById('emailConfirm') as HTMLInputElement;
+    const emailConfirm = emailConfirmInput?.value || '';
+    if (email !== emailConfirm) {
+      alert('メールアドレスが一致しません。もう一度入力してください。');
+      return;
+    }
+
+    // ② 電話番号の簡易チェック（ハイフン除去後10〜11桁）
+    const phoneClean = phone.replace(/-/g, '');
+    if (phoneClean.length < 10 || phoneClean.length > 11) {
+      alert('電話番号が正しくありません（10〜11桁の数字で入力してください）。');
+      return;
+    }
+
+    // ③ PROプラン時は銀行口座が必須
+    if (selectedPlan === 'pro') {
+      if (!bankName || !branchName || !accountNumber || !accountHolder) {
+        alert('PROプランでは銀行口座情報が必須です。すべて入力してください。');
+        return;
+      }
+      // 口座名義は全角カナかチェック
+      const kanaRegex = /^[ァ-ヶー]+$/;
+      if (!kanaRegex.test(accountHolder)) {
+        alert('口座名義は全角カナで入力してください（例：ヤマダ タロウ）。');
+        return;
+      }
+    }
+
+    // ④ 法人の場合はインボイス番号が必須（会社名がある場合）
+    if (companyName && !invoiceNumber) {
+      alert('法人の方はインボイス登録番号の入力をお願いします。');
+      return;
+    }
+
+    // ============================================================
+
     setLoading(true);
 
     try {
@@ -165,7 +206,9 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>インボイス登録番号（任意）</label>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>
+                インボイス登録番号 <span style={{ color: '#e11d48' }}>（法人の方は必須）</span>
+              </label>
               <input
                 type="text"
                 placeholder="T1234567890123"
@@ -214,7 +257,18 @@ export default function SignupPage() {
               />
             </div>
 
-            {/* ❌ パスワード入力欄は削除（システム自動発行） */}
+            {/* 🔽 追加：メール確認用 */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>メールアドレス（確認）</label>
+              <input
+                type="email"
+                required
+                placeholder="もう一度入力してください"
+                id="emailConfirm"
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+              />
+            </div>
+
           </div>
 
           {/* 3. PROプラン選択時限定：受取用口座情報入力欄 */}
