@@ -55,6 +55,7 @@ if (!existingShops.empty) {
     return NextResponse.json({
       error: 'このメールアドレスはすでにご登録済みです。管理画面よりログインしてください。',
       status: 'already_registered',
+      alreadyPaid: true, // ← この1行を追加
     }, { status: 409 });
   }
 }
