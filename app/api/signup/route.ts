@@ -120,7 +120,6 @@ if (plan === 'light') {
         <p><a href="${paymentUrl}" style="display:inline-block;padding:12px 24px;background:#3182ce;color:#fff;border-radius:6px;text-decoration:none;">決済画面へ進む</a></p>
         <p>※決済完了後、改めて本登録完了のメールをお送りいたします。</p>
         <hr />
-        <p>店舗ID: <code>${shopId}</code></p>
         <p>選択プラン: ${plan.toUpperCase()}</p>
         <hr />
         <p><strong>Push-taro.com</strong></p>
