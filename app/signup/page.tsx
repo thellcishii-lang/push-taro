@@ -132,23 +132,23 @@ export default function SignupPage() {
   // ============================================================
   // SMSコード検証処理
   // ============================================================
-  const handleVerifyCode = async () => {
-    if (!verificationId || !verificationCode) {
-      alert('認証コードを入力してください。');
-      return;
-    }
+  //const handleVerifyCode = async () => {
+   // if (!verificationId || !verificationCode) {
+     // alert('認証コードを入力してください。');
+     // return;
+   // }
 
-    try {
-      const credential = PhoneAuthProvider.credential(verificationId, verificationCode);
-      await signInWithCredential(auth, credential);
-      setPhoneVerified(true);
-      alert('✅ 電話番号が認証されました！');
-      setSmsError('');
-    } catch (err: any) {
-      console.error('[SMS] 検証エラー:', err);
-      setSmsError('認証コードが間違っています。もう一度お試しください。');
-    }
-  };
+   // try {
+     // const credential = PhoneAuthProvider.credential(verificationId, verificationCode);
+     // await signInWithCredential(auth, credential);
+      //setPhoneVerified(true);
+      //alert('✅ 電話番号が認証されました！');
+      //setSmsError('');
+   // } catch (err: any) {
+      //console.error('[SMS] 検証エラー:', err);
+     // setSmsError('認証コードが間違っています。もう一度お試しください。');
+    //}
+ // };
 
   // ============================================================
   // 本登録処理（送信）
