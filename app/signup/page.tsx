@@ -303,6 +303,19 @@ export default function SignupPage() {
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+                <div>
+        <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>
+          インボイス登録番号 <span style={{ color: '#e11d48' }}>（必須）</span>
+        </label>
+        <input
+          type="text"
+          placeholder="T1234567890123"
+          value={invoiceNumber}
+          onChange={(e) => setInvoiceNumber(e.target.value)}
+          style={{ width: '100%', padding: '8px 10px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box', background: '#fff' }}
+        />
+      </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>金融機関名</label>
                   <input
