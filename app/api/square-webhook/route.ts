@@ -185,15 +185,22 @@ export async function POST(request: Request) {
         // 本登録完了メール
         await sendEmail({
           to: customerEmail,
-          subject: '【プッシュ太郎】決済完了・本登録完了のお知らせ',
+          subject: '【Push-taro】決済完了・本登録完了のお知らせ',
           html: `
             <h2>${pendingShopData.name || '店舗'} 様</h2>
-            <p>決済が完了いたしました。ご登録ありがとうございます。</p>
+            <p>決済が完了いたしました。本登録が完了いたしました。</p>
+            <p>この度は、Push-taroにご登録頂き誠にありがとうございます。</p>
+            <p>下記のリンクより、お客様のメールアドレスとパスワードでログインしてください。</p>
+             <hr />
+              <p>選択プラン: ${plan.toUpperCase()}</p>
             <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin">管理画面へログイン</a></p>
+              <p>ログインID: ${customerEmail}</p>
+              <p>パスワード: <code>${generatedPassword}</code></p>
             <hr />
-            <p>メール: ${customerEmail}</p>
-            <p>パスワード: <code>${generatedPassword}</code></p>
-            <p>※初回ログイン後にパスワード変更を推奨します。</p>
+        <p><strong>Push-taro.com</strong></p>
+        <p>運営会社：the合同会社</p>
+        <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
+        <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
           `,
         });
 
