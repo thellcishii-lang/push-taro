@@ -114,6 +114,12 @@ export default function SignupPage() {
       });
 
       const data = await res.json();
+
+      if (res.status === 409) {
+  alert('このメールアドレスは既に使われております。');
+  return;
+}
+      
       if (!res.ok) {
         throw new Error(data.error || '登録に失敗しました。');
       }
