@@ -166,11 +166,6 @@ if (paymentId) {
 // ============================================================
 // ① 仮登録店舗（pending_payment）の処理（処理済みチェックの後にやる）
 // ============================================================
-const pendingShopSnap = await db.collection('shops')
-  .where('email', '==', customerEmail)
-  .where('status', '==', 'pending_payment')
-  .limit(1)
-  .get();
 
 if (!pendingShopSnap.empty) {
   const pendingShopDoc = pendingShopSnap.docs[0];
