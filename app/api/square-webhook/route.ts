@@ -2,17 +2,10 @@ import { NextResponse } from 'next/server';
 import { db, authAdmin } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../lib/mailer';
-import fs from 'fs';
-import path from 'path';
-import { PDFDocument } from 'pdf-lib'; // または html-pdf
+import path from 'path'; // path は必要（利用規約PDFのパス指定のため）
 import { generateInvoicePDF } from '../../../lib/pdf-generator';
 
-  const doc = await PDFDocument.create();
-  const page = doc.addPage();
-  const { width, height } = page.getSize();
-  // ... 内容を書き込む
-  return Buffer.from(await doc.save());
-}
+
 
 // ============================================================
 // ヘルパー関数
