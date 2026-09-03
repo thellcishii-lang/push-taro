@@ -1,3 +1,4 @@
+// lib/mailer.ts
 import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
@@ -8,16 +9,16 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export async function sendEmail({ 
-  to, 
-  subject, 
-  html, 
-  attachments 
-}: { 
-  to: string; 
-  subject: string; 
-  html: string; 
-  attachments?: any[]; 
+export async function sendEmail({
+  to,
+  subject,
+  html,
+  attachments,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+  attachments?: any[]; // ← 追加
 }) {
   try {
     const info = await transporter.sendMail({
@@ -25,7 +26,7 @@ export async function sendEmail({
       to,
       subject,
       html,
-      attachments, // ← これを追加
+      attachments, // ← 追加
     });
     console.log('[Mailer] メール送信成功:', info.messageId);
     return { success: true };
