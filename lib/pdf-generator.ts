@@ -10,6 +10,7 @@ export async function generateInvoicePDF(data: any): Promise<Buffer> {
   const fontBytes = fs.readFileSync(fontPath);
 
   const doc = await PDFDocument.create();
+  doc.registerFontkit(fontkit);
   const font = await doc.embedFont(fontBytes);
 
   const page = doc.addPage([600, 800]);
