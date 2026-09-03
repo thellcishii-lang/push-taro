@@ -24,9 +24,9 @@ export default function PaymentCheckContent() {
           // Square決済リンクにリダイレクト
           const plan = data.plan || 'light';
           let paymentUrl = '';
-          if (plan === 'light') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_LIGHT || '';
-          else if (plan === 'standard') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_STANDARD || '';
-          else if (plan === 'pro') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_PRO || '';
+          if (plan === 'light') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
+          else if (plan === 'standard') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
+          else if (plan === 'pro') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
           window.location.href = paymentUrl;
         } else {
           setStatus('error');
