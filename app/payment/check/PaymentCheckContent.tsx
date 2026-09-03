@@ -16,9 +16,7 @@ export default function PaymentCheckContent() {
 
     fetch(`/api/shop-info?s=${shopId}`)
       .then((res) => {
-        if (!res.ok) {
-          throw new Error('API error');
-        }
+        if (!res.ok) throw new Error('API error');
         return res.json();
       })
       .then((data) => {
@@ -26,18 +24,11 @@ export default function PaymentCheckContent() {
           setStatus('active');
           return;
         }
-        if (data.success) {
-          // active 以外は pending 扱い（テスト用リンクにリダイレクト）
-          setStatus('pending');
-          const paymentUrl = 'https://square.link/u/pORV1sXA';
-          window.location.href = paymentUrl;
-          return;
-        }
-        setStatus('error');
+        // pending_payment または不明なステータス → テストリンクへ
+        setStatus('pending');
+        window.location.href = 'https://square.link/u/pORV1sXA';
       })
-      .catch(() => {
-        setStatus('error');
-      });
+      .catch(() => setStatus('error'));
   }, [shopId]);
 
   if (status === 'loading') {
@@ -50,18 +41,7 @@ export default function PaymentCheckContent() {
         <h2>✅ 決済は完了しています</h2>
         <p>この度はご登録ありがとうございます。</p>
         <p>すでに決済が完了しておりますので、追加の決済手続きは不要です。</p>
-        <a
-          href="/admin"
-          style={{
-            display: 'inline-block',
-            marginTop: 20,
-            padding: '12px 24px',
-            background: '#ff4500',
-            color: '#fff',
-            borderRadius: 6,
-            textDecoration: 'none',
-          }}
-        >
+        <a href="/admin" style={{ display: 'inline-block', marginTop: 20, padding: '12px 24px', background: '#ff4500', color: '#fff', borderRadius: 6, textDecoration: 'none' }}>
           管理画面へログイン
         </a>
       </div>
