@@ -5,10 +5,8 @@ import { sendEmail } from '../../../lib/mailer';
 import fs from 'fs';
 import path from 'path';
 import { PDFDocument } from 'pdf-lib'; // または html-pdf
+import { generateInvoicePDF } from '../../../lib/pdf-generator';
 
-async function generateInvoicePDF(data: any): Promise<Buffer> {
-  // 申し込み内容をPDF化する処理
-  // ここではシンプルにテキストベースのPDFを生成
   const doc = await PDFDocument.create();
   const page = doc.addPage();
   const { width, height } = page.getSize();
