@@ -22,22 +22,20 @@ export default function PaymentCheckContent() {
         setStatus('active');
         return;
       }
-      
-      // 'pending_payment' 以外の値も pending 扱いにする
       if (data.status === 'pending_payment' || !data.status) {
         setStatus('pending');
-          // Square決済リンクにリダイレクト
-          const plan = data.plan || 'light';
-          let paymentUrl = '';
-          if (plan === 'light') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
-          else if (plan === 'standard') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
-          else if (plan === 'pro') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
-          window.location.href = paymentUrl;
-        } else {
-          setStatus('error');
-        }
-      })
-      .catch(() => setStatus('error'));
+        const plan = data.plan || 'light';
+        let paymentUrl = '';
+        if (plan === 'light') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
+        else if (plan === 'standard') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
+        else if (plan === 'pro') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
+        window.location.href = paymentUrl;
+        return; // ← ここに return を追加
+      }
+    }
+    setStatus('error');
+  })
+  .catch(() => setStatus('error'));
   }, [shopId]);
 
   fetch(`/api/shop-info?s=${shopId}`)
