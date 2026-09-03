@@ -18,9 +18,10 @@ export default function PaymentCheckContent() {
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.status === 'active') {
-          setStatus('active');
-        } else if (data.success && data.status === 'pending_payment') {
-          setStatus('pending');
+  setStatus('active');
+} else if (data.success) {
+  // 'active' 以外（pending_payment やその他）は pending として扱う
+  setStatus('pending');
           // Square決済リンクにリダイレクト
           const plan = data.plan || 'light';
           let paymentUrl = '';
