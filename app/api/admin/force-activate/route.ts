@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/firebase-admin';
-import { POST as webhookPOST } from '../../../square-webhook/route';
+import { POST as webhookPOST } from '../../square-webhook/route';
 
 export async function POST(request: Request) {
   try {
