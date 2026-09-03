@@ -235,18 +235,6 @@ await sendEmail({
     <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
     <p><a href="mailto:pushtaro-info@gmail.com">pushtaro.info@gmail.com</a></p>
   `,
-  attachments: [
-    {
-      filename: 'お申し込み内容.pdf',
-      content: await generateInvoicePDF(pendingShopData),
-      contentType: 'application/pdf',
-    },
-    {
-      filename: '利用規約.pdf',
-      path: path.join(process.cwd(), 'public', 'terms.pdf'),
-      contentType: 'application/pdf',
-    },
-  ],
 });
 
         // ============================================================
