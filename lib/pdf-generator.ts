@@ -1,4 +1,5 @@
 // lib/pdf-generator.ts
+import fontkit from '@pdf-lib/fontkit';
 import { PDFDocument } from 'pdf-lib';
 import fs from 'fs';
 import path from 'path';
