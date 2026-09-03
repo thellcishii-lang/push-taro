@@ -87,6 +87,27 @@ export default function SignupPage() {
       }
     }
 
+    const formData = {
+    email,
+    plan: selectedPlan,
+    companyName,
+    invoiceNumber,
+    address,
+    phone: phone.replace(/-/g, ''),
+    bankAccount: selectedPlan === 'pro' ? {
+      bankName,
+      branchName,
+      accountType,
+      accountNumber,
+      accountHolder,
+    } : null,
+  };
+
+  sessionStorage.setItem('signup_data', JSON.stringify(formData));
+  router.push('/signup/confirm');
+  // 🔥 ここまで修正
+};
+
     
     // ============================================================
 
