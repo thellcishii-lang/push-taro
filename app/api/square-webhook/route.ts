@@ -2,6 +2,19 @@ import { NextResponse } from 'next/server';
 import { db, authAdmin } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../lib/mailer';
+import fs from 'fs';
+import path from 'path';
+import { PDFDocument } from 'pdf-lib'; // または html-pdf
+
+async function generateInvoicePDF(data: any): Promise<Buffer> {
+  // 申し込み内容をPDF化する処理
+  // ここではシンプルにテキストベースのPDFを生成
+  const doc = await PDFDocument.create();
+  const page = doc.addPage();
+  const { width, height } = page.getSize();
+  // ... 内容を書き込む
+  return Buffer.from(await doc.save());
+}
 
 // ============================================================
 // ヘルパー関数
@@ -208,7 +221,19 @@ if (!pendingShopSnap.empty) {
         await sendEmail({
           to: customerEmail,
           subject: '【Push-taro】決済完了・本登録完了のお知らせ',
-          html: `
+          html: `...`,
+  attachments: [
+    {
+      filename: 'お申し込み内容.pdf',
+      content: await generateInvoicePDF(pendingShopData),
+      contentType: 'application/pdf',
+    },
+    {
+      filename: '利用規約.pdf',
+      path: path.join(process.cwd(), 'public', 'terms.pdf'),
+      contentType: 'application/pdf',
+    },
+  ], `
             <h2>${pendingShopData.name || '店舗'} 様</h2>
             <p>決済処理が完了して、本登録が完了いたしました。</p>
             <p>この度は、Push-taroにご登録頂き誠にありがとうございます。</p>
