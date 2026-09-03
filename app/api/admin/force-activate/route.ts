@@ -18,10 +18,13 @@ export async function POST(request: Request) {
     }
 
     const shopData = shopDoc.data();
+if (!shopData) {
+  return NextResponse.json({ error: '店舗データが取得できません' }, { status: 404 });
+}
 
-    if (shopData.status !== 'pending_payment') {
-      return NextResponse.json({ error: 'この店舗は pending_payment ではありません' }, { status: 400 });
-    }
+if (shopData.status !== 'pending_payment') {
+  return NextResponse.json({ error: 'この店舗は pending_payment ではありません' }, { status: 400 });
+}
 
     // パスワード生成
     const generatedPassword = 'Pass-' + Math.random().toString(36).slice(-8) + 'A1!';
