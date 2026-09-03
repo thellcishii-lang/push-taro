@@ -18,10 +18,10 @@ export default function PaymentCheckContent() {
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.status === 'active') {
-  setStatus('active');
-} else if (data.success) {
-  // 'active' 以外（pending_payment やその他）は pending として扱う
-  setStatus('pending');
+           setStatus('active');
+　　　　　　　　　　　　　　　　　　　　　　} else if (data.success) {
+            // 'active' 以外（pending_payment やその他）は pending として扱う
+           setStatus('pending');
           // Square決済リンクにリダイレクト
           const plan = data.plan || 'light';
           let paymentUrl = '';
@@ -35,6 +35,15 @@ export default function PaymentCheckContent() {
       })
       .catch(() => setStatus('error'));
   }, [shopId]);
+
+  fetch(`/api/shop-info?s=${shopId}`)
+  .then((res) => res.json())
+  .then((data) => {
+    console.log('🔍 [DEBUG] status の値:', JSON.stringify(data.status));
+    console.log('🔍 [DEBUG] 比較結果 pending:', data.status === 'pending_payment');
+    console.log('🔍 [DEBUG] 比較結果 active:', data.status === 'active');
+    // ... 以降の処理
+  })
 
   if (status === 'loading') {
     return <div style={{ padding: 40, textAlign: 'center' }}>確認中...</div>;
