@@ -4,8 +4,8 @@ import fs from 'fs';
 import path from 'path';
 
 export async function generateInvoicePDF(data: any): Promise<Buffer> {
-  // 日本語フォントを読み込む
-  const fontPath = path.join(process.cwd(), 'fonts', 'NotoSansJP-Regular.ttf');
+  // 日本語フォントを読み込む（ルート直下に置いた .otf ファイル）
+  const fontPath = path.join(process.cwd(), 'NotoSansCJKjp-Regular.otf');
   const fontBytes = fs.readFileSync(fontPath);
 
   const doc = await PDFDocument.create();
