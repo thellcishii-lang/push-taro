@@ -106,7 +106,7 @@ export default function SignupPage() {
   sessionStorage.setItem('signup_data', JSON.stringify(formData));
   router.push('/signup/confirm');
   // 🔥 ここまで修正
-};
+
 
     
     // ============================================================
