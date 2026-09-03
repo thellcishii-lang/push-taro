@@ -15,37 +15,30 @@ export default function PaymentCheckContent() {
     }
 
     fetch(`/api/shop-info?s=${shopId}`)
-  .then((res) => res.json())
-  .then((data) => {
-    if (data.success) {
-      if (data.status === 'active') {
-        setStatus('active');
-        return;
-      }
-      if (data.status === 'pending_payment' || !data.status) {
-        setStatus('pending');
-        const plan = data.plan || 'light';
-        let paymentUrl = '';
-        if (plan === 'light') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
-        else if (plan === 'standard') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
-        else if (plan === 'pro') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
-        window.location.href = paymentUrl;
-        return; // ← ここに return を追加
-      }
-    }
-    setStatus('error');
-  })
-  .catch(() => setStatus('error'));
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('API error');
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data.success && data.status === 'active') {
+          setStatus('active');
+          return;
+        }
+        if (data.success) {
+          // active 以外は pending 扱い（テスト用リンクにリダイレクト）
+          setStatus('pending');
+          const paymentUrl = 'https://square.link/u/pORV1sXA';
+          window.location.href = paymentUrl;
+          return;
+        }
+        setStatus('error');
+      })
+      .catch(() => {
+        setStatus('error');
+      });
   }, [shopId]);
-
-  fetch(`/api/shop-info?s=${shopId}`)
-  .then((res) => res.json())
-  .then((data) => {
-    console.log('🔍 [DEBUG] status の値:', JSON.stringify(data.status));
-    console.log('🔍 [DEBUG] 比較結果 pending:', data.status === 'pending_payment');
-    console.log('🔍 [DEBUG] 比較結果 active:', data.status === 'active');
-    // ... 以降の処理
-  })
 
   if (status === 'loading') {
     return <div style={{ padding: 40, textAlign: 'center' }}>確認中...</div>;
