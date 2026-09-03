@@ -8,13 +8,24 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export async function sendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {
+export async function sendEmail({ 
+  to, 
+  subject, 
+  html, 
+  attachments 
+}: { 
+  to: string; 
+  subject: string; 
+  html: string; 
+  attachments?: any[]; 
+}) {
   try {
     const info = await transporter.sendMail({
-      from: `the.LLC Push-taro.com <${process.env.GMAIL_USER}>`,
+      from: `Push-taro <${process.env.GMAIL_USER}>`,
       to,
       subject,
       html,
+      attachments, // ← これを追加
     });
     console.log('[Mailer] メール送信成功:', info.messageId);
     return { success: true };
