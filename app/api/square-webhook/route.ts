@@ -215,7 +215,14 @@ if (!pendingShopSnap.empty) {
             <p>下記のリンクより、お客様のメールアドレスとパスワードでログインしてください。</p>
              <hr />
               <p>選択プラン: ${plan.toUpperCase()}</p>
-            <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin">管理画面へログイン</a></p>
+              <p>
+                 <a 
+                    href="${process.env.NEXT_PUBLIC_APP_URL}/admin" 
+                     style="display:inline-block; padding:12px 24px; background:#ff4500; color:#fff; border-radius:6px; text-decoration:none; font-weight:bold;"
+                   >
+                  管理画面へログイン
+                 </a>
+　　　　　　　　　　　　　　　　　　　　　　　　　　　　</p>
               <p>ログインID: ${customerEmail}</p>
               <p>パスワード: <code>${generatedPassword}</code></p>
             <hr />
