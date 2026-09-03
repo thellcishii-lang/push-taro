@@ -36,6 +36,11 @@ export default function TestConsolePage() {
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<any>(null);
 
+  // 強制アクティベーション用
+const [targetShopId, setTargetShopId] = useState('');
+const [activating, setActivating] = useState(false);
+const [activationResult, setActivationResult] = useState<any>(null);
+
   // ⚡️ テスト用店舗発行処理
   const handleCreateTestShop = async () => {
     setCreatingShop(true);
@@ -149,6 +154,43 @@ export default function TestConsolePage() {
       setSending(false);
     }
   };
+
+  const fetchPendingShops = async () => {
+  setLoading(true);
+  try {
+    const res = await fetch('/api/admin/pending-shops');
+    const data = await res.json();
+    // 店舗一覧を表示するためのステートがあればそれを使う
+    // ここでは簡易的に alert で表示するか、別途リスト表示用のステートを作る
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const handleForceActivate = async () => {
+  if (!targetShopId) {
+    alert('店舗IDを入力してください');
+    return;
+  }
+  setActivating(true);
+  setActivationResult(null);
+  try {
+    const res = await fetch('/api/admin/force-activate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ shopId: targetShopId }),
+    });
+    const data = await res.json();
+    setActivationResult(data);
+    alert(`✅ アクティベーション完了: ${JSON.stringify(data, null, 2)}`);
+  } catch (err: any) {
+    alert('❌ エラー: ' + err.message);
+  } finally {
+    setActivating(false);
+  }
+};
 
   return (
     <main style={{ padding: 24, maxWidth: 950, margin: '0 auto', fontFamily: 'sans-serif', background: '#f8fafc', minHeight: '100vh' }}>
@@ -478,6 +520,35 @@ export default function TestConsolePage() {
           </div>
         </div>
       </section>
+
+      {/* 強制アクティベーション */}
+<section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24 }}>
+  <h2>⚡ 強制アクティベーション（決済シミュレート）</h2>
+  <p style={{ fontSize: 12, color: '#64748b' }}>
+    pending_payment の店舗を強制的に active にします（実際の決済なしで本登録完了を再現）
+  </p>
+  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+    <input
+      type="text"
+      placeholder="店舗ID（例: abc123）"
+      value={targetShopId}
+      onChange={(e) => setTargetShopId(e.target.value)}
+      style={{ flex: 1, padding: 8, border: '1px solid #cbd5e1', borderRadius: 4 }}
+    />
+    <button
+      onClick={handleForceActivate}
+      disabled={activating}
+      style={{ padding: '8px 16px', background: '#22c55e', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}
+    >
+      {activating ? '実行中...' : '🚀 強制アクティベート'}
+    </button>
+  </div>
+  {activationResult && (
+    <pre style={{ marginTop: 12, background: '#f1f5f9', padding: 12, borderRadius: 4, fontSize: 12 }}>
+      {JSON.stringify(activationResult, null, 2)}
+    </pre>
+  )}
+</section>
     </main>
   );
 }
