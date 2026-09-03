@@ -219,9 +219,9 @@ if (!pendingShopSnap.empty) {
 
         // 本登録完了メール
         await sendEmail({
-          to: customerEmail,
-          subject: '【Push-taro】決済完了・本登録完了のお知らせ',
-          html: `...`,
+  to: customerEmail,
+  subject: '【Push-taro】決済完了・本登録完了のお知らせ',
+  html: `...`,
   attachments: [
     {
       filename: 'お申し込み内容.pdf',
@@ -233,7 +233,8 @@ if (!pendingShopSnap.empty) {
       path: path.join(process.cwd(), 'public', 'terms.pdf'),
       contentType: 'application/pdf',
     },
-  ]`
+  ]
+
             <h2>${pendingShopData.name || '店舗'} 様</h2>
             <p>決済処理が完了して、本登録が完了いたしました。</p>
             <p>この度は、Push-taroにご登録頂き誠にありがとうございます。</p>
