@@ -158,7 +158,7 @@ if (plan === 'light') {
         <h2>${companyName} 様</h2>
         <p>この度はPush-taroへのお申し込み、誠にありがとうございます。</p>
         <p>ご登録を完了するには、以下のリンクより決済手続きをお進めください。</p>
-        <p><a href="${paymentUrl}" style="display:inline-block;padding:12px 24px;background:#3182ce;color:#fff;border-radius:6px;text-decoration:none;">決済画面へ進む</a></p>
+        <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/payment/check?shopId=${shopId}">決済画面へ進む</a></p>
         <p>※決済完了後、改めて本登録完了のメールをお送りいたします。</p>
         <hr />
         <p>選択プラン: ${plan.toUpperCase()}</p>
