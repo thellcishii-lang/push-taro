@@ -233,7 +233,7 @@ if (!pendingShopSnap.empty) {
       path: path.join(process.cwd(), 'public', 'terms.pdf'),
       contentType: 'application/pdf',
     },
-  ], `
+  ]`
             <h2>${pendingShopData.name || '店舗'} 様</h2>
             <p>決済処理が完了して、本登録が完了いたしました。</p>
             <p>この度は、Push-taroにご登録頂き誠にありがとうございます。</p>
