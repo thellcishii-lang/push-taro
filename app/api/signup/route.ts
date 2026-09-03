@@ -153,7 +153,7 @@ if (plan === 'light') {
     // ③ 「申し込み受付メール」を送信（決済案内＋決済リンク記載）
     await sendEmail({
       to: email,
-      subject: '【Push-taro】申し込み受付のお知らせ（決済手続きのお願い）',
+      subject: '【Push-taro】お申し込み受付のお知らせ（決済手続きのお願い）',
       html: `
         <h2>${companyName} 様</h2>
         <p>この度はPush-taroへのお申し込み、誠にありがとうございます。</p>
