@@ -196,12 +196,13 @@ if (!pendingShopSnap.empty) {
 
         // 店舗更新（status: active, ownerUid 追加）
         await pendingShopDoc.ref.update({
-          status: 'active',
-          ownerUid: userRecord.uid,
-          squareCustomerId: customerId || '',
-          plan: pendingShopData.plan || 'light',
-          updatedAt: FieldValue.serverTimestamp(),
-        });
+  status: 'active',
+  ownerUid: userRecord.uid,
+  squareCustomerId: customerId || '',
+  plan: pendingShopData.plan || 'light',
+  squarePaymentId: paymentId, // ← この1行を追加
+  updatedAt: FieldValue.serverTimestamp(),
+});
 
         // 本登録完了メール
         await sendEmail({
