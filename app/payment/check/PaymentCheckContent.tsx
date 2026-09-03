@@ -23,13 +23,11 @@ export default function PaymentCheckContent() {
         }
         // active 以外はすべて Square へリダイレクト
         const plan = data.plan || 'light';
-  let paymentUrl = '';
-  if (plan === 'light') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
-  else if (plan === 'standard') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
-  else if (plan === 'pro') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
-  window.location.href = paymentUrl;
-} else {
-  setStatus('error');
+let paymentUrl = '';
+if (plan === 'light') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+else if (plan === 'standard') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+else if (plan === 'pro') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+window.location.href = paymentUrl;
 
   }, [shopId]);
 
