@@ -15,17 +15,17 @@ export default function PaymentCheckContent() {
     }
 
     fetch(`/api/shop-info?s=${shopId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-  if (data.status === 'active') {
-    setStatus('active');
-    return;
-  }
-  
-  // 'pending_payment' 以外の値（空文字・undefined含む）も pending 扱いにする
-  if (data.status === 'pending_payment' || !data.status) {
-    setStatus('pending');
+  .then((res) => res.json())
+  .then((data) => {
+    if (data.success) {
+      if (data.status === 'active') {
+        setStatus('active');
+        return;
+      }
+      
+      // 'pending_payment' 以外の値も pending 扱いにする
+      if (data.status === 'pending_payment' || !data.status) {
+        setStatus('pending');
           // Square決済リンクにリダイレクト
           const plan = data.plan || 'light';
           let paymentUrl = '';
