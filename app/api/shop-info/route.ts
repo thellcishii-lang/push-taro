@@ -33,7 +33,10 @@ export async function GET(request: Request) {
       name: data?.name || '登録店舗',
       status: data?.status || 'pending_payment',
       coupon: data?.coupon || null,
-      upgradeStatus: data?.upgradeStatus || null, // 🔑 shopData ではなく data に修正
+      upgradeStatus: data?.upgradeStatus || null,
+      // 🔑 DB内の名前に合わせて追加（upgradeTargetPlan と targetPlan の両方で渡す）
+      upgradeTargetPlan: data?.upgradeTargetPlan || data?.targetPlan || null,
+      targetPlan: data?.upgradeTargetPlan || data?.targetPlan || null,
       linkUrl: data?.linkUrl || '',
       iconUrl: data?.iconUrl || '',
       plan: data?.plan || 'free',
