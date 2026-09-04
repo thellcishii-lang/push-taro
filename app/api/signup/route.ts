@@ -67,7 +67,7 @@ if (!existingShops.empty) {
     // ① 仮店舗ドキュメントを作成（status: pending_payment）
     const shopData = {
       name: companyName,
-      email,
+      email: normalizedEmail,
       plan: plan || 'light',
       status: 'pending_payment', // 🔑 決済待ち
       createdAt: FieldValue.serverTimestamp(),
