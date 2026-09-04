@@ -5,50 +5,55 @@ import { useSearchParams } from 'next/navigation';
 
 export default function PaymentCheckContent() {
   const searchParams = useSearchParams();
-  const shopId = searchParams.get('shopId');
+  const shopId = searchParams.get('shopId') || searchParams.get('s');
   const [isActive, setIsActive] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!shopId) {
-      // shopId が存在しない場合はトップページまたはログイン画面へ
-      window.location.href = '/admin';
+      window.location.href = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
       return;
     }
 
-    // 店舗の最新ステータスを取得
+    // 店舗のステータスおよび選択プランを取得
     fetch(`/api/shop-info?s=${shopId}`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && data.status === 'active') {
-          // 🔑 支払い済み（active）の場合はメッセージ画面を表示（リダイレクトしない）
+        // 🔑 ① 新規登録で支払い済み（active）
+        // 🔑 ② アップグレードで完了済み（upgradeStatus === 'completed'）
+        if (data.success && (data.status === 'active' || data.upgradeStatus === 'completed')) {
           setIsActive(true);
           setLoading(false);
           return;
         }
 
-        // 未決済（pending_payment等）の場合のみ Square の決済画面へリダイレクト
+        // 🔑 ② Square決済リンク生成（signup/route.ts と同じ書き方に統一）
         const plan = data.plan || 'light';
-        
-        // APIから送られてくる決済URLがあればそれを優先、無ければプラン別リンク
-        let paymentUrl = data.paymentUrl || '';
+        let paymentUrl = '';
 
-        if (!paymentUrl) {
-          if (plan === 'light') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_LIGHT || process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-          else if (plan === 'standard') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_STANDARD || process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-          else if (plan === 'pro') paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_PRO || process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+        if (plan === 'light') {
+          paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+        } else if (plan === 'standard') {
+          paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+        } else if (plan === 'pro') {
+          paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
         }
 
         window.location.href = paymentUrl;
       })
       .catch((err) => {
-        console.error('店舗情報取得エラー:', err);
-        setLoading(false);
+        console.error('[PaymentCheck] エラー:', err);
+        window.location.href = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
       });
   }, [shopId]);
 
   if (loading) {
-    return <div style={{ padding: 40, textAlign: 'center', fontSize: 16 }}>決済ステータスを確認中...</div>;
+    return (
+      <div style={{ padding: 40, textAlign: 'center', fontFamily: 'sans-serif' }}>
+        <h3>決済画面へ移動中...</h3>
+        <p style={{ fontSize: 13, color: '#666' }}>しばらくお待ちください</p>
+      </div>
+    );
   }
 
   if (isActive) {
@@ -81,9 +86,5 @@ export default function PaymentCheckContent() {
     );
   }
 
-  return (
-    <div style={{ padding: 40, textAlign: 'center', fontSize: 14, color: '#64748b' }}>
-      決済画面へリダイレクトしています...
-    </div>
-  );
+  return null;
 }
