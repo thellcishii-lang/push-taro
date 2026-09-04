@@ -238,79 +238,94 @@ await sendEmail({
 });
 
         // ============================================================
-        // 紹介コード処理（pending の場合）
+        // 🔑 新・紹介報酬計算ロジック（初回決済時）
         // ============================================================
-        if (referralCode) {
+        const referrerId = pendingShopData.referrerId;
+        if (referrerId) {
           try {
-            const referrerSnapshot = await db.collection('shops')
-              .where('referralCode', '==', referralCode)
-              .limit(1)
-              .get();
+            const referrerDoc = await db.collection('shops').doc(referrerId).get();
 
-            if (!referrerSnapshot.empty) {
-              const referrerDoc = referrerSnapshot.docs[0];
+            if (referrerDoc.exists) {
               const referrerData = referrerDoc.data();
-              const referrerId = referrerDoc.id;
+              const isAgency = referrerData?.role === 'agency';
+              const isPro = referrerData?.plan === 'pro' || referrerData?.role === 'pro';
 
-              const isAgency = referrerData.role === 'agency';
-              let rewardAmount = 0;
-              let effectiveRate = 0.10;
+              // PRO会員または代理店の場合のみ報酬が発生
+              if (isAgency || isPro) {
+                let effectiveRate = 0;
 
-              if (isAgency) {
-                const activeRelationsSnapshot = await db.collection('referral_relations')
-                  .where('referrerId', '==', referrerId)
-                  .where('status', '==', 'active')
-                  .get();
-                const currentActiveCount = activeRelationsSnapshot.size;
-                rewardAmount = calculateTieredReward(currentActiveCount + 1, 10000);
-                effectiveRate = rewardAmount / 10000;
-              } else {
-                // PROユーザーの場合、インボイス番号で還元率を変える
-                if (referrerData?.plan === 'pro') {
-                  const hasInvoice = referrerData.invoiceNumber && referrerData.invoiceNumber.trim() !== '';
+                if (isAgency) {
+                  // 代理店: Proは30%、Light/Standardは18%
+                  effectiveRate = (plan === 'pro') ? 0.30 : 0.18;
+                } else if (isPro) {
+                  // PRO会員: 基本10%（インボイス未登録時は9%）
+                  const hasInvoice = referrerData?.invoiceNumber && referrerData.invoiceNumber.trim() !== '';
                   effectiveRate = hasInvoice ? 0.10 : 0.09;
-                } else {
-                  effectiveRate = 0.10;
                 }
-                rewardAmount = Math.floor(paidAmount * effectiveRate);
 
-                const currentUnpaid = (referrerData.unpaidRewardTotal || 0) + rewardAmount;
-                if (currentUnpaid >= 10000) {
-                  await referrerDoc.ref.update({
-                    unpaidRewardTotal: currentUnpaid,
-                    payoutStatus: 'pending',
-                    updatedAt: FieldValue.serverTimestamp(),
-                  });
-                  await sendAdminPayoutNotification(referrerData, referrerId, currentUnpaid);
-                } else {
-                  await referrerDoc.ref.update({
-                    unpaidRewardTotal: currentUnpaid,
-                    updatedAt: FieldValue.serverTimestamp(),
+                // プランに応じた金額を取得（light:1980円, standard:3800円, pro:10000円）
+                const planPrices: Record<string, number> = { light: 1980, standard: 3800, pro: 10000 };
+                const planAmount = planPrices[plan] || 1980;
+
+                // 実契約金額 × 報酬率 で報酬額を算出
+                const rewardAmount = Math.floor(planAmount * effectiveRate);
+
+                if (rewardAmount > 0) {
+                  const currentUnpaid = (referrerData?.unpaidRewardTotal || 0) + rewardAmount;
+                  
+                  // 未払い累計の更新 & 10,000円到達時の通知
+                  if (currentUnpaid >= 10000) {
+                    await referrerDoc.ref.update({
+                      unpaidRewardTotal: currentUnpaid,
+                      payoutStatus: 'pending',
+                      updatedAt: FieldValue.serverTimestamp(),
+                    });
+                    await sendAdminPayoutNotification(referrerData, referrerId, currentUnpaid);
+                  } else {
+                    await referrerDoc.ref.update({
+                      unpaidRewardTotal: currentUnpaid,
+                      updatedAt: FieldValue.serverTimestamp(),
+                    });
+                  }
+
+                  const currentMonth = new Date().toISOString().slice(0, 7);
+
+                  // リレーションを active に更新/作成
+                  const relSnap = await db.collection('referral_relations')
+                    .where('referredTenantId', '==', shopId)
+                    .limit(1)
+                    .get();
+
+                  if (!relSnap.empty) {
+                    await relSnap.docs[0].ref.update({
+                      status: 'active',
+                      rewardRate: effectiveRate,
+                      updatedAt: FieldValue.serverTimestamp(),
+                    });
+                  } else {
+                    await db.collection('referral_relations').add({
+                      referrerId: referrerId,
+                      referredTenantId: shopId,
+                      rewardRate: effectiveRate,
+                      status: 'active',
+                      createdAt: FieldValue.serverTimestamp(),
+                    });
+                  }
+
+                  // 月次報酬ログを追加
+                  await db.collection('monthly_rewards').add({
+                    userId: referrerId,
+                    sourceTenantId: shopId,
+                    amount: rewardAmount,
+                    billingMonth: currentMonth,
+                    status: 'unpaid',
+                    createdAt: FieldValue.serverTimestamp(),
                   });
                 }
               }
-
-              const currentMonth = new Date().toISOString().slice(0, 7);
-
-              await db.collection('referral_relations').add({
-                referrerId: referrerId,
-                referredTenantId: shopId,
-                rewardRate: effectiveRate,
-                status: 'active',
-                createdAt: FieldValue.serverTimestamp(),
-              });
-
-              await db.collection('monthly_rewards').add({
-                userId: referrerId,
-                sourceTenantId: shopId,
-                amount: rewardAmount,
-                billingMonth: currentMonth,
-                status: 'unpaid',
-                createdAt: FieldValue.serverTimestamp(),
-              });
             }
           } catch (refError) {
-            console.error('[square-webhook] 紹介報酬の処理エラー:', refError);
+            console.error('[square-webhook] 紹介報酬処理エラー:', refError);
           }
         }
 
@@ -319,15 +334,21 @@ await sendEmail({
       }
 
       // ============================================================
-      // ② 既存アカウントの決済（継続課金）
+      // ② 既存アカウントの決済（毎月の継続課金）
       // ============================================================
       const existingShopSnap = await db.collection('shops').where('email', '==', customerEmail).get();
 
       if (!existingShopSnap.empty) {
         const shopDoc = existingShopSnap.docs[0];
+        const shopData = shopDoc.data();
+        const plan = shopData.plan || 'light';
+        const planPrices: Record<string, number> = { light: 1980, standard: 3800, pro: 10000 };
+        const planAmount = planPrices[plan] || 1980;
+
         await shopDoc.ref.update({
           status: 'active',
-          squareCustomerId: customerId || shopDoc.data().squareCustomerId || '',
+          squareCustomerId: customerId || shopData.squareCustomerId || '',
+          squarePaymentId: paymentId || '',
           failedAt: null,
           gracePeriodUntil: null,
           updatedAt: FieldValue.serverTimestamp(),
@@ -342,33 +363,57 @@ await sendEmail({
 
         if (!relSnap.empty) {
           const relData = relSnap.docs[0].data();
-          const referrerRef = db.collection('shops').doc(relData.referrerId);
-          const referrerDoc = await referrerRef.get();
+          const referrerDoc = await db.collection('shops').doc(relData.referrerId).get();
 
           if (referrerDoc.exists) {
             const referrerData = referrerDoc.data();
-            if (referrerData?.plan === 'pro' && referrerData?.role !== 'agency') {
-              const rewardAmount = Math.floor(paidAmount * 0.10);
-              const currentUnpaid = (referrerData.unpaidRewardTotal || 0) + rewardAmount;
-              if (currentUnpaid >= 10000) {
-                await referrerRef.update({
-                  unpaidRewardTotal: currentUnpaid,
-                  payoutStatus: 'pending',
-                  updatedAt: FieldValue.serverTimestamp(),
-                });
-                await sendAdminPayoutNotification(referrerData, referrerDoc.id, currentUnpaid);
-              } else {
-                await referrerRef.update({
-                  unpaidRewardTotal: currentUnpaid,
-                  updatedAt: FieldValue.serverTimestamp(),
+            const isAgency = referrerData?.role === 'agency';
+            const isPro = referrerData?.plan === 'pro' || referrerData?.role === 'pro';
+
+            if (isAgency || isPro) {
+              let effectiveRate = relData.rewardRate || 0.10;
+
+              if (isAgency) {
+                effectiveRate = (plan === 'pro') ? 0.30 : 0.18;
+              } else if (isPro) {
+                const hasInvoice = referrerData?.invoiceNumber && referrerData.invoiceNumber.trim() !== '';
+                effectiveRate = hasInvoice ? 0.10 : 0.09;
+              }
+
+              const rewardAmount = Math.floor(planAmount * effectiveRate);
+
+              if (rewardAmount > 0) {
+                const currentUnpaid = (referrerData?.unpaidRewardTotal || 0) + rewardAmount;
+                if (currentUnpaid >= 10000) {
+                  await referrerDoc.ref.update({
+                    unpaidRewardTotal: currentUnpaid,
+                    payoutStatus: 'pending',
+                    updatedAt: FieldValue.serverTimestamp(),
+                  });
+                  await sendAdminPayoutNotification(referrerData, referrerDoc.id, currentUnpaid);
+                } else {
+                  await referrerDoc.ref.update({
+                    unpaidRewardTotal: currentUnpaid,
+                    updatedAt: FieldValue.serverTimestamp(),
+                  });
+                }
+
+                const currentMonth = new Date().toISOString().slice(0, 7);
+                await db.collection('monthly_rewards').add({
+                  userId: referrerDoc.id,
+                  sourceTenantId: shopDoc.id,
+                  amount: rewardAmount,
+                  billingMonth: currentMonth,
+                  status: 'unpaid',
+                  createdAt: FieldValue.serverTimestamp(),
                 });
               }
             }
           }
         }
 
-        console.log(`[アカウント自動復活/更新] 店舗: ${shopDoc.data().name} (${customerEmail})`);
-        return NextResponse.json({ success: true, message: '契約ステータスおよび報酬を更新しました' }, { status: 200 });
+        console.log(`[アカウント更新・継続課金報酬加算] 店舗: ${shopData.name} (${customerEmail})`);
+        return NextResponse.json({ success: true, message: '契約更新完了' }, { status: 200 });
       }
 
       // ============================================================
