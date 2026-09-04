@@ -178,6 +178,7 @@ export default function SignupPage() {
     sessionStorage.setItem('went_to_confirm', 'true');
     sessionStorage.setItem('signup_data', JSON.stringify(formData));
     router.push('/signup/confirm');
+  };
 
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
