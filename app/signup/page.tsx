@@ -46,29 +46,30 @@ export default function SignupPage() {
   const [termsAgreed, setTermsAgreed] = useState(false);
 
   // ============================================================
-  // 戻ったときに入力値を復元する
+  // 戻ったときに入力値を復元する（確認画面から戻ってきた場合のみ）
   // ============================================================
   useEffect(() => {
-    const stored = sessionStorage.getItem('signup_data');
-    if (stored) {
-      try {
-        const data = JSON.parse(stored);
-        setEmail(data.email || '');
-        setCompanyName(data.companyName || '');
-        setPhone(data.phone || '');
-        setAddress(data.address || '');
-        setInvoiceNumber(data.invoiceNumber || '');
-        setSelectedPlan(data.plan || 'light');
-        if (data.bankAccount) {
-          setBankName(data.bankAccount.bankName || '');
-          setBranchName(data.bankAccount.branchName || '');
-          setAccountType(data.bankAccount.accountType || 'savings');
-          setAccountNumber(data.bankAccount.accountNumber || '');
-          setAccountHolder(data.bankAccount.accountHolder || '');
-        }
-      } catch (e) {
-        // 無視
+    if (sessionStorage.getItem('went_to_confirm') === 'true') {
+      const stored = sessionStorage.getItem('signup_data');
+      if (stored) {
+        try {
+          const data = JSON.parse(stored);
+          setEmail(data.email || '');
+          setCompanyName(data.companyName || '');
+          setPhone(data.phone || '');
+          setAddress(data.address || '');
+          setInvoiceNumber(data.invoiceNumber || '');
+          setSelectedPlan(data.plan || 'light');
+          if (data.bankAccount) {
+            setBankName(data.bankAccount.bankName || '');
+            setBranchName(data.bankAccount.branchName || '');
+            setAccountType(data.bankAccount.accountType || 'savings');
+            setAccountNumber(data.bankAccount.accountNumber || '');
+            setAccountHolder(data.bankAccount.accountHolder || '');
+          }
+        } catch (e) {}
       }
+      sessionStorage.removeItem('went_to_confirm');
     }
   }, []);
 
@@ -101,7 +102,7 @@ export default function SignupPage() {
       return;
     }
 
-    // ③ PROプラン時は銀行口座が必須
+        // ③ PROプラン時は銀行口座が必須
     if (selectedPlan === 'pro') {
       if (!bankName || !branchName || !accountNumber || !accountHolder) {
         alert('PROプランでは銀行口座情報が必須です。すべて入力してください。');
@@ -127,17 +128,23 @@ export default function SignupPage() {
 
       if (checkRes.status === 409) {
         if (checkData.alreadyPaid) {
-          alert('このメールアドレスはすでに登録済みです。\n管理画面からログインしてください。\n（アップグレードの場合は管理画面より行ってください。）');
+          alert('このメールアドレスはすでに登録済みです。\n管理画面からログインしてください。');
           router.push('/admin');
         } else {
           alert('このメールアドレスはすでに申し込み中です。\n決済を完了させるか、別のメールアドレスをご使用ください。');
         }
-        return; // 確認画面に進まない
+        return;
       }
     } catch (err: any) {
       alert('メールアドレスの確認中にエラーが発生しました: ' + err.message);
       return;
     }
+
+    const formData = {
+      email,
+      plan: selectedPlan,
+      // ...
+    };
 
     // ============================================================
     // 確認画面へ遷移（APIは呼ばない）
@@ -158,6 +165,7 @@ export default function SignupPage() {
       } : null,
     };
 
+    sessionStorage.setItem('went_to_confirm', 'true');
     sessionStorage.setItem('signup_data', JSON.stringify(formData));
     router.push('/signup/confirm');
   };
