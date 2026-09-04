@@ -32,7 +32,6 @@ export async function GET(request: Request) {
       shopId: doc.id,
       name: data?.name || '登録店舗',
       status: data?.status || 'pending_payment',
-      upgradeStatus: data?.upgradeStatus || null,
       coupon: data?.coupon || null,
       linkUrl: data?.linkUrl || '',
       iconUrl: data?.iconUrl || '',
