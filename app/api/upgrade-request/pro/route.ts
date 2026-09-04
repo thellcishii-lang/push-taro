@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     }
 
     // 決済リンクに shopId をパラメータとして付与
-    const paymentUrl = `${PRO_PAYMENT_URL}?shop_id=${shopId}&upgrade=pro`;
+    const paymentUrl = `${PRO_PAYMENT_URL}?s=${shopId}&upgrade=pro`;
 
     // アップグレード申請受付メール（決済案内）
     await sendEmail({
