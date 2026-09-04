@@ -14,6 +14,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { plan, companyName, invoiceNumber, address, phone, email } = body;
+    const normalizedEmail = email.trim().toLowerCase();
 
     if (!email || !companyName) {
       return NextResponse.json(
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
 // メールアドレスの重複チェック
 // ============================================================
 const existingShops = await db.collection('shops')
-  .where('email', '==', email)
+  .where('email', '==', normalizedEmail)
   .get();
 
 if (!existingShops.empty) {
