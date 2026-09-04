@@ -24,6 +24,7 @@ const auth = getAuth(app);
 export default function SignupPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [referralCode, setReferralCode] = useState('');
 
   // プラン選択
   const [selectedPlan, setSelectedPlan] = useState<'light' | 'standard' | 'pro'>('light');
@@ -49,6 +50,14 @@ export default function SignupPage() {
   // 戻ったときに入力値を復元する（確認画面から戻ってきた場合のみ）
   // ============================================================
   useEffect(() => {
+    // 1. URLクエリパラメータから紹介コードを自動取得（例: /signup?ref=UBGIEXEK）
+    const params = new URLSearchParams(window.location.search);
+    const refFromUrl = params.get('ref') || params.get('code');
+    if (refFromUrl) {
+      setReferralCode(refFromUrl.toUpperCase());
+    }
+
+    // 2. 確認画面から戻ってきた場合のみデータを復元
     if (sessionStorage.getItem('went_to_confirm') === 'true') {
       const stored = sessionStorage.getItem('signup_data');
       if (stored) {
@@ -60,6 +69,12 @@ export default function SignupPage() {
           setAddress(data.address || '');
           setInvoiceNumber(data.invoiceNumber || '');
           setSelectedPlan(data.plan || 'light');
+          
+          // 🔑 URLに紹介コードがなかった場合のみ、セッションの紹介コードを復元
+          if (data.referralCode && !refFromUrl) {
+            setReferralCode(data.referralCode);
+          }
+
           if (data.bankAccount) {
             setBankName(data.bankAccount.bankName || '');
             setBranchName(data.bankAccount.branchName || '');
@@ -143,13 +158,14 @@ export default function SignupPage() {
     // ============================================================
     // 確認画面へ遷移（APIは呼ばない）
     // ============================================================
-    const formData = {
+   const formData = {
       email,
       plan: selectedPlan,
       companyName,
       invoiceNumber,
       address,
       phone: phone.replace(/-/g, ''),
+      referralCode: referralCode.trim().toUpperCase(), // 🔑 この1行だけ追加
       bankAccount: selectedPlan === 'pro' ? {
         bankName,
         branchName,
@@ -162,7 +178,6 @@ export default function SignupPage() {
     sessionStorage.setItem('went_to_confirm', 'true');
     sessionStorage.setItem('signup_data', JSON.stringify(formData));
     router.push('/signup/confirm');
-  };
 
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
