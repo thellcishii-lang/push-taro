@@ -17,10 +17,9 @@ export default function PaymentCheckContent() {
     fetch(`/api/shop-info?s=${shopId}`)
       .then((res) => res.json())
       .then((data) => {
-        // ✅ 修正：status が active または upgradeStatus が completed の場合
-        if (data.success && (data.status === 'active' || data.upgradeStatus === 'completed')) {
-          setIsActive(true);
-          return;
+        if (data.success && data.status === 'active') {
+                   setIsActive(true);
+            return;
         }
         // active 以外はテストリンクへリダイレクト
         const plan = data.plan || 'light';
