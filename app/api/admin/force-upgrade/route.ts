@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../lib/firebase-admin';
+import { db } from '../../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
-import { sendEmail } from '../../../lib/mailer';
+import { sendEmail } from '../../../../lib/mailer';
 
 export async function POST(request: Request) {
   try {
