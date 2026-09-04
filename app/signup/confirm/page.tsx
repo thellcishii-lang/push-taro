@@ -25,8 +25,9 @@ export default function SignupConfirmPage() {
   }, [router]);
 
   const handleBack = () => {
-    router.push('/signup');
-  };
+  sessionStorage.setItem('went_to_confirm', 'true');
+  router.push('/signup');
+};
 
   const handleSubmit = async () => {
     if (!formData) return;
