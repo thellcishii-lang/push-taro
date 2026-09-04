@@ -53,23 +53,38 @@ if (!existingShops.empty) {
   }
 
   if (isActive) {
-    return NextResponse.json({
-      error: 'このメールアドレスはすでにご登録済みです。管理画面よりログインしてください。',
-      status: 'already_registered',
-      alreadyPaid: true, // ← この1行を追加
-    }, { status: 409 });
-  }
-}
-// ============================================================
-// 重複チェックここまで
-// ============================================================
+        return NextResponse.json({
+          error: 'このメールアドレスはすでにご登録済みです。管理画面よりログインしてください。',
+          status: 'already_registered',
+          alreadyPaid: true,
+        }, { status: 409 });
+      }
+    }
+
+    // 🔑 追加：checkOnly が true の場合はここでチェック完了として返す（DB保存・メール送信はしない）
+    if (checkOnly) {
+      return NextResponse.json({
+        success: true,
+        message: '利用可能なメールアドレスです。',
+      });
+    }
+
+    // ============================================================
+    // これ以降は確認画面（confirm）からの本申し込み処理
+    // ============================================================
+    if (!companyName) {
+      return NextResponse.json(
+        { error: '必須項目が不足しています' },
+        { status: 400 }
+      );
+    }
 
     // ① 仮店舗ドキュメントを作成（status: pending_payment）
     const shopData = {
       name: companyName,
       email: normalizedEmail,
       plan: plan || 'light',
-      status: 'pending_payment', // 🔑 決済待ち
+      status: 'pending_payment',
       createdAt: FieldValue.serverTimestamp(),
       coupon: { enabled: false, title: '', description: '', discountRate: 0 },
       linkUrl: '',
@@ -77,9 +92,8 @@ if (!existingShops.empty) {
       invoiceNumber: invoiceNumber || '',
       address: address || '',
       phone: phone || '',
-      // Authはまだ作成しない！
+      bankAccount: bankAccount || null, // 🔑 口座情報も保存
     };
-
     const shopRef = await db.collection('shops').add(shopData);
     const shopId = shopRef.id;
     const referralCode = shopId.slice(0, 8).toUpperCase();
