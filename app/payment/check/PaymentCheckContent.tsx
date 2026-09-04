@@ -14,6 +14,13 @@ export default function PaymentCheckContent() {
       window.location.href = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
       return;
     }
+    fetch(`/api/shop-info?s=${shopId}`)
+  .then((res) => res.json())
+  .then((data) => {
+    // 🔍 取得できたデータをアラート表示して確認
+    alert(`取得データ:\nstatus: ${data.status}\nupgradeStatus: ${data.upgradeStatus}`);
+    
+    // 以下、既存判定処理...
 
     // shop-info API から店舗データを取得
     fetch(`/api/shop-info?s=${shopId}`)
