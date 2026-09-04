@@ -3,7 +3,7 @@ import { db } from '../../../lib/firebase-admin';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const shopId = searchParams.get('s') || searchParams.get('shopid');
+  const shopId = searchParams.get('s') || searchParams.get('shopId') || searchParams.get('shopid');
 
   if (!shopId || shopId === 'undefined' || shopId === 'null' || shopId.trim() === '') {
     return NextResponse.json(
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
       name: data?.name || '登録店舗',
       status: data?.status || 'pending_payment',
       coupon: data?.coupon || null,
-      upgradeStatus: shopData?.upgradeStatus || null,
+      upgradeStatus: data?.upgradeStatus || null, // 🔑 shopData ではなく data に修正
       linkUrl: data?.linkUrl || '',
       iconUrl: data?.iconUrl || '',
       plan: data?.plan || 'free',
