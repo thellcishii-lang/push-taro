@@ -126,7 +126,7 @@ export default function SignupPage() {
       });
       const checkData = await checkRes.json();
 
-      if (checkRes.status === 409) {
+      if (checkRes.status === 409 || (checkRes.ok && !checkData.available)) {
         if (checkData.alreadyPaid) {
           alert('このメールアドレスはすでに登録済みです。\n管理画面からログインしてください。');
           router.push('/admin');
