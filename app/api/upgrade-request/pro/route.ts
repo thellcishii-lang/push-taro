@@ -75,13 +75,18 @@ export async function POST(request: Request) {
     // アップグレード申請受付メール（決済案内）
     await sendEmail({
   to: shopData?.email || '',  // ← オプショナルチェーン + フォールバック
-  subject: '【プッシュ太郎】PROプラン アップグレード申請受付',  // ← 正しい名称
+  subject: '【Push-taro】PROプラン アップグレード申請受付', 
   html: `
-    <h2>${shopData?.name || '店舗'} 様</h2>  // ← オプショナルチェーン + フォールバック
+    <h2>${shopData?.name || '店舗'} 様</h2> 
     <p>PROプランへのアップグレード申請を受け付けました。</p>
     <p>以下のリンクより決済手続きをお進めください。</p>
     <p><a href="${paymentUrl}" style="display:inline-block;padding:12px 24px;background:#ff4500;color:#fff;border-radius:6px;text-decoration:none;">決済画面へ進む</a></p>
     <p>決済完了後、PROプランが有効になり、紹介報酬機能もご利用いただけます。</p>
+    <hr />
+    <p><strong>Push-taro.com</strong></p>
+        <p>運営会社：the合同会社</p>
+        <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
+        <p><a href="mailto:pushtaro-info@gmail.com">pushtaro.info@gmail.com</a></p>
   `,
 });
 
