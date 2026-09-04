@@ -105,34 +105,7 @@ export default function SignupPage() {
 
   sessionStorage.setItem('signup_data', JSON.stringify(formData));
   router.push('/signup/confirm');
-  // 🔥 ここまで修正
-
-
-    
-    // ============================================================
-
-    setLoading(true);
-
-    try {
-      const res = await fetch('/api/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          plan: selectedPlan,
-          companyName,
-          invoiceNumber,
-          address,
-          phone: phoneClean,
-          bankAccount: selectedPlan === 'pro' ? {
-            bankName,
-            branchName,
-            accountType,
-            accountNumber,
-            accountHolder,
-          } : null,
-        }),
-      });
+  
 
       const data = await res.json();
 
