@@ -320,6 +320,23 @@ export default function SignupPage() {
               />
             </div>
 
+            {/* 🔑 追加: 紹介コード入力欄（任意） */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>
+                紹介コード（任意）
+              </label>
+              <input
+                type="text"
+                placeholder="例: UBGIEXEK（お持ちの方のみ）"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+              />
+              <p style={{ fontSize: '11px', color: '#718096', margin: '4px 0 0 0' }}>
+                ※紹介者から案内された8桁のコードがある場合はご入力ください。
+              </p>
+            </div>
+
             {/* ❌ パスワード入力欄は削除（システム自動発行） */}
           </div>
 
