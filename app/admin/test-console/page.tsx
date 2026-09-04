@@ -549,6 +549,56 @@ const [activationResult, setActivationResult] = useState<any>(null);
     </pre>
   )}
 </section>
+
+      {/* ============================================================ */}
+{/* アップグレード強制アクティベーション */}
+{/* ============================================================ */}
+<section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24 }}>
+  <h2 style={{ marginTop: 0, fontSize: 18, color: '#1e293b' }}>⚡ アップグレード強制アクティベーション</h2>
+  <p style={{ fontSize: 12, color: '#64748b', marginTop: -8, marginBottom: 16 }}>
+    upgradeStatus が pending_payment の店舗を、決済をスキップして強制的にアップグレード完了状態にします。
+  </p>
+
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      <input
+        type="text"
+        placeholder="店舗ID"
+        id="test-force-upgrade-shopid"
+        style={{ flex: 1, minWidth: 200, padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 13 }}
+      />
+      <select
+        id="test-force-upgrade-plan"
+        style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 13 }}
+      >
+        <option value="standard">STANDARD</option>
+        <option value="pro">PRO</option>
+      </select>
+    </div>
+    <button
+      onClick={async () => {
+        const shopId = (document.getElementById('test-force-upgrade-shopid') as HTMLInputElement)?.value;
+        const targetPlan = (document.getElementById('test-force-upgrade-plan') as HTMLSelectElement)?.value;
+        if (!shopId) { alert('店舗IDを入力してください'); return; }
+        try {
+          const res = await fetch('/api/admin/force-upgrade', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ shopId, targetPlan }),
+          });
+          const data = await res.json();
+          alert(`✅ レスポンス:\n${JSON.stringify(data, null, 2)}`);
+        } catch (err: any) {
+          alert('❌ エラー: ' + err.message);
+        }
+      }}
+      style={{ padding: '8px 16px', background: '#8b5cf6', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 'bold' }}
+    >
+      🚀 強制アップグレード実行
+    </button>
+    <span style={{ fontSize: 11, color: '#94a3b8' }}>※ 事前に管理画面でアップグレード申請（pending_payment状態）を作成してください。</span>
+  </div>
+</section>
     </main>
   );
 }
