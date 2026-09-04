@@ -68,7 +68,7 @@ export async function POST(request: Request) {
     // アップグレード申請受付メール（決済案内）
     await sendEmail({
   to: shopData?.email || '',  // ← オプショナルチェーン + フォールバック
-  subject: '【Push-taro】スタンダードプラン アップグレード申請受付',  // ← 正しい名称
+  subject: '【Push-taro】スタンダードプラン アップグレード申請受付',  
   html: `
     <h2>${shopData?.name || '店舗'} 様</h2> 
     <p>スタンダードプランへのアップグレード申請を受け付けました。</p>
