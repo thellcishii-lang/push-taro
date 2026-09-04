@@ -13,7 +13,7 @@ function generateSquarePaymentLink(shopId: string, email: string, amount: number
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { plan, companyName, invoiceNumber, address, phone, email } = body;
+　　　　　　　　const { plan, companyName, invoiceNumber, address, phone, email, checkOnly, bankAccount } = body;
     const normalizedEmail = email.trim().toLowerCase();
 
     if (!email || !companyName) {
