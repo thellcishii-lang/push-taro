@@ -75,6 +75,7 @@ export async function POST(request: Request) {
     <p>以下のリンクより決済手続きをお進めください。</p>
     <p><a href="${paymentUrl}" style="display:inline-block;padding:12px 24px;background:#0284c7;color:#fff;border-radius:6px;text-decoration:none;">決済画面へ進む</a></p>
     <p>決済完了後、プランが自動的に更新されます。</p>
+    <hr />
     <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
         <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
