@@ -63,7 +63,7 @@ export async function POST(request: Request) {
     }
 
     // 決済リンクに shopId をパラメータとして付与（Webhookで特定用）
-    const paymentUrl = `${STANDARD_PAYMENT_URL}?shop_id=${shopId}&upgrade=standard`;
+    const paymentUrl = `${STANDARD_PAYMENT_URL}?s=${shopId}&upgrade=standard`;
 
     // アップグレード申請受付メール（決済案内）
     await sendEmail({
