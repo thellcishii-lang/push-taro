@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { initializeApp, getApps, getApp } from 'firebase/app';
@@ -46,7 +46,34 @@ export default function SignupPage() {
   const [termsAgreed, setTermsAgreed] = useState(false);
 
   // ============================================================
-  // 本登録処理（送信）
+  // 戻ったときに入力値を復元する
+  // ============================================================
+  useEffect(() => {
+    const stored = sessionStorage.getItem('signup_data');
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        setEmail(data.email || '');
+        setCompanyName(data.companyName || '');
+        setPhone(data.phone || '');
+        setAddress(data.address || '');
+        setInvoiceNumber(data.invoiceNumber || '');
+        setSelectedPlan(data.plan || 'light');
+        if (data.bankAccount) {
+          setBankName(data.bankAccount.bankName || '');
+          setBranchName(data.bankAccount.branchName || '');
+          setAccountType(data.bankAccount.accountType || 'savings');
+          setAccountNumber(data.bankAccount.accountNumber || '');
+          setAccountHolder(data.bankAccount.accountHolder || '');
+        }
+      } catch (e) {
+        // 無視
+      }
+    }
+  }, []);
+
+  // ============================================================
+  // 本登録処理（送信）→ 確認画面へ遷移（APIは呼ばない）
   // ============================================================
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +87,7 @@ export default function SignupPage() {
     // 送信前バリデーション
     // ============================================================
     
-    // ① メールアドレス確認
+    // ① メールアドレス確認（2回入力チェック）
     const emailConfirm = (document.getElementById('emailConfirm') as HTMLInputElement)?.value;
     if (email !== emailConfirm) {
       alert('メールアドレスが一致しません。もう一度入力してください。');
@@ -87,56 +114,52 @@ export default function SignupPage() {
       }
     }
 
-    const formData = {
-    email,
-    plan: selectedPlan,
-    companyName,
-    invoiceNumber,
-    address,
-    phone: phone.replace(/-/g, ''),
-    bankAccount: selectedPlan === 'pro' ? {
-      bankName,
-      branchName,
-      accountType,
-      accountNumber,
-      accountHolder,
-    } : null,
-  };
+    // ============================================================
+    // 🔥 メールアドレス重複チェック（確認画面に進む前に）
+    // ============================================================
+    try {
+      const checkRes = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, checkOnly: true }),
+      });
+      const checkData = await checkRes.json();
 
-  sessionStorage.setItem('signup_data', JSON.stringify(formData));
-  router.push('/signup/confirm');
-  
-
-      const data = await res.json();
-
-      if (res.status === 409 && data.alreadyPaid) {
-  alert('このメールアドレスは既に決済が完了しています。\n管理画面からログインしてください。');
-  router.push('/admin');
-  return;
-}
-
-      if (res.status === 409) {
-  alert('このメールアドレスは既に使われております。');
-  return;
-}
-      
-      if (!res.ok) {
-        throw new Error(data.error || '登録に失敗しました。');
+      if (checkRes.status === 409) {
+        if (checkData.alreadyPaid) {
+          alert('このメールアドレスはすでに登録済みです。\n管理画面からログインしてください。\n（アップグレードの場合は管理画面より行ってください。）');
+          router.push('/admin');
+        } else {
+          alert('このメールアドレスはすでに申し込み中です。\n決済を完了させるか、別のメールアドレスをご使用ください。');
+        }
+        return; // 確認画面に進まない
       }
-
-      // ✅ 決済リンクがあればリダイレクト（Squareへ）
-      if (data.paymentUrl) {
-        window.location.href = data.paymentUrl;
-      } else {
-        alert('申し込みを受け付けました。メールに記載された決済リンクからお手続きください。');
-        router.push('/');
-      }
-
     } catch (err: any) {
-      alert('エラー: ' + err.message);
-    } finally {
-      setLoading(false);
+      alert('メールアドレスの確認中にエラーが発生しました: ' + err.message);
+      return;
     }
+
+    // ============================================================
+    // 確認画面へ遷移（APIは呼ばない）
+    // ============================================================
+    const formData = {
+      email,
+      plan: selectedPlan,
+      companyName,
+      invoiceNumber,
+      address,
+      phone: phone.replace(/-/g, ''),
+      bankAccount: selectedPlan === 'pro' ? {
+        bankName,
+        branchName,
+        accountType,
+        accountNumber,
+        accountHolder,
+      } : null,
+    };
+
+    sessionStorage.setItem('signup_data', JSON.stringify(formData));
+    router.push('/signup/confirm');
   };
 
   return (
