@@ -11,18 +11,17 @@ export default function PaymentCheckContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 🔑 店舗IDが存在しない場合は決済リンクへ飛ばさずエラー画面で安全に停止
+    // 🔑 店舗IDが存在しない場合
     if (!shopId) {
       setErrorMessage('店舗ID（URLパラメータ ?s=店舗ID）が指定されていません。正しいリンクからアクセスしてください。');
       setLoading(false);
       return;
     }
 
-    // 🔑 キャッシュを完全に無効化して最新の Firestore データを取得
+    // キャッシュを効かせずに最新の Firestore 状態を取得
     fetch(`/api/shop-info?s=${shopId}`, { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
-        // 🔑 API通信自体が失敗・または店舗が存在しない場合も勝手に決済へ飛ばさずエラー表示
         if (!data.success) {
           setErrorMessage(data.error || '店舗情報の取得に失敗しました。');
           setLoading(false);
@@ -30,8 +29,8 @@ export default function PaymentCheckContent() {
         }
 
         // ============================================================
-        // 🔑 【判定1】アップグレード決済完了済みのチェック
-        // Firestore 上で upgradeStatus が "completed" になっていれば最優先で通過
+        // 🔑 【絶対最優先】アップグレード完了済み（completed）のチェック
+        // APIレスポンスに upgradeStatus: "completed" があれば即座に通過して終了
         // ============================================================
         if (data.upgradeStatus === 'completed') {
           setIsActive(true);
@@ -40,8 +39,7 @@ export default function PaymentCheckContent() {
         }
 
         // ============================================================
-        // 🔑 【判定2】新規登録決済完了済みのチェック
-        // status が "active" かつ upgradeStatus が "pending_payment" でない場合
+        // 🔑 【優先判定】新規登録決済完了（active）のチェック
         // ============================================================
         if (data.status === 'active' && data.upgradeStatus !== 'pending_payment') {
           setIsActive(true);
@@ -50,8 +48,7 @@ export default function PaymentCheckContent() {
         }
 
         // ============================================================
-        // 🔑 【判定3】アップグレード未決済（Square 決済ページへリダイレクト）
-        // upgradeStatus が "pending_payment" の時だけ実行
+        // 🔑 【リダイレクト判定1】アップグレード未決済（pending_payment）
         // ============================================================
         if (data.upgradeStatus === 'pending_payment') {
           const targetPlan = data.upgradeTargetPlan || data.targetPlan || 'standard';
@@ -68,8 +65,7 @@ export default function PaymentCheckContent() {
         }
 
         // ============================================================
-        // 🔑 【判定4】新規登録未決済（Square 決済ページへリダイレクト）
-        // status が "pending_payment" の時だけ実行
+        // 🔑 【リダイレクト判定2】新規登録未決済（pending_payment）
         // ============================================================
         if (data.status === 'pending_payment') {
           const plan = data.plan || 'light';
@@ -88,7 +84,7 @@ export default function PaymentCheckContent() {
         }
 
         // ============================================================
-        // 🔑 【判定5】フォールバック（上記条件に漏れた場合は完了扱いにする）
+        // 🔑 【フォールバック】完了扱いにする
         // ============================================================
         setIsActive(true);
         setLoading(false);
@@ -100,7 +96,6 @@ export default function PaymentCheckContent() {
       });
   }, [shopId]);
 
-  // ローディング表示
   if (loading) {
     return (
       <div style={{ padding: 40, textAlign: 'center', fontFamily: 'sans-serif' }}>
@@ -110,7 +105,6 @@ export default function PaymentCheckContent() {
     );
   }
 
-  // エラー時の安全停止画面
   if (errorMessage) {
     return (
       <div style={{ padding: '60px 20px', textAlign: 'center', maxWidth: 500, margin: '0 auto', fontFamily: 'sans-serif' }}>
@@ -121,7 +115,6 @@ export default function PaymentCheckContent() {
     );
   }
 
-  // 支払い完了画面（「✅ お支払いは完了しています」を表示）
   if (isActive) {
     return (
       <div style={{ padding: '60px 20px', textAlign: 'center', maxWidth: 500, margin: '0 auto', fontFamily: 'sans-serif' }}>
