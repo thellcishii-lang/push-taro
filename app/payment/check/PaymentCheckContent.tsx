@@ -11,38 +11,46 @@ export default function PaymentCheckContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 🔑 URLパラメータに shopId が付与されていない場合
     if (!shopId) {
-      setErrorMessage('店舗ID（URLパラメータ ?s=店舗ID）が正しく渡されていません。URLをご確認ください。');
+      setErrorMessage('店舗ID（URLパラメータ ?s=店舗ID）が指定されていません。');
       setLoading(false);
       return;
     }
 
-    // shop-info API から店舗データを取得
+    // 店舗情報を取得
     fetch(`/api/shop-info?s=${shopId}`)
       .then((res) => res.json())
       .then((data) => {
-        // 🔑 APIからの取得に失敗した場合（店舗が存在しない等）
         if (!data.success) {
-          setErrorMessage(data.error || '店舗情報の取得に失敗しました。管理者へお問い合わせください。');
+          setErrorMessage(data.error || '店舗情報の取得に失敗しました。');
           setLoading(false);
           return;
         }
 
-        // ----------------------------------------------------
-        // 1. アップグレード完了（upgradeStatus === 'completed'）
-        // ----------------------------------------------------
+        // ============================================================
+        // 🔑 【最優先判定】アップグレード完了（completed）
+        // これを1番最初に判定することで、絶対にSquareへ転送させない
+        // ============================================================
         if (data.upgradeStatus === 'completed') {
           setIsActive(true);
           setLoading(false);
           return;
         }
 
-        // ----------------------------------------------------
-        // 2. アップグレード申請中（未決済）
-        // ----------------------------------------------------
+        // ============================================================
+        // 🔑 【第2判定】新規登録の支払い済み（active）
+        // ============================================================
+        if (data.status === 'active' && data.upgradeStatus !== 'pending_payment') {
+          setIsActive(true);
+          setLoading(false);
+          return;
+        }
+
+        // ============================================================
+        // 🔑 【転送処理】アップグレード未決済（pending_payment）
+        // ============================================================
         if (data.upgradeStatus === 'pending_payment') {
-          const targetPlan = data.targetPlan || data.plan || 'standard';
+          const targetPlan = data.upgradeTargetPlan || data.targetPlan || 'standard';
           let paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
 
           if (targetPlan === 'standard') {
@@ -55,9 +63,9 @@ export default function PaymentCheckContent() {
           return;
         }
 
-        // ----------------------------------------------------
-        // 3. 新規登録の未決済（status === 'pending_payment'）
-        // ----------------------------------------------------
+        // ============================================================
+        // 🔑 【転送処理】新規登録の未決済（pending_payment）
+        // ============================================================
         if (data.status === 'pending_payment') {
           const plan = data.plan || 'light';
           let paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
@@ -74,24 +82,13 @@ export default function PaymentCheckContent() {
           return;
         }
 
-        // ----------------------------------------------------
-        // 4. 新規登録の支払い済み（status === 'active'）
-        // ----------------------------------------------------
-        if (data.status === 'active') {
-          setIsActive(true);
-          setLoading(false);
-          return;
-        }
-
-        // ----------------------------------------------------
-        // 5. 上記以外のステータス（安全策として完了扱い）
-        // ----------------------------------------------------
+        // 上記いずれにも当てはまらない場合（安全策として完了扱い）
         setIsActive(true);
         setLoading(false);
       })
       .catch((err) => {
         console.error('[PaymentCheck] エラー:', err);
-        setErrorMessage('通信エラーが発生しました。ネットワーク環境をご確認の上、再度お試しください。');
+        setErrorMessage('通信エラーが発生しました。');
         setLoading(false);
       });
   }, [shopId]);
@@ -105,7 +102,6 @@ export default function PaymentCheckContent() {
     );
   }
 
-  // エラー発生時の安全な停止画面
   if (errorMessage) {
     return (
       <div style={{ padding: '60px 20px', textAlign: 'center', maxWidth: 500, margin: '0 auto', fontFamily: 'sans-serif' }}>
@@ -116,7 +112,6 @@ export default function PaymentCheckContent() {
     );
   }
 
-  // 決済完了（アクティブ）時の表示
   if (isActive) {
     return (
       <div style={{ padding: '60px 20px', textAlign: 'center', maxWidth: 500, margin: '0 auto', fontFamily: 'sans-serif' }}>
