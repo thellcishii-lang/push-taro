@@ -116,6 +116,31 @@ export default function SignupPage() {
     }
 
     // ============================================================
+    // 🔥 メールアドレス重複チェック（確認画面に進む前に）
+    // ============================================================
+    try {
+      const checkRes = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, checkOnly: true }),
+      });
+      const checkData = await checkRes.json();
+
+      if (checkRes.status === 409) {
+        if (checkData.alreadyPaid) {
+          alert('このメールアドレスはすでに登録済みです。\n管理画面からログインしてください。');
+          router.push('/admin');
+        } else {
+          alert('このメールアドレスはすでに申し込み中です。\n決済を完了させるか、別のメールアドレスをご使用ください。');
+        }
+        return; // 確認画面に行かない
+      }
+    } catch (err: any) {
+      alert('メールアドレスの確認中にエラーが発生しました: ' + err.message);
+      return;
+    }
+
+    // ============================================================
     // 確認画面へ遷移（APIは呼ばない）
     // ============================================================
     const formData = {
