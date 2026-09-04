@@ -903,6 +903,114 @@ export default function AdminPage() {
           </button>
 
           {referralInfoOpen && (
+          <div style={{ marginTop: '10px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+              
+              {/* 🔑 【追加】紹介コード・紹介URL表示カード */}
+              <div style={{
+                background: '#fff7ed',
+                border: '1px solid #fed7aa',
+                borderRadius: '10px',
+                padding: '16px',
+                marginBottom: '20px'
+              }}>
+                <h4 style={{ margin: '0 0 6px 0', fontSize: '15px', color: '#c2410c' }}>
+                  🎁 あなたの紹介特典コード・専用URL
+                </h4>
+                <p style={{ margin: '0 0 14px 0', fontSize: '12px', color: '#9a3412', lineHeight: '1.5' }}>
+                  他店舗へご紹介の際、こちらのコードまたは専用URLをご案内ください。新規店舗がご契約すると紹介報酬が発生します。
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {/* ① 紹介コード */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#78350f', marginBottom: '4px' }}>
+                      紹介コード
+                    </label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="text"
+                        readOnly
+                        value={shopId ? shopId.slice(0, 8).toUpperCase() : '取得中...'}
+                        style={{
+                          flex: 1,
+                          padding: '8px 12px',
+                          fontSize: '15px',
+                          fontWeight: 'bold',
+                          letterSpacing: '1px',
+                          background: '#fff',
+                          border: '1px solid #cbd5e0',
+                          borderRadius: '6px'
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          if (shopId) {
+                            const code = shopId.slice(0, 8).toUpperCase();
+                            navigator.clipboard.writeText(code);
+                            alert('紹介コードをコピーしました！');
+                          }
+                        }}
+                        style={{
+                          padding: '8px 14px',
+                          background: '#ea580c',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontWeight: 'bold',
+                          cursor: 'pointer',
+                          fontSize: '13px'
+                        }}
+                      >
+                        コードコピー
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* ② 自動入力用 紹介URL */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#78350f', marginBottom: '4px' }}>
+                      専用登録URL（紹介コード自動入力）
+                    </label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="text"
+                        readOnly
+                        value={shopId ? `${window.location.origin}/signup?ref=${shopId.slice(0, 8).toUpperCase()}` : '取得中...'}
+                        style={{
+                          flex: 1,
+                          padding: '8px 12px',
+                          fontSize: '12px',
+                          color: '#475569',
+                          background: '#fff',
+                          border: '1px solid #cbd5e0',
+                          borderRadius: '6px'
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          if (shopId) {
+                            const link = `${window.location.origin}/signup?ref=${shopId.slice(0, 8).toUpperCase()}`;
+                            navigator.clipboard.writeText(link);
+                            alert('紹介URLをコピーしました！');
+                          }
+                        }}
+                        style={{
+                          padding: '8px 14px',
+                          background: '#475569',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontWeight: 'bold',
+                          cursor: 'pointer',
+                          fontSize: '13px'
+                        }}
+                      >
+                        URLコピー
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             <div style={{ marginTop: '10px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
                 <div>
