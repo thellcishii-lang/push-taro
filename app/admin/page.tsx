@@ -903,9 +903,9 @@ export default function AdminPage() {
           </button>
 
           {referralInfoOpen && (
-          <div style={{ marginTop: '10px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <div style={{ marginTop: '10px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
               
-              {/* 🔑 【追加】紹介コード・紹介URL表示カード */}
+              {/* 🔑 紹介コード・紹介URL表示カード */}
               <div style={{
                 background: '#fff7ed',
                 border: '1px solid #fed7aa',
@@ -1011,7 +1011,8 @@ export default function AdminPage() {
                   </div>
                 </div>
               </div>
-            <div style={{ marginTop: '10px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+
+              {/* 明細ダウンロード & 店舗一覧 */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
                 <div>
                   <h4 style={{ margin: '0 0 5px 0', fontSize: '16px' }}>今月の報酬明細</h4>
