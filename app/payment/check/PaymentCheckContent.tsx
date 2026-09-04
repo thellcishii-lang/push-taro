@@ -17,8 +17,8 @@ export default function PaymentCheckContent() {
       return;
     }
 
-    // 店舗情報を取得
-    fetch(`/api/shop-info?s=${shopId}`)
+    // キャッシュを無効化して最新データを取得
+    fetch(`/api/shop-info?s=${shopId}`, { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
         if (!data.success) {
@@ -27,28 +27,14 @@ export default function PaymentCheckContent() {
           return;
         }
 
-        // ============================================================
-        // 🔑 【最優先判定】アップグレード完了（completed）
-        // これを1番最初に判定することで、絶対にSquareへ転送させない
-        // ============================================================
+        // 1. アップグレードが完了している場合（"completed"）
         if (data.upgradeStatus === 'completed') {
           setIsActive(true);
           setLoading(false);
-          return;
+          return; // 🔑 ここで絶対に処理を終了させる
         }
 
-        // ============================================================
-        // 🔑 【第2判定】新規登録の支払い済み（active）
-        // ============================================================
-        if (data.status === 'active' && data.upgradeStatus !== 'pending_payment') {
-          setIsActive(true);
-          setLoading(false);
-          return;
-        }
-
-        // ============================================================
-        // 🔑 【転送処理】アップグレード未決済（pending_payment）
-        // ============================================================
+        // 2. アップグレード未決済の場合（"pending_payment" の時だけ Square へ転送）
         if (data.upgradeStatus === 'pending_payment') {
           const targetPlan = data.upgradeTargetPlan || data.targetPlan || 'standard';
           let paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
@@ -63,9 +49,7 @@ export default function PaymentCheckContent() {
           return;
         }
 
-        // ============================================================
-        // 🔑 【転送処理】新規登録の未決済（pending_payment）
-        // ============================================================
+        // 3. 新規登録が未決済の場合（"pending_payment" の時だけ Square へ転送）
         if (data.status === 'pending_payment') {
           const plan = data.plan || 'light';
           let paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
@@ -82,7 +66,7 @@ export default function PaymentCheckContent() {
           return;
         }
 
-        // 上記いずれにも当てはまらない場合（安全策として完了扱い）
+        // 4. それ以外のすべての状態（status: 'active' 等）＝ 支払い完了
         setIsActive(true);
         setLoading(false);
       })
