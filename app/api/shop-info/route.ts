@@ -33,6 +33,7 @@ export async function GET(request: Request) {
       name: data?.name || '登録店舗',
       status: data?.status || 'pending_payment',
       coupon: data?.coupon || null,
+      upgradeStatus: shopData?.upgradeStatus || null,
       linkUrl: data?.linkUrl || '',
       iconUrl: data?.iconUrl || '',
       plan: data?.plan || 'free',
