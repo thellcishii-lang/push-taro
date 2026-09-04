@@ -117,36 +117,54 @@ export async function POST(request: Request) {
         const referrerDoc = referrerSnapshot.docs[0];
         const referrerData = referrerDoc.data();
         const referrerId = referrerDoc.id;
-        const referrerType = referrerData.role === 'agency' ? 'agency' : 'pro';
 
-        await shopRef.update({
-          referrerId: referrerId,
-          referredByCode: referralCodeFromBody,
-          referrerType: referrerType,
-        });
+        // 1. 紹介者の種別（代理店かPRO会員か）を判定
+        const isAgency = referrerData.role === 'agency';
+        const isPro = referrerData.plan === 'pro' || referrerData.role === 'pro';
 
-        await db.collection('referral_relations').add({
-          referrerId: referrerId,
-          referredTenantId: shopId,
-          rewardRate: referrerType === 'agency' ? 0.30 : 0.10,
-          status: 'pending',
-          createdAt: FieldValue.serverTimestamp(),
-          updatedAt: FieldValue.serverTimestamp(),
-        });
+        // 🔑 代理店でもPRO会員でもない場合は、紹介報酬対象外とする
+        if (isAgency || isPro) {
+          const referrerType = isAgency ? 'agency' : 'pro';
 
-        await sendEmail({
-          to: referrerData.email,
-          subject: `【Push-taro】紹介コード [${referralCodeFromBody}] から新規登録がありました`,
-          html: `
-            <h2>${referrerData.name || '紹介者'} 様</h2>
-            <p>あなたの紹介コード（${referralCodeFromBody}）を使用して、新しい店舗が登録されました。</p>
-            <p><strong>店舗名:</strong> ${companyName || '未設定'}</p>
-            <p>この店舗が決済を完了すると、紹介報酬が確定します。</p>
-            <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin">ダッシュボードで確認する</a></p>
-          `,
-        });
+          // 2. 新仕様に基づいた報酬率（rewardRate）の計算
+          let rewardRate = 0;
+          if (isAgency) {
+            // 代理店の場合: Proは30%、Light/Standardは18%
+            rewardRate = (plan === 'pro') ? 0.30 : 0.18;
+          } else if (isPro) {
+            // PROプラン会員の場合: 全プラン一律10%
+            rewardRate = 0.10;
+          }
 
-        console.log(`[紹介コード] 紹介者: ${referrerId} (${referrerType}), 新規店舗: ${shopId}`);
+          await shopRef.update({
+            referrerId: referrerId,
+            referredByCode: referralCodeFromBody,
+            referrerType: referrerType,
+          });
+
+          await db.collection('referral_relations').add({
+            referrerId: referrerId,
+            referredTenantId: shopId,
+            rewardRate: rewardRate, // 🔑 動的に計算された報酬率を保存
+            status: 'pending',
+            createdAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
+          });
+
+          await sendEmail({
+            to: referrerData.email,
+            subject: `【Push-taro】紹介コード [${referralCodeFromBody}] から新規登録がありました`,
+            html: `
+              <h2>${referrerData.name || '紹介者'} 様</h2>
+              <p>あなたの紹介コード（${referralCodeFromBody}）を使用して、新しい店舗が登録されました。</p>
+              <p><strong>店舗名:</strong> ${companyName || '未設定'}</p>
+              <p>この店舗が決済を完了すると、紹介報酬が確定します。</p>
+              <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin">ダッシュボードで確認する</a></p>
+            `,
+          });
+
+          console.log(`[紹介コード] 紹介者: ${referrerId} (${referrerType}), 新規店舗: ${shopId}, レート: ${rewardRate * 100}%`);
+        }
       }
     }
 
