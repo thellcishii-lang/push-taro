@@ -20,6 +20,9 @@ export default function PaymentCheckContent() {
         if (data.success && data.status === 'active') {
           setIsActive(true);
           return;
+        if (data.success && data.upgradeStatus === 'completed') {
+          setStatus('active');
+          return;
         }
         // active 以外はテストリンクへリダイレクト
         const plan = data.plan || 'light';
