@@ -15,31 +15,55 @@ export default function PaymentCheckContent() {
       return;
     }
 
-    // 店舗のステータスおよび選択プランを取得
     fetch(`/api/shop-info?s=${shopId}`)
       .then((res) => res.json())
       .then((data) => {
-        // 🔑 ① 新規登録で支払い済み（active）
-        // 🔑 ② アップグレードで完了済み（upgradeStatus === 'completed'）
-        if (data.success && (data.status === 'active' || data.upgradeStatus === 'completed')) {
-          setIsActive(true);
-          setLoading(false);
+        if (!data.success) {
+          window.location.href = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
           return;
         }
 
-        // 🔑 ② Square決済リンク生成（signup/route.ts と同じ書き方に統一）
-        const plan = data.plan || 'light';
-        let paymentUrl = '';
-
-        if (plan === 'light') {
-          paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-        } else if (plan === 'standard') {
-          paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-        } else if (plan === 'pro') {
-          paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+        // ----------------------------------------------------
+        // 🔑 判定1: アップグレード申請中のチェック
+        // ----------------------------------------------------
+        if (data.upgradeStatus === 'pending_payment') {
+          // まだアップグレード決済が完了していないため Square 決済画面へ飛ぶ
+          const targetPlan = data.targetPlan || data.plan || 'standard';
+          let paymentUrl = '';
+          if (targetPlan === 'standard') {
+            paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+          } else if (targetPlan === 'pro') {
+            paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+          } else {
+            paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+          }
+          window.location.href = paymentUrl;
+          return;
         }
 
-        window.location.href = paymentUrl;
+        // ----------------------------------------------------
+        // 🔑 判定2: 新規登録の未決済チェック
+        // ----------------------------------------------------
+        if (data.status === 'pending_payment') {
+          // 新規登録の決済がまだなので Square 決済画面へ飛ぶ
+          const plan = data.plan || 'light';
+          let paymentUrl = '';
+          if (plan === 'light') {
+            paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+          } else if (plan === 'standard') {
+            paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+          } else if (plan === 'pro') {
+            paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+          }
+          window.location.href = paymentUrl;
+          return;
+        }
+
+        // ----------------------------------------------------
+        // 🔑 判定3: 支払い完了済み（新規完了 または アップグレード完了）
+        // ----------------------------------------------------
+        setIsActive(true);
+        setLoading(false);
       })
       .catch((err) => {
         console.error('[PaymentCheck] エラー:', err);
