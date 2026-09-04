@@ -7,38 +7,45 @@ export default function PaymentCheckContent() {
   const searchParams = useSearchParams();
   const shopId = searchParams.get('shopId') || searchParams.get('s');
   const [isActive, setIsActive] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 🔑 URLパラメータに shopId が付与されていない場合
     if (!shopId) {
-      window.location.href = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+      setErrorMessage('店舗ID（URLパラメータ ?s=店舗ID）が正しく渡されていません。URLをご確認ください。');
+      setLoading(false);
       return;
     }
-    fetch(`/api/shop-info?s=${shopId}`)
-  .then((res) => res.json())
-  .then((data) => {
-    // 🔍 取得できたデータをアラート表示して確認
-    alert(`取得データ:\nstatus: ${data.status}\nupgradeStatus: ${data.upgradeStatus}`);
-    
-    // 以下、既存判定処理...
 
     // shop-info API から店舗データを取得
     fetch(`/api/shop-info?s=${shopId}`)
       .then((res) => res.json())
       .then((data) => {
+        // 🔑 APIからの取得に失敗した場合（店舗が存在しない等）
         if (!data.success) {
-          window.location.href = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+          setErrorMessage(data.error || '店舗情報の取得に失敗しました。管理者へお問い合わせください。');
+          setLoading(false);
           return;
         }
 
-        // 1. アップグレード申請中（upgradeStatus フィールドに 'pending_payment' がある場合）
+        // ----------------------------------------------------
+        // 1. アップグレード完了（upgradeStatus === 'completed'）
+        // ----------------------------------------------------
+        if (data.upgradeStatus === 'completed') {
+          setIsActive(true);
+          setLoading(false);
+          return;
+        }
+
+        // ----------------------------------------------------
+        // 2. アップグレード申請中（未決済）
+        // ----------------------------------------------------
         if (data.upgradeStatus === 'pending_payment') {
           const targetPlan = data.targetPlan || data.plan || 'standard';
           let paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
 
-          if (targetPlan === 'light') {
-            paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-          } else if (targetPlan === 'standard') {
+          if (targetPlan === 'standard') {
             paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
           } else if (targetPlan === 'pro') {
             paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
@@ -48,7 +55,9 @@ export default function PaymentCheckContent() {
           return;
         }
 
-        // 2. 新規登録の未決済状態（status フィールドが 'pending_payment' の場合）
+        // ----------------------------------------------------
+        // 3. 新規登録の未決済（status === 'pending_payment'）
+        // ----------------------------------------------------
         if (data.status === 'pending_payment') {
           const plan = data.plan || 'light';
           let paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
@@ -65,13 +74,25 @@ export default function PaymentCheckContent() {
           return;
         }
 
-        // 3. 上記の未決済パターン（pending_payment）に該当しない場合＝支払い完了済み
+        // ----------------------------------------------------
+        // 4. 新規登録の支払い済み（status === 'active'）
+        // ----------------------------------------------------
+        if (data.status === 'active') {
+          setIsActive(true);
+          setLoading(false);
+          return;
+        }
+
+        // ----------------------------------------------------
+        // 5. 上記以外のステータス（安全策として完了扱い）
+        // ----------------------------------------------------
         setIsActive(true);
         setLoading(false);
       })
       .catch((err) => {
         console.error('[PaymentCheck] エラー:', err);
-        window.location.href = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+        setErrorMessage('通信エラーが発生しました。ネットワーク環境をご確認の上、再度お試しください。');
+        setLoading(false);
       });
   }, [shopId]);
 
@@ -84,6 +105,18 @@ export default function PaymentCheckContent() {
     );
   }
 
+  // エラー発生時の安全な停止画面
+  if (errorMessage) {
+    return (
+      <div style={{ padding: '60px 20px', textAlign: 'center', maxWidth: 500, margin: '0 auto', fontFamily: 'sans-serif' }}>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
+        <h2 style={{ fontSize: 20, color: '#e11d48', marginBottom: 12 }}>確認エラー</h2>
+        <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.6 }}>{errorMessage}</p>
+      </div>
+    );
+  }
+
+  // 決済完了（アクティブ）時の表示
   if (isActive) {
     return (
       <div style={{ padding: '60px 20px', textAlign: 'center', maxWidth: 500, margin: '0 auto', fontFamily: 'sans-serif' }}>
