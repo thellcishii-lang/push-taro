@@ -11,30 +11,48 @@ export default function PaymentCheckContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 🔑 店舗IDが存在しない場合は決済リンクへ飛ばさずエラー画面で安全に停止
     if (!shopId) {
-      setErrorMessage('店舗ID（URLパラメータ ?s=店舗ID）が指定されていません。');
+      setErrorMessage('店舗ID（URLパラメータ ?s=店舗ID）が指定されていません。正しいリンクからアクセスしてください。');
       setLoading(false);
       return;
     }
 
-    // キャッシュを無効化して最新データを取得
+    // 🔑 キャッシュを完全に無効化して最新の Firestore データを取得
     fetch(`/api/shop-info?s=${shopId}`, { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
+        // 🔑 API通信自体が失敗・または店舗が存在しない場合も勝手に決済へ飛ばさずエラー表示
         if (!data.success) {
           setErrorMessage(data.error || '店舗情報の取得に失敗しました。');
           setLoading(false);
           return;
         }
 
-        // 1. アップグレードが完了している場合（"completed"）
+        // ============================================================
+        // 🔑 【判定1】アップグレード決済完了済みのチェック
+        // Firestore 上で upgradeStatus が "completed" になっていれば最優先で通過
+        // ============================================================
         if (data.upgradeStatus === 'completed') {
           setIsActive(true);
           setLoading(false);
-          return; // 🔑 ここで絶対に処理を終了させる
+          return;
         }
 
-        // 2. アップグレード未決済の場合（"pending_payment" の時だけ Square へ転送）
+        // ============================================================
+        // 🔑 【判定2】新規登録決済完了済みのチェック
+        // status が "active" かつ upgradeStatus が "pending_payment" でない場合
+        // ============================================================
+        if (data.status === 'active' && data.upgradeStatus !== 'pending_payment') {
+          setIsActive(true);
+          setLoading(false);
+          return;
+        }
+
+        // ============================================================
+        // 🔑 【判定3】アップグレード未決済（Square 決済ページへリダイレクト）
+        // upgradeStatus が "pending_payment" の時だけ実行
+        // ============================================================
         if (data.upgradeStatus === 'pending_payment') {
           const targetPlan = data.upgradeTargetPlan || data.targetPlan || 'standard';
           let paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
@@ -49,7 +67,10 @@ export default function PaymentCheckContent() {
           return;
         }
 
-        // 3. 新規登録が未決済の場合（"pending_payment" の時だけ Square へ転送）
+        // ============================================================
+        // 🔑 【判定4】新規登録未決済（Square 決済ページへリダイレクト）
+        // status が "pending_payment" の時だけ実行
+        // ============================================================
         if (data.status === 'pending_payment') {
           const plan = data.plan || 'light';
           let paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
@@ -66,17 +87,20 @@ export default function PaymentCheckContent() {
           return;
         }
 
-        // 4. それ以外のすべての状態（status: 'active' 等）＝ 支払い完了
+        // ============================================================
+        // 🔑 【判定5】フォールバック（上記条件に漏れた場合は完了扱いにする）
+        // ============================================================
         setIsActive(true);
         setLoading(false);
       })
       .catch((err) => {
         console.error('[PaymentCheck] エラー:', err);
-        setErrorMessage('通信エラーが発生しました。');
+        setErrorMessage('通信エラーが発生しました。ネットワーク接続を確認してください。');
         setLoading(false);
       });
   }, [shopId]);
 
+  // ローディング表示
   if (loading) {
     return (
       <div style={{ padding: 40, textAlign: 'center', fontFamily: 'sans-serif' }}>
@@ -86,6 +110,7 @@ export default function PaymentCheckContent() {
     );
   }
 
+  // エラー時の安全停止画面
   if (errorMessage) {
     return (
       <div style={{ padding: '60px 20px', textAlign: 'center', maxWidth: 500, margin: '0 auto', fontFamily: 'sans-serif' }}>
@@ -96,6 +121,7 @@ export default function PaymentCheckContent() {
     );
   }
 
+  // 支払い完了画面（「✅ お支払いは完了しています」を表示）
   if (isActive) {
     return (
       <div style={{ padding: '60px 20px', textAlign: 'center', maxWidth: 500, margin: '0 auto', fontFamily: 'sans-serif' }}>
