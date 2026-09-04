@@ -10,49 +10,42 @@ export default function PaymentCheckContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 🔑 環境変数の取得（テスト用）
-    const getSquareUrl = (plan: string) => {
-      if (plan === 'standard') {
-        return process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-      } else if (plan === 'pro') {
-        return process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-      }
-      return process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-    };
+    const testUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
 
     if (!shopId) {
-      window.location.href = getSquareUrl('light');
+      window.location.href = testUrl;
       return;
     }
 
-    // 🔑 Firestoreに保存された最新の店舗情報を取得して判定
     fetch(`/api/shop-info?s=${shopId}`)
       .then((res) => res.json())
       .then((data) => {
         if (!data.success) {
-          window.location.href = getSquareUrl('light');
+          window.location.href = testUrl;
           return;
         }
 
-        // ① 新規登録の未決済状態
-        if (data.status === 'pending_payment') {
-          window.location.href = getSquareUrl(data.plan || 'light');
-          return;
-        }
-
-        // ② アップグレード申請中（未決済）の状態
+        // 🔑 ① アップグレード専用フィールド（upgradeStatus）をピンポイントで読み出す
         if (data.upgradeStatus === 'pending_payment') {
-          window.location.href = getSquareUrl(data.targetPlan || data.plan || 'standard');
+          // アップグレードの未決済なので Square へリダイレクト
+          window.location.href = testUrl;
           return;
         }
 
-        // 🔑 ③ 上記以外の状態（active / upgradeStatus === 'completed' 等）＝ 支払い完了
+        // 🔑 ② 新規用のステータス（status）を読み出す
+        if (data.status === 'pending_payment') {
+          // 新規登録の未決済なので Square へリダイレクト
+          window.location.href = testUrl;
+          return;
+        }
+
+        // 🔑 ③ 上記の pending_payment（未決済）に該当しない場合はすべて支払い済み！
         setIsActive(true);
         setLoading(false);
       })
       .catch((err) => {
         console.error('[PaymentCheck] エラー:', err);
-        window.location.href = getSquareUrl('light');
+        window.location.href = testUrl;
       });
   }, [shopId]);
 
