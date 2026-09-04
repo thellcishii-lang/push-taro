@@ -23,6 +23,10 @@ export default function TestConsolePage() {
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  // 🔍 shop-info 検証用ステート
+const [inspectShopId, setInspectShopId] = useState('');
+const [shopInfoResult, setShopInfoResult] = useState<any>(null);
+const [inspecting, setInspecting] = useState(false);
 
   // ⚡️ テスト用店舗アカウント即時発行用の状態
   const [dummyEmail, setDummyEmail] = useState('test-shop@example.com');
@@ -154,6 +158,26 @@ const [activationResult, setActivationResult] = useState<any>(null);
       setSending(false);
     }
   };
+
+  // 🔍 shop-info API 直接取得処理
+const handleInspectShopInfo = async () => {
+  if (!inspectShopId.trim()) {
+    alert('店舗IDを入力してください');
+    return;
+  }
+  setInspecting(true);
+  setShopInfoResult(null);
+
+  try {
+    const res = await fetch(`/api/shop-info?s=${inspectShopId.trim()}`, { cache: 'no-store' });
+    const data = await res.json();
+    setShopInfoResult(data);
+  } catch (err: any) {
+    setShopInfoResult({ success: false, error: err.message });
+  } finally {
+    setInspecting(false);
+  }
+};
 
   const fetchPendingShops = async () => {
   setLoading(true);
@@ -599,6 +623,45 @@ const [activationResult, setActivationResult] = useState<any>(null);
     <span style={{ fontSize: 11, color: '#94a3b8' }}>※ 事前に管理画面でアップグレード申請（pending_payment状態）を作成してください。</span>
   </div>
 </section>
+
+      {/* ============================================================ */}
+      {/* 🔍 店舗データ（shop-info）リアルタイム確認コンソール */}
+      {/* ============================================================ */}
+      <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <h2 style={{ marginTop: 0, fontSize: 18, color: '#1e293b' }}>🔍 店舗データ（shop-info）確認</h2>
+        <p style={{ fontSize: 12, color: '#64748b', marginTop: -8, marginBottom: 16 }}>
+          shopId を入力して、/api/shop-info が今どのようなステータス（status, upgradeStatus 等）を返しているかを直接検証します。
+        </p>
+
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+          <input
+            type="text"
+            placeholder="店舗ID（例: shop_12345）"
+            value={inspectShopId}
+            onChange={(e) => setInspectShopId(e.target.value)}
+            style={{ flex: 1, padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 13 }}
+          />
+          <button
+            onClick={handleInspectShopInfo}
+            disabled={inspecting}
+            style={{ padding: '8px 16px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: 6, cursor: inspecting ? 'wait' : 'pointer', fontWeight: 'bold' }}
+          >
+            {inspecting ? '取得中...' : '🔍 データを取得'}
+          </button>
+        </div>
+
+        {shopInfoResult && (
+          <div style={{ marginTop: 12, padding: 14, background: '#0f172a', color: '#f8fafc', borderRadius: 6, fontFamily: 'monospace', fontSize: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: '#38bdf8', fontWeight: 'bold' }}>
+              <span>📡 /api/shop-info レスポンス結果</span>
+              <span>success: {String(shopInfoResult.success)}</span>
+            </div>
+            <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+              {JSON.stringify(shopInfoResult, null, 2)}
+            </pre>
+          </div>
+        )}
+      </section>
     </main>
   );
 }
