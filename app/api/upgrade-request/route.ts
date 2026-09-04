@@ -73,7 +73,9 @@ export async function POST(request: Request) {
     <h2>${shopData?.name || '店舗'} 様</h2> 
     <p>スタンダードプランへのアップグレード申請を受け付けました。</p>
     <p>以下のリンクより決済手続きをお進めください。</p>
-    <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/payment/check?shopId=${shopId}" style="display:inline-block;padding:12px 24px;background:#0284c7;color:#fff;border-radius:6px;text-decoration:none;">決済画面へ進む</a></p>
+    href="${process.env.NEXT_PUBLIC_APP_URL}/payment/check?shopId=${shopId}" 
+            style="display:inline-block; padding:12px 24px; background:#3182ce; color:#fff; border-radius:6px; text-decoration:none; font-weight:bold;"
+          >
     <p>決済完了後、プランが自動的に更新されます。</p>
     <hr />
     <p><strong>Push-taro.com</strong></p>
