@@ -70,6 +70,10 @@ export default function AdminPage() {
   const [history, setHistory] = useState<PushHistory[]>([]);
   const [subscriberCount, setSubscriberCount] = useState<number | null>(null);
 
+  // 退会ステート
+  const [shopStatus, setShopStatus] = useState<string>('active');
+　　　　const [validUntilDate, setValidUntilDate] = useState<string>('');
+
  useEffect(() => {
   const unsub = onAuthStateChanged(auth, async (u) => {
     setUser(u);
@@ -110,6 +114,11 @@ export default function AdminPage() {
               setShopName(shop?.name || '');
               if (shop?.plan) setPlan(shop.plan);
               if (shop?.role) setRole(shop.role);
+              if (shop?.status) setShopStatus(shop.status);
+　　　　　　　　　　　　　　　　　　　　　　　　　　　　if (shop?.validUntil) {
+              const vDate = shop.validUntil._seconds ? new Date(shop.validUntil._seconds * 1000) : new Date(shop.validUntil);
+                           setValidUntilDate(vDate.toISOString().slice(0, 10));
+　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　}
 
               if (shop?.coupon) {
                 setCouponEnabled(shop.coupon.enabled);
@@ -541,6 +550,20 @@ export default function AdminPage() {
               >
                 {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 設定を保存'}
               </button>
+
+              <div style={{ marginTop: '30px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
+  {shopStatus === 'canceled' ? (
+    <div style={{ background: '#fff3e0', border: '1px solid #ffe0b2', padding: '16px', borderRadius: '8px', color: '#e65100', fontWeight: 'bold', fontSize: '14px' }}>
+      ⚠️ 退会手続きが完了しています。{validUntilDate ? `${validUntilDate} までご利用いただけます。` : '有効期限までご利用いただけます。'}
+    </div>
+  ) : (
+    <button
+      type="button"
+      onClick={() => router.push(`/admin/cancel?shopId=${shopId}`)}
+      style={{ padding: '10px 16px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
+    >
+      店舗の退会手続きを行う
+    </button>
             </div>
           )}
         </div>
