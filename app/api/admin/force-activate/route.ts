@@ -21,7 +21,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: '店舗データが取得できません' }, { status: 404 });
     }
 
-    if (shopData.status !== 'pending_payment') {
+    const isPending = shopData.status === 'pending_payment' || shopData.upgradeStatus === 'pending_payment';
+
+    if (!isPending) {
       return NextResponse.json({ error: 'この店舗は pending_payment ではありません' }, { status: 400 });
     }
 
