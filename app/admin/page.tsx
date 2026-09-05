@@ -12,6 +12,7 @@ import { auth } from '@/lib/firebase-client';
 import { db as localDb, exportHistoryToJSON, importHistoryFromJSON, PushHistory } from '../../lib/db';
 import { QRCodeSVG } from 'qrcode.react';
 import ImageUploader from '../../components/ImageUploader';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -78,6 +79,11 @@ export default function AdminPage() {
 　　　const [normalCouponEnabled, setNormalCouponEnabled] = useState(false);
 　　　const [normalCouponTitle, setNormalCouponTitle] = useState('');
 　　　const [normalCouponDesc, setNormalCouponDesc] = useState('');
+
+  // QR codescan State 
+const [scanOpen, setScanOpen] = useState(false);
+const [scanResult, setScanResult] = useState<string | null>(null);
+const [scanLoading, setScanLoading] = useState(false);
 
  useEffect(() => {
   const unsub = onAuthStateChanged(auth, async (u) => {
@@ -209,6 +215,66 @@ export default function AdminPage() {
       router.push(`/upgrade/pro?shopId=${shopId}`);
     }
   };
+
+  useEffect(() => {
+  if (!scanOpen) return;
+
+  const scanner = new Html5QrcodeScanner(
+    'qr-reader',
+    { fps: 10, qrbox: { width: 250, height: 250 } },
+    /* verbose= */ false
+  );
+
+  scanner.render(
+    async (decodedText) => {
+      scanner.clear();
+      handleRedeemCoupon(decodedText);
+    },
+    (errorMessage) => {
+      // 読み取り中の軽微なエラーは無視
+    }
+  );
+
+  return () => {
+    scanner.clear().catch(() => {});
+  };
+}, [scanOpen]);
+
+const handleRedeemCoupon = async (qrDataStr: string) => {
+  try {
+    setScanLoading(true);
+    const parsedData = JSON.parse(qrDataStr);
+
+    if (!parsedData.shopId || !parsedData.couponType || !parsedData.token) {
+      alert('❌ 無効なクーポンQRコードです。');
+      setScanOpen(false);
+      return;
+    }
+
+    if (user) {
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/redeem-coupon', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify(parsedData),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setScanResult(`✅ 消し込み完了！\n【${data.couponTitle}】を適用しました。`);
+      } else {
+        alert('❌ エラー: ' + data.error);
+      }
+    }
+  } catch (err) {
+    alert('❌ QRコードの形式が正しくありません。');
+  } finally {
+    setScanLoading(false);
+  }
+};
 
   const handleSaveSettings = async () => {
     if (!user || !shopId) return;
@@ -1143,6 +1209,71 @@ export default function AdminPage() {
           )}
         </div>
       )}
+
+      {/* 📷 店舗用 クーポンスキャンボタン */}
+<div style={{ marginBottom: '20px' }}>
+  <button
+    onClick={() => {
+      setScanResult(null);
+      setScanOpen(true);
+    }}
+    style={{
+      width: '100%',
+      padding: '16px',
+      background: '#16a34a',
+      color: '#fff',
+      border: 'none',
+      borderRadius: '8px',
+      fontSize: '18px',
+      fontWeight: 'bold',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    }}
+  >
+    📷 クーポンQRコードを読み取る（消し込み）
+  </button>
+</div>
+
+{/* 📷 スキャン用ダイアログ（モーダル） */}
+{scanOpen && (
+  <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
+    <div style={{ background: '#fff', padding: '20px', borderRadius: '12px', maxWidth: '500px', width: '100%', textAlign: 'center' }}>
+      <h3 style={{ margin: '0 0 15px 0' }}>📱 顧客のQRコードにかざしてください</h3>
+
+      {scanResult ? (
+        <div>
+          <div style={{ padding: '20px', background: '#f0fdf4', border: '2px solid #22c55e', borderRadius: '8px', color: '#15803d', fontWeight: 'bold', fontSize: '18px', whiteSpace: 'pre-line', marginBottom: '20px' }}>
+            {scanResult}
+          </div>
+          <button
+            onClick={() => {
+              setScanResult(null);
+              setScanOpen(false);
+            }}
+            style={{ width: '100%', padding: '12px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}
+          >
+            閉じる
+          </button>
+        </div>
+      ) : (
+        <div>
+          <div id="qr-reader" style={{ width: '100%', marginBottom: '15px' }} />
+          {scanLoading && <p style={{ fontWeight: 'bold', color: '#0284c7' }}>消し込み処理中...</p>}
+          <button
+            onClick={() => setScanOpen(false)}
+            style={{ width: '100%', padding: '12px', background: '#64748b', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
+          >
+            キャンセル
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+)}
 
       {/* 送信フォーム */}
       <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '40px', background: '#fff', padding: '20px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
