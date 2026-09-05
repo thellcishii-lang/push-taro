@@ -82,57 +82,57 @@ export default function AdminPage() {
         const idToken = await u.getIdToken();
         
         // 店舗アカウントの作成/存在確認
-        const res = await fetch('/api/create-shop', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${idToken}`,
-          },
-          body: JSON.stringify({ name: u.email?.split('@')[0] || '未設定の店舗' }),
-        });
-        const data = await res.json();
-
-        if (data.success) {
-          const currentShopId = data.shopId;
-          setShopId(currentShopId);
-
-          // ダッシュボードAPIから「保存済みの最新店舗データ」を取得する
-          const dashRes = await fetch(`/api/admin/dashboard?shopId=${currentShopId}`, {
-            headers: { 'Authorization': `Bearer ${idToken}` }
+        // 1. 店舗アカウントの確認・取得
+          const res = await fetch('/api/create-shop', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${idToken}`,
+            },
+            body: JSON.stringify({}), // 👈 メールアドレス等で上書きしないよう空で送信
           });
+          const data = await res.json();
 
-          if (dashRes.ok) {
-            const dashData = await dashRes.json();
-            // 保存済みの最新ショップデータ（無ければ初期データ）を採用
-            const shop = dashData.shop || data.shop;
+          if (data.success) {
+            const currentShopId = data.shopId;
+            setShopId(currentShopId);
 
-            // 最新の店舗名・アイコンURL・クーポン・口座情報を画面に反映
-            setShopName(shop?.name || '');
-            if (shop?.plan) setPlan(shop.plan);
-            if (shop?.role) setRole(shop.role);
+            // 2. 申し込み時・更新時の最新データをダッシュボードAPIから取得
+            const dashRes = await fetch(`/api/admin/dashboard?shopId=${currentShopId}`, {
+              headers: { 'Authorization': `Bearer ${idToken}` }
+            });
 
-            if (shop?.coupon) {
-              setCouponEnabled(shop.coupon.enabled);
-              setCouponTitle(shop.coupon.title || '');
-              setCouponDesc(shop.coupon.description || '');
-              setCouponRate(shop.coupon.discountRate || 0);
-            }
-            if (shop?.linkUrl) setClientLinkUrl(shop.linkUrl);
-            if (shop?.iconUrl) setShopIconUrl(shop.iconUrl);
+            if (dashRes.ok) {
+              const dashData = await dashRes.json();
+              const shop = dashData.shop || data.shop;
 
-            if (shop?.bankAccount) {
-              setBankName(shop.bankAccount.bankName || '');
-              setBranchName(shop.bankAccount.branchName || '');
-              setAccountType(shop.bankAccount.accountType || 'savings');
-              setAccountNumber(shop.bankAccount.accountNumber || '');
-              setAccountHolder(shop.bankAccount.accountHolder || '');
-            }
+              // 申し込み時に登録された店舗名・アイコン・各設定をそのまま反映
+              setShopName(shop?.name || '');
+              if (shop?.plan) setPlan(shop.plan);
+              if (shop?.role) setRole(shop.role);
 
-            if (dashData.stats && typeof dashData.stats.subscriberCount === 'number') {
-              setSubscriberCount(dashData.stats.subscriberCount);
+              if (shop?.coupon) {
+                setCouponEnabled(shop.coupon.enabled);
+                setCouponTitle(shop.coupon.title || '');
+                setCouponDesc(shop.coupon.description || '');
+                setCouponRate(shop.coupon.discountRate || 0);
+              }
+              if (shop?.linkUrl) setClientLinkUrl(shop.linkUrl);
+              if (shop?.iconUrl) setShopIconUrl(shop.iconUrl);
+
+              if (shop?.bankAccount) {
+                setBankName(shop.bankAccount.bankName || '');
+                setBranchName(shop.bankAccount.branchName || '');
+                setAccountType(shop.bankAccount.accountType || 'savings');
+                setAccountNumber(shop.bankAccount.accountNumber || '');
+                setAccountHolder(shop.bankAccount.accountHolder || '');
+              }
+
+              if (dashData.stats && typeof dashData.stats.subscriberCount === 'number') {
+                setSubscriberCount(dashData.stats.subscriberCount);
+              }
             }
           }
-        }
       } catch (err) {
         console.error('店舗情報取得エラー:', err);
       }
