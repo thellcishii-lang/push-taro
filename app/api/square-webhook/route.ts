@@ -334,6 +334,61 @@ await sendEmail({
       }
 
       // ============================================================
+      // ①-2. ✨ 追加: アップグレード申請中店舗（upgradeStatus == pending_payment）の処理
+      // ============================================================
+      const upgradeShopSnap = await db.collection('shops')
+        .where('email', '==', customerEmail)
+        .where('upgradeStatus', '==', 'pending_payment')
+        .limit(1)
+        .get();
+
+      if (!upgradeShopSnap.empty) {
+        const upgradeShopDoc = upgradeShopSnap.docs[0];
+        const upgradeShopData = upgradeShopDoc.data();
+        const targetPlan = upgradeShopData.targetPlan || 'pro';
+        
+        // アップグレード対象プラン（スタンダード / PRO）の判定
+        const planName = targetPlan === 'pro' ? 'PRO' : 'スタンダード';
+
+        // 店舗更新（plan を反映し、upgradeStatus を completed へ）
+        await upgradeShopDoc.ref.update({
+          plan: targetPlan,
+          upgradeStatus: 'completed',
+          upgradeCompletedAt: FieldValue.serverTimestamp(),
+          squarePaymentId: paymentId || '',
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+
+        // アップグレード完了メール送信
+        await sendEmail({
+          to: customerEmail,
+          subject: `【Push-taro】${planName}プランへのアップグレードが完了しました`,
+          html: `
+            <h2>${upgradeShopData.name || '店舗'} 様</h2>
+            <p>${planName}プランへのアップグレードが完了いたしました。</p>
+            <p>アップグレードされた機能をご利用いただけます。</p>
+            <p>
+              <a 
+                href="${process.env.NEXT_PUBLIC_APP_URL}/admin" 
+                style="display:inline-block; padding:12px 24px; background:#ff4500; color:#fff; border-radius:6px; text-decoration:none; font-weight:bold;"
+              >
+                管理画面へログイン
+              </a>
+            </p>
+            ${targetPlan === 'pro' ? '<p>PROプラン特典として、紹介報酬機能も有効になりました。</p>' : ''}
+            <hr />
+            <p><strong>Push-taro.com</strong></p>
+            <p>運営会社：the合同会社</p>
+            <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
+            <p><a href="mailto:pushtaro-info@gmail.com">pushtaro.info@gmail.com</a></p>
+          `,
+        });
+
+        console.log(`[アップグレード完了] 店舗: ${upgradeShopData.name} (${customerEmail}) -> プラン: ${targetPlan}`);
+        return NextResponse.json({ success: true, message: 'アップグレード完了しました' }, { status: 200 });
+      }
+
+      // ============================================================
       // ② 既存アカウントの決済（毎月の継続課金）
       // ============================================================
       const existingShopSnap = await db.collection('shops').where('email', '==', customerEmail).get();
