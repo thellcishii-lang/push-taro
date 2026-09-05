@@ -349,8 +349,7 @@ await sendEmail({
 　　　　　　　　　　　　　　　　　const planName = targetPlan === 'pro' ? 'PRO' : 'スタンダード';
         
         // アップグレード対象プラン（スタンダード / PRO）の判定
-        const planName = targetPlan === 'pro' ? 'PRO' : 'スタンダード';
-
+        planName = targetPlan === 'pro' ? 'PRO' : 'スタンダード';
         // 店舗更新（plan を反映し、upgradeStatus を completed へ）
         await upgradeShopDoc.ref.update({
           plan: targetPlan,
