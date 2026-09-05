@@ -345,7 +345,8 @@ await sendEmail({
       if (!upgradeShopSnap.empty) {
         const upgradeShopDoc = upgradeShopSnap.docs[0];
         const upgradeShopData = upgradeShopDoc.data();
-        const targetPlan = upgradeShopData.targetPlan || 'pro';
+        const targetPlan = upgradeShopData.targetPlan; // 'standard' か 'pro' がそのまま入っている
+　　　　　　　　　　　　　　　　　const planName = targetPlan === 'pro' ? 'PRO' : 'スタンダード';
         
         // アップグレード対象プラン（スタンダード / PRO）の判定
         const planName = targetPlan === 'pro' ? 'PRO' : 'スタンダード';
