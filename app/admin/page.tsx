@@ -74,6 +74,11 @@ export default function AdminPage() {
   const [shopStatus, setShopStatus] = useState<string>('active');
 　　　　const [validUntilDate, setValidUntilDate] = useState<string>('');
 
+  // 🎟️ 通常クーポン用ステート（STANDARDプラン以上）
+　　　const [normalCouponEnabled, setNormalCouponEnabled] = useState(false);
+　　　const [normalCouponTitle, setNormalCouponTitle] = useState('');
+　　　const [normalCouponDesc, setNormalCouponDesc] = useState('');
+
  useEffect(() => {
   const unsub = onAuthStateChanged(auth, async (u) => {
     setUser(u);
@@ -120,6 +125,15 @@ export default function AdminPage() {
                            setValidUntilDate(vDate.toISOString().slice(0, 10));
 　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　}
 
+
+              if (shop?.normalCoupon) {
+                setNormalCouponEnabled(shop.normalCoupon.enabled || false);
+                setNormalCouponTitle(shop.normalCoupon.title || '');
+                setNormalCouponDesc(shop.normalCoupon.description || '');
+　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　}
+
+
+              
               if (shop?.coupon) {
                 setCouponEnabled(shop.coupon.enabled);
                 setCouponTitle(shop.coupon.title || '');
