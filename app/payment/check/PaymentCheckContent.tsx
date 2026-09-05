@@ -32,7 +32,7 @@ export default function PaymentCheckContent() {
         // 🔑 【絶対最優先】アップグレード完了済み（completed）のチェック
         // APIレスポンスに upgradeStatus: "completed" があれば即座に通過して終了
         // ============================================================
-        if (data.upgradeStatus === 'completed') {
+        if (data.upgradeStatus === 'completed' && data.upgradeStatus !== 'pending_payment') {
           setIsActive(true);
           setLoading(false);
           return;
