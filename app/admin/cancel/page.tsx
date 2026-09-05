@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase-client';
 
-export default function CancelPage() {
+// 1. メインのキャンセル画面コンポーネント
+function CancelContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const shopId = searchParams.get('shopId');
@@ -19,21 +20,23 @@ export default function CancelPage() {
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       if (u && shopId) {
-        // 店舗情報を取得して有効期限を表示用セット
-        const idToken = await u.getIdToken();
-        const res = await fetch(`/api/admin/dashboard?shopId=${shopId}`, {
-          headers: { Authorization: `Bearer ${idToken}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.shop?.chargedThroughDate) {
-            setValidUntil(data.shop.chargedThroughDate);
-          } else {
-            // 今月末などをフォールバックとしてセット
-            const now = new Date();
-            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-            setValidUntil(lastDay.toISOString().slice(0, 10));
+        try {
+          const idToken = await u.getIdToken();
+          const res = await fetch(`/api/admin/dashboard?shopId=${shopId}`, {
+            headers: { Authorization: `Bearer ${idToken}` },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.shop?.chargedThroughDate) {
+              setValidUntil(data.shop.chargedThroughDate);
+            } else {
+              const now = new Date();
+              const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+              setValidUntil(lastDay.toISOString().slice(0, 10));
+            }
           }
+        } catch (err) {
+          console.error('店舗情報取得エラー:', err);
         }
       }
     });
@@ -127,5 +130,14 @@ export default function CancelPage() {
         </button>
       </div>
     </main>
+  );
+}
+
+// 2. Suspense で囲んでエクスポート（ビルド時の Prerender エラー防止）
+export default function CancelPage() {
+  return (
+    <Suspense fallback={<p style={{ textAlign: 'center', padding: '40px' }}>読み込み中...</p>}>
+      <CancelContent />
+    </Suspense>
   );
 }
