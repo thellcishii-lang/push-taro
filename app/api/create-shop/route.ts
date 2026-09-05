@@ -89,7 +89,7 @@ export async function POST(request: Request) {
       if (referrerInfo.referrerEmail) {
         const html = `
           <div style="font-family: sans-serif; padding: 20px; line-height: 1.6;">
-            <h2>【プッシュ太郎】新規店舗のお申し込み</h2>
+            <h2>【Push-taro】新規店舗のお申し込み</h2>
             <p>ご設定の紹介コードを経由して、新しい店舗が登録されました。</p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
             <ul>
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
 
         await sendEmail({
           to: referrerInfo.referrerEmail,
-          subject: `【プッシュ太郎】紹介コード [${referrerInfo.referredByCode}] から新店舗（${shopName}）が登録されました`,
+          subject: `【Push-taro】紹介コード [${referrerInfo.referredByCode}] から新店舗（${shopName}）が登録されました`,
           html,
         });
       }
