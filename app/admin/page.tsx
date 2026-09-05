@@ -1180,7 +1180,7 @@ export default function AdminPage() {
               <span style={{ fontSize: '14px', fontWeight: 'bold', color: textColor, display: 'flex', alignItems: 'center', gap: '6px' }}>
                 📈 今月の送信上限使用率
                 <span style={{ fontSize: '11px', background: gaugeColor, color: '#fff', padding: '2px 8px', borderRadius: '12px' }}>
-                  {plan.toUpperCase()}プラン
+                  {plan?.toUpperCase()}プラン
                 </span>
               </span>
               <span style={{ fontSize: '15px', fontWeight: '800', color: textColor }}>
