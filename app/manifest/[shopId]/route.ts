@@ -7,7 +7,7 @@ export async function GET(
 ) {
   const shopId = params.shopId;
   
-  let shopName = 'プッシュ太郎';
+  let shopName = 'プッシュ通知';
   let iconUrl = '/icon-192x192.png';
 
   try {
