@@ -39,15 +39,6 @@ export default function PaymentCheckContent() {
         }
 
         // ============================================================
-        // 🔑 【優先判定】新規登録決済完了（active）のチェック
-        // ============================================================
-        if (data.status === 'active' ) {
-          setIsActive(true);
-          setLoading(false);
-          return;
-        }
-
-        // ============================================================
         // 🔑 【リダイレクト判定1】アップグレード未決済（pending_payment）
         // ============================================================
         if (data.upgradeStatus === 'pending_payment') {
@@ -61,6 +52,15 @@ export default function PaymentCheckContent() {
           }
 
           window.location.href = paymentUrl;
+          return;
+        }
+
+        // ============================================================
+        // 🔑 【優先判定】新規登録決済完了（active）のチェック
+        // ============================================================
+        if (data.status === 'active' ) {
+          setIsActive(true);
+          setLoading(false);
           return;
         }
 
