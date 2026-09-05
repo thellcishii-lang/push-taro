@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../../lib/firebase-admin'; // パスは環境に合わせて調整してください
+import { db } from '../../../../lib/firebase-admin'; // パスはプロジェクト環境に合わせてください
 import { POST as webhookPOST } from '../../square-webhook/route';
 
 export async function POST(request: Request) {
@@ -11,7 +11,6 @@ export async function POST(request: Request) {
     }
 
     const shopDoc = await db.collection('shops').doc(shopId).get();
-
     if (!shopDoc.exists) {
       return NextResponse.json({ error: '店舗が見つかりません' }, { status: 404 });
     }
@@ -21,14 +20,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: '店舗データが取得できません' }, { status: 404 });
     }
 
-    // status または upgradeStatus が pending_payment かチェック
+    // 新規（status）またはアップグレード（upgradeStatus）の申請中かチェック
     const isPending = shopData.status === 'pending_payment' || shopData.upgradeStatus === 'pending_payment';
     if (!isPending) {
       return NextResponse.json({ error: 'この店舗は pending_payment ではありません' }, { status: 400 });
     }
 
-    // DBに保存されている申請先プラン（targetPlan）を取得（指定がない場合は standard / pro を判定）
-    const targetPlan = shopData.targetPlan || shopData.plan || 'standard';
+    // PRO特有データがあるかどうかのシンプル判定（targetPlan指定は排除）
+    const isPro = Boolean(shopData.invoiceNumber || shopData.bankAccount);
 
     // ============================================================
     // Square Webhook を擬似的に呼び出す（決済をスキップ）
@@ -47,8 +46,8 @@ export async function POST(request: Request) {
                 status: 'COMPLETED',
                 buyer_email_address: shopData.email,
                 customer_id: shopData.squareCustomerId || 'force_customer',
-                note: shopId, // shopIdを直接指定
-                amount_money: { amount: targetPlan === 'pro' ? 10000 : 3800 },
+                note: shopId,
+                amount_money: { amount: isPro ? 10000 : 3800 },
                 reference_id: shopData.referralCode || '',
               },
             },
