@@ -12,7 +12,7 @@ import { auth } from '@/lib/firebase-client';
 import { db as localDb, exportHistoryToJSON, importHistoryFromJSON, PushHistory } from '../../lib/db';
 import { QRCodeSVG } from 'qrcode.react';
 import ImageUploader from '../../components/ImageUploader';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { Html5Qrcode } from 'html5-qrcode';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -253,6 +253,50 @@ useEffect(() => {
     }
   };
 }, [scanOpen]);
+
+  // 📷 カメラ起動処理
+  const startCamera = async () => {
+    try {
+      setScanLoading(true);
+      const html5QrCode = new Html5Qrcode("qr-reader");
+      (window as any).__html5QrCode = html5QrCode;
+
+      await html5QrCode.start(
+        { facingMode: "environment" }, // リアカメラ（外カメラ）を指定
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 }
+        },
+        async (decodedText) => {
+          // 読み取り成功時：カメラを停止して消し込みAPIを実行
+          await stopCamera();
+          handleRedeemCoupon(decodedText);
+        },
+        (errorMessage) => {
+          // フレームごとの読み取りパスエラーは無視
+        }
+      );
+    } catch (err: any) {
+      console.error("カメラ起動エラー:", err);
+      alert("❌ カメラの起動に失敗しました。カメラのアクセス許可を確認してください。\n" + err);
+    } finally {
+      setScanLoading(false);
+    }
+  };
+
+  // 📷 カメラ停止処理
+  const stopCamera = async () => {
+    const html5QrCode = (window as any).__html5QrCode;
+    if (html5QrCode && html5QrCode.isScanning) {
+      try {
+        await html5QrCode.stop();
+        html5QrCode.clear();
+      } catch (err) {
+        console.error("カメラ停止エラー:", err);
+      }
+    }
+    (window as any).__html5QrCode = null;
+  };
 
 const handleRedeemCoupon = async (qrDataStr: string) => {
   try {
@@ -1253,42 +1297,68 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
 </div>
 
 {/* 📷 スキャン用ダイアログ（モーダル） */}
-{scanOpen && (
-  <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
-    <div style={{ background: '#fff', padding: '20px', borderRadius: '12px', maxWidth: '500px', width: '100%', textAlign: 'center' }}>
-      <h3 style={{ margin: '0 0 15px 0' }}>📱 顧客のQRコードにかざしてください</h3>
+{/* 📷 スキャン用ダイアログ（モーダル） */}
+      {scanOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
+          <div style={{ background: '#fff', padding: '20px', borderRadius: '12px', maxWidth: '500px', width: '100%', textAlign: 'center' }}>
+            <h3 style={{ margin: '0 0 15px 0' }}>📱 顧客のQRコードをスキャン</h3>
 
-      {scanResult ? (
-        <div>
-          <div style={{ padding: '20px', background: '#f0fdf4', border: '2px solid #22c55e', borderRadius: '8px', color: '#15803d', fontWeight: 'bold', fontSize: '18px', whiteSpace: 'pre-line', marginBottom: '20px' }}>
-            {scanResult}
+            {scanResult ? (
+              <div>
+                <div style={{ padding: '20px', background: '#f0fdf4', border: '2px solid #22c55e', borderRadius: '8px', color: '#15803d', fontWeight: 'bold', fontSize: '18px', whiteSpace: 'pre-line', marginBottom: '20px' }}>
+                  {scanResult}
+                </div>
+                <button
+                  onClick={async () => {
+                    await stopCamera();
+                    setScanResult(null);
+                    setScanOpen(false);
+                  }}
+                  style={{ width: '100%', padding: '12px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}
+                >
+                  閉じる
+                </button>
+              </div>
+            ) : (
+              <div>
+                {/* カメラ映像枠 */}
+                <div id="qr-reader" style={{ width: '100%', minHeight: '250px', background: '#1e293b', borderRadius: '8px', overflow: 'hidden', marginBottom: '15px' }} />
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <button
+                    onClick={startCamera}
+                    disabled={scanLoading}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      background: scanLoading ? '#ccc' : '#16a34a',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontWeight: 'bold',
+                      fontSize: '16px',
+                      cursor: scanLoading ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    {scanLoading ? 'カメラ初期化中...' : '📷 カメラを起動する'}
+                  </button>
+
+                  <button
+                    onClick={async () => {
+                      await stopCamera();
+                      setScanOpen(false);
+                    }}
+                    style={{ width: '100%', padding: '10px', background: '#64748b', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
+                  >
+                    キャンセル
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-          <button
-            onClick={() => {
-              setScanResult(null);
-              setScanOpen(false);
-            }}
-            style={{ width: '100%', padding: '12px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}
-          >
-            閉じる
-          </button>
-        </div>
-      ) : (
-        <div>
-          <div id="qr-reader" style={{ width: '100%', marginBottom: '15px' }} />
-          {scanLoading && <p style={{ fontWeight: 'bold', color: '#0284c7' }}>消し込み処理中...</p>}
-          <button
-            onClick={() => setScanOpen(false)}
-            style={{ width: '100%', padding: '12px', background: '#64748b', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
-          >
-            キャンセル
-          </button>
         </div>
       )}
-    </div>
-  </div>
-)}
-
+      
       {/* 送信フォーム */}
       <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '40px', background: '#fff', padding: '20px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
         <h3 style={{ margin: '0 0 10px 0' }}>📢 プッシュ通知を作成</h3>
