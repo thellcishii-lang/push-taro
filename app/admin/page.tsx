@@ -376,9 +376,9 @@ export default function AdminPage() {
     return (
       <main style={{ maxWidth: '400px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif', textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
-          <img src="/icon-192x192.png" alt="プッシュ太郎" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover' }} />
+          <img src="/icon-192x192.png" alt="Push-taro" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover' }} />
         </div>
-        <h1>プッシュ太郎</h1>
+        <h1>Push-taro</h1>
         <p style={{ color: '#666', marginBottom: '20px' }}>オーナー専用ログイン画面</p>
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <input
@@ -418,7 +418,7 @@ export default function AdminPage() {
           <img src={shopIconUrl || "/icon-192x192.png"} alt="アイコン" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #ddd' }} />
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <h1 style={{ margin: 0, fontSize: '24px' }}>{shopName || 'プッシュ太郎'}</h1>
+              <h1 style={{ margin: 0, fontSize: '24px' }}>{shopName}</h1>
               <span style={{
                 fontSize: '11px',
                 fontWeight: 'bold',
