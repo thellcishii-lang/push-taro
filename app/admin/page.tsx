@@ -70,65 +70,77 @@ export default function AdminPage() {
   const [history, setHistory] = useState<PushHistory[]>([]);
   const [subscriberCount, setSubscriberCount] = useState<number | null>(null);
 
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (u) => {
-      setUser(u);
-      setLoadingAuth(false);
+ useEffect(() => {
+  const unsub = onAuthStateChanged(auth, async (u) => {
+    setUser(u);
+    setLoadingAuth(false);
 
-      if (u) {
-        await loadHistory();
+    if (u) {
+      await loadHistory();
 
-        try {
-          const idToken = await u.getIdToken();
-          const res = await fetch('/api/create-shop', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${idToken}`,
-            },
-            body: JSON.stringify({ name: u.email?.split('@')[0] || '未設定の店舗' }),
+      try {
+        const idToken = await u.getIdToken();
+        
+        // 店舗アカウントの作成/存在確認
+        const res = await fetch('/api/create-shop', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({ name: u.email?.split('@')[0] || '未設定の店舗' }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          const currentShopId = data.shopId;
+          setShopId(currentShopId);
+
+          // ダッシュボードAPIから「保存済みの最新店舗データ」を取得する
+          const dashRes = await fetch(`/api/admin/dashboard?shopId=${currentShopId}`, {
+            headers: { 'Authorization': `Bearer ${idToken}` }
           });
-          const data = await res.json();
-          if (data.success) {
-            const currentShopId = data.shopId;
-            setShopId(currentShopId);
-            setShopName(data.shop?.name || '');
-            if (data.shop?.plan) setPlan(data.shop.plan);
-            if (data.shop?.role) setRole(data.shop.role);
 
-            if (data.shop?.coupon) {
-              setCouponEnabled(data.shop.coupon.enabled);
-              setCouponTitle(data.shop.coupon.title || '');
-              setCouponDesc(data.shop.coupon.description || '');
-              setCouponRate(data.shop.coupon.discountRate || 0);
+          if (dashRes.ok) {
+            const dashData = await dashRes.json();
+            // 保存済みの最新ショップデータ（無ければ初期データ）を採用
+            const shop = dashData.shop || data.shop;
+
+            // 最新の店舗名・アイコンURL・クーポン・口座情報を画面に反映
+            setShopName(shop?.name || '');
+            if (shop?.plan) setPlan(shop.plan);
+            if (shop?.role) setRole(shop.role);
+
+            if (shop?.coupon) {
+              setCouponEnabled(shop.coupon.enabled);
+              setCouponTitle(shop.coupon.title || '');
+              setCouponDesc(shop.coupon.description || '');
+              setCouponRate(shop.coupon.discountRate || 0);
             }
-            if (data.shop?.linkUrl) setClientLinkUrl(data.shop.linkUrl);
-            if (data.shop?.iconUrl) setShopIconUrl(data.shop.iconUrl);
+            if (shop?.linkUrl) setClientLinkUrl(shop.linkUrl);
+            if (shop?.iconUrl) setShopIconUrl(shop.iconUrl);
 
-            if (data.shop?.bankAccount) {
-              setBankName(data.shop.bankAccount.bankName || '');
-              setBranchName(data.shop.bankAccount.branchName || '');
-              setAccountType(data.shop.bankAccount.accountType || 'savings');
-              setAccountNumber(data.shop.bankAccount.accountNumber || '');
-              setAccountHolder(data.shop.bankAccount.accountHolder || '');
+            if (shop?.bankAccount) {
+              setBankName(shop.bankAccount.bankName || '');
+              setBranchName(shop.bankAccount.branchName || '');
+              setAccountType(shop.bankAccount.accountType || 'savings');
+              setAccountNumber(shop.bankAccount.accountNumber || '');
+              setAccountHolder(shop.bankAccount.accountHolder || '');
             }
 
-            const dashRes = await fetch(`/api/admin/dashboard?shopId=${currentShopId}`);
-            if (dashRes.ok) {
-              const dashData = await dashRes.json();
-              if (dashData.stats && typeof dashData.stats.subscriberCount === 'number') {
-                setSubscriberCount(dashData.stats.subscriberCount);
-              }
+            if (dashData.stats && typeof dashData.stats.subscriberCount === 'number') {
+              setSubscriberCount(dashData.stats.subscriberCount);
             }
           }
-        } catch (err) {
-          console.error('店舗情報取得エラー:', err);
         }
+      } catch (err) {
+        console.error('店舗情報取得エラー:', err);
       }
-    });
+    }
+  });
 
-    return () => unsub();
-  }, []);
+  return () => unsub();
+}, []);
 
   const loadHistory = async () => {
     const all = await localDb.history.orderBy('sentAt').reverse().toArray();
