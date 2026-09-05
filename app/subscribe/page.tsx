@@ -257,23 +257,33 @@ export default function SubscribePage() {
           )}
         </div>
 
-        {shopData?.coupon?.enabled && !couponUsed && (
-          <div style={{ background: '#fff3e0', border: '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
-            <h3 style={{ margin: '0 0 8px 0', color: '#e65100' }}>🎁 {shopData.coupon.title || '初回限定クーポン'}</h3>
-            <p style={{ fontSize: '14px', color: '#333', marginBottom: '12px' }}>{shopData.coupon.description}</p>
-            <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '12px' }}>
-              <QRCodeSVG value={shopId} size={150} />
-            </div>
-            <div>
-              <button
-                onClick={() => setCouponUsed(true)}
-                style={{ padding: '8px 16px', background: '#ff9800', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
-              >
-                クーポンを使用済みにする
-              </button>
-            </div>
-          </div>
-        )}
+        {/* 🎁 初回限定クーポン表示エリア */}
+{shopData?.coupon?.enabled && (
+  <div style={{ background: '#fff3e0', border: '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
+    <span style={{ fontSize: '11px', background: '#e65100', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>初回限定</span>
+    <h3 style={{ margin: '6px 0 8px 0', color: '#e65100' }}>🎁 {shopData.coupon.title || '初回限定クーポン'}</h3>
+    <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>{shopData.coupon.description}</p>
+    <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
+      {/* 消し込みスキャン用データを出力 */}
+      <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'first', token: fcmToken })} size={150} />
+    </div>
+    <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
+  </div>
+)}
+
+{/* 🎟️ 通常クーポン表示エリア（STANDARDプラン以上） */}
+{shopData?.normalCoupon?.enabled && (
+  <div style={{ background: '#f0fdf4', border: '1px dashed #4ade80', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
+    <span style={{ fontSize: '11px', background: '#16a34a', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>メンバー特典</span>
+    <h3 style={{ margin: '6px 0 8px 0', color: '#15803d' }}>🎟️ {shopData.normalCoupon.title || '通常クーポン'}</h3>
+    <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>{shopData.normalCoupon.description}</p>
+    <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
+      {/* 消し込みスキャン用データを出力 */}
+      <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'normal', token: fcmToken })} size={150} />
+    </div>
+    <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
+  </div>
+)}
 
         {/* 📜 【通知履歴エリア】 */}
         <div style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
