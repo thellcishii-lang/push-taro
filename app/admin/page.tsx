@@ -25,7 +25,7 @@ export default function AdminPage() {
   // 店舗情報 & プラン・ロールステート
   const [shopId, setShopId] = useState<string | null>(null);
   const [shopName, setShopName] = useState('');
-  const [plan, setPlan] = useState<'light' | 'standard' | 'pro'>('light');
+  const [plan, setPlan] = useState<'light' | 'standard' | 'pro' | null>(null);
   const [role, setRole] = useState<'normal' | 'pro' | 'agency'>('normal');
   const [couponEnabled, setCouponEnabled] = useState(false);
   const [couponTitle, setCouponTitle] = useState('');
