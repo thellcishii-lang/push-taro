@@ -216,27 +216,41 @@ const [scanLoading, setScanLoading] = useState(false);
     }
   };
 
-  useEffect(() => {
+  // 修正版：スキャナー起動用 useEffect
+useEffect(() => {
   if (!scanOpen) return;
 
-  const scanner = new Html5QrcodeScanner(
-    'qr-reader',
-    { fps: 10, qrbox: { width: 250, height: 250 } },
-    /* verbose= */ false
-  );
+  // モーダル（#qr-reader）のレンダリング完了を少し待ってからスキャナーを初期化
+  const timer = setTimeout(() => {
+    const qrElement = document.getElementById('qr-reader');
+    if (!qrElement) return;
 
-  scanner.render(
-    async (decodedText) => {
-      scanner.clear();
-      handleRedeemCoupon(decodedText);
-    },
-    (errorMessage) => {
-      // 読み取り中の軽微なエラーは無視
-    }
-  );
+    const scanner = new Html5QrcodeScanner(
+      'qr-reader',
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      /* verbose= */ false
+    );
+
+    scanner.render(
+      async (decodedText) => {
+        scanner.clear();
+        handleRedeemCoupon(decodedText);
+      },
+      (errorMessage) => {
+        // 読み取り中の軽微なフレームエラーは無視
+      }
+    );
+
+    // クリーンアップ処理用にスキャナー参照を保持
+    (window as any).__qrScanner = scanner;
+  }, 300);
 
   return () => {
-    scanner.clear().catch(() => {});
+    clearTimeout(timer);
+    if ((window as any).__qrScanner) {
+      (window as any).__qrScanner.clear().catch(() => {});
+      (window as any).__qrScanner = null;
+    }
   };
 }, [scanOpen]);
 
