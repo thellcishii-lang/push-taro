@@ -431,7 +431,7 @@ export default function AdminPage() {
     color: '#fff',
     backgroundColor: role === 'agency' ? '#8b5cf6' : plan === 'pro' ? '#ff4500' : plan === 'standard' ? '#0284c7' : '#64748b'
   }}>
-    {role === 'agency' ? '代理店' : `${plan.toUpperCase()} プラン`}
+    {role === 'agency' ? '代理店' : `${plan?.toUpperCase()} プラン`}
   </span>
             </div>
           </div>
