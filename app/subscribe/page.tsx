@@ -207,25 +207,27 @@ export default function SubscribePage() {
     }
   };
 
-  if (!isLoaded) {
-    return (
-      <main style={{ padding: 24, textAlign: 'center', fontFamily: 'sans-serif' }}>
-        <p>読み込み中...</p>
-      </main>
-    );
-  }
+  if (!isLoaded || (shopId && !shopData)) {
+  return (
+    <main style={{ padding: 24, textAlign: 'center', fontFamily: 'sans-serif' }}>
+      <p>読み込み中...</p>
+    </main>
+  );
+}
 
   // 📱 【登録完了画面】
   if (isRegistered) {
     return (
       <main style={{ padding: 20, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif' }}>
         <div style={{ textAlign: 'center', marginBottom: '30px', marginTop: '20px' }}>
-          <img
-            src={shopData?.iconUrl || '/icon-192x192.png'}
-            alt={shopData?.name || 'Push-taro'}
-            style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
-          />
-          <h2 style={{ margin: '0 0 8px 0' }}>{shopData?.name || 'Push-taro'}</h2>
+          {shopData?.iconUrl && (
+  <img
+    src={shopData.iconUrl}
+    alt={shopData?.name || '店舗アイコン'}
+    style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
+  />
+)}
+<h2 style={{ margin: '0 0 8px 0' }}>{shopData?.name}</h2>
           {shopData?.linkUrl && (
             <a href={shopData.linkUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#2196F3', fontSize: '14px', wordBreak: 'break-all' }}>
               {shopData.linkUrl}
@@ -311,13 +313,15 @@ export default function SubscribePage() {
   return (
     <main style={{ padding: 24, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif', textAlign: 'center' }}>
       <div style={{ marginTop: 40, marginBottom: 20 }}>
-        <img
-          src={shopData?.iconUrl || '/icon-192x192.png'}
-          alt={shopData?.name || 'Push-taro'}
-          style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
-        />
-        <h1 style={{ fontSize: '22px', margin: '0 0 8px 0' }}>{shopData?.name || 'Push-taro'}</h1>
-        <p style={{ color: '#666', fontSize: '14px' }}>お得な情報をプッシュ通知でお届けします</p>
+        {shopData?.iconUrl && (
+  <img
+    src={shopData.iconUrl}
+    alt={shopData?.name || '店舗アイコン'}
+    style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
+  />
+)}
+<h1 style={{ fontSize: '22px', margin: '0 0 8px 0' }}>{shopData?.name}</h1>
+<p style={{ color: '#666', fontSize: '14px' }}>お得な情報をプッシュ通知でお届けします</p>
       </div>
 
       {shopData?.plan === 'pro' && status !== 'success' && (
