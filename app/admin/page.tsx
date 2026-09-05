@@ -424,15 +424,15 @@ export default function AdminPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <h1 style={{ margin: 0, fontSize: '24px' }}>{shopName}</h1>
               <span style={{
-                fontSize: '11px',
-                fontWeight: 'bold',
-                padding: '3px 8px',
-                borderRadius: '12px',
-                color: '#fff',
-                backgroundColor: role === 'agency' ? '#8b5cf6' : plan === 'pro' ? '#ff4500' : plan === 'standard' ? '#0284c7' : '#64748b'
-              }}>
-                {role === 'agency' ? '代理店' : `${plan.toUpperCase()} プラン`}
-              </span>
+    fontSize: '11px',
+    fontWeight: 'bold',
+    padding: '3px 8px',
+    borderRadius: '12px',
+    color: '#fff',
+    backgroundColor: role === 'agency' ? '#8b5cf6' : plan === 'pro' ? '#ff4500' : plan === 'standard' ? '#0284c7' : '#64748b'
+  }}>
+    {role === 'agency' ? '代理店' : `${plan.toUpperCase()} プラン`}
+  </span>
             </div>
           </div>
         </div>
@@ -1123,6 +1123,7 @@ export default function AdminPage() {
       {(() => {
         // PROプランの場合はゲージを表示しない（専用バッジのみ表示）
         if (plan === 'pro') {
+          if (!plan) return null;
           return (
             <div style={{
               background: '#fff7ed',
