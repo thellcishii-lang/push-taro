@@ -225,6 +225,12 @@ export default function AdminPage() {
         body: JSON.stringify({
           shopId,
           name: shopName,
+          // ★ 追加: 通常クーポンの保存情報
+          normalCoupon: {
+            enabled: normalCouponEnabled,
+            title: normalCouponTitle,
+            description: normalCouponDesc,
+          },
           coupon: {
             enabled: couponEnabled,
             title: couponTitle,
@@ -544,6 +550,44 @@ export default function AdminPage() {
                     onChange={(e) => setCouponRate(Number(e.target.value))}
                     style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
                   />
+                </div>
+              )}
+
+              {/* ★ ここから追加：通常クーポン設定（STANDARD / PRO プラン限定） */}
+              {(plan === 'standard' || plan === 'pro') ? (
+                <div style={{ marginTop: '25px', borderTop: '1px solid #ddd', paddingTop: '15px' }}>
+                  <h4 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>🎟️ 通常クーポン設定（STANDARDプラン以上）</h4>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', marginBottom: '10px' }}>
+                    <input
+                      type="checkbox"
+                      checked={normalCouponEnabled}
+                      onChange={(e) => setNormalCouponEnabled(e.target.checked)}
+                    />
+                    通常クーポンを有効にする
+                  </label>
+
+                  {normalCouponEnabled && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+                      <input
+                        type="text"
+                        placeholder="クーポンタイトル（例: 全品10%OFFクーポン）"
+                        value={normalCouponTitle}
+                        onChange={(e) => setNormalCouponTitle(e.target.value)}
+                        style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
+                      />
+                      <textarea
+                        placeholder="説明文・利用条件"
+                        value={normalCouponDesc}
+                        onChange={(e) => setNormalCouponDesc(e.target.value)}
+                        rows={2}
+                        style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ marginTop: '20px', padding: '10px', background: '#e2e8f0', borderRadius: '6px', fontSize: '12px', color: '#475569' }}>
+                  🔒 <strong>通常クーポン機能</strong>は STANDARD プラン以上でご利用いただけます。
                 </div>
               )}
 
