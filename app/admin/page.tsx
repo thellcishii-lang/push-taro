@@ -551,19 +551,22 @@ export default function AdminPage() {
                 {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 設定を保存'}
               </button>
 
+              {/* 退会エリア */}
               <div style={{ marginTop: '30px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
-  {shopStatus === 'canceled' ? (
-    <div style={{ background: '#fff3e0', border: '1px solid #ffe0b2', padding: '16px', borderRadius: '8px', color: '#e65100', fontWeight: 'bold', fontSize: '14px' }}>
-      ⚠️ 退会手続きが完了しています。{validUntilDate ? `${validUntilDate} までご利用いただけます。` : '有効期限までご利用いただけます。'}
-    </div>
-  ) : (
-    <button
-      type="button"
-      onClick={() => router.push(`/admin/cancel?shopId=${shopId}`)}
-      style={{ padding: '10px 16px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
-    >
-      店舗の退会手続きを行う
-    </button>
+                {shopStatus === 'canceled' ? (
+                  <div style={{ background: '#fff3e0', border: '1px solid #ffe0b2', padding: '16px', borderRadius: '8px', color: '#e65100', fontWeight: 'bold', fontSize: '14px' }}>
+                    ⚠️ 退会手続きが完了しています。{validUntilDate ? `${validUntilDate} までご利用いただけます。` : '有効期限までご利用いただけます。'}
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => router.push(`/admin/cancel?shopId=${shopId}`)}
+                    style={{ padding: '10px 16px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
+                  >
+                    店舗の退会手続きを行う
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>
