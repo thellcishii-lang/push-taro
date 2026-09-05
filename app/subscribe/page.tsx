@@ -100,19 +100,41 @@ export default function SubscribePage() {
     }
   }, [shopId]);
 
-  // 4. 動的 PWA Manifest の適用
+  // 4. 動的 PWA Manifest & iPhone用メタタグの適用
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (shopId) {
-      let link = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
-      if (!link) {
-        link = document.createElement('link');
-        link.rel = 'manifest';
-        document.head.appendChild(link);
-      }
-      link.href = `/manifest/${shopId}`;
+    if (typeof window === 'undefined' || !shopId) return;
+
+    // ① Manifest リンクのセット [source: 3]
+    let link = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'manifest';
+      document.head.appendChild(link);
     }
-  }, [shopId]);
+    link.href = `/manifest/${shopId}`;
+
+    // ② iPhone用 ホーム画面アイコン（apple-touch-icon）の動的セット
+    if (shopData?.iconUrl) {
+      let appleIcon = document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement;
+      if (!appleIcon) {
+        appleIcon = document.createElement('link');
+        appleIcon.rel = 'apple-touch-icon';
+        document.head.appendChild(appleIcon);
+      }
+      appleIcon.href = shopData.iconUrl;
+    }
+
+    // ③ iPhone用 ホーム画面追加時の名前（apple-mobile-web-app-title）の動的セット
+    if (shopData?.name) {
+      let appleTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]') as HTMLMetaElement;
+      if (!appleTitle) {
+        appleTitle = document.createElement('meta');
+        appleTitle.name = 'apple-mobile-web-app-title';
+        document.head.appendChild(appleTitle);
+      }
+      appleTitle.content = shopData.name;
+    }
+  }, [shopId, shopData]);
 
   // 🔔 登録ボタン押下処理
   const handleSubscribe = async () => {
