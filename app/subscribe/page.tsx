@@ -77,39 +77,39 @@ export default function SubscribePage() {
     }
   }, []);
 
-  // 3. 店舗情報取得 & 顧客ステータス取得[cite: 2]
-  useEffect(() => {
-    if (!shopId) return;
+  // 3. 店舗情報取得 & 顧客ステータス取得
+useEffect(() => {
+  if (!shopId) return;
 
-    // 店舗情報の取得[cite: 2]
-    fetch(`/api/shop-info?s=${shopId}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          setShopData(data);
-        }
-      })
-      .catch(err => console.error('通信エラー:', err));
-
-    if (typeof window !== 'undefined') {
-      const savedToken = localStorage.getItem(`push_taro_token_${shopId}`);
-      if (savedToken) {
-        setFcmToken(savedToken);
-        setIsRegistered(true);
-
-        // ★ 追記：ユーザーのクーポン使用状況を取得
-        fetch(`/api/subscribe-status?shopId=${shopId}&token=${savedToken}`)
-          .then(res => res.json())
-          .then(data => {
-            if (data.success && (data.firstCouponUsed || data.couponUsed)) {
-              setCouponUsed(true);
-            }
-          })
-          .catch(err => console.error('ステータス確認エラー:', err));
+  fetch(`/api/shop-info?s=${shopId}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        setShopData(data);
       }
-      loadNotificationHistory();
+    })
+    .catch(err => console.error('店舗情報通信エラー:', err));
+
+  if (typeof window !== 'undefined') {
+    const savedToken = localStorage.getItem(`push_taro_token_${shopId}`);
+    if (savedToken) {
+      setFcmToken(savedToken);
+      setIsRegistered(true);
+
+      // ユーザーのクーポン使用状況を取得
+      fetch(`/api/subscribe-status?shopId=${shopId}&token=${encodeURIComponent(savedToken)}`)
+        .then(res => res.json())
+        .then(data => {
+          console.log('ステータス確認結果:', data);
+          if (data.success && (data.firstCouponUsed || data.couponUsed)) {
+            setCouponUsed(true);
+          }
+        })
+        .catch(err => console.error('ステータス確認エラー:', err));
     }
-  }, [shopId]);
+    loadNotificationHistory();
+  }
+}, [shopId]);
 
   // 4. 動的 PWA Manifest & iPhone用メタタグの適用
   useEffect(() => {
