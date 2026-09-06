@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 
-export default async function POST(request: Request) {
+export async function POST(request: Request) {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
     return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
