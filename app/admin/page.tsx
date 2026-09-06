@@ -44,7 +44,7 @@ export default function AdminPage() {
   const [upgradeSubmitted, setUpgradeSubmitted] = useState(false);
   const [upgradeLoading, setUpgradeLoading] = useState(false);
 
-  // 振込先口座情報
+  // 振込先口座情報（PROプラン用）
   const [bankName, setBankName] = useState('');
   const [branchName, setBranchName] = useState('');
   const [accountType, setAccountType] = useState<'savings' | 'checking'>('savings');
@@ -60,8 +60,6 @@ export default function AdminPage() {
 
   // UI開閉用ステート
   const [shopInfoOpen, setShopInfoOpen] = useState(false);
-  const [referralInfoOpen, setReferralInfoOpen] = useState(true);
-  const [bankInfoOpen, setBankInfoOpen] = useState(true);
   const [cronInfoOpen, setCronInfoOpen] = useState(false);
 
   // 自動配信（Cron）設定ステート
@@ -669,7 +667,7 @@ export default function AdminPage() {
           🏪 店舗・基本クーポン
         </button>
 
-        {(plan === 'pro' || role === 'agency') && (
+        {plan === 'pro' && (
           <button
             onClick={() => setActiveTab('pro')}
             style={{
@@ -688,23 +686,25 @@ export default function AdminPage() {
           </button>
         )}
 
-        {/* 🤝 全プランで「口座・紹介管理」タブへアクセス可能に変更 */}
-        <button
-          onClick={() => setActiveTab('referral')}
-          style={{
-            padding: '10px 16px',
-            border: 'none',
-            borderBottom: activeTab === 'referral' ? '3px solid #8b5cf6' : '3px solid transparent',
-            background: 'none',
-            fontWeight: 'bold',
-            color: activeTab === 'referral' ? '#8b5cf6' : '#64748b',
-            cursor: 'pointer',
-            fontSize: '15px',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          🤝 報酬・口座管理
-        </button>
+        {/* 🤝 PROプラン限定で「報酬・口座管理」タブを表示 */}
+        {plan === 'pro' && (
+          <button
+            onClick={() => setActiveTab('referral')}
+            style={{
+              padding: '10px 16px',
+              border: 'none',
+              borderBottom: activeTab === 'referral' ? '3px solid #8b5cf6' : '3px solid transparent',
+              background: 'none',
+              fontWeight: 'bold',
+              color: activeTab === 'referral' ? '#8b5cf6' : '#64748b',
+              cursor: 'pointer',
+              fontSize: '15px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            🤝 報酬・口座管理
+          </button>
+        )}
       </div>
 
       {/* 🏪 店舗情報タブの内容 */}
@@ -896,8 +896,8 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* 🔥 PRO機能タブの内容 */}
-      {activeTab === 'pro' && (
+      {/* 🔥 PRO機能タブの内容（PROプランのみ） */}
+      {plan === 'pro' && activeTab === 'pro' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '30px' }}>
           <h2 style={{ margin: 0, fontSize: '20px', color: '#16a34a' }}>🔥 PROマーケティング機能設定</h2>
 
@@ -1085,8 +1085,8 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* 🤝 報酬・口座管理タブ（全プランで受取口座を入力・確認可能） */}
-      {shopId && activeTab === 'referral' && (
+      {/* 🤝 報酬・口座管理タブ（PROプラン契約店舗のみ表示） */}
+      {shopId && plan === 'pro' && activeTab === 'referral' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '30px' }}>
           
           {/* 🏦 口座設定エリア */}
@@ -1094,186 +1094,174 @@ export default function AdminPage() {
             <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', color: '#c2410c' }}>
               🏦 振込先口座情報（紹介報酬受取用）
             </h3>
-            {role === 'agency' ? (
-              <div style={{ padding: '12px', background: '#f3e8ff', border: '1px solid #d8b4fe', borderRadius: '6px', color: '#581c87', fontSize: '13px' }}>
-                🤝 代理店アカウント統合中（相殺管理のため自動振込停止中）
-              </div>
-            ) : (
-              <div>
-                <p style={{ fontSize: '13px', color: '#ea580c', marginBottom: '15px' }}>
-                  ※紹介手数料（PRO特典 10%）の累計額が **10,000円** に達すると、こちらの登録口座へ自動的にお振り込みいたします。
-                </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>金融機関名</label>
-                    <input
-                      type="text"
-                      placeholder="例: 〇〇銀行"
-                      value={bankName}
-                      onChange={(e) => setBankName(e.target.value)}
-                      style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>支店名</label>
-                    <input
-                      type="text"
-                      placeholder="例: △△支店"
-                      value={branchName}
-                      onChange={(e) => setBranchName(e.target.value)}
-                      style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>預金種目</label>
-                    <select
-                      value={accountType}
-                      onChange={(e: any) => setAccountType(e.target.value)}
-                      style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-                    >
-                      <option value="savings">普通</option>
-                      <option value="checking">当座</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>口座番号</label>
-                    <input
-                      type="text"
-                      placeholder="1234567"
-                      value={accountNumber}
-                      onChange={(e) => setAccountNumber(e.target.value)}
-                      style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>口座名義（カナ）</label>
-                    <input
-                      type="text"
-                      placeholder="ヤマダ タロウ"
-                      value={accountHolder}
-                      onChange={(e) => setAccountHolder(e.target.value)}
-                      style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-                    />
-                  </div>
-                  <button
-                    onClick={handleSaveSettings}
-                    disabled={saving}
-                    style={{
-                      marginTop: '10px',
-                      padding: '10px',
-                      background: '#ea580c',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '4px',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    💾 口座情報を保存
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 🎁 紹介コード & 成果報酬管理（PROプランまたは代理店） */}
-          {(plan === 'pro' || role === 'agency') ? (
-            <div style={{ padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-              <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', padding: '16px', marginBottom: '20px' }}>
-                <h4 style={{ margin: '0 0 6px 0', fontSize: '15px', color: '#c2410c' }}>
-                  🎁 あなたの紹介特典コード・専用URL
-                </h4>
-                <p style={{ margin: '0 0 14px 0', fontSize: '12px', color: '#9a3412', lineHeight: '1.5' }}>
-                  他店舗へご紹介の際、こちらのコードまたは専用URLをご案内ください。新規店舗がご契約すると紹介報酬が発生します。
-                </p>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#78350f', marginBottom: '4px' }}>
-                      紹介コード
-                    </label>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <input
-                        type="text"
-                        readOnly
-                        value={shopId ? shopId.slice(0, 8).toUpperCase() : '取得中...'}
-                        style={{ flex: 1, padding: '8px 12px', fontSize: '15px', fontWeight: 'bold', letterSpacing: '1px', background: '#fff', border: '1px solid #cbd5e0', borderRadius: '6px' }}
-                      />
-                      <button
-                        onClick={() => {
-                          if (shopId) {
-                            navigator.clipboard.writeText(shopId.slice(0, 8).toUpperCase());
-                            alert('紹介コードをコピーしました！');
-                          }
-                        }}
-                        style={{ padding: '8px 14px', background: '#ea580c', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}
-                      >
-                        コードコピー
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#78350f', marginBottom: '4px' }}>
-                      専用登録URL（紹介コード自動入力）
-                    </label>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <input
-                        type="text"
-                        readOnly
-                        value={shopId ? `${window.location.origin}/signup?ref=${shopId.slice(0, 8).toUpperCase()}` : '取得中...'}
-                        style={{ flex: 1, padding: '8px 12px', fontSize: '12px', color: '#475569', background: '#fff', border: '1px solid #cbd5e0', borderRadius: '6px' }}
-                      />
-                      <button
-                        onClick={() => {
-                          if (shopId) {
-                            navigator.clipboard.writeText(`${window.location.origin}/signup?ref=${shopId.slice(0, 8).toUpperCase()}`);
-                            alert('紹介URLをコピーしました！');
-                          }
-                        }}
-                        style={{ padding: '8px 14px', background: '#475569', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}
-                      >
-                        URLコピー
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
+            <div>
+              <p style={{ fontSize: '13px', color: '#ea580c', marginBottom: '15px' }}>
+                ※紹介手数料（PRO特典 10%）の累計額が **10,000円** に達すると、こちらの登録口座へ自動的にお振り込みいたします。
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div>
-                  <h4 style={{ margin: '0 0 5px 0', fontSize: '16px' }}>今月の報酬明細</h4>
-                  <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>
-                    現在の適用料率: <strong>{role === 'agency' ? '30%' : '10%'}</strong>
-                  </p>
+                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>金融機関名</label>
+                  <input
+                    type="text"
+                    placeholder="例: 〇〇銀行"
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>支店名</label>
+                  <input
+                    type="text"
+                    placeholder="例: △△支店"
+                    value={branchName}
+                    onChange={(e) => setBranchName(e.target.value)}
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>預金種目</label>
+                  <select
+                    value={accountType}
+                    onChange={(e: any) => setAccountType(e.target.value)}
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                  >
+                    <option value="savings">普通</option>
+                    <option value="checking">当座</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>口座番号</label>
+                  <input
+                    type="text"
+                    placeholder="1234567"
+                    value={accountNumber}
+                    onChange={(e) => setAccountNumber(e.target.value)}
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>口座名義（カナ）</label>
+                  <input
+                    type="text"
+                    placeholder="ヤマダ タロウ"
+                    value={accountHolder}
+                    onChange={(e) => setAccountHolder(e.target.value)}
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                  />
                 </div>
                 <button
-                  onClick={() => {
-                    const currentMonth = new Date().toISOString().slice(0, 7);
-                    window.open(`/api/referrals/export-csv?referrer_id=${shopId}&month=${currentMonth}`, '_blank');
+                  onClick={handleSaveSettings}
+                  disabled={saving}
+                  style={{
+                    marginTop: '10px',
+                    padding: '10px',
+                    background: '#ea580c',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '4px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
                   }}
-                  style={{ padding: '8px 14px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}
                 >
-                  📥 明細CSVダウンロード
+                  💾 口座情報を保存
                 </button>
               </div>
+            </div>
+          </div>
 
-              <h4 style={{ marginBottom: '10px', fontSize: '15px' }}>紹介経由の店舗一覧（アクティブ）</h4>
-              <div style={{ background: '#fff', padding: '15px', borderRadius: '6px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b', fontSize: '13px' }}>
-                現在、紹介しているアクティブな店舗はありません。
+          {/* 🎁 紹介コード & 成果報酬管理 */}
+          <div style={{ padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', padding: '16px', marginBottom: '20px' }}>
+              <h4 style={{ margin: '0 0 6px 0', fontSize: '15px', color: '#c2410c' }}>
+                🎁 あなたの紹介特典コード・専用URL
+              </h4>
+              <p style={{ margin: '0 0 14px 0', fontSize: '12px', color: '#9a3412', lineHeight: '1.5' }}>
+                他店舗へご紹介の際、こちらのコードまたは専用URLをご案内ください。新規店舗がご契約すると紹介報酬が発生します。
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#78350f', marginBottom: '4px' }}>
+                    紹介コード
+                  </label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="text"
+                      readOnly
+                      value={shopId ? shopId.slice(0, 8).toUpperCase() : '取得中...'}
+                      style={{ flex: 1, padding: '8px 12px', fontSize: '15px', fontWeight: 'bold', letterSpacing: '1px', background: '#fff', border: '1px solid #cbd5e0', borderRadius: '6px' }}
+                    />
+                    <button
+                      onClick={() => {
+                        if (shopId) {
+                          navigator.clipboard.writeText(shopId.slice(0, 8).toUpperCase());
+                          alert('紹介コードをコピーしました！');
+                        }
+                      }}
+                      style={{ padding: '8px 14px', background: '#ea580c', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}
+                    >
+                      コードコピー
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#78350f', marginBottom: '4px' }}>
+                    専用登録URL（紹介コード自動入力）
+                  </label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="text"
+                      readOnly
+                      value={shopId ? `${window.location.origin}/signup?ref=${shopId.slice(0, 8).toUpperCase()}` : '取得中...'}
+                      style={{ flex: 1, padding: '8px 12px', fontSize: '12px', color: '#475569', background: '#fff', border: '1px solid #cbd5e0', borderRadius: '6px' }}
+                    />
+                    <button
+                      onClick={() => {
+                        if (shopId) {
+                          navigator.clipboard.writeText(`${window.location.origin}/signup?ref=${shopId.slice(0, 8).toUpperCase()}`);
+                          alert('紹介URLをコピーしました！');
+                        }
+                      }}
+                      style={{ padding: '8px 14px', background: '#475569', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}
+                    >
+                      URLコピー
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          ) : (
-            <div style={{ padding: '16px', background: '#e2e8f0', borderRadius: '8px', fontSize: '13px', color: '#475569' }}>
-              🔒 <strong>紹介成果報酬（10%還元）機能</strong>は PRO プラン限定です。PROプランへアップグレードすると紹介コードおよび専用URLが発行されます。
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                <h4 style={{ margin: '0 0 5px 0', fontSize: '16px' }}>今月の報酬明細</h4>
+                <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>
+                  現在の適用料率: <strong>10%</strong>
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  const currentMonth = new Date().toISOString().slice(0, 7);
+                  window.open(`/api/referrals/export-csv?referrer_id=${shopId}&month=${currentMonth}`, '_blank');
+                }}
+                style={{ padding: '8px 14px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}
+              >
+                📥 明細CSVダウンロード
+              </button>
             </div>
-          )}
+
+            <h4 style={{ marginBottom: '10px', fontSize: '15px' }}>紹介経由の店舗一覧（アクティブ）</h4>
+            <div style={{ background: '#fff', padding: '15px', borderRadius: '6px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b', fontSize: '13px' }}>
+              現在、紹介しているアクティブな店舗はありません。
+            </div>
+          </div>
 
         </div>
       )}
 
       {/* 🤖 自動配信（Cron）設定 & 手動実行セクション */}
-      {shopId && (plan === 'pro' || role === 'agency') && (
+      {shopId && plan === 'pro' && (
         <div style={{ marginBottom: '20px' }}>
           <button
             onClick={() => setCronInfoOpen(!cronInfoOpen)}
