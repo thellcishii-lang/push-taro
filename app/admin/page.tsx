@@ -36,7 +36,7 @@ export default function AdminPage() {
   const [shopIconUrl, setShopIconUrl] = useState('');
 
   // 🗂️ タブ管理ステート
-　　　　const [activeTab, setActiveTab] = useState<'push' | 'shop' | 'pro' | 'referral'>('push');
+  const [activeTab, setActiveTab] = useState<'push' | 'shop' | 'pro' | 'referral'>('push');
 
   // アップグレード展開UI用ステート
   const [upgradeExpandOpen, setUpgradeExpandOpen] = useState(false);
@@ -76,38 +76,43 @@ export default function AdminPage() {
 
   // 退会ステート
   const [shopStatus, setShopStatus] = useState<string>('active');
-　　　　const [validUntilDate, setValidUntilDate] = useState<string>('');
+  const [validUntilDate, setValidUntilDate] = useState<string>('');
 
   // 🎟️ 通常クーポン用ステート（STANDARDプラン以上）
-　　　const [normalCouponEnabled, setNormalCouponEnabled] = useState(false);
-　　　const [normalCouponTitle, setNormalCouponTitle] = useState('');
-　　　const [normalCouponDesc, setNormalCouponDesc] = useState('');
+  const [normalCouponEnabled, setNormalCouponEnabled] = useState(false);
+  const [normalCouponTitle, setNormalCouponTitle] = useState('');
+  const [normalCouponDesc, setNormalCouponDesc] = useState('');
 
-  // QR codescan State 
-const [scanOpen, setScanOpen] = useState(false);
-const [scanResult, setScanResult] = useState<string | null>(null);
-const [scanLoading, setScanLoading] = useState(false);
+  // 🏆 特別達成クーポン用ステート
+  const [loyaltyEnabled, setLoyaltyEnabled] = useState(false);
+  const [loyaltyTargetCount, setLoyaltyTargetCount] = useState(3);
+  const [loyaltyTitle, setLoyaltyTitle] = useState('');
+  const [loyaltyExpireType, setLoyaltyExpireType] = useState('none');
+  const [loyaltyCombinable, setLoyaltyCombinable] = useState(false);
 
- useEffect(() => {
-  const unsub = onAuthStateChanged(auth, async (u) => {
-    setUser(u);
-    setLoadingAuth(false);
+  // QR code scan State 
+  const [scanOpen, setScanOpen] = useState(false);
+  const [scanResult, setScanResult] = useState<string | null>(null);
+  const [scanLoading, setScanLoading] = useState(false);
 
-    if (u) {
-      await loadHistory();
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      setUser(u);
+      setLoadingAuth(false);
 
-      try {
-        const idToken = await u.getIdToken();
-        
-        // 店舗アカウントの作成/存在確認
-        // 1. 店舗アカウントの確認・取得
+      if (u) {
+        await loadHistory();
+
+        try {
+          const idToken = await u.getIdToken();
+          
           const res = await fetch('/api/create-shop', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${idToken}`,
             },
-            body: JSON.stringify({}), // 👈 メールアドレス等で上書きしないよう空で送信
+            body: JSON.stringify({}),
           });
           const data = await res.json();
 
@@ -115,7 +120,6 @@ const [scanLoading, setScanLoading] = useState(false);
             const currentShopId = data.shopId;
             setShopId(currentShopId);
 
-            // 2. 申し込み時・更新時の最新データをダッシュボードAPIから取得
             const dashRes = await fetch(`/api/admin/dashboard?shopId=${currentShopId}`, {
               headers: { 'Authorization': `Bearer ${idToken}` }
             });
@@ -124,24 +128,28 @@ const [scanLoading, setScanLoading] = useState(false);
               const dashData = await dashRes.json();
               const shop = dashData.shop || data.shop;
 
-              // 申し込み時に登録された店舗名・アイコン・各設定をそのまま反映
               setShopName(shop?.name || '');
               if (shop?.plan) setPlan(shop.plan);
               if (shop?.role) setRole(shop.role);
               if (shop?.status) setShopStatus(shop.status);
-　　　　　　　　　　　　　　　　　　　　　　　　　　　　if (shop?.validUntil) {
-              const vDate = shop.validUntil._seconds ? new Date(shop.validUntil._seconds * 1000) : new Date(shop.validUntil);
-                           setValidUntilDate(vDate.toISOString().slice(0, 10));
-　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　}
-
+              if (shop?.validUntil) {
+                const vDate = shop.validUntil._seconds ? new Date(shop.validUntil._seconds * 1000) : new Date(shop.validUntil);
+                setValidUntilDate(vDate.toISOString().slice(0, 10));
+              }
 
               if (shop?.normalCoupon) {
                 setNormalCouponEnabled(shop.normalCoupon.enabled || false);
                 setNormalCouponTitle(shop.normalCoupon.title || '');
                 setNormalCouponDesc(shop.normalCoupon.description || '');
-　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　}
+              }
 
-
+              if (shop?.loyaltyCoupon) {
+                setLoyaltyEnabled(shop.loyaltyCoupon.enabled || false);
+                setLoyaltyTargetCount(shop.loyaltyCoupon.targetCount || 3);
+                setLoyaltyTitle(shop.loyaltyCoupon.title || '');
+                setLoyaltyExpireType(shop.loyaltyCoupon.expireType || 'none');
+                setLoyaltyCombinable(shop.loyaltyCoupon.combinable || false);
+              }
               
               if (shop?.coupon) {
                 setCouponEnabled(shop.coupon.enabled);
@@ -165,14 +173,14 @@ const [scanLoading, setScanLoading] = useState(false);
               }
             }
           }
-      } catch (err) {
-        console.error('店舗情報取得エラー:', err);
+        } catch (err) {
+          console.error('店舗情報取得エラー:', err);
+        }
       }
-    }
-  });
+    });
 
-  return () => unsub();
-}, []);
+    return () => unsub();
+  }, []);
 
   const loadHistory = async () => {
     const all = await localDb.history.orderBy('sentAt').reverse().toArray();
@@ -188,7 +196,6 @@ const [scanLoading, setScanLoading] = useState(false);
     }
   };
 
-  // STANDARDプランへのインラインアップグレード処理
   const handleUpgradeStandard = async () => {
     setUpgradeLoading(true);
     try {
@@ -206,20 +213,18 @@ const [scanLoading, setScanLoading] = useState(false);
       setUpgradeSubmitted(true);
     } catch (err) {
       console.error('アップグレード申請エラー:', err);
-      setUpgradeSubmitted(true); // エラー時も送信案内を表示
+      setUpgradeSubmitted(true);
     } finally {
       setUpgradeLoading(false);
     }
   };
 
-  // PROプランへ進む場合のハンドラー（PRO専用申込画面へ遷移）
   const handleProceedPro = () => {
     if (shopId) {
       router.push(`/upgrade/pro?shopId=${shopId}`);
     }
   };
 
-  // 📷 カメラ起動処理
   const startCamera = async () => {
     try {
       setScanLoading(true);
@@ -227,19 +232,16 @@ const [scanLoading, setScanLoading] = useState(false);
       (window as any).__html5QrCode = html5QrCode;
 
       await html5QrCode.start(
-        { facingMode: "environment" }, // リアカメラ（外カメラ）を指定
+        { facingMode: "environment" },
         {
           fps: 10,
           qrbox: { width: 250, height: 250 }
         },
         async (decodedText) => {
-          // 読み取り成功時：カメラを停止して消し込みAPIを実行
           await stopCamera();
           handleRedeemCoupon(decodedText);
         },
-        (errorMessage) => {
-          // フレームごとの読み取りパスエラーは無視
-        }
+        (errorMessage) => {}
       );
     } catch (err: any) {
       console.error("カメラ起動エラー:", err);
@@ -249,7 +251,6 @@ const [scanLoading, setScanLoading] = useState(false);
     }
   };
 
-  // 📷 カメラ停止処理
   const stopCamera = async () => {
     const html5QrCode = (window as any).__html5QrCode;
     if (html5QrCode && html5QrCode.isScanning) {
@@ -263,41 +264,41 @@ const [scanLoading, setScanLoading] = useState(false);
     (window as any).__html5QrCode = null;
   };
 
-const handleRedeemCoupon = async (qrDataStr: string) => {
-  try {
-    setScanLoading(true);
-    const parsedData = JSON.parse(qrDataStr);
+  const handleRedeemCoupon = async (qrDataStr: string) => {
+    try {
+      setScanLoading(true);
+      const parsedData = JSON.parse(qrDataStr);
 
-    if (!parsedData.shopId || !parsedData.couponType || !parsedData.token) {
-      alert('❌ 無効なクーポンQRコードです。');
-      setScanOpen(false);
-      return;
-    }
-
-    if (user) {
-      const idToken = await user.getIdToken();
-      const res = await fetch('/api/redeem-coupon', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${idToken}`,
-        },
-        body: JSON.stringify(parsedData),
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        setScanResult(`✅ 消し込み完了！\n【${data.couponTitle}】を適用しました。`);
-      } else {
-        alert('❌ エラー: ' + data.error);
+      if (!parsedData.shopId || !parsedData.couponType || !parsedData.token) {
+        alert('❌ 無効なクーポンQRコードです。');
+        setScanOpen(false);
+        return;
       }
+
+      if (user) {
+        const idToken = await user.getIdToken();
+        const res = await fetch('/api/redeem-coupon', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${idToken}`,
+          },
+          body: JSON.stringify(parsedData),
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          setScanResult(`✅ 消し込み完了！\n【${data.couponTitle}】を適用しました。`);
+        } else {
+          alert('❌ エラー: ' + data.error);
+        }
+      }
+    } catch (err) {
+      alert('❌ QRコードの形式が正しくありません。');
+    } finally {
+      setScanLoading(false);
     }
-  } catch (err) {
-    alert('❌ QRコードの形式が正しくありません。');
-  } finally {
-    setScanLoading(false);
-  }
-};
+  };
 
   const handleSaveSettings = async () => {
     if (!user || !shopId) return;
@@ -314,11 +315,17 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
         body: JSON.stringify({
           shopId,
           name: shopName,
-          // ★ 追加: 通常クーポンの保存情報
           normalCoupon: {
             enabled: normalCouponEnabled,
             title: normalCouponTitle,
             description: normalCouponDesc,
+          },
+          loyaltyCoupon: {
+            enabled: loyaltyEnabled,
+            targetCount: loyaltyTargetCount,
+            title: loyaltyTitle,
+            expireType: loyaltyExpireType,
+            combinable: loyaltyCombinable,
           },
           coupon: {
             enabled: couponEnabled,
@@ -526,7 +533,7 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
     );
   }
 
- const qrUrl = `${window.location.origin}/subscribe?s=${shopId}`;
+  const qrUrl = typeof window !== 'undefined' ? `${window.location.origin}/subscribe?s=${shopId}` : '';
 
   if (loading) {
     return <p style={{ padding: '20px', textAlign: 'center' }}>読み込み中...</p>;
@@ -539,22 +546,22 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {shopIconUrl ? (
             <img src={shopIconUrl} alt="アイコン" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #ddd' }} />
-)             : (
-               <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#eee' }} />
-)}
+          ) : (
+            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#eee' }} />
+          )}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <h1 style={{ margin: 0, fontSize: '24px' }}>{shopName}</h1>
               <span style={{
-    fontSize: '11px',
-    fontWeight: 'bold',
-    padding: '3px 8px',
-    borderRadius: '12px',
-    color: '#fff',
-    backgroundColor: role === 'agency' ? '#8b5cf6' : plan === 'pro' ? '#ff4500' : plan === 'standard' ? '#0284c7' : '#64748b'
-  }}>
-    {role === 'agency' ? '代理店' : `${plan?.toUpperCase()} プラン`}
-  </span>
+                fontSize: '11px',
+                fontWeight: 'bold',
+                padding: '3px 8px',
+                borderRadius: '12px',
+                color: '#fff',
+                backgroundColor: role === 'agency' ? '#8b5cf6' : plan === 'pro' ? '#ff4500' : plan === 'standard' ? '#0284c7' : '#64748b'
+              }}>
+                {role === 'agency' ? '代理店' : `${plan?.toUpperCase()} プラン`}
+              </span>
             </div>
           </div>
         </div>
@@ -567,79 +574,79 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
       </div>
 
       {/* 🗂️ ナビゲーションタブ */}
-<div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid #e2e8f0', paddingBottom: '1px', overflowX: 'auto' }}>
-  <button
-    onClick={() => setActiveTab('push')}
-    style={{
-      padding: '10px 16px',
-      border: 'none',
-      borderBottom: activeTab === 'push' ? '3px solid #ff4500' : '3px solid transparent',
-      background: 'none',
-      fontWeight: 'bold',
-      color: activeTab === 'push' ? '#ff4500' : '#64748b',
-      cursor: 'pointer',
-      fontSize: '15px',
-      whiteSpace: 'nowrap'
-    }}
-  >
-    📢 通知・消し込み
-  </button>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid #e2e8f0', paddingBottom: '1px', overflowX: 'auto' }}>
+        <button
+          onClick={() => setActiveTab('push')}
+          style={{
+            padding: '10px 16px',
+            border: 'none',
+            borderBottom: activeTab === 'push' ? '3px solid #ff4500' : '3px solid transparent',
+            background: 'none',
+            fontWeight: 'bold',
+            color: activeTab === 'push' ? '#ff4500' : '#64748b',
+            cursor: 'pointer',
+            fontSize: '15px',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          📢 通知・消し込み
+        </button>
 
-  <button
-    onClick={() => setActiveTab('shop')}
-    style={{
-      padding: '10px 16px',
-      border: 'none',
-      borderBottom: activeTab === 'shop' ? '3px solid #0284c7' : '3px solid transparent',
-      background: 'none',
-      fontWeight: 'bold',
-      color: activeTab === 'shop' ? '#0284c7' : '#64748b',
-      cursor: 'pointer',
-      fontSize: '15px',
-      whiteSpace: 'nowrap'
-    }}
-  >
-    🏪 店舗・基本クーポン
-  </button>
+        <button
+          onClick={() => setActiveTab('shop')}
+          style={{
+            padding: '10px 16px',
+            border: 'none',
+            borderBottom: activeTab === 'shop' ? '3px solid #0284c7' : '3px solid transparent',
+            background: 'none',
+            fontWeight: 'bold',
+            color: activeTab === 'shop' ? '#0284c7' : '#64748b',
+            cursor: 'pointer',
+            fontSize: '15px',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          🏪 店舗・基本クーポン
+        </button>
 
-  {(plan === 'pro' || role === 'agency') && (
-    <button
-      onClick={() => setActiveTab('pro')}
-      style={{
-        padding: '10px 16px',
-        border: 'none',
-        borderBottom: activeTab === 'pro' ? '3px solid #16a34a' : '3px solid transparent',
-        background: 'none',
-        fontWeight: 'bold',
-        color: activeTab === 'pro' ? '#16a34a' : '#64748b',
-        cursor: 'pointer',
-        fontSize: '15px',
-        whiteSpace: 'nowrap'
-      }}
-    >
-      🔥 PRO機能（回数特典/ステップ）
-    </button>
-  )}
+        {(plan === 'pro' || role === 'agency') && (
+          <button
+            onClick={() => setActiveTab('pro')}
+            style={{
+              padding: '10px 16px',
+              border: 'none',
+              borderBottom: activeTab === 'pro' ? '3px solid #16a34a' : '3px solid transparent',
+              background: 'none',
+              fontWeight: 'bold',
+              color: activeTab === 'pro' ? '#16a34a' : '#64748b',
+              cursor: 'pointer',
+              fontSize: '15px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            🔥 PRO機能（回数特典/ステップ）
+          </button>
+        )}
 
-  {(plan === 'pro' || role === 'agency') && (
-    <button
-      onClick={() => setActiveTab('referral')}
-      style={{
-        padding: '10px 16px',
-        border: 'none',
-        borderBottom: activeTab === 'referral' ? '3px solid #8b5cf6' : '3px solid transparent',
-        background: 'none',
-        fontWeight: 'bold',
-        color: activeTab === 'referral' ? '#8b5cf6' : '#64748b',
-        cursor: 'pointer',
-        fontSize: '15px',
-        whiteSpace: 'nowrap'
-      }}
-    >
-      🤝 報酬・口座管理
-    </button>
-  )}
-</div>
+        {(plan === 'pro' || role === 'agency') && (
+          <button
+            onClick={() => setActiveTab('referral')}
+            style={{
+              padding: '10px 16px',
+              border: 'none',
+              borderBottom: activeTab === 'referral' ? '3px solid #8b5cf6' : '3px solid transparent',
+              background: 'none',
+              fontWeight: 'bold',
+              color: activeTab === 'referral' ? '#8b5cf6' : '#64748b',
+              cursor: 'pointer',
+              fontSize: '15px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            🤝 報酬・口座管理
+          </button>
+        )}
+      </div>
 
       {/* 🏪 店舗情報ボタン */}
       {shopId && (
@@ -721,73 +728,75 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
                 </div>
               )}
 
-              {/* ★ ここから追加：通常クーポン設定（STANDARD / PRO プラン限定） */}
+              {/* 通常クーポン設定（STANDARD / PRO プラン限定） */}
               {(plan === 'standard' || plan === 'pro') ? (
-                <div style={{ marginTop: '25px', borderTop: '1px solid #ddd', paddingTop: '15px' }}>
-                  <h4 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>🎟️ 通常クーポン設定（STANDARDプラン以上）</h4>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', marginBottom: '10px' }}>
-                    <input
-                      type="checkbox"
-                      checked={normalCouponEnabled}
-                      onChange={(e) => setNormalCouponEnabled(e.target.checked)}
-                    />
-                    通常クーポンを有効にする
-                  </label>
-
-                  {normalCouponEnabled && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+                <>
+                  <div style={{ marginTop: '25px', borderTop: '1px solid #ddd', paddingTop: '15px' }}>
+                    <h4 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>🎟️ 通常クーポン設定（STANDARDプラン以上）</h4>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', marginBottom: '10px' }}>
                       <input
-                        type="text"
-                        placeholder="クーポンタイトル（例: 全品10%OFFクーポン）"
-                        value={normalCouponTitle}
-                        onChange={(e) => setNormalCouponTitle(e.target.value)}
-                        style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
+                        type="checkbox"
+                        checked={normalCouponEnabled}
+                        onChange={(e) => setNormalCouponEnabled(e.target.checked)}
                       />
-                      <textarea
-                        placeholder="説明文・利用条件"
-                        value={normalCouponDesc}
-                        onChange={(e) => setNormalCouponDesc(e.target.value)}
-                        rows={2}
-                        style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
-                      />
-                    </div>
-                  )}
-                </div>
+                      通常クーポンを有効にする
+                    </label>
+
+                    {normalCouponEnabled && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+                        <input
+                          type="text"
+                          placeholder="クーポンタイトル（例: 全品10%OFFクーポン）"
+                          value={normalCouponTitle}
+                          onChange={(e) => setNormalCouponTitle(e.target.value)}
+                          style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
+                        />
+                        <textarea
+                          placeholder="説明文・利用条件"
+                          value={normalCouponDesc}
+                          onChange={(e) => setNormalCouponDesc(e.target.value)}
+                          rows={2}
+                          style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 🏆 特別達成クーポン（STANDARD / PRO） */}
+                  <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '16px' }}>
+                    <h4 style={{ margin: '0 0 10px 0', fontSize: '15px' }}>🏆 特別達成クーポン設定</h4>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px' }}>
+                      <input type="checkbox" checked={loyaltyEnabled} onChange={(e) => setLoyaltyEnabled(e.target.checked)} /> 有効にする
+                    </label>
+
+                    {loyaltyEnabled && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '13px' }}>累計消し込み回数:</span>
+                          <input type="number" min="1" value={loyaltyTargetCount} onChange={(e) => setLoyaltyTargetCount(Number(e.target.value))} style={{ width: '60px', padding: '4px' }} />
+                          <span style={{ fontSize: '13px' }}>回で達成</span>
+                        </div>
+                        <input type="text" placeholder="特典タイトル" value={loyaltyTitle} onChange={(e) => setLoyaltyTitle(e.target.value)} style={{ width: '100%', padding: '6px' }} />
+                        
+                        {/* 共通ルール: 有効期限 & 併用可否 */}
+                        <div style={{ display: 'flex', gap: '12px', fontSize: '12px' }}>
+                          <select value={loyaltyExpireType} onChange={(e) => setLoyaltyExpireType(e.target.value)}>
+                            <option value="none">無制限</option>
+                            <option value="days">出現からN日間有効</option>
+                            <option value="date">日付固定指定</option>
+                          </select>
+                          <label>
+                            <input type="checkbox" checked={loyaltyCombinable} onChange={(e) => setLoyaltyCombinable(e.target.checked)} /> 他クーポンと併用可能
+                          </label>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </>
               ) : (
                 <div style={{ marginTop: '20px', padding: '10px', background: '#e2e8f0', borderRadius: '6px', fontSize: '12px', color: '#475569' }}>
-                  🔒 <strong>通常クーポン機能</strong>は STANDARD プラン以上でご利用いただけます。
+                  🔒 <strong>通常クーポン・特別達成クーポン機能</strong>は STANDARD プラン以上でご利用いただけます。
                 </div>
-
-              {/* 🏆 特別達成クーポン（STANDARD / PRO） */}
-<div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '16px' }}>
-  <h4 style={{ margin: '0 0 10px 0', fontSize: '15px' }}>🏆 特別達成クーポン設定</h4>
-  <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px' }}>
-    <input type="checkbox" checked={loyaltyEnabled} onChange={(e) => setLoyaltyEnabled(e.target.checked)} /> 有効にする
-  </label>
-
-  {loyaltyEnabled && (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ fontSize: '13px' }}>累計消し込み回数:</span>
-        <input type="number" min="1" value={loyaltyTargetCount} onChange={(e) => setLoyaltyTargetCount(Number(e.target.value))} style={{ width: '60px', padding: '4px' }} />
-        <span style={{ fontSize: '13px' }}>回で達成</span>
-      </div>
-      <input type="text" placeholder="特典タイトル" value={loyaltyTitle} onChange={(e) => setLoyaltyTitle(e.target.value)} style={{ width: '100%', padding: '6px' }} />
-      
-      {/* 共通ルール: 有効期限 & 併用可否 */}
-      <div style={{ display: 'flex', gap: '12px', fontSize: '12px' }}>
-        <select value={loyaltyExpireType} onChange={(e) => setLoyaltyExpireType(e.target.value)}>
-          <option value="none">無制限</option>
-          <option value="days">出現からN日間有効</option>
-          <option value="date">日付固定指定</option>
-        </select>
-        <label>
-          <input type="checkbox" checked={loyaltyCombinable} onChange={(e) => setLoyaltyCombinable(e.target.checked)} /> 他クーポンと併用可能
-        </label>
-      </div>
-    </div>
-  )}
-</div>
               )}
 
               <button
@@ -1074,12 +1083,10 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
             </button>
           </div>
 
-          {/* 🔽 ボタン押下で下に展開される比較・選択エリア */}
           {upgradeExpandOpen && (
             <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid rgba(0,0,0,0.1)' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '15px', marginBottom: '20px' }}>
                 
-                {/* STANDARDカード */}
                 <div
                   onClick={() => setSelectedPlan('standard')}
                   style={{
@@ -1105,7 +1112,6 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
                   </ul>
                 </div>
 
-                {/* PROカード */}
                 <div
                   onClick={() => setSelectedPlan('pro')}
                   style={{
@@ -1133,7 +1139,6 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
 
               </div>
 
-              {/* ボタン表示エリア */}
               {selectedPlan === 'standard' ? (
                 <div>
                   <button
@@ -1154,7 +1159,6 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
                     {upgradeLoading ? '処理中...' : upgradeSubmitted ? '✓ 申請完了' : 'STANDARDへアップグレードする'}
                   </button>
 
-                  {/* 登録完了メッセージ */}
                   {upgradeSubmitted && (
                     <div style={{ marginTop: '15px', padding: '14px', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '6px', color: '#15803d', fontSize: '14px', fontWeight: 'bold', lineHeight: 1.6, textAlign: 'center' }}>
                       アップグレードお申し込みありがとうございます。ご登録メールアドレスに詳細をお送りいたしました。ご確認ください。
@@ -1203,8 +1207,6 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
 
           {referralInfoOpen && (
             <div style={{ marginTop: '10px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-              
-              {/* 🔑 紹介コード・紹介URL表示カード */}
               <div style={{
                 background: '#fff7ed',
                 border: '1px solid #fed7aa',
@@ -1220,7 +1222,6 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {/* ① 紹介コード */}
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#78350f', marginBottom: '4px' }}>
                       紹介コード
@@ -1265,7 +1266,6 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
                     </div>
                   </div>
 
-                  {/* ② 自動入力用 紹介URL */}
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#78350f', marginBottom: '4px' }}>
                       専用登録URL（紹介コード自動入力）
@@ -1311,7 +1311,6 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
                 </div>
               </div>
 
-              {/* 明細ダウンロード & 店舗一覧 */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
                 <div>
                   <h4 style={{ margin: '0 0 5px 0', fontSize: '16px' }}>今月の報酬明細</h4>
@@ -1344,35 +1343,34 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
       )}
 
       {/* 📷 店舗用 クーポンスキャンボタン */}
-<div style={{ marginBottom: '20px' }}>
-  <button
-    onClick={() => {
-      setScanResult(null);
-      setScanOpen(true);
-    }}
-    style={{
-      width: '100%',
-      padding: '16px',
-      background: '#16a34a',
-      color: '#fff',
-      border: 'none',
-      borderRadius: '8px',
-      fontSize: '18px',
-      fontWeight: 'bold',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    }}
-  >
-    📷 クーポンQRコードを読み取る（消し込み）
-  </button>
-</div>
+      <div style={{ marginBottom: '20px' }}>
+        <button
+          onClick={() => {
+            setScanResult(null);
+            setScanOpen(true);
+          }}
+          style={{
+            width: '100%',
+            padding: '16px',
+            background: '#16a34a',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          }}
+        >
+          📷 クーポンQRコードを読み取る（消し込み）
+        </button>
+      </div>
 
-{/* 📷 スキャン用ダイアログ（モーダル） */}
-{/* 📷 スキャン用ダイアログ（モーダル） */}
+      {/* 📷 スキャン用ダイアログ（モーダル） */}
       {scanOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
           <div style={{ background: '#fff', padding: '20px', borderRadius: '12px', maxWidth: '500px', width: '100%', textAlign: 'center' }}>
@@ -1396,7 +1394,6 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
               </div>
             ) : (
               <div>
-                {/* カメラ映像枠 */}
                 <div id="qr-reader" style={{ width: '100%', minHeight: '250px', background: '#1e293b', borderRadius: '8px', overflow: 'hidden', marginBottom: '15px' }} />
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -1493,9 +1490,8 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
         )}
       </form>
 
-     {/* 📊 月間送信数ゲージ（LIGHT・STANDARDプランのみ表示） */}
+      {/* 📊 月間送信数ゲージ */}
       {(() => {
-        // PROプランの場合はゲージを表示しない（専用バッジのみ表示）
         if (plan === 'pro') {
           if (!plan) return null;
           return (
@@ -1522,9 +1518,7 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
           );
         }
 
-        // LIGHT（5,000通）/ STANDARD（15,000通）のみゲージを表示
         const limit = plan === 'standard' ? 15000 : 5000;
-        // 履歴データ等から送信累計数を集計（無ければ0件）
         const currentSent = history.reduce((acc, cur) => acc + (cur.successCount || 0), 0);
         const percentage = Math.min(Math.round((currentSent / limit) * 100), 100);
 
@@ -1582,6 +1576,7 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
           </div>
         );
       })()}
+
       {/* 履歴セクション */}
       <div style={{ borderTop: '2px solid #eee', paddingTop: '20px' }}>
         <div style={{ marginBottom: '15px', padding: '12px 16px', background: '#e3f2fd', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
