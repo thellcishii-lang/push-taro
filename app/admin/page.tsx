@@ -58,10 +58,6 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  // UI開閉用ステート
-  const [shopInfoOpen, setShopInfoOpen] = useState(false);
-  const [cronInfoOpen, setCronInfoOpen] = useState(false);
-
   // 自動配信（Cron）設定ステート
   const [autoBirthdayEnabled, setAutoBirthdayEnabled] = useState(true);
   const [autoDormantEnabled, setAutoDormantEnabled] = useState(true);
@@ -153,7 +149,7 @@ export default function AdminPage() {
 
               setShopName(shop?.name || '');
               
-              // プラン文字列を強制的に小文字化して保持
+              // プラン文字列を小文字化して確実に保持
               if (shop?.plan) {
                 const normalizedPlan = String(shop.plan).toLowerCase() as 'light' | 'standard' | 'pro';
                 setPlan(normalizedPlan);
@@ -637,7 +633,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* 🗂️ ナビゲーションタブ（小文字判定でPROプラン時のみ特有タブを表示） */}
+      {/* 🗂️ ナビゲーションタブ */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid #e2e8f0', paddingBottom: '1px', overflowX: 'auto' }}>
         <button
           onClick={() => setActiveTab('push')}
@@ -712,7 +708,7 @@ export default function AdminPage() {
         )}
       </div>
 
-      {/* 🏪 1. 店舗・基本クーポン タブの内容 */}
+      {/* 🏪 1. 店舗・基本クーポン タブの内容（アコーディオン化を廃止し直接全表示） */}
       {shopId && activeTab === 'shop' && (
         <div style={{ marginBottom: '20px' }}>
           <div style={{ padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
@@ -786,11 +782,11 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* 通常クーポン設定（STANDARD / PRO プラン限定） */}
+            {/* 通常クーポン設定（STANDARD / PRO プラン共通で全開表示） */}
             {(plan === 'standard' || isProPlan) ? (
               <>
                 <div style={{ marginTop: '25px', borderTop: '1px solid #ddd', paddingTop: '15px' }}>
-                  <h4 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>🎟️ 通常クーポン設定（STANDARDプラン以上）</h4>
+                  <h4 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>🎟️ 通常クーポン設定</h4>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', marginBottom: '10px' }}>
                     <input
                       type="checkbox"
@@ -820,7 +816,7 @@ export default function AdminPage() {
                   )}
                 </div>
 
-                {/* 🏆 特別達成クーポン（STANDARD / PRO） */}
+                {/* 🏆 特別達成クーポン（STANDARD / PRO 共通で全開表示） */}
                 <div style={{ background: '#fff', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '16px' }}>
                   <h4 style={{ margin: '0 0 10px 0', fontSize: '15px' }}>🏆 特別達成クーポン設定</h4>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px' }}>
@@ -894,7 +890,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* 🔥 2. PRO機能タブの内容（ステップアップ・自動配信Cron設定等を全集約） */}
+      {/* 🔥 2. PRO機能タブの内容 */}
       {isProPlan && activeTab === 'pro' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '30px' }}>
           <h2 style={{ margin: 0, fontSize: '20px', color: '#16a34a' }}>🔥 PROマーケティング機能設定</h2>
@@ -1064,7 +1060,7 @@ export default function AdminPage() {
             )}
           </div>
 
-          {/* 🤖 5. 自動配信（Cron）設定 & 手動テスト実行セクション */}
+          {/* 🤖 5. 自動配信（Cron）設定 */}
           <div style={{ background: '#f6fef9', border: '1px solid #bbf7d0', padding: '20px', borderRadius: '8px' }}>
             <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#15803d' }}>🤖 自動配信（Cron）動作設定 & 手動テスト</h3>
             
@@ -1474,7 +1470,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* 📷 4. 店舗用 クーポンスキャンボタン（通知タブ内） */}
+      {/* 📷 店舗用 クーポンスキャンボタン（通知タブ内） */}
       {activeTab === 'push' && (
         <div style={{ marginBottom: '20px' }}>
           <button
