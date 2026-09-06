@@ -528,8 +528,7 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
 
  const qrUrl = `${window.location.origin}/subscribe?s=${shopId}`;
 
-  return (
-    if (loading) {
+  if (loading) {
     return <p style={{ padding: '20px', textAlign: 'center' }}>読み込み中...</p>;
   }
 
