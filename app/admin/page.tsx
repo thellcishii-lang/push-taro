@@ -459,13 +459,20 @@ export default function AdminPage() {
 
     try {
       const idToken = await user.getIdToken();
+      
+      // バックエンドAPIの要求仕様に合わせた正しいパラメータ構造
       const response = await fetch('/api/send-push', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${idToken}`,
         },
-        body: JSON.stringify({ title, body, linkUrl }),
+        body: JSON.stringify({ 
+          shopId,
+          title, 
+          body, 
+          url: linkUrl || undefined 
+        }),
       });
 
       const data = await response.json();
@@ -480,12 +487,12 @@ export default function AdminPage() {
         linkUrl: linkUrl || undefined,
         sentAt: new Date(),
         status: 'success',
-        successCount: data.successCount,
+        successCount: data.successCount || 0,
       });
 
       await loadHistory();
 
-      setMessage('✨ 送信が完了しました。');
+      setMessage('✨ 送信が完了しました！');
       setTitle('');
       setBody('');
       setLinkUrl('');
