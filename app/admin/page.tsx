@@ -26,7 +26,7 @@ export default function AdminPage() {
   // 店舗情報 & プラン・ロールステート
   const [shopId, setShopId] = useState<string | null>(null);
   const [shopName, setShopName] = useState('');
-  const [plan, setPlan] = useState<'light' | 'standard' | 'pro' | null>(null);
+  const [plan, setPlan] = useState<'light' | 'standard' | 'pro' | string | null>(null);
   const [role, setRole] = useState<'normal' | 'pro' | 'agency'>('normal');
   const [couponEnabled, setCouponEnabled] = useState(false);
   const [couponTitle, setCouponTitle] = useState('');
@@ -164,8 +164,7 @@ export default function AdminPage() {
               setShopName(shop?.name || '');
               
               if (shop?.plan) {
-                const normalizedPlan = String(shop.plan).toLowerCase() as 'light' | 'standard' | 'pro';
-                setPlan(normalizedPlan);
+                setPlan(String(shop.plan));
               }
               if (shop?.role) setRole(shop.role);
               if (shop?.status) setShopStatus(shop.status);
@@ -366,7 +365,7 @@ export default function AdminPage() {
     }
   };
 
-  // 即時通知送信ハンドラ（完全修復版）
+  // 即時通知送信ハンドラ
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -634,7 +633,9 @@ export default function AdminPage() {
   }
 
   const qrUrl = typeof window !== 'undefined' ? `${window.location.origin}/subscribe?s=${shopId}` : '';
-  const isProPlan = plan === 'pro';
+  
+  // 🔑 表記揺れ（大文字/小文字/余白）を完全に吸収する判定ロジック
+  const isProPlan = String(plan || '').toLowerCase().trim() === 'pro';
 
   return (
     <main style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
@@ -655,9 +656,9 @@ export default function AdminPage() {
                 padding: '3px 8px',
                 borderRadius: '12px',
                 color: '#fff',
-                backgroundColor: role === 'agency' ? '#8b5cf6' : isProPlan ? '#ff4500' : plan === 'standard' ? '#0284c7' : '#64748b'
+                backgroundColor: role === 'agency' ? '#8b5cf6' : isProPlan ? '#ff4500' : String(plan).toLowerCase() === 'standard' ? '#0284c7' : '#64748b'
               }}>
-                {role === 'agency' ? '代理店' : `${plan?.toUpperCase()} プラン`}
+                {role === 'agency' ? '代理店' : `${String(plan || '').toUpperCase()} プラン`}
               </span>
             </div>
           </div>
@@ -839,7 +840,7 @@ export default function AdminPage() {
             )}
 
             {/* 通常クーポン設定（STANDARD / PRO） */}
-            {(plan === 'standard' || isProPlan) ? (
+            {(String(plan).toLowerCase() === 'standard' || isProPlan) ? (
               <>
                 <div style={{ marginTop: '25px', borderTop: '1px solid #ddd', paddingTop: '15px' }}>
                   <h4 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>🎟️ 通常クーポン設定</h4>
@@ -1459,8 +1460,8 @@ export default function AdminPage() {
         <div style={{
           marginBottom: '20px',
           padding: '20px',
-          background: plan === 'light' ? 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)' : 'linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%)',
-          border: plan === 'light' ? '1px solid #bae6fd' : '1px solid #fed7aa',
+          background: String(plan).toLowerCase() === 'light' ? 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)' : 'linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%)',
+          border: String(plan).toLowerCase() === 'light' ? '1px solid #bae6fd' : '1px solid #fed7aa',
           borderRadius: '12px',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
@@ -1477,7 +1478,7 @@ export default function AdminPage() {
               onClick={() => setUpgradeExpandOpen(!upgradeExpandOpen)}
               style={{
                 padding: '10px 20px',
-                background: plan === 'light' ? '#0284c7' : '#ea580c',
+                background: String(plan).toLowerCase() === 'light' ? '#0284c7' : '#ea580c',
                 color: '#fff',
                 border: 'none',
                 borderRadius: '6px',
@@ -1780,7 +1781,7 @@ export default function AdminPage() {
           );
         }
 
-        const limit = plan === 'standard' ? 15000 : 5000;
+        const limit = String(plan).toLowerCase() === 'standard' ? 15000 : 5000;
         const currentSent = history.reduce((acc, cur) => acc + (cur.successCount || 0), 0);
         const percentage = Math.min(Math.round((currentSent / limit) * 100), 100);
 
@@ -1794,7 +1795,7 @@ export default function AdminPage() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
               <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#2b6cb0' }}>
-                📈 今月の送信上限使用率 ({plan?.toUpperCase()}プラン)
+                📈 今月の送信上限使用率 ({String(plan || '').toUpperCase()}プラン)
               </span>
               <span style={{ fontSize: '15px', fontWeight: '800', color: '#2b6cb0' }}>
                 {currentSent.toLocaleString()} / {limit.toLocaleString()} 通 ({percentage}%)
