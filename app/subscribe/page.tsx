@@ -259,13 +259,13 @@ export default function SubscribePage() {
 
         {/* 🎁 初回限定クーポンエリア */}
 {shopData?.coupon?.enabled && (
-  <div style={{ background: firstCouponUsed ? '#f1f5f9' : '#fff3e0', border: firstCouponUsed ? '1px solid #cbd5e1' : '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
-    <span style={{ fontSize: '11px', background: firstCouponUsed ? '#64748b' : '#e65100', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>初回限定</span>
-    <h3 style={{ margin: '6px 0 8px 0', color: firstCouponUsed ? '#64748b' : '#e65100' }}>
+  <div style={{ background: couponUsed ? '#f1f5f9' : '#fff3e0', border: couponUsed ? '1px solid #cbd5e1' : '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
+    <span style={{ fontSize: '11px', background: couponUsed ? '#64748b' : '#e65100', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>初回限定</span>
+    <h3 style={{ margin: '6px 0 8px 0', color: couponUsed ? '#64748b' : '#e65100' }}>
       🎁 {shopData.coupon.title || '初回限定クーポン'}
     </h3>
 
-    {firstCouponUsed ? (
+    {couponUsed ? (
       <div style={{ padding: '12px', background: '#e2e8f0', borderRadius: '6px', color: '#475569', fontWeight: 'bold', fontSize: '14px', marginTop: '10px' }}>
         ✅ こちらのクーポンは使用済みです
       </div>
