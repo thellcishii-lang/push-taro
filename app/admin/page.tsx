@@ -35,6 +35,9 @@ export default function AdminPage() {
   const [clientLinkUrl, setClientLinkUrl] = useState('');
   const [shopIconUrl, setShopIconUrl] = useState('');
 
+  // 🗂️ タブ管理ステート
+　　　　const [activeTab, setActiveTab] = useState<'push' | 'shop' | 'pro' | 'referral'>('push');
+
   // アップグレード展開UI用ステート
   const [upgradeExpandOpen, setUpgradeExpandOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'standard' | 'pro'>('standard');
@@ -558,6 +561,81 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
           </button>
         </div>
       </div>
+
+      {/* 🗂️ ナビゲーションタブ */}
+<div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid #e2e8f0', pb: '1px', overflowX: 'auto' }}>
+  <button
+    onClick={() => setActiveTab('push')}
+    style={{
+      padding: '10px 16px',
+      border: 'none',
+      borderBottom: activeTab === 'push' ? '3px solid #ff4500' : '3px solid transparent',
+      background: 'none',
+      fontWeight: 'bold',
+      color: activeTab === 'push' ? '#ff4500' : '#64748b',
+      cursor: 'pointer',
+      fontSize: '15px',
+      whiteSpace: 'nowrap'
+    }}
+  >
+    📢 通知・消し込み
+  </button>
+
+  <button
+    onClick={() => setActiveTab('shop')}
+    style={{
+      padding: '10px 16px',
+      border: 'none',
+      borderBottom: activeTab === 'shop' ? '3px solid #0284c7' : '3px solid transparent',
+      background: 'none',
+      fontWeight: 'bold',
+      color: activeTab === 'shop' ? '#0284c7' : '#64748b',
+      cursor: 'pointer',
+      fontSize: '15px',
+      whiteSpace: 'nowrap'
+    }}
+  >
+    🏪 店舗・基本クーポン
+  </button>
+
+  {(plan === 'pro' || role === 'agency') && (
+    <button
+      onClick={() => setActiveTab('pro')}
+      style={{
+        padding: '10px 16px',
+        border: 'none',
+        borderBottom: activeTab === 'pro' ? '3px solid #16a34a' : '3px solid transparent',
+        background: 'none',
+        fontWeight: 'bold',
+        color: activeTab === 'pro' ? '#16a34a' : '#64748b',
+        cursor: 'pointer',
+        fontSize: '15px',
+        whiteSpace: 'nowrap'
+      }}
+    >
+      🔥 PRO機能（回数特典/ステップ）
+    </button>
+  )}
+
+  {(plan === 'pro' || role === 'agency') && (
+    <button
+      onClick={() => setActiveTab('referral')}
+      style={{
+        padding: '10px 16px',
+        border: 'none',
+        borderBottom: activeTab === 'referral' ? '3px solid #8b5cf6' : '3px solid transparent',
+        background: 'none',
+        fontWeight: 'bold',
+        color: activeTab === 'referral' ? '#8b5cf6' : '#64748b',
+        cursor: 'pointer',
+        fontSize: '15px',
+        whiteSpace: 'nowrap'
+      }}
+    >
+      🤝 報酬・口座管理
+    </button>
+  )}
+</div>
 
       {/* 🏪 店舗情報ボタン */}
       {shopId && (
