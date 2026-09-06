@@ -529,8 +529,13 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
  const qrUrl = `${window.location.origin}/subscribe?s=${shopId}`;
 
   return (
+    if (loading) {
+    return <p style={{ padding: '20px', textAlign: 'center' }}>読み込み中...</p>;
+  }
+
+  return (
     <main style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
-      {/* ヘッダー：アイコン・店舗名・プランバッジ（上部アップグレードボタン削除済み） */}
+      {/* ヘッダー：アイコン・店舗名・プランバッジ */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '10px', borderBottom: '2px solid #eee', paddingBottom: '15px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {shopIconUrl ? (
