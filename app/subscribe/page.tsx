@@ -77,10 +77,11 @@ export default function SubscribePage() {
     }
   }, []);
 
-  // 3. 店舗情報取得 & 履歴の定期読み込み
+  // 3. 店舗情報取得 & 顧客ステータス取得[cite: 2]
   useEffect(() => {
     if (!shopId) return;
 
+    // 店舗情報の取得[cite: 2]
     fetch(`/api/shop-info?s=${shopId}`)
       .then(res => res.json())
       .then(data => {
@@ -95,6 +96,16 @@ export default function SubscribePage() {
       if (savedToken) {
         setFcmToken(savedToken);
         setIsRegistered(true);
+
+        // ★ 追記：ユーザーのクーポン使用状況を取得
+        fetch(`/api/subscribe-status?shopId=${shopId}&token=${savedToken}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.success && (data.firstCouponUsed || data.couponUsed)) {
+              setCouponUsed(true);
+            }
+          })
+          .catch(err => console.error('ステータス確認エラー:', err));
       }
       loadNotificationHistory();
     }
