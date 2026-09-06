@@ -152,7 +152,12 @@ export default function AdminPage() {
               const shop = dashData.shop || data.shop;
 
               setShopName(shop?.name || '');
-              if (shop?.plan) setPlan(shop.plan);
+              
+              // プラン文字列を強制的に小文字化して保持
+              if (shop?.plan) {
+                const normalizedPlan = String(shop.plan).toLowerCase() as 'light' | 'standard' | 'pro';
+                setPlan(normalizedPlan);
+              }
               if (shop?.role) setRole(shop.role);
               if (shop?.status) setShopStatus(shop.status);
               if (shop?.validUntil) {
@@ -592,6 +597,7 @@ export default function AdminPage() {
   }
 
   const qrUrl = typeof window !== 'undefined' ? `${window.location.origin}/subscribe?s=${shopId}` : '';
+  const isProPlan = plan === 'pro';
 
   if (loading) {
     return <p style={{ padding: '20px', textAlign: 'center' }}>読み込み中...</p>;
@@ -616,7 +622,7 @@ export default function AdminPage() {
                 padding: '3px 8px',
                 borderRadius: '12px',
                 color: '#fff',
-                backgroundColor: role === 'agency' ? '#8b5cf6' : plan === 'pro' ? '#ff4500' : plan === 'standard' ? '#0284c7' : '#64748b'
+                backgroundColor: role === 'agency' ? '#8b5cf6' : isProPlan ? '#ff4500' : plan === 'standard' ? '#0284c7' : '#64748b'
               }}>
                 {role === 'agency' ? '代理店' : `${plan?.toUpperCase()} プラン`}
               </span>
@@ -631,7 +637,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* 🗂️ ナビゲーションタブ */}
+      {/* 🗂️ ナビゲーションタブ（小文字判定でPROプラン時のみ特有タブを表示） */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid #e2e8f0', paddingBottom: '1px', overflowX: 'auto' }}>
         <button
           onClick={() => setActiveTab('push')}
@@ -667,232 +673,229 @@ export default function AdminPage() {
           🏪 店舗・基本クーポン
         </button>
 
-        <button
-          onClick={() => setActiveTab('pro')}
-          style={{
-            padding: '10px 16px',
-            border: 'none',
-            borderBottom: activeTab === 'pro' ? '3px solid #16a34a' : '3px solid transparent',
-            background: 'none',
-            fontWeight: 'bold',
-            color: activeTab === 'pro' ? '#16a34a' : '#64748b',
-            cursor: 'pointer',
-            fontSize: '15px',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          🔥 PRO機能（回数特典/ステップ）
-        </button>
+        {isProPlan && (
+          <button
+            onClick={() => setActiveTab('pro')}
+            style={{
+              padding: '10px 16px',
+              border: 'none',
+              borderBottom: activeTab === 'pro' ? '3px solid #16a34a' : '3px solid transparent',
+              background: 'none',
+              fontWeight: 'bold',
+              color: activeTab === 'pro' ? '#16a34a' : '#64748b',
+              cursor: 'pointer',
+              fontSize: '15px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            🔥 PRO機能（回数特典/ステップ）
+          </button>
+        )}
 
-        <button
-          onClick={() => setActiveTab('referral')}
-          style={{
-            padding: '10px 16px',
-            border: 'none',
-            borderBottom: activeTab === 'referral' ? '3px solid #8b5cf6' : '3px solid transparent',
-            background: 'none',
-            fontWeight: 'bold',
-            color: activeTab === 'referral' ? '#8b5cf6' : '#64748b',
-            cursor: 'pointer',
-            fontSize: '15px',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          🤝 報酬・口座管理
-        </button>
+        {isProPlan && (
+          <button
+            onClick={() => setActiveTab('referral')}
+            style={{
+              padding: '10px 16px',
+              border: 'none',
+              borderBottom: activeTab === 'referral' ? '3px solid #8b5cf6' : '3px solid transparent',
+              background: 'none',
+              fontWeight: 'bold',
+              color: activeTab === 'referral' ? '#8b5cf6' : '#64748b',
+              cursor: 'pointer',
+              fontSize: '15px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            🤝 報酬・口座管理
+          </button>
+        )}
       </div>
 
-      {/* 🏪 店舗情報タブの内容 */}
+      {/* 🏪 1. 店舗・基本クーポン タブの内容 */}
       {shopId && activeTab === 'shop' && (
         <div style={{ marginBottom: '20px' }}>
-          <button
-            onClick={() => setShopInfoOpen(!shopInfoOpen)}
-            style={{ width: '100%', padding: '14px 20px', background: '#f8f9fa', border: '1px solid #ced4da', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-          >
-            <span>🏪 店舗情報・QRコード設定</span>
-            <span>{shopInfoOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
-          </button>
+          <div style={{ padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <h3 style={{ margin: '0 0 15px 0', fontSize: '18px' }}>🏪 店舗基本情報 & クーポン設定</h3>
+            
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>店舗名</label>
+              <input
+                type="text"
+                value={shopName}
+                onChange={(e) => setShopName(e.target.value)}
+                style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
+              />
+            </div>
 
-          {shopInfoOpen && (
-            <div style={{ marginTop: '10px', padding: '20px', background: '#f5f5f5', borderRadius: '8px', border: '1px solid #e9ecef' }}>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>店舗名</label>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>店舗アイコン画像</label>
+              <ImageUploader
+                onImageUploaded={(url) => setShopIconUrl(url)}
+                currentUrl={shopIconUrl}
+              />
+            </div>
+
+            <p style={{ fontSize: '14px', color: '#666' }}>店舗ID: <code>{shopId}</code></p>
+            
+            {qrUrl && (
+              <div style={{ marginTop: '15px', textAlign: 'center', padding: '15px', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <QRCodeSVG value={qrUrl} size={180} />
+                <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
+                  📱 スマホで読み取って通知を受け取れます
+                </p>
+                <p style={{ fontSize: '11px', color: '#999', wordBreak: 'break-all' }}>
+                  {qrUrl}
+                </p>
+              </div>
+            )}
+
+            <h4 style={{ marginTop: '25px', marginBottom: '10px', fontSize: '16px' }}>🎫 初回クーポン設定</h4>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '10px' }}>
+              <input
+                type="checkbox"
+                checked={couponEnabled}
+                onChange={(e) => setCouponEnabled(e.target.checked)}
+              />
+              初回クーポンを有効にする
+            </label>
+
+            {couponEnabled && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
                 <input
                   type="text"
-                  value={shopName}
-                  onChange={(e) => setShopName(e.target.value)}
-                  style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
+                  placeholder="クーポンタイトル（例: 初回限定20%OFF）"
+                  value={couponTitle}
+                  onChange={(e) => setCouponTitle(e.target.value)}
+                  style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
-              </div>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>店舗アイコン画像</label>
-                <ImageUploader
-                  onImageUploaded={(url) => setShopIconUrl(url)}
-                  currentUrl={shopIconUrl}
-                />
-              </div>
-
-              <p style={{ fontSize: '14px', color: '#666' }}>店舗ID: <code>{shopId}</code></p>
-              
-              {qrUrl && (
-                <div style={{ marginTop: '15px', textAlign: 'center', padding: '15px', background: '#fff', borderRadius: '8px' }}>
-                  <QRCodeSVG value={qrUrl} size={180} />
-                  <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
-                    📱 スマホで読み取って通知を受け取れます
-                  </p>
-                  <p style={{ fontSize: '11px', color: '#999', wordBreak: 'break-all' }}>
-                    {qrUrl}
-                  </p>
-                </div>
-              )}
-
-              <h4 style={{ marginTop: '20px', marginBottom: '10px' }}>🎫 初回クーポン設定</h4>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '10px' }}>
                 <input
-                  type="checkbox"
-                  checked={couponEnabled}
-                  onChange={(e) => setCouponEnabled(e.target.checked)}
+                  type="text"
+                  placeholder="説明文"
+                  value={couponDesc}
+                  onChange={(e) => setCouponDesc(e.target.value)}
+                  style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
-                初回クーポンを有効にする
-              </label>
-
-              {couponEnabled && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
-                  <input
-                    type="text"
-                    placeholder="クーポンタイトル（例: 初回限定20%OFF）"
-                    value={couponTitle}
-                    onChange={(e) => setCouponTitle(e.target.value)}
-                    style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
-                  />
-                  <input
-                    type="text"
-                    placeholder="説明文"
-                    value={couponDesc}
-                    onChange={(e) => setCouponDesc(e.target.value)}
-                    style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
-                  />
-                  <input
-                    type="number"
-                    placeholder="割引率 (%)"
-                    value={couponRate}
-                    onChange={(e) => setCouponRate(Number(e.target.value))}
-                    style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
-                  />
-                </div>
-              )}
-
-              {/* 通常クーポン設定（STANDARD / PRO プラン限定） */}
-              {(plan === 'standard' || plan === 'pro') ? (
-                <>
-                  <div style={{ marginTop: '25px', borderTop: '1px solid #ddd', paddingTop: '15px' }}>
-                    <h4 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>🎟️ 通常クーポン設定（STANDARDプラン以上）</h4>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', marginBottom: '10px' }}>
-                      <input
-                        type="checkbox"
-                        checked={normalCouponEnabled}
-                        onChange={(e) => setNormalCouponEnabled(e.target.checked)}
-                      />
-                      通常クーポンを有効にする
-                    </label>
-
-                    {normalCouponEnabled && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
-                        <input
-                          type="text"
-                          placeholder="クーポンタイトル（例: 全品10%OFFクーポン）"
-                          value={normalCouponTitle}
-                          onChange={(e) => setNormalCouponTitle(e.target.value)}
-                          style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
-                        />
-                        <textarea
-                          placeholder="説明文・利用条件"
-                          value={normalCouponDesc}
-                          onChange={(e) => setNormalCouponDesc(e.target.value)}
-                          rows={2}
-                          style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 🏆 特別達成クーポン（STANDARD / PRO） */}
-                  <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '16px' }}>
-                    <h4 style={{ margin: '0 0 10px 0', fontSize: '15px' }}>🏆 特別達成クーポン設定</h4>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px' }}>
-                      <input type="checkbox" checked={loyaltyEnabled} onChange={(e) => setLoyaltyEnabled(e.target.checked)} /> 有効にする
-                    </label>
-
-                    {loyaltyEnabled && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '13px' }}>累計消し込み回数:</span>
-                          <input type="number" min="1" value={loyaltyTargetCount} onChange={(e) => setLoyaltyTargetCount(Number(e.target.value))} style={{ width: '60px', padding: '4px' }} />
-                          <span style={{ fontSize: '13px' }}>回で達成</span>
-                        </div>
-                        <input type="text" placeholder="特典タイトル" value={loyaltyTitle} onChange={(e) => setLoyaltyTitle(e.target.value)} style={{ width: '100%', padding: '6px' }} />
-                        
-                        <div style={{ display: 'flex', gap: '12px', fontSize: '12px' }}>
-                          <select value={loyaltyExpireType} onChange={(e) => setLoyaltyExpireType(e.target.value)}>
-                            <option value="none">無制限</option>
-                            <option value="days">出現からN日間有効</option>
-                            <option value="date">日付固定指定</option>
-                          </select>
-                          <label>
-                            <input type="checkbox" checked={loyaltyCombinable} onChange={(e) => setLoyaltyCombinable(e.target.checked)} /> 他クーポンと併用可能
-                          </label>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <div style={{ marginTop: '20px', padding: '10px', background: '#e2e8f0', borderRadius: '6px', fontSize: '12px', color: '#475569' }}>
-                  🔒 <strong>通常クーポン・特別達成クーポン機能</strong>は STANDARD プラン以上でご利用いただけます。
-                </div>
-              )}
-
-              <button
-                onClick={handleSaveSettings}
-                disabled={saving}
-                style={{
-                  marginTop: '20px',
-                  padding: '10px 20px',
-                  background: saveSuccess ? '#4CAF50' : saving ? '#cccccc' : '#2196F3',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: saving ? 'wait' : 'pointer',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                }}
-              >
-                {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 設定を保存'}
-              </button>
-
-              {/* 退会エリア */}
-              <div style={{ marginTop: '30px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
-                {shopStatus === 'canceled' ? (
-                  <div style={{ background: '#fff3e0', border: '1px solid #ffe0b2', padding: '16px', borderRadius: '8px', color: '#e65100', fontWeight: 'bold', fontSize: '14px' }}>
-                    ⚠️ 退会手続きが完了しています。{validUntilDate ? `${validUntilDate} までご利用いただけます。` : '有効期限までご利用いただけます。'}
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => router.push(`/admin/cancel?shopId=${shopId}`)}
-                    style={{ padding: '10px 16px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
-                  >
-                    店舗の退会手続きを行う
-                  </button>
-                )}
+                <input
+                  type="number"
+                  placeholder="割引率 (%)"
+                  value={couponRate}
+                  onChange={(e) => setCouponRate(Number(e.target.value))}
+                  style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
+                />
               </div>
+            )}
+
+            {/* 通常クーポン設定（STANDARD / PRO プラン限定） */}
+            {(plan === 'standard' || isProPlan) ? (
+              <>
+                <div style={{ marginTop: '25px', borderTop: '1px solid #ddd', paddingTop: '15px' }}>
+                  <h4 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>🎟️ 通常クーポン設定（STANDARDプラン以上）</h4>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', marginBottom: '10px' }}>
+                    <input
+                      type="checkbox"
+                      checked={normalCouponEnabled}
+                      onChange={(e) => setNormalCouponEnabled(e.target.checked)}
+                    />
+                    通常クーポンを有効にする
+                  </label>
+
+                  {normalCouponEnabled && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                      <input
+                        type="text"
+                        placeholder="クーポンタイトル（例: 全品10%OFFクーポン）"
+                        value={normalCouponTitle}
+                        onChange={(e) => setNormalCouponTitle(e.target.value)}
+                        style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
+                      />
+                      <textarea
+                        placeholder="説明文・利用条件"
+                        value={normalCouponDesc}
+                        onChange={(e) => setNormalCouponDesc(e.target.value)}
+                        rows={2}
+                        style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* 🏆 特別達成クーポン（STANDARD / PRO） */}
+                <div style={{ background: '#fff', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '16px' }}>
+                  <h4 style={{ margin: '0 0 10px 0', fontSize: '15px' }}>🏆 特別達成クーポン設定</h4>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px' }}>
+                    <input type="checkbox" checked={loyaltyEnabled} onChange={(e) => setLoyaltyEnabled(e.target.checked)} /> 有効にする
+                  </label>
+
+                  {loyaltyEnabled && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '13px' }}>累計消し込み回数:</span>
+                        <input type="number" min="1" value={loyaltyTargetCount} onChange={(e) => setLoyaltyTargetCount(Number(e.target.value))} style={{ width: '60px', padding: '4px' }} />
+                        <span style={{ fontSize: '13px' }}>回で達成</span>
+                      </div>
+                      <input type="text" placeholder="特典タイトル" value={loyaltyTitle} onChange={(e) => setLoyaltyTitle(e.target.value)} style={{ width: '100%', padding: '6px' }} />
+                      
+                      <div style={{ display: 'flex', gap: '12px', fontSize: '12px' }}>
+                        <select value={loyaltyExpireType} onChange={(e) => setLoyaltyExpireType(e.target.value)}>
+                          <option value="none">無制限</option>
+                          <option value="days">出現からN日間有効</option>
+                          <option value="date">日付固定指定</option>
+                        </select>
+                        <label>
+                          <input type="checkbox" checked={loyaltyCombinable} onChange={(e) => setLoyaltyCombinable(e.target.checked)} /> 他クーポンと併用可能
+                        </label>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div style={{ marginTop: '20px', padding: '10px', background: '#e2e8f0', borderRadius: '6px', fontSize: '12px', color: '#475569' }}>
+                🔒 <strong>通常クーポン・特別達成クーポン機能</strong>は STANDARD プラン以上でご利用いただけます。
+              </div>
+            )}
+
+            <button
+              onClick={handleSaveSettings}
+              disabled={saving}
+              style={{
+                marginTop: '20px',
+                padding: '12px 20px',
+                background: saveSuccess ? '#4CAF50' : saving ? '#cccccc' : '#2196F3',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: saving ? 'wait' : 'pointer',
+                fontSize: '16px',
+                fontWeight: 'bold',
+              }}
+            >
+              {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 基本設定を保存'}
+            </button>
+
+            {/* 退会エリア */}
+            <div style={{ marginTop: '30px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
+              {shopStatus === 'canceled' ? (
+                <div style={{ background: '#fff3e0', border: '1px solid #ffe0b2', padding: '16px', borderRadius: '8px', color: '#e65100', fontWeight: 'bold', fontSize: '14px' }}>
+                  ⚠️ 退会手続きが完了しています。{validUntilDate ? `${validUntilDate} までご利用いただけます。` : '有効期限までご利用いただけます。'}
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => router.push(`/admin/cancel?shopId=${shopId}`)}
+                  style={{ padding: '10px 16px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
+                >
+                  店舗の退会手続きを行う
+                </button>
+              )}
             </div>
-          )}
+          </div>
         </div>
       )}
 
-      {/* 🔥 PRO機能タブの内容（PROプランのみ） */}
-      {plan === 'pro' && activeTab === 'pro' && (
+      {/* 🔥 2. PRO機能タブの内容（ステップアップ・自動配信Cron設定等を全集約） */}
+      {isProPlan && activeTab === 'pro' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '30px' }}>
           <h2 style={{ margin: 0, fontSize: '20px', color: '#16a34a' }}>🔥 PROマーケティング機能設定</h2>
 
@@ -1061,11 +1064,62 @@ export default function AdminPage() {
             )}
           </div>
 
+          {/* 🤖 5. 自動配信（Cron）設定 & 手動テスト実行セクション */}
+          <div style={{ background: '#f6fef9', border: '1px solid #bbf7d0', padding: '20px', borderRadius: '8px' }}>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#15803d' }}>🤖 自動配信（Cron）動作設定 & 手動テスト</h3>
+            
+            <div style={{ padding: '12px', background: '#e0f2fe', borderLeft: '4px solid #0284c7', borderRadius: '4px', marginBottom: '15px', color: '#0369a1', fontSize: '13px', lineHeight: '1.6' }}>
+              毎日深夜にサーバー側で全自動実行されます。「テスト手動実行」ボタンで今すぐ動作確認が可能です。
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '15px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
+                <input
+                  type="checkbox"
+                  checked={autoBirthdayEnabled}
+                  onChange={(e) => setAutoBirthdayEnabled(e.target.checked)}
+                />
+                🎂 誕生日自動お祝いクーポンの送信を許可
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
+                <input
+                  type="checkbox"
+                  checked={autoDormantEnabled}
+                  onChange={(e) => setAutoDormantEnabled(e.target.checked)}
+                />
+                👋 休眠顧客フォローの自動送信を許可
+              </label>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '10px' }}>
+              <button
+                onClick={() => handleRunCron('birthday')}
+                disabled={cronLoading}
+                style={{ padding: '8px 14px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
+              >
+                🎂 誕生日判定を実行
+              </button>
+              <button
+                onClick={() => handleRunCron('dormant')}
+                disabled={cronLoading}
+                style={{ padding: '8px 14px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
+              >
+                👋 休眠顧客判定を実行
+              </button>
+            </div>
+
+            {cronLogMessage && (
+              <div style={{ padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '12px', fontWeight: 'bold' }}>
+                {cronLogMessage}
+              </div>
+            )}
+          </div>
+
           <button
             onClick={handleSaveSettings}
             disabled={saving}
             style={{
-              padding: '12px 24px',
+              padding: '14px 24px',
               background: saveSuccess ? '#4CAF50' : saving ? '#cccccc' : '#16a34a',
               color: '#fff',
               border: 'none',
@@ -1080,8 +1134,8 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* 🤝 報酬・口座管理タブ（PROプラン契約店舗のみ表示） */}
-      {shopId && plan === 'pro' && activeTab === 'referral' && (
+      {/* 🤝 3. 報酬・口座管理タブ（PROプラン契約店舗のみ表示） */}
+      {shopId && isProPlan && activeTab === 'referral' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '30px' }}>
           
           {/* 🏦 口座設定エリア */}
@@ -1255,98 +1309,8 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* 🤖 自動配信（Cron）設定 & 手動実行セクション */}
-      {shopId && plan === 'pro' && (
-        <div style={{ marginBottom: '20px' }}>
-          <button
-            onClick={() => setCronInfoOpen(!cronInfoOpen)}
-            style={{
-              width: '100%',
-              padding: '14px 20px',
-              background: '#f0fdf4',
-              border: '1px solid #86efac',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              fontSize: '16px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <span>🤖 自動配信（Cron）設定 & 手動実行</span>
-            <span>{cronInfoOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
-          </button>
-
-          {cronInfoOpen && (
-            <div style={{ marginTop: '10px', padding: '20px', background: '#f6fef9', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
-              <div style={{ padding: '12px 16px', background: '#e0f2fe', borderLeft: '4px solid #0284c7', borderRadius: '4px', marginBottom: '20px', color: '#0369a1', fontSize: '13px', lineHeight: '1.6' }}>
-                <p style={{ margin: '0 0 6px 0', fontWeight: 'bold', fontSize: '14px' }}>
-                  💡 自動配信（Cron処理）について
-                </p>
-                <p style={{ margin: 0 }}>
-                  本機能は、設定された条件（誕生日・最終来店日・契約ステータス等）に基づいて毎日深夜にサーバー側で全自動実行されます。<br />
-                  各配信の有効/無効の切り替えのほか、下の「テスト手動実行」ボタンを押すことで、定期配信時間を待たずに今すぐ動作確認を行うことができます。
-                </p>
-              </div>
-
-              <h4 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>⚙️ 自動配信機能のオン/オフ</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
-                  <input
-                    type="checkbox"
-                    checked={autoBirthdayEnabled}
-                    onChange={(e) => setAutoBirthdayEnabled(e.target.checked)}
-                  />
-                  🎂 誕生日自動お祝いクーポンの送信
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
-                  <input
-                    type="checkbox"
-                    checked={autoDormantEnabled}
-                    onChange={(e) => setAutoDormantEnabled(e.target.checked)}
-                  />
-                  👋 休眠顧客（60日未来店）フォローの自動送信
-                </label>
-              </div>
-
-              <h4 style={{ margin: '15px 0 10px 0', fontSize: '16px' }}>⚡️ テスト手動実行（動作確認用）</h4>
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '15px' }}>
-                <button
-                  onClick={() => handleRunCron('birthday')}
-                  disabled={cronLoading}
-                  style={{ padding: '8px 14px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
-                >
-                  🎂 誕生日判定を実行
-                </button>
-                <button
-                  onClick={() => handleRunCron('dormant')}
-                  disabled={cronLoading}
-                  style={{ padding: '8px 14px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
-                >
-                  👋 休眠顧客判定を実行
-                </button>
-                <button
-                  onClick={() => handleRunCron('special')}
-                  disabled={cronLoading}
-                  style={{ padding: '8px 14px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
-                >
-                  ⚠️ 猶予期限チェックを実行
-                </button>
-              </div>
-
-              {cronLogMessage && (
-                <div style={{ padding: '10px 14px', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '13px', fontWeight: 'bold' }}>
-                  {cronLogMessage}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* 🚀 プラン比較・インライン展開付きアップグレード訴求カード */}
-      {shopId && role !== 'agency' && plan !== 'pro' && activeTab === 'push' && (
+      {/* 🚀 プラン比較・インライン展開付きアップグレード訴求カード（PRO以外のとき表示） */}
+      {shopId && role !== 'agency' && !isProPlan && activeTab === 'push' && (
         <div style={{
           marginBottom: '20px',
           padding: '20px',
@@ -1510,7 +1474,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* 📷 店舗用 クーポンスキャンボタン */}
+      {/* 📷 4. 店舗用 クーポンスキャンボタン（通知タブ内） */}
       {activeTab === 'push' && (
         <div style={{ marginBottom: '20px' }}>
           <button
@@ -1664,8 +1628,7 @@ export default function AdminPage() {
 
       {/* 📊 月間送信数ゲージ */}
       {activeTab === 'push' && (() => {
-        if (plan === 'pro') {
-          if (!plan) return null;
+        if (isProPlan) {
           return (
             <div style={{
               background: '#fff7ed',
