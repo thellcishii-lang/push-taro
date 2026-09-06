@@ -753,6 +753,37 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
                 <div style={{ marginTop: '20px', padding: '10px', background: '#e2e8f0', borderRadius: '6px', fontSize: '12px', color: '#475569' }}>
                   🔒 <strong>通常クーポン機能</strong>は STANDARD プラン以上でご利用いただけます。
                 </div>
+
+              {/* 🏆 特別達成クーポン（STANDARD / PRO） */}
+<div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '16px' }}>
+  <h4 style={{ margin: '0 0 10px 0', fontSize: '15px' }}>🏆 特別達成クーポン設定</h4>
+  <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px' }}>
+    <input type="checkbox" checked={loyaltyEnabled} onChange={(e) => setLoyaltyEnabled(e.target.checked)} /> 有効にする
+  </label>
+
+  {loyaltyEnabled && (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ fontSize: '13px' }}>累計消し込み回数:</span>
+        <input type="number" min="1" value={loyaltyTargetCount} onChange={(e) => setLoyaltyTargetCount(Number(e.target.value))} style={{ width: '60px', padding: '4px' }} />
+        <span style={{ fontSize: '13px' }}>回で達成</span>
+      </div>
+      <input type="text" placeholder="特典タイトル" value={loyaltyTitle} onChange={(e) => setLoyaltyTitle(e.target.value)} style={{ width: '100%', padding: '6px' }} />
+      
+      {/* 共通ルール: 有効期限 & 併用可否 */}
+      <div style={{ display: 'flex', gap: '12px', fontSize: '12px' }}>
+        <select value={loyaltyExpireType} onChange={(e) => setLoyaltyExpireType(e.target.value)}>
+          <option value="none">無制限</option>
+          <option value="days">出現からN日間有効</option>
+          <option value="date">日付固定指定</option>
+        </select>
+        <label>
+          <input type="checkbox" checked={loyaltyCombinable} onChange={(e) => setLoyaltyCombinable(e.target.checked)} /> 他クーポンと併用可能
+        </label>
+      </div>
+    </div>
+  )}
+</div>
               )}
 
               <button
