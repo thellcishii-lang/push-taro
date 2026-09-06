@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 
-export async function POST(request: Request) {
+export default async function POST(request: Request) {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
     return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
@@ -29,13 +29,17 @@ export async function POST(request: Request) {
 
     if (couponType === 'first') {
       couponTitle = shopData?.coupon?.title || '初回限定クーポン';
+
+      // 顧客側のサブスクライバートークン情報に初回クーポン使用済みフラグを保存
+      const subRef = db.collection('shops').doc(shopId).collection('subscribers').doc(token);
+      await subRef.set({ firstCouponUsed: true, usedAt: new Date() }, { merge: true });
+
     } else if (couponType === 'normal') {
       couponTitle = shopData?.normalCoupon?.title || '通常クーポン';
     }
 
-    // 消し込みログを保存
-    const logRef = db.collection('shops').doc(shopId).collection('coupon_logs').doc();
-    await logRef.set({
+    // 利用ログの書き込み
+    await db.collection('shops').doc(shopId).collection('coupon_logs').add({
       couponType,
       couponTitle,
       userToken: token,
