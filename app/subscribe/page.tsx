@@ -295,7 +295,6 @@ export default function SubscribePage() {
     <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください（常設特典）</p>
   </div>
 )}
-
         {/* 📜 【通知履歴エリア】 */}
         <div style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
           <button
