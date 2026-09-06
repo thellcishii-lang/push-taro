@@ -635,7 +635,8 @@ export default function AdminPage() {
   const qrUrl = typeof window !== 'undefined' ? `${window.location.origin}/subscribe?s=${shopId}` : '';
   
   // 🔑 表記揺れ（大文字/小文字/余白）を完全に吸収する判定ロジック
-  const isProPlan = String(plan || '').toLowerCase().trim() === 'pro';
+  const rawPlan = String(plan || '').toLowerCase();
+const isProPlan = rawPlan.includes('pro') || role === 'pro';
 
   return (
     <main style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
