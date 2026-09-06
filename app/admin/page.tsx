@@ -90,6 +90,31 @@ export default function AdminPage() {
   const [loyaltyExpireType, setLoyaltyExpireType] = useState('none');
   const [loyaltyCombinable, setLoyaltyCombinable] = useState(false);
 
+  // 🔥 PRO機能用ステート
+  const [stepUpEnabled, setStepUpEnabled] = useState(false);
+  const [stepUpList, setStepUpList] = useState<Array<{ title: string; expireType: string; expireDays: number; combinable: boolean }>>([
+    { title: '', expireType: 'days', expireDays: 7, combinable: false },
+    { title: '', expireType: 'days', expireDays: 14, combinable: false },
+  ]);
+
+  const [repeatEnabled, setRepeatEnabled] = useState(false);
+  const [repeatTitle, setRepeatTitle] = useState('');
+  const [repeatExpireType, setRepeatExpireType] = useState('days');
+  const [repeatExpireDays, setRepeatExpireDays] = useState(14);
+  const [repeatCombinable, setRepeatCombinable] = useState(false);
+
+  const [birthdayEnabled, setBirthdayEnabled] = useState(false);
+  const [birthdayTitle, setBirthdayTitle] = useState('');
+  const [birthdayMessage, setBirthdayMessage] = useState('');
+  const [birthdayCombinable, setBirthdayCombinable] = useState(true);
+
+  const [dormantEnabled, setDormantEnabled] = useState(false);
+  const [dormantTargetDays, setDormantTargetDays] = useState(60);
+  const [dormantTitle, setDormantTitle] = useState('');
+  const [dormantMessage, setDormantMessage] = useState('');
+  const [dormantExpireDays, setDormantExpireDays] = useState(14);
+  const [dormantCombinable, setDormantCombinable] = useState(false);
+
   // QR code scan State 
   const [scanOpen, setScanOpen] = useState(false);
   const [scanResult, setScanResult] = useState<string | null>(null);
@@ -149,6 +174,35 @@ export default function AdminPage() {
                 setLoyaltyTitle(shop.loyaltyCoupon.title || '');
                 setLoyaltyExpireType(shop.loyaltyCoupon.expireType || 'none');
                 setLoyaltyCombinable(shop.loyaltyCoupon.combinable || false);
+              }
+
+              if (shop?.proCoupons) {
+                const pro = shop.proCoupons;
+                if (pro.stepUp) {
+                  setStepUpEnabled(pro.stepUp.enabled || false);
+                  if (pro.stepUp.steps) setStepUpList(pro.stepUp.steps);
+                }
+                if (pro.repeat) {
+                  setRepeatEnabled(pro.repeat.enabled || false);
+                  setRepeatTitle(pro.repeat.title || '');
+                  setRepeatExpireType(pro.repeat.expireType || 'days');
+                  setRepeatExpireDays(pro.repeat.expireDays || 14);
+                  setRepeatCombinable(pro.repeat.combinable || false);
+                }
+                if (pro.birthday) {
+                  setBirthdayEnabled(pro.birthday.enabled || false);
+                  setBirthdayTitle(pro.birthday.title || '');
+                  setBirthdayMessage(pro.birthday.message || '');
+                  setBirthdayCombinable(pro.birthday.combinable || false);
+                }
+                if (pro.dormant) {
+                  setDormantEnabled(pro.dormant.enabled || false);
+                  setDormantTargetDays(pro.dormant.targetDays || 60);
+                  setDormantTitle(pro.dormant.title || '');
+                  setDormantMessage(pro.dormant.message || '');
+                  setDormantExpireDays(pro.dormant.expireDays || 14);
+                  setDormantCombinable(pro.dormant.combinable || false);
+                }
               }
               
               if (shop?.coupon) {
@@ -326,6 +380,12 @@ export default function AdminPage() {
             title: loyaltyTitle,
             expireType: loyaltyExpireType,
             combinable: loyaltyCombinable,
+          },
+          proCoupons: {
+            stepUp: { enabled: stepUpEnabled, steps: stepUpList },
+            repeat: { enabled: repeatEnabled, title: repeatTitle, expireType: repeatExpireType, expireDays: repeatExpireDays, combinable: repeatCombinable },
+            birthday: { enabled: birthdayEnabled, title: birthdayTitle, message: birthdayMessage, combinable: birthdayCombinable },
+            dormant: { enabled: dormantEnabled, targetDays: dormantTargetDays, title: dormantTitle, message: dormantMessage, expireDays: dormantExpireDays, combinable: dormantCombinable },
           },
           coupon: {
             enabled: couponEnabled,
@@ -649,7 +709,7 @@ export default function AdminPage() {
       </div>
 
       {/* 🏪 店舗情報ボタン */}
-      {shopId && (
+      {shopId && activeTab === 'shop' && (
         <div style={{ marginBottom: '20px' }}>
           <button
             onClick={() => setShopInfoOpen(!shopInfoOpen)}
@@ -838,6 +898,195 @@ export default function AdminPage() {
         </div>
       )}
 
+      {/* 🔥 PRO機能タブの内容 */}
+      {activeTab === 'pro' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '30px' }}>
+          <h2 style={{ margin: 0, fontSize: '20px', color: '#16a34a' }}>🔥 PROマーケティング機能設定</h2>
+
+          {/* 🐾 1. ステップアップクーポン */}
+          <div style={{ background: '#f0fdf4', padding: '16px', borderRadius: '8px', border: '1px solid #86efac' }}>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#166534' }}>🐾 ステップアップクーポン</h3>
+            <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
+              <input type="checkbox" checked={stepUpEnabled} onChange={(e) => setStepUpEnabled(e.target.checked)} /> 有効にする
+            </label>
+
+            {stepUpEnabled && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {stepUpList.map((step, index) => (
+                  <div key={index} style={{ background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                    <strong style={{ fontSize: '13px', color: '#166534' }}>ステップ {index + 1}</strong>
+                    <input
+                      type="text"
+                      placeholder={`例: ${index + 1}回目来店特典`}
+                      value={step.title}
+                      onChange={(e) => {
+                        const newList = [...stepUpList];
+                        newList[index].title = e.target.value;
+                        setStepUpList(newList);
+                      }}
+                      style={{ width: '100%', padding: '8px', margin: '6px 0', borderRadius: '4px', border: '1px solid #ccc' }}
+                    />
+                    <div style={{ display: 'flex', gap: '12px', fontSize: '12px', alignItems: 'center' }}>
+                      <label>
+                        有効日数: 
+                        <input
+                          type="number"
+                          value={step.expireDays}
+                          onChange={(e) => {
+                            const newList = [...stepUpList];
+                            newList[index].expireDays = Number(e.target.value);
+                            setStepUpList(newList);
+                          }}
+                          style={{ width: '50px', marginLeft: '4px', padding: '2px 4px' }}
+                        /> 日間
+                      </label>
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={step.combinable}
+                          onChange={(e) => {
+                            const newList = [...stepUpList];
+                            newList[index].combinable = e.target.checked;
+                            setStepUpList(newList);
+                          }}
+                        /> 他クーポンと併用可能
+                      </label>
+                    </div>
+                  </div>
+                ))}
+
+                {stepUpList.length < 10 && (
+                  <button
+                    type="button"
+                    onClick={() => setStepUpList([...stepUpList, { title: '', expireType: 'days', expireDays: 7, combinable: false }])}
+                    style={{ padding: '8px', background: '#dcfce7', border: '1px solid #86efac', color: '#166534', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+                  >
+                    ＋ ステップを追加（最大10段階）
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* 🔄 2. 連続クーポン */}
+          <div style={{ background: '#f0f9ff', padding: '16px', borderRadius: '8px', border: '1px solid #7dd3fc' }}>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#0369a1' }}>🔄 連続クーポン（消し込みで次回クーポン即時発効）</h3>
+            <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
+              <input type="checkbox" checked={repeatEnabled} onChange={(e) => setRepeatEnabled(e.target.checked)} /> 有効にする
+            </label>
+
+            {repeatEnabled && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <input
+                  type="text"
+                  placeholder="次回使える特典タイトル"
+                  value={repeatTitle}
+                  onChange={(e) => setRepeatTitle(e.target.value)}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                />
+                <div style={{ display: 'flex', gap: '12px', fontSize: '12px', alignItems: 'center' }}>
+                  <label>
+                    有効日数: 
+                    <input type="number" value={repeatExpireDays} onChange={(e) => setRepeatExpireDays(Number(e.target.value))} style={{ width: '50px', marginLeft: '4px', padding: '2px 4px' }} /> 日間
+                  </label>
+                  <label>
+                    <input type="checkbox" checked={repeatCombinable} onChange={(e) => setRepeatCombinable(e.target.checked)} /> 他クーポンと併用可能
+                  </label>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 🎂 3. 誕生日クーポン */}
+          <div style={{ background: '#fff5f5', padding: '16px', borderRadius: '8px', border: '1px solid #feb2b2' }}>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#9b2c2c' }}>🎂 誕生日クーポン & お祝い自動通知</h3>
+            <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
+              <input type="checkbox" checked={birthdayEnabled} onChange={(e) => setBirthdayEnabled(e.target.checked)} /> 有効にする
+            </label>
+
+            {birthdayEnabled && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <input
+                  type="text"
+                  placeholder="誕生日クーポンタイトル"
+                  value={birthdayTitle}
+                  onChange={(e) => setBirthdayTitle(e.target.value)}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                />
+                <textarea
+                  placeholder="お祝いメッセージ本文"
+                  value={birthdayMessage}
+                  onChange={(e) => setBirthdayMessage(e.target.value)}
+                  rows={2}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                />
+                <label style={{ fontSize: '12px' }}>
+                  <input type="checkbox" checked={birthdayCombinable} onChange={(e) => setBirthdayCombinable(e.target.checked)} /> 他クーポンと併用可能
+                </label>
+              </div>
+            )}
+          </div>
+
+          {/* 💤 4. 休眠復活クーポン */}
+          <div style={{ background: '#faf5ff', padding: '16px', borderRadius: '8px', border: '1px solid #e9d5ff' }}>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#6b21a8' }}>💤 休眠復活クーポン & お久しぶり自動通知</h3>
+            <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
+              <input type="checkbox" checked={dormantEnabled} onChange={(e) => setDormantEnabled(e.target.checked)} /> 有効にする
+            </label>
+
+            {dormantEnabled && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+                  <span>対象条件: 最終利用から</span>
+                  <input type="number" value={dormantTargetDays} onChange={(e) => setDormantTargetDays(Number(e.target.value))} style={{ width: '60px', padding: '4px' }} />
+                  <span>日経過した顧客</span>
+                </div>
+                <input
+                  type="text"
+                  placeholder="復帰クーポンタイトル"
+                  value={dormantTitle}
+                  onChange={(e) => setDormantTitle(e.target.value)}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                />
+                <textarea
+                  placeholder="お久しぶりメッセージ本文"
+                  value={dormantMessage}
+                  onChange={(e) => setDormantMessage(e.target.value)}
+                  rows={2}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                />
+                <div style={{ display: 'flex', gap: '12px', fontSize: '12px', alignItems: 'center' }}>
+                  <label>
+                    有効日数: 
+                    <input type="number" value={dormantExpireDays} onChange={(e) => setDormantExpireDays(Number(e.target.value))} style={{ width: '50px', marginLeft: '4px', padding: '2px 4px' }} /> 日間
+                  </label>
+                  <label>
+                    <input type="checkbox" checked={dormantCombinable} onChange={(e) => setDormantCombinable(e.target.checked)} /> 他クーポンと併用可能
+                  </label>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={handleSaveSettings}
+            disabled={saving}
+            style={{
+              padding: '12px 24px',
+              background: saveSuccess ? '#4CAF50' : saving ? '#cccccc' : '#16a34a',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '6px',
+              fontWeight: 'bold',
+              fontSize: '16px',
+              cursor: saving ? 'wait' : 'pointer',
+            }}
+          >
+            {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 PRO設定を保存'}
+          </button>
+        </div>
+      )}
+
       {/* 🤖 自動配信（Cron）設定 & 手動実行セクション */}
       {shopId && (plan === 'pro' || role === 'agency') && (
         <div style={{ marginBottom: '20px' }}>
@@ -929,7 +1178,7 @@ export default function AdminPage() {
       )}
 
       {/* 🏦 報酬お振り込み口座設定（Proプラン専用） */}
-      {shopId && plan === 'pro' && (
+      {shopId && plan === 'pro' && activeTab === 'referral' && (
         <div style={{ marginBottom: '20px' }}>
           <button
             onClick={() => setBankInfoOpen(!bankInfoOpen)}
@@ -1030,7 +1279,7 @@ export default function AdminPage() {
       )}
 
       {/* 🚀 プラン比較・インライン展開付きアップグレード訴求カード */}
-      {shopId && role !== 'agency' && plan !== 'pro' && (
+      {shopId && role !== 'agency' && plan !== 'pro' && activeTab === 'push' && (
         <div style={{
           marginBottom: '20px',
           padding: '20px',
@@ -1195,7 +1444,7 @@ export default function AdminPage() {
       )}
 
       {/* 🤝 紹介・代理店 報酬管理セクション (PROプランまたは代理店アカウントのみ表示) */}
-      {shopId && (plan === 'pro' || role === 'agency') && (
+      {shopId && (plan === 'pro' || role === 'agency') && activeTab === 'referral' && (
         <div style={{ marginBottom: '30px' }}>
           <button
             onClick={() => setReferralInfoOpen(!referralInfoOpen)}
@@ -1343,32 +1592,34 @@ export default function AdminPage() {
       )}
 
       {/* 📷 店舗用 クーポンスキャンボタン */}
-      <div style={{ marginBottom: '20px' }}>
-        <button
-          onClick={() => {
-            setScanResult(null);
-            setScanOpen(true);
-          }}
-          style={{
-            width: '100%',
-            padding: '16px',
-            background: '#16a34a',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          }}
-        >
-          📷 クーポンQRコードを読み取る（消し込み）
-        </button>
-      </div>
+      {activeTab === 'push' && (
+        <div style={{ marginBottom: '20px' }}>
+          <button
+            onClick={() => {
+              setScanResult(null);
+              setScanOpen(true);
+            }}
+            style={{
+              width: '100%',
+              padding: '16px',
+              background: '#16a34a',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '18px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            }}
+          >
+            📷 クーポンQRコードを読み取る（消し込み）
+          </button>
+        </div>
+      )}
 
       {/* 📷 スキャン用ダイアログ（モーダル） */}
       {scanOpen && (
@@ -1432,66 +1683,68 @@ export default function AdminPage() {
       )}
       
       {/* 送信フォーム */}
-      <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '40px', background: '#fff', padding: '20px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-        <h3 style={{ margin: '0 0 10px 0' }}>📢 プッシュ通知を作成</h3>
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>タイトル</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            placeholder="例: 新着セールのお知らせ"
-            style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-        </div>
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>本文</label>
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            required
-            rows={4}
-            placeholder="例: 本日から全品20%OFFセール開催中！"
-            style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-        </div>
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>リンク先URL（任意）</label>
-          <input
-            type="url"
-            value={linkUrl}
-            onChange={(e) => setLinkUrl(e.target.value)}
-            placeholder="https://example.com/sale"
-            style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            padding: '14px',
-            backgroundColor: loading ? '#ccc' : '#ff4500',
-            color: '#fff',
-            fontWeight: 'bold',
-            border: 'none',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            fontSize: '18px',
-            borderRadius: '6px',
-            marginTop: '5px',
-          }}
-        >
-          {loading ? '送信中...' : '🔥 Push 通知送信'}
-        </button>
-        {message && (
-          <p style={{ marginTop: '10px', fontWeight: 'bold', color: message.includes('❌') ? '#d32f2f' : '#2e7d32' }}>
-            {message}
-          </p>
-        )}
-      </form>
+      {activeTab === 'push' && (
+        <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '40px', background: '#fff', padding: '20px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
+          <h3 style={{ margin: '0 0 10px 0' }}>📢 プッシュ通知を作成</h3>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>タイトル</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              placeholder="例: 新着セールのお知らせ"
+              style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>本文</label>
+            <textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              required
+              rows={4}
+              placeholder="例: 本日から全品20%OFFセール開催中！"
+              style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>リンク先URL（任意）</label>
+            <input
+              type="url"
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              placeholder="https://example.com/sale"
+              style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              padding: '14px',
+              backgroundColor: loading ? '#ccc' : '#ff4500',
+              color: '#fff',
+              fontWeight: 'bold',
+              border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              fontSize: '18px',
+              borderRadius: '6px',
+              marginTop: '5px',
+            }}
+          >
+            {loading ? '送信中...' : '🔥 Push 通知送信'}
+          </button>
+          {message && (
+            <p style={{ marginTop: '10px', fontWeight: 'bold', color: message.includes('❌') ? '#d32f2f' : '#2e7d32' }}>
+              {message}
+            </p>
+          )}
+        </form>
+      )}
 
       {/* 📊 月間送信数ゲージ */}
-      {(() => {
+      {activeTab === 'push' && (() => {
         if (plan === 'pro') {
           if (!plan) return null;
           return (
@@ -1578,90 +1831,92 @@ export default function AdminPage() {
       })()}
 
       {/* 履歴セクション */}
-      <div style={{ borderTop: '2px solid #eee', paddingTop: '20px' }}>
-        <div style={{ marginBottom: '15px', padding: '12px 16px', background: '#e3f2fd', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '15px', fontWeight: 'bold', color: '#0d47a1' }}>📱 現在の受取許可件数</span>
-          <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#1565c0' }}>
-            {subscriberCount !== null ? `${subscriberCount} 件` : '取得中...'}
-          </span>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
-          <h2 style={{ margin: 0, fontSize: '20px' }}>📁 送信履歴（ローカルフォルダ）</h2>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <button
-              onClick={handleExport}
-              style={{ padding: '8px 16px', background: '#4CAF50', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}
-            >
-              📤 エクスポート
-            </button>
-            <label
-              style={{ padding: '8px 16px', background: '#2196F3', color: '#fff', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', display: 'inline-block' }}
-            >
-              📥 インポート
-              <input type="file" accept=".json" onChange={handleImport} style={{ display: 'none' }} />
-            </label>
-            <button
-              onClick={handleCleanup}
-              style={{ padding: '8px 16px', background: '#ff5722', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}
-            >
-              🧹 古いトークン削除
-            </button>
+      {activeTab === 'push' && (
+        <div style={{ borderTop: '2px solid #eee', paddingTop: '20px' }}>
+          <div style={{ marginBottom: '15px', padding: '12px 16px', background: '#e3f2fd', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '15px', fontWeight: 'bold', color: '#0d47a1' }}>📱 現在の受取許可件数</span>
+            <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#1565c0' }}>
+              {subscriberCount !== null ? `${subscriberCount} 件` : '取得中...'}
+            </span>
           </div>
-        </div>
 
-        {history.length === 0 ? (
-          <p style={{ color: '#999' }}>履歴がありません。通知を送信するとここに表示されます。</p>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {history.map((h) => (
-              <div
-                key={h.id}
-                style={{
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  padding: '12px',
-                  background: h.status === 'error' ? '#fff0f0' : '#f9f9f9',
-                }}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
+            <h2 style={{ margin: 0, fontSize: '20px' }}>📁 送信履歴（ローカルフォルダ）</h2>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <button
+                onClick={handleExport}
+                style={{ padding: '8px 16px', background: '#4CAF50', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                  <strong style={{ fontSize: '16px' }}>{h.title}</strong>
-                  <span style={{ fontSize: '12px', color: '#666' }}>
-                    {new Date(h.sentAt).toLocaleString('ja-JP')}
-                  </span>
-                </div>
-                <p style={{ margin: '8px 0', fontSize: '14px', color: '#333' }}>{h.body}</p>
-                {h.linkUrl && (
-                  <a href={h.linkUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#2196F3', wordBreak: 'break-all', display: 'block', marginBottom: '6px' }}>
-                    {h.linkUrl}
-                  </a>
-                )}
-                
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
-                  {h.status === 'success' ? (
-                    <span style={{ fontSize: '11px', color: '#4CAF50', background: '#e8f5e9', padding: '2px 8px', borderRadius: '12px' }}>
-                      送信成功
-                    </span>
-                  ) : (
-                    <span style={{ fontSize: '11px', color: '#d32f2f', background: '#ffebee', padding: '2px 8px', borderRadius: '12px' }}>
-                      送信失敗
-                    </span>
-                  )}
-                  {typeof h.successCount === 'number' && (
-                    <span style={{ fontSize: '12px', color: '#555', fontWeight: 'bold' }}>
-                      （送信数: {h.successCount}件）
-                    </span>
-                  )}
-                </div>
-
-                {h.status === 'error' && h.errorMessage && (
-                  <p style={{ color: '#d32f2f', fontSize: '12px', marginTop: '6px' }}>エラー: {h.errorMessage}</p>
-                )}
-              </div>
-            ))}
+                📤 エクスポート
+              </button>
+              <label
+                style={{ padding: '8px 16px', background: '#2196F3', color: '#fff', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', display: 'inline-block' }}
+              >
+                📥 インポート
+                <input type="file" accept=".json" onChange={handleImport} style={{ display: 'none' }} />
+              </label>
+              <button
+                onClick={handleCleanup}
+                style={{ padding: '8px 16px', background: '#ff5722', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}
+              >
+                🧹 古いトークン削除
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+
+          {history.length === 0 ? (
+            <p style={{ color: '#999' }}>履歴がありません。通知を送信するとここに表示されます。</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {history.map((h) => (
+                <div
+                  key={h.id}
+                  style={{
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    background: h.status === 'error' ? '#fff0f0' : '#f9f9f9',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                    <strong style={{ fontSize: '16px' }}>{h.title}</strong>
+                    <span style={{ fontSize: '12px', color: '#666' }}>
+                      {new Date(h.sentAt).toLocaleString('ja-JP')}
+                    </span>
+                  </div>
+                  <p style={{ margin: '8px 0', fontSize: '14px', color: '#333' }}>{h.body}</p>
+                  {h.linkUrl && (
+                    <a href={h.linkUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: '#2196F3', wordBreak: 'break-all', display: 'block', marginBottom: '6px' }}>
+                      {h.linkUrl}
+                    </a>
+                  )}
+                  
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
+                    {h.status === 'success' ? (
+                      <span style={{ fontSize: '11px', color: '#4CAF50', background: '#e8f5e9', padding: '2px 8px', borderRadius: '12px' }}>
+                        送信成功
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: '11px', color: '#d32f2f', background: '#ffebee', padding: '2px 8px', borderRadius: '12px' }}>
+                        送信失敗
+                      </span>
+                    )}
+                    {typeof h.successCount === 'number' && (
+                      <span style={{ fontSize: '12px', color: '#555', fontWeight: 'bold' }}>
+                        （送信数: {h.successCount}件）
+                      </span>
+                    )}
+                  </div>
+
+                  {h.status === 'error' && h.errorMessage && (
+                    <p style={{ color: '#d32f2f', fontSize: '12px', marginTop: '6px' }}>エラー: {h.errorMessage}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </main>
   );
 }
