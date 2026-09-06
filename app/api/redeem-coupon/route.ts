@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: '無効なQRコードデータです' }, { status: 400 });
     }
 
-    // 店舗所有権チェック
+    // 1. 店舗所有権チェック
     const shopDoc = await db.collection('shops').doc(shopId).get();
     if (!shopDoc.exists || shopDoc.data()?.ownerUid !== uid) {
       return NextResponse.json({ error: '店舗の操作権限がありません' }, { status: 403 });
@@ -27,22 +27,27 @@ export async function POST(request: Request) {
     const shopData = shopDoc.data();
     let couponTitle = 'クーポン';
 
-    // 顧客参照ドキュメント（1度だけ宣言）
+    // 顧客参照ドキュメント
     const subRef = db.collection('shops').doc(shopId).collection('subscribers').doc(token);
+    const subDoc = await subRef.get();
 
+    // 2. 初回クーポンの重複チェック
     if (couponType === 'first') {
       couponTitle = shopData?.coupon?.title || '初回限定クーポン';
+
+      // すでに使用済みなら弾く
+      if (subDoc.exists && (subDoc.data()?.firstCouponUsed || subDoc.data()?.couponUsed)) {
+        return NextResponse.json({ error: '⚠️ この初回限定クーポンはすでに使用済みです！' }, { status: 400 });
+      }
 
       // 初回クーポン使用済みフラグを保存
       await subRef.set({ firstCouponUsed: true, usedAt: new Date() }, { merge: true });
 
     } else if (couponType === 'normal') {
       couponTitle = shopData?.normalCoupon?.title || '通常クーポン';
-
-      // ※通常クーポンのログ更新等が必要な場合も subRef をそのまま使用可能
     }
 
-    // 利用ログの書き込み
+    // 3. 利用ログの書き込み
     await db.collection('shops').doc(shopId).collection('coupon_logs').add({
       couponType,
       couponTitle,
