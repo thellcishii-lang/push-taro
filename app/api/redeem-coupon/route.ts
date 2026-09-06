@@ -30,6 +30,10 @@ export async function POST(request: Request) {
     if (couponType === 'first') {
       couponTitle = shopData?.coupon?.title || '初回限定クーポン';
 
+      // QRコードに含まれる token でドキュメントを更新
+const subRef = db.collection('shops').doc(shopId).collection('subscribers').doc(token);
+await subRef.set({ firstCouponUsed: true, usedAt: new Date() }, { merge: true });
+      
       // 顧客側のサブスクライバートークン情報に初回クーポン使用済みフラグを保存
       const subRef = db.collection('shops').doc(shopId).collection('subscribers').doc(token);
       await subRef.set({ firstCouponUsed: true, usedAt: new Date() }, { merge: true });
