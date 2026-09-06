@@ -36,7 +36,7 @@ export default function AdminPage() {
   const [shopIconUrl, setShopIconUrl] = useState('');
 
   // 🗂️ タブ管理ステート
-  const [activeTab, setActiveTab] = useState<'push' | 'shop' | 'pro' | 'referral'>('push');
+  const [activeTab, setActiveTab] = useState<'push' | 'shop' | 'pro' | 'reserve' | 'referral'>('push');
 
   // アップグレード展開UI用ステート
   const [upgradeExpandOpen, setUpgradeExpandOpen] = useState(false);
@@ -51,18 +51,32 @@ export default function AdminPage() {
   const [accountNumber, setAccountNumber] = useState('');
   const [accountHolder, setAccountHolder] = useState('');
 
-  // 送信フォーム
+  // 送信フォーム（即時通知）
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  // 自動配信（Cron）設定ステート
-  const [autoBirthdayEnabled, setAutoBirthdayEnabled] = useState(true);
-  const [autoDormantEnabled, setAutoDormantEnabled] = useState(true);
-  const [cronLogMessage, setCronLogMessage] = useState('');
-  const [cronLoading, setCronLoading] = useState(false);
+  // 📅 予約配信ステート（PROプラン用）
+  const [scheduledList, setScheduledList] = useState<Array<{
+    id: string;
+    type: 'notification' | 'coupon';
+    scheduleType: 'once' | 'monthly' | 'weekly';
+    scheduleValue: string;
+    title: string;
+    body: string;
+    linkUrl?: string;
+  }>>([]);
+
+  const [reserveType, setReserveType] = useState<'notification' | 'coupon'>('notification');
+  const [reserveScheduleType, setReserveScheduleType] = useState<'once' | 'monthly' | 'weekly'>('once');
+  const [reserveDate, setReserveDate] = useState('');
+  const [reserveDayOfMonth, setReserveDayOfMonth] = useState('1');
+  const [reserveDayOfWeek, setReserveDayOfWeek] = useState('mon');
+  const [reserveTitle, setReserveTitle] = useState('');
+  const [reserveBody, setReserveBody] = useState('');
+  const [reserveLinkUrl, setReserveLinkUrl] = useState('');
 
   // 履歴＆受取許可件数
   const [history, setHistory] = useState<PushHistory[]>([]);
@@ -149,7 +163,6 @@ export default function AdminPage() {
 
               setShopName(shop?.name || '');
               
-              // プラン文字列を小文字化して確実に保持
               if (shop?.plan) {
                 const normalizedPlan = String(shop.plan).toLowerCase() as 'light' | 'standard' | 'pro';
                 setPlan(normalizedPlan);
@@ -353,6 +366,68 @@ export default function AdminPage() {
     }
   };
 
+  // 即時通知送信ハンドラ（完全修復版）
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!user || !shopId) {
+      setMessage('❌ ユーザーまたは店舗IDが取得できていません');
+      return;
+    }
+
+    setLoading(true);
+    setMessage('');
+
+    try {
+      const idToken = await user.getIdToken();
+      const response = await fetch('/api/send-push', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ 
+          shopId,
+          title, 
+          body, 
+          url: linkUrl || undefined 
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || '送信に失敗しました');
+      }
+
+      await localDb.history.add({
+        title,
+        body,
+        linkUrl: linkUrl || undefined,
+        sentAt: new Date(),
+        status: 'success',
+        successCount: data.successCount || 0,
+      });
+
+      await loadHistory();
+
+      setMessage('✨ 送信が完了しました！');
+      setTitle('');
+      setBody('');
+      setLinkUrl('');
+
+      setTimeout(() => {
+        setMessage('');
+      }, 3000);
+
+    } catch (err: any) {
+      console.error('送信エラー:', err);
+      setMessage(`❌ エラー: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSaveSettings = async () => {
     if (!user || !shopId) return;
     setSaving(true);
@@ -421,91 +496,50 @@ export default function AdminPage() {
     }
   };
 
-  const handleRunCron = async (type: 'birthday' | 'dormant' | 'special') => {
-    if (!user) return;
-    setCronLoading(true);
-    setCronLogMessage('⏳ Cron処理を実行中...');
-    try {
-      const idToken = await user.getIdToken();
-      const res = await fetch(`/api/cron/${type}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-        },
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setCronLogMessage(`✅ 実行完了: ${data.message || JSON.stringify(data)}`);
-      } else {
-        setCronLogMessage(`❌ 実行失敗: ${data.error || 'エラーが発生しました'}`);
-      }
-    } catch (err: any) {
-      setCronLogMessage(`❌ エラー: ${err.message}`);
-    } finally {
-      setCronLoading(false);
-    }
-  };
-
-  const handleSend = async (e: React.FormEvent) => {
+  // 📅 予約配信の追加処理
+  const handleAddSchedule = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!user || !shopId) {
-      setMessage('❌ ユーザーまたは店舗IDが取得できていません');
+    if (!reserveTitle || !reserveBody) {
+      alert('タイトルと本文を入力してください');
       return;
     }
 
-    setLoading(true);
-    setMessage('');
-
-    try {
-      const idToken = await user.getIdToken();
-      
-      // バックエンドAPIの要求仕様に合わせた正しいパラメータ構造
-      const response = await fetch('/api/send-push', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
-        },
-        body: JSON.stringify({ 
-          shopId,
-          title, 
-          body, 
-          url: linkUrl || undefined 
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || '送信に失敗しました');
+    let val = '';
+    if (reserveScheduleType === 'once') {
+      if (!reserveDate) {
+        alert('配信指定日を入力してください');
+        return;
       }
+      val = reserveDate;
+    } else if (reserveScheduleType === 'monthly') {
+      val = `毎月 ${reserveDayOfMonth} 日`;
+    } else if (reserveScheduleType === 'weekly') {
+      const dayMap: Record<string, string> = { mon: '月', tue: '火', wed: '水', thu: '木', fri: '金', sat: '土', sun: '日' };
+      val = `毎週 ${dayMap[reserveDayOfWeek] || ''} 曜日`;
+    }
 
-      await localDb.history.add({
-        title,
-        body,
-        linkUrl: linkUrl || undefined,
-        sentAt: new Date(),
-        status: 'success',
-        successCount: data.successCount || 0,
-      });
+    const newItem = {
+      id: Date.now().toString(),
+      type: reserveType,
+      scheduleType: reserveScheduleType,
+      scheduleValue: val,
+      title: reserveTitle,
+      body: reserveBody,
+      linkUrl: reserveLinkUrl || undefined,
+    };
 
-      await loadHistory();
+    setScheduledList([...scheduledList, newItem]);
+    
+    setReserveTitle('');
+    setReserveBody('');
+    setReserveLinkUrl('');
+    alert('✅ 予約を送信リストにセットしました');
+  };
 
-      setMessage('✨ 送信が完了しました！');
-      setTitle('');
-      setBody('');
-      setLinkUrl('');
-
-      setTimeout(() => {
-        setMessage('');
-      }, 3000);
-
-    } catch (err: any) {
-      console.error('送信エラー:', err);
-      setMessage(`❌ エラー: ${err.message}`);
-    } finally {
-      setLoading(false);
+  // 📅 予約配信の削除処理
+  const handleDeleteSchedule = (id: string) => {
+    if (confirm('この予約配信を取り消して削除しますか？')) {
+      setScheduledList(scheduledList.filter(item => item.id !== id));
     }
   };
 
@@ -602,10 +636,6 @@ export default function AdminPage() {
   const qrUrl = typeof window !== 'undefined' ? `${window.location.origin}/subscribe?s=${shopId}` : '';
   const isProPlan = plan === 'pro';
 
-  if (loading) {
-    return <p style={{ padding: '20px', textAlign: 'center' }}>読み込み中...</p>;
-  }
-
   return (
     <main style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
       {/* ヘッダー：アイコン・店舗名・プランバッジ */}
@@ -656,7 +686,7 @@ export default function AdminPage() {
             whiteSpace: 'nowrap'
           }}
         >
-          📢 通知・消し込み
+          📢 即時通知・消し込み
         </button>
 
         <button
@@ -691,7 +721,26 @@ export default function AdminPage() {
               whiteSpace: 'nowrap'
             }}
           >
-            🔥 PRO機能（回数特典/ステップ）
+            🔥 PRO機能（ステップ/回数特典）
+          </button>
+        )}
+
+        {isProPlan && (
+          <button
+            onClick={() => setActiveTab('reserve')}
+            style={{
+              padding: '10px 16px',
+              border: 'none',
+              borderBottom: activeTab === 'reserve' ? '3px solid #d97706' : '3px solid transparent',
+              background: 'none',
+              fontWeight: 'bold',
+              color: activeTab === 'reserve' ? '#d97706' : '#64748b',
+              cursor: 'pointer',
+              fontSize: '15px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            📅 予約配信・自動配信
           </button>
         )}
 
@@ -715,7 +764,7 @@ export default function AdminPage() {
         )}
       </div>
 
-      {/* 🏪 1. 店舗・基本クーポン タブの内容（アコーディオン化を廃止し直接全表示） */}
+      {/* 🏪 1. 店舗・基本クーポン タブの内容（全表示） */}
       {shopId && activeTab === 'shop' && (
         <div style={{ marginBottom: '20px' }}>
           <div style={{ padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
@@ -789,7 +838,7 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* 通常クーポン設定（STANDARD / PRO プラン共通で全開表示） */}
+            {/* 通常クーポン設定（STANDARD / PRO） */}
             {(plan === 'standard' || isProPlan) ? (
               <>
                 <div style={{ marginTop: '25px', borderTop: '1px solid #ddd', paddingTop: '15px' }}>
@@ -823,7 +872,7 @@ export default function AdminPage() {
                   )}
                 </div>
 
-                {/* 🏆 特別達成クーポン（STANDARD / PRO 共通で全開表示） */}
+                {/* 🏆 特別達成クーポン（STANDARD / PRO） */}
                 <div style={{ background: '#fff', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '16px' }}>
                   <h4 style={{ margin: '0 0 10px 0', fontSize: '15px' }}>🏆 特別達成クーポン設定</h4>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px' }}>
@@ -897,7 +946,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* 🔥 2. PRO機能タブの内容 */}
+      {/* 🔥 2. PRO機能タブ（ステップアップ・連続等） */}
       {isProPlan && activeTab === 'pro' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '30px' }}>
           <h2 style={{ margin: 0, fontSize: '20px', color: '#16a34a' }}>🔥 PROマーケティング機能設定</h2>
@@ -998,7 +1047,7 @@ export default function AdminPage() {
 
           {/* 🎂 3. 誕生日クーポン */}
           <div style={{ background: '#fff5f5', padding: '16px', borderRadius: '8px', border: '1px solid #feb2b2' }}>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#9b2c2c' }}>🎂 誕生日クーポン & お祝い自動通知</h3>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#9b2c2c' }}>🎂 誕生日クーポン設定</h3>
             <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
               <input type="checkbox" checked={birthdayEnabled} onChange={(e) => setBirthdayEnabled(e.target.checked)} /> 有効にする
             </label>
@@ -1019,16 +1068,13 @@ export default function AdminPage() {
                   rows={2}
                   style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
-                <label style={{ fontSize: '12px' }}>
-                  <input type="checkbox" checked={birthdayCombinable} onChange={(e) => setBirthdayCombinable(e.target.checked)} /> 他クーポンと併用可能
-                </label>
               </div>
             )}
           </div>
 
           {/* 💤 4. 休眠復活クーポン */}
           <div style={{ background: '#faf5ff', padding: '16px', borderRadius: '8px', border: '1px solid #e9d5ff' }}>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#6b21a8' }}>💤 休眠復活クーポン & お久しぶり自動通知</h3>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#6b21a8' }}>💤 休眠復活クーポン設定</h3>
             <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
               <input type="checkbox" checked={dormantEnabled} onChange={(e) => setDormantEnabled(e.target.checked)} /> 有効にする
             </label>
@@ -1054,66 +1100,6 @@ export default function AdminPage() {
                   rows={2}
                   style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
-                <div style={{ display: 'flex', gap: '12px', fontSize: '12px', alignItems: 'center' }}>
-                  <label>
-                    有効日数: 
-                    <input type="number" value={dormantExpireDays} onChange={(e) => setDormantExpireDays(Number(e.target.value))} style={{ width: '50px', marginLeft: '4px', padding: '2px 4px' }} /> 日間
-                  </label>
-                  <label>
-                    <input type="checkbox" checked={dormantCombinable} onChange={(e) => setDormantCombinable(e.target.checked)} /> 他クーポンと併用可能
-                  </label>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 🤖 5. 自動配信（Cron）設定 */}
-          <div style={{ background: '#f6fef9', border: '1px solid #bbf7d0', padding: '20px', borderRadius: '8px' }}>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#15803d' }}>🤖 自動配信（Cron）動作設定 & 手動テスト</h3>
-            
-            <div style={{ padding: '12px', background: '#e0f2fe', borderLeft: '4px solid #0284c7', borderRadius: '4px', marginBottom: '15px', color: '#0369a1', fontSize: '13px', lineHeight: '1.6' }}>
-              毎日深夜にサーバー側で全自動実行されます。「テスト手動実行」ボタンで今すぐ動作確認が可能です。
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '15px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
-                <input
-                  type="checkbox"
-                  checked={autoBirthdayEnabled}
-                  onChange={(e) => setAutoBirthdayEnabled(e.target.checked)}
-                />
-                🎂 誕生日自動お祝いクーポンの送信を許可
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
-                <input
-                  type="checkbox"
-                  checked={autoDormantEnabled}
-                  onChange={(e) => setAutoDormantEnabled(e.target.checked)}
-                />
-                👋 休眠顧客フォローの自動送信を許可
-              </label>
-            </div>
-
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '10px' }}>
-              <button
-                onClick={() => handleRunCron('birthday')}
-                disabled={cronLoading}
-                style={{ padding: '8px 14px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
-              >
-                🎂 誕生日判定を実行
-              </button>
-              <button
-                onClick={() => handleRunCron('dormant')}
-                disabled={cronLoading}
-                style={{ padding: '8px 14px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
-              >
-                👋 休眠顧客判定を実行
-              </button>
-            </div>
-
-            {cronLogMessage && (
-              <div style={{ padding: '10px', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '12px', fontWeight: 'bold' }}>
-                {cronLogMessage}
               </div>
             )}
           </div>
@@ -1137,7 +1123,163 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* 🤝 3. 報酬・口座管理タブ（PROプラン契約店舗のみ表示） */}
+      {/* 📅 3. 予約配信・自動配信タブ（PROプラン限定） */}
+      {isProPlan && activeTab === 'reserve' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '30px' }}>
+          
+          {/* 新規予約セットフォーム */}
+          <div style={{ background: '#fffbeb', border: '1px solid #fde68a', padding: '20px', borderRadius: '8px' }}>
+            <h3 style={{ margin: '0 0 15px 0', fontSize: '18px', color: '#b45309' }}>📅 新規配信予約をセット</h3>
+
+            <form onSubmit={handleAddSchedule} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              
+              {/* 配信種別選択 */}
+              <div>
+                <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '6px' }}>① 配信の種別</label>
+                <div style={{ display: 'flex', gap: '15px' }}>
+                  <label style={{ cursor: 'pointer', fontSize: '14px' }}>
+                    <input type="radio" name="reserveType" value="notification" checked={reserveType === 'notification'} onChange={() => setReserveType('notification')} /> 📢 通常通知メッセージ
+                  </label>
+                  <label style={{ cursor: 'pointer', fontSize: '14px' }}>
+                    <input type="radio" name="reserveType" value="coupon" checked={reserveType === 'coupon'} onChange={() => setReserveType('coupon')} /> 🎫 クーポン付き通知
+                  </label>
+                </div>
+              </div>
+
+              {/* 予約タイプ選択 */}
+              <div>
+                <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '6px' }}>② 予約スケジュール形式</label>
+                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                  <label style={{ cursor: 'pointer', fontSize: '14px' }}>
+                    <input type="radio" name="scheduleType" value="once" checked={reserveScheduleType === 'once'} onChange={() => setReserveScheduleType('once')} /> 日付指定（1回のみ）
+                  </label>
+                  <label style={{ cursor: 'pointer', fontSize: '14px' }}>
+                    <input type="radio" name="scheduleType" value="monthly" checked={reserveScheduleType === 'monthly'} onChange={() => setReserveScheduleType('monthly')} /> 定期予約（毎月指定日）
+                  </label>
+                  <label style={{ cursor: 'pointer', fontSize: '14px' }}>
+                    <input type="radio" name="scheduleType" value="weekly" checked={reserveScheduleType === 'weekly'} onChange={() => setReserveScheduleType('weekly')} /> 定期予約（毎週指定曜日）
+                  </label>
+                </div>
+              </div>
+
+              {/* 日時指定フィールド */}
+              <div style={{ background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                {reserveScheduleType === 'once' && (
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>配信指定日</label>
+                    <input type="date" value={reserveDate} onChange={(e) => setReserveDate(e.target.value)} style={{ padding: '8px', fontSize: '14px' }} />
+                  </div>
+                )}
+
+                {reserveScheduleType === 'monthly' && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '14px' }}>毎月</span>
+                    <input type="number" min="1" max="31" value={reserveDayOfMonth} onChange={(e) => setReserveDayOfMonth(e.target.value)} style={{ width: '60px', padding: '6px' }} />
+                    <span style={{ fontSize: '14px' }}>日に自動配信</span>
+                  </div>
+                )}
+
+                {reserveScheduleType === 'weekly' && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '14px' }}>毎週</span>
+                    <select value={reserveDayOfWeek} onChange={(e) => setReserveDayOfWeek(e.target.value)} style={{ padding: '6px' }}>
+                      <option value="mon">月曜日</option>
+                      <option value="tue">火曜日</option>
+                      <option value="wed">水曜日</option>
+                      <option value="thu">木曜日</option>
+                      <option value="fri">金曜日</option>
+                      <option value="sat">土曜日</option>
+                      <option value="sun">日曜日</option>
+                    </select>
+                    <span style={{ fontSize: '14px' }}>に自動配信</span>
+                  </div>
+                )}
+              </div>
+
+              {/* 配信メッセージ内容 */}
+              <div>
+                <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>③ タイトル</label>
+                <input
+                  type="text"
+                  placeholder="予約通知のタイトル"
+                  value={reserveTitle}
+                  onChange={(e) => setReserveTitle(e.target.value)}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>④ 本文</label>
+                <textarea
+                  placeholder="予約通知の本文"
+                  value={reserveBody}
+                  onChange={(e) => setReserveBody(e.target.value)}
+                  rows={3}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>リンク先URL（任意）</label>
+                <input
+                  type="url"
+                  placeholder="https://example.com"
+                  value={reserveLinkUrl}
+                  onChange={(e) => setReserveLinkUrl(e.target.value)}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                />
+              </div>
+
+              <button
+                type="submit"
+                style={{ padding: '12px', background: '#d97706', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' }}
+              >
+                ➕ この内容で予約をセットする
+              </button>
+            </form>
+          </div>
+
+          {/* 現在の予約内訳リスト */}
+          <div style={{ padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <h3 style={{ margin: '0 0 15px 0', fontSize: '18px' }}>📋 現在設定されている予約配信一覧（{scheduledList.length} 件）</h3>
+
+            {scheduledList.length === 0 ? (
+              <p style={{ color: '#64748b', fontSize: '14px', textAlign: 'center', margin: '20px 0' }}>
+                現在セットされている予約配信はありません。上のフォームから登録できます。
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {scheduledList.map((item) => (
+                  <div key={item.id} style={{ background: '#fff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                        <span style={{ fontSize: '11px', fontWeight: 'bold', background: item.type === 'coupon' ? '#7c3aed' : '#2563eb', color: '#fff', padding: '2px 8px', borderRadius: '12px' }}>
+                          {item.type === 'coupon' ? '🎫 クーポン予約' : '📢 通知予約'}
+                        </span>
+                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#d97706', background: '#fef3c7', padding: '2px 8px', borderRadius: '4px' }}>
+                          {item.scheduleValue}
+                        </span>
+                      </div>
+                      <strong style={{ fontSize: '15px', display: 'block', color: '#1e293b' }}>{item.title}</strong>
+                      <p style={{ fontSize: '13px', color: '#475569', margin: '4px 0 0 0' }}>{item.body}</p>
+                    </div>
+
+                    <button
+                      onClick={() => handleDeleteSchedule(item.id)}
+                      style={{ padding: '8px 14px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                    >
+                      🗑️ 予約を取り消す
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+        </div>
+      )}
+
+      {/* 🤝 4. 報酬・口座管理タブ（PROプラン限定） */}
       {shopId && isProPlan && activeTab === 'referral' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '30px' }}>
           
@@ -1312,7 +1454,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* 🚀 プラン比較・インライン展開付きアップグレード訴求カード（PRO以外のとき表示） */}
+      {/* 🚀 アップグレード訴求（PRO非契約時のみ） */}
       {shopId && role !== 'agency' && !isProPlan && activeTab === 'push' && (
         <div style={{
           marginBottom: '20px',
@@ -1323,32 +1465,16 @@ export default function AdminPage() {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
             <div>
-              {plan === 'light' ? (
-                <>
-                  <div style={{ fontWeight: 'bold', color: '#0369a1', fontSize: '16px', marginBottom: '4px' }}>
-                    🚀 STANDARD または PRO プランへアップグレード
-                  </div>
-                  <div style={{ fontSize: '13px', color: '#0c4a6e' }}>
-                    配信数の上限拡大や、Proプランでは紹介報酬（PRO限定 10%還元）をご利用いただけます。
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div style={{ fontWeight: 'bold', color: '#c2410c', fontSize: '16px', marginBottom: '4px' }}>
-                    🔥 PROプランにアップグレード（紹介報酬 10%還元）
-                  </div>
-                  <div style={{ fontSize: '13px', color: '#78350f' }}>
-                    他店舗を紹介して毎月のシステム利用料を相殺・成果報酬を獲得しましょう。
-                  </div>
-                </>
-              )}
+              <div style={{ fontWeight: 'bold', color: '#0369a1', fontSize: '16px', marginBottom: '4px' }}>
+                🚀 STANDARD または PRO プランへアップグレード
+              </div>
+              <div style={{ fontSize: '13px', color: '#0c4a6e' }}>
+                配信上限拡大や、PRO限定の予約配信・10%紹介報酬をご利用いただけます。
+              </div>
             </div>
 
             <button
-              onClick={() => {
-                setUpgradeExpandOpen(!upgradeExpandOpen);
-                setUpgradeSubmitted(false);
-              }}
+              onClick={() => setUpgradeExpandOpen(!upgradeExpandOpen)}
               style={{
                 padding: '10px 20px',
                 background: plan === 'light' ? '#0284c7' : '#ea580c',
@@ -1358,8 +1484,6 @@ export default function AdminPage() {
                 fontSize: '14px',
                 fontWeight: 'bold',
                 cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
               }}
             >
               {upgradeExpandOpen ? '▲ 閉じる' : 'プラン比較・変更'}
@@ -1391,7 +1515,7 @@ export default function AdminPage() {
                   <ul style={{ fontSize: '12px', color: '#4a5568', paddingLeft: '18px', margin: 0, lineHeight: 1.6 }}>
                     <li>月間15,000配信</li>
                     <li>LIGHTプランの３倍の配信量</li>
-                    <li>クーポン機能搭載</li>
+                    <li>通常・特別達成クーポン搭載</li>
                   </ul>
                 </div>
 
@@ -1414,8 +1538,8 @@ export default function AdminPage() {
                     ¥10,000 <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#666' }}>/月（税別）</span>
                   </div>
                   <ul style={{ fontSize: '12px', color: '#4a5568', paddingLeft: '18px', margin: 0, lineHeight: 1.6 }}>
-                    <li><strong>バースデー自動配信</strong></li>
-                    <li><strong>各種自動配信</strong></li>
+                    <li><strong>予約配信・定期配信（全自動）</strong></li>
+                    <li><strong>各種PROマーケティング機能</strong></li>
                     <li><strong>10%紹介成果報酬還元</strong></li>
                   </ul>
                 </div>
@@ -1467,7 +1591,7 @@ export default function AdminPage() {
                     PROプラン専用の申込画面へ進む →
                   </button>
                   <p style={{ fontSize: '12px', color: '#718096', textAlign: 'center', marginTop: '8px', margin: '8px 0 0 0' }}>
-                    ※PROプランは特典（紹介報酬還元・振込口座等）の手続きがあるため、専用画面にてお申込みいただきます（既存の店舗データ・顧客数は引き継がれます）。
+                    ※PROプランは特典（紹介報酬還元・振込口座等）の手続きがあるため、専用画面にてお申込みいただきます。
                   </p>
                 </div>
               )}
@@ -1477,7 +1601,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* 📷 店舗用 クーポンスキャンボタン（通知タブ内） */}
+      {/* 📷 消し込みスキャンボタン（即時通知タブ内） */}
       {activeTab === 'push' && (
         <div style={{ marginBottom: '20px' }}>
           <button
@@ -1507,7 +1631,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* 📷 スキャン用ダイアログ（モーダル） */}
+      {/* 📷 スキャンダイアログ */}
       {scanOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
           <div style={{ background: '#fff', padding: '20px', borderRadius: '12px', maxWidth: '500px', width: '100%', textAlign: 'center' }}>
@@ -1568,10 +1692,10 @@ export default function AdminPage() {
         </div>
       )}
       
-      {/* 送信フォーム */}
+      {/* 即時送信フォーム */}
       {activeTab === 'push' && (
         <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '40px', background: '#fff', padding: '20px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-          <h3 style={{ margin: '0 0 10px 0' }}>📢 プッシュ通知を作成</h3>
+          <h3 style={{ margin: '0 0 10px 0' }}>📢 プッシュ通知を作成・即時送信</h3>
           <div>
             <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>タイトル</label>
             <input
@@ -1629,7 +1753,7 @@ export default function AdminPage() {
         </form>
       )}
 
-      {/* 📊 月間送信数ゲージ */}
+      {/* 📊 送信数ゲージ */}
       {activeTab === 'push' && (() => {
         if (isProPlan) {
           return (
@@ -1660,36 +1784,19 @@ export default function AdminPage() {
         const currentSent = history.reduce((acc, cur) => acc + (cur.successCount || 0), 0);
         const percentage = Math.min(Math.round((currentSent / limit) * 100), 100);
 
-        let gaugeColor = '#3182ce';
-        let bgColor = '#ebf8ff';
-        let textColor = '#2b6cb0';
-
-        if (percentage >= 90) {
-          gaugeColor = '#e53e3e';
-          bgColor = '#fff5f5';
-          textColor = '#c53030';
-        } else if (percentage >= 70) {
-          gaugeColor = '#dd6b20';
-          bgColor = '#fffaf0';
-          textColor = '#c05621';
-        }
-
         return (
           <div style={{
-            background: bgColor,
-            border: `1px solid ${gaugeColor}40`,
+            background: '#ebf8ff',
+            border: '1px solid #3182ce40',
             borderRadius: '10px',
             padding: '16px 20px',
             marginBottom: '16px',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <span style={{ fontSize: '14px', fontWeight: 'bold', color: textColor, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                📈 今月の送信上限使用率
-                <span style={{ fontSize: '11px', background: gaugeColor, color: '#fff', padding: '2px 8px', borderRadius: '12px' }}>
-                  {plan?.toUpperCase()}プラン
-                </span>
+              <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#2b6cb0' }}>
+                📈 今月の送信上限使用率 ({plan?.toUpperCase()}プラン)
               </span>
-              <span style={{ fontSize: '15px', fontWeight: '800', color: textColor }}>
+              <span style={{ fontSize: '15px', fontWeight: '800', color: '#2b6cb0' }}>
                 {currentSent.toLocaleString()} / {limit.toLocaleString()} 通 ({percentage}%)
               </span>
             </div>
@@ -1699,23 +1806,16 @@ export default function AdminPage() {
                 style={{
                   width: `${percentage}%`,
                   height: '100%',
-                  background: gaugeColor,
+                  background: '#3182ce',
                   borderRadius: '6px',
-                  transition: 'width 0.5s ease-in-out',
                 }}
               />
             </div>
-
-            {percentage >= 90 && (
-              <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#e53e3e', fontWeight: 'bold' }}>
-                ⚠️ 送信上限（90%超）に近づいています。上位プランへアップグレードすると上限を拡大できます。
-              </p>
-            )}
           </div>
         );
       })()}
 
-      {/* 履歴セクション */}
+      {/* 送信履歴セクション */}
       {activeTab === 'push' && (
         <div style={{ borderTop: '2px solid #eee', paddingTop: '20px' }}>
           <div style={{ marginBottom: '15px', padding: '12px 16px', background: '#e3f2fd', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1726,7 +1826,7 @@ export default function AdminPage() {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
-            <h2 style={{ margin: 0, fontSize: '20px' }}>📁 送信履歴（ローカルフォルダ）</h2>
+            <h2 style={{ margin: 0, fontSize: '20px' }}>📁 送信履歴</h2>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
               <button
                 onClick={handleExport}
@@ -1792,10 +1892,6 @@ export default function AdminPage() {
                       </span>
                     )}
                   </div>
-
-                  {h.status === 'error' && h.errorMessage && (
-                    <p style={{ color: '#d32f2f', fontSize: '12px', marginTop: '6px' }}>エラー: {h.errorMessage}</p>
-                  )}
                 </div>
               ))}
             </div>
