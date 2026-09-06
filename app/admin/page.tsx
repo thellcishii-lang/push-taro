@@ -563,7 +563,7 @@ const handleRedeemCoupon = async (qrDataStr: string) => {
       </div>
 
       {/* 🗂️ ナビゲーションタブ */}
-<div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid #e2e8f0', pb: '1px', overflowX: 'auto' }}>
+<div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid #e2e8f0', paddingBottom: '1px', overflowX: 'auto' }}>
   <button
     onClick={() => setActiveTab('push')}
     style={{
