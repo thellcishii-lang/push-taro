@@ -667,44 +667,39 @@ export default function AdminPage() {
           🏪 店舗・基本クーポン
         </button>
 
-        {plan === 'pro' && (
-          <button
-            onClick={() => setActiveTab('pro')}
-            style={{
-              padding: '10px 16px',
-              border: 'none',
-              borderBottom: activeTab === 'pro' ? '3px solid #16a34a' : '3px solid transparent',
-              background: 'none',
-              fontWeight: 'bold',
-              color: activeTab === 'pro' ? '#16a34a' : '#64748b',
-              cursor: 'pointer',
-              fontSize: '15px',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            🔥 PRO機能（回数特典/ステップ）
-          </button>
-        )}
+        <button
+          onClick={() => setActiveTab('pro')}
+          style={{
+            padding: '10px 16px',
+            border: 'none',
+            borderBottom: activeTab === 'pro' ? '3px solid #16a34a' : '3px solid transparent',
+            background: 'none',
+            fontWeight: 'bold',
+            color: activeTab === 'pro' ? '#16a34a' : '#64748b',
+            cursor: 'pointer',
+            fontSize: '15px',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          🔥 PRO機能（回数特典/ステップ）
+        </button>
 
-        {/* 🤝 PROプラン限定で「報酬・口座管理」タブを表示 */}
-        {plan === 'pro' && (
-          <button
-            onClick={() => setActiveTab('referral')}
-            style={{
-              padding: '10px 16px',
-              border: 'none',
-              borderBottom: activeTab === 'referral' ? '3px solid #8b5cf6' : '3px solid transparent',
-              background: 'none',
-              fontWeight: 'bold',
-              color: activeTab === 'referral' ? '#8b5cf6' : '#64748b',
-              cursor: 'pointer',
-              fontSize: '15px',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            🤝 報酬・口座管理
-          </button>
-        )}
+        <button
+          onClick={() => setActiveTab('referral')}
+          style={{
+            padding: '10px 16px',
+            border: 'none',
+            borderBottom: activeTab === 'referral' ? '3px solid #8b5cf6' : '3px solid transparent',
+            background: 'none',
+            fontWeight: 'bold',
+            color: activeTab === 'referral' ? '#8b5cf6' : '#64748b',
+            cursor: 'pointer',
+            fontSize: '15px',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          🤝 報酬・口座管理
+        </button>
       </div>
 
       {/* 🏪 店舗情報タブの内容 */}
