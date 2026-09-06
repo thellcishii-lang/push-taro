@@ -948,7 +948,7 @@ export default function AdminPage() {
       )}
 
       {/* 🔥 2. PRO機能タブ（ステップアップ・連続等） */}
-      {isProPlan && activeTab === 'pro' && (
+      {activeTab === 'pro' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '30px' }}>
           <h2 style={{ margin: 0, fontSize: '20px', color: '#16a34a' }}>🔥 PROマーケティング機能設定</h2>
 
@@ -1125,7 +1125,7 @@ export default function AdminPage() {
       )}
 
       {/* 📅 3. 予約配信・自動配信タブ（PROプラン限定） */}
-      {isProPlan && activeTab === 'reserve' && (
+      { activeTab === 'reserve' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '30px' }}>
           
           {/* 新規予約セットフォーム */}
