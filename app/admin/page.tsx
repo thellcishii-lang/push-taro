@@ -1097,7 +1097,7 @@ export default function AdminPage() {
         <div style={{ marginBottom: '20px' }}>
           
           {/* ★ PROプランの場合はアコーディオン (<details>)、他はフラット表示 ★ */}
-          {(isProPlan || role === 'pro') ? (
+          {String(plan).toLowerCase() === 'pro' ? (
             <details open style={{ background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '16px', marginBottom: '15px' }}>
               <summary style={{ fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', paddingBottom: '8px' }}>
                 🏪 店舗基本情報 & 基本クーポン設定（クリックで開閉）
