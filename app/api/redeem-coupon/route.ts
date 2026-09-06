@@ -27,19 +27,19 @@ export async function POST(request: Request) {
     const shopData = shopDoc.data();
     let couponTitle = 'クーポン';
 
+    // 顧客参照ドキュメント（1度だけ宣言）
+    const subRef = db.collection('shops').doc(shopId).collection('subscribers').doc(token);
+
     if (couponType === 'first') {
       couponTitle = shopData?.coupon?.title || '初回限定クーポン';
 
-      // QRコードに含まれる token でドキュメントを更新
-const subRef = db.collection('shops').doc(shopId).collection('subscribers').doc(token);
-await subRef.set({ firstCouponUsed: true, usedAt: new Date() }, { merge: true });
-      
-      // 顧客側のサブスクライバートークン情報に初回クーポン使用済みフラグを保存
-      const subRef = db.collection('shops').doc(shopId).collection('subscribers').doc(token);
+      // 初回クーポン使用済みフラグを保存
       await subRef.set({ firstCouponUsed: true, usedAt: new Date() }, { merge: true });
 
     } else if (couponType === 'normal') {
       couponTitle = shopData?.normalCoupon?.title || '通常クーポン';
+
+      // ※通常クーポンのログ更新等が必要な場合も subRef をそのまま使用可能
     }
 
     // 利用ログの書き込み
