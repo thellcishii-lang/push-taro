@@ -99,8 +99,9 @@ export default function AdminProPage() {
             
             // ✅ ここで plan を確実にセット
             if (shop?.plan) {
-              setPlan(String(shop.plan));
-            }
+                 setPlan(String(shop.plan));
+                 console.log('📦 [pro/page] shop.plan:', shop.plan);
+　　　　　　　　　　　　　　　　　　　　　　　　　　　　　}
 
             if (shop?.iconUrl) setShopIconUrl(shop.iconUrl);
 
