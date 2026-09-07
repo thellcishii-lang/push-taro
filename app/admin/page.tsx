@@ -499,6 +499,100 @@ export default function AdminPage() {
     }
   };
 
+  // 📅 予約配信の追加処理（DB保存対応）
+  const handleAddSchedule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reserveTitle || !reserveBody) {
+      alert('タイトルと本文を入力してください');
+      return;
+    }
+
+    let val = '';
+    if (reserveScheduleType === 'once') {
+      if (!reserveDate) {
+        alert('配信指定日を入力してください');
+        return;
+      }
+      val = reserveDate;
+    } else if (reserveScheduleType === 'monthly') {
+      val = `毎月 ${reserveDayOfMonth} 日`;
+    } else if (reserveScheduleType === 'weekly') {
+      const dayMap: Record<string, string> = { mon: '月', tue: '火', wed: '水', thu: '木', fri: '金', sat: '土', sun: '日' };
+      val = `毎週 ${dayMap[reserveDayOfWeek] || ''} 曜日`;
+    }
+
+    const newItem = {
+      id: Date.now().toString(),
+      type: reserveType,
+      scheduleType: reserveScheduleType,
+      scheduleValue: val,
+      scheduleRaw: {
+        date: reserveDate,
+        dayOfMonth: reserveDayOfMonth,
+        dayOfWeek: reserveDayOfWeek,
+      },
+      title: reserveTitle,
+      body: reserveBody,
+      linkUrl: reserveLinkUrl || undefined,
+      createdAt: new Date().toISOString(),
+    };
+
+    const updatedList = [...scheduledList, newItem];
+    setScheduledList(updatedList);
+
+    // DBに予約リストを保存
+    if (user && shopId) {
+      try {
+        const idToken = await user.getIdToken();
+        await fetch('/api/update-shop', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({
+            shopId,
+            scheduledList: updatedList,
+          }),
+        });
+      } catch (err) {
+        console.error('予約リスト保存エラー:', err);
+      }
+    }
+
+    setReserveTitle('');
+    setReserveBody('');
+    setReserveLinkUrl('');
+    alert('✅ 予約を送信リストにセットし、保存しました！');
+  };
+
+  // 📅 予約配信の削除処理（DB保存対応）
+  const handleDeleteSchedule = async (id: string) => {
+    if (confirm('この予約配信を取り消して削除しますか？')) {
+      const updatedList = scheduledList.filter(item => item.id !== id);
+      setScheduledList(updatedList);
+
+      if (user && shopId) {
+        try {
+          const idToken = await user.getIdToken();
+          await fetch('/api/update-shop', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${idToken}`,
+            },
+            body: JSON.stringify({
+              shopId,
+              scheduledList: updatedList,
+            }),
+          });
+        } catch (err) {
+          console.error('予約削除エラー:', err);
+        }
+      }
+    }
+  };
+  
   // 📅 予約配信の追加処理
   const handleAddSchedule = (e: React.FormEvent) => {
     e.preventDefault();
