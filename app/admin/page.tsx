@@ -493,8 +493,8 @@ export default function AdminPage() {
   const qrUrl = typeof window !== 'undefined' ? `${window.location.origin}/subscribe?s=${shopId}` : '';
 
   console.log('🔍 plan:', plan);
-  console.log('🔍 isProPlan:', isProPlan);
-
+　　　　console.log('🔍 isProPlan:', isProPlan);
+　　　　console.log('🔍 plan === "pro":', plan === 'pro');
   return (
     <main style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
 
