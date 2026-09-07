@@ -641,13 +641,6 @@ export default function AdminPage() {
     alert('✅ 予約を送信リストにセットしました');
   };
 
-  // 📅 予約配信の削除処理
-  const handleDeleteSchedule = (id: string) => {
-    if (confirm('この予約配信を取り消して削除しますか？')) {
-      setScheduledList(scheduledList.filter(item => item.id !== id));
-    }
-  };
-
   const handleExport = async () => {
     const json = await exportHistoryToJSON();
     const blob = new Blob([json], { type: 'application/json' });
