@@ -162,6 +162,10 @@ export default function AdminPage() {
               const shop = dashData.shop || data.shop;
 
               setShopName(shop?.name || '');
+
+              if (shop?.scheduledList) {
+                setScheduledList(shop.scheduledList);
+              }
               
               if (shop?.plan) {
                 setPlan(String(shop.plan));
