@@ -672,99 +672,119 @@ export default function AdminPage() {
       </div>
 
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      {/* ② タブナビゲーション                                          */}
+      {/* ② タブナビゲーション（スマホ向けスワイプ案内付き）             */}
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid #e2e8f0', paddingBottom: '1px', overflowX: 'auto' }}>
-        <button
-          onClick={() => setActiveTab('push')}
-          style={{
-            padding: '10px 16px',
-            border: 'none',
-            borderBottom: activeTab === 'push' ? '3px solid #ff4500' : '3px solid transparent',
-            background: 'none',
-            fontWeight: 'bold',
-            color: activeTab === 'push' ? '#ff4500' : '#64748b',
-            cursor: 'pointer',
-            fontSize: '15px',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          📢 即時通知・消し込み
-        </button>
+      <div style={{ position: 'relative', marginBottom: '20px' }}>
+        {/* スマホ閲覧時向けの横スワイプ促しガイド（PROプラン時は強調） */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#475569' }}>メニュー</span>
+          {isProPlan && (
+            <span style={{ fontSize: '11px', color: '#ea580c', background: '#fff7ed', padding: '2px 8px', borderRadius: '12px', border: '1px solid #ffedd5', fontWeight: 'bold' }}>
+              👈 横にスワイプして全機能を表示 👉
+            </span>
+          )}
+        </div>
 
-        <button
-          onClick={() => setActiveTab('shop')}
-          style={{
-            padding: '10px 16px',
-            border: 'none',
-            borderBottom: activeTab === 'shop' ? '3px solid #0284c7' : '3px solid transparent',
-            background: 'none',
-            fontWeight: 'bold',
-            color: activeTab === 'shop' ? '#0284c7' : '#64748b',
-            cursor: 'pointer',
-            fontSize: '15px',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          🏪 店舗・基本クーポン
-        </button>
-
-        {isProPlan && (
+        {/* タブバー本体 */}
+        <div style={{
+          display: 'flex',
+          gap: '8px',
+          borderBottom: '2px solid #e2e8f0',
+          paddingBottom: '4px',
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch', // iOSで滑らかにスワイプさせる設定
+        }}>
           <button
-            onClick={() => setActiveTab('pro')}
+            onClick={() => setActiveTab('push')}
             style={{
               padding: '10px 16px',
               border: 'none',
-              borderBottom: activeTab === 'pro' ? '3px solid #16a34a' : '3px solid transparent',
+              borderBottom: activeTab === 'push' ? '3px solid #ff4500' : '3px solid transparent',
               background: 'none',
               fontWeight: 'bold',
-              color: activeTab === 'pro' ? '#16a34a' : '#64748b',
+              color: activeTab === 'push' ? '#ff4500' : '#64748b',
               cursor: 'pointer',
               fontSize: '15px',
               whiteSpace: 'nowrap'
             }}
           >
-            🔥 PRO機能（ステップ/回数特典）
+            📢 即時通知・消し込み
           </button>
-        )}
 
-        {isProPlan && (
           <button
-            onClick={() => setActiveTab('reserve')}
+            onClick={() => setActiveTab('shop')}
             style={{
               padding: '10px 16px',
               border: 'none',
-              borderBottom: activeTab === 'reserve' ? '3px solid #d97706' : '3px solid transparent',
+              borderBottom: activeTab === 'shop' ? '3px solid #0284c7' : '3px solid transparent',
               background: 'none',
               fontWeight: 'bold',
-              color: activeTab === 'reserve' ? '#d97706' : '#64748b',
+              color: activeTab === 'shop' ? '#0284c7' : '#64748b',
               cursor: 'pointer',
               fontSize: '15px',
               whiteSpace: 'nowrap'
             }}
           >
-            📅 予約配信・自動配信
+            🏪 店舗・基本クーポン
           </button>
-        )}
 
-        {isProPlan && (
-          <button
-            onClick={() => setActiveTab('referral')}
-            style={{
-              padding: '10px 16px',
-              border: 'none',
-              borderBottom: activeTab === 'referral' ? '3px solid #8b5cf6' : '3px solid transparent',
-              background: 'none',
-              fontWeight: 'bold',
-              color: activeTab === 'referral' ? '#8b5cf6' : '#64748b',
-              cursor: 'pointer',
-              fontSize: '15px',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            🤝 報酬・口座管理
-          </button>
-        )}
+          {isProPlan && (
+            <button
+              onClick={() => setActiveTab('pro')}
+              style={{
+                padding: '10px 16px',
+                border: 'none',
+                borderBottom: activeTab === 'pro' ? '3px solid #16a34a' : '3px solid transparent',
+                background: 'none',
+                fontWeight: 'bold',
+                color: activeTab === 'pro' ? '#16a34a' : '#64748b',
+                cursor: 'pointer',
+                fontSize: '15px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              🔥 PRO機能
+            </button>
+          )}
+
+          {isProPlan && (
+            <button
+              onClick={() => setActiveTab('reserve')}
+              style={{
+                padding: '10px 16px',
+                border: 'none',
+                borderBottom: activeTab === 'reserve' ? '3px solid #d97706' : '3px solid transparent',
+                background: 'none',
+                fontWeight: 'bold',
+                color: activeTab === 'reserve' ? '#d97706' : '#64748b',
+                cursor: 'pointer',
+                fontSize: '15px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              📅 予約配信
+            </button>
+          )}
+
+          {isProPlan && (
+            <button
+              onClick={() => setActiveTab('referral')}
+              style={{
+                padding: '10px 16px',
+                border: 'none',
+                borderBottom: activeTab === 'referral' ? '3px solid #8b5cf6' : '3px solid transparent',
+                background: 'none',
+                fontWeight: 'bold',
+                color: activeTab === 'referral' ? '#8b5cf6' : '#64748b',
+                cursor: 'pointer',
+                fontSize: '15px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              🤝 報酬・口座
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
