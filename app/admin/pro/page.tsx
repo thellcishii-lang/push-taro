@@ -8,8 +8,8 @@ import {
   signOut,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase-client';
-import { db as localDb, exportHistoryToJSON, importHistoryFromJSON, PushHistory } from '../../lib/db';
-import ImageUploader from '../../components/ImageUploader';
+import { db as localDb, exportHistoryToJSON, importHistoryFromJSON, PushHistory } from '../../../lib/db';
+import ImageUploader from '../../../components/ImageUploader';
 
 export default function AdminProPage() {
   const router = useRouter();
