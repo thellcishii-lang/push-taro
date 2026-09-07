@@ -600,28 +600,6 @@ export default function AdminPage() {
       }
     }
   };
-  
-  // 📅 予約配信の追加処理
-  const handleAddSchedule = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!reserveTitle || !reserveBody) {
-      alert('タイトルと本文を入力してください');
-      return;
-    }
-
-    let val = '';
-    if (reserveScheduleType === 'once') {
-      if (!reserveDate) {
-        alert('配信指定日を入力してください');
-        return;
-      }
-      val = reserveDate;
-    } else if (reserveScheduleType === 'monthly') {
-      val = `毎月 ${reserveDayOfMonth} 日`;
-    } else if (reserveScheduleType === 'weekly') {
-      const dayMap: Record<string, string> = { mon: '月', tue: '火', wed: '水', thu: '木', fri: '金', sat: '土', sun: '日' };
-      val = `毎週 ${dayMap[reserveDayOfWeek] || ''} 曜日`;
-    }
 
     const newItem = {
       id: Date.now().toString(),
