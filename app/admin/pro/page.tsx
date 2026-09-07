@@ -220,6 +220,9 @@ export default function AdminProPage() {
     return null;
   }
 
+  console.log('🔍 [pro/page] plan:', plan);
+　　　　console.log('🔍 [pro/page] isProPlan:', isProPlan);
+  
   return (
     <main style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
 
