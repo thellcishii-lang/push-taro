@@ -91,6 +91,10 @@ export default function AdminPage() {
   const [normalCouponTitle, setNormalCouponTitle] = useState('');
   const [normalCouponDesc, setNormalCouponDesc] = useState('');
 
+  // 特別達成クーポンの有効期限用ステート（ファイル上部に追加）
+　　　　const [loyaltyExpireDays, setLoyaltyExpireDays] = useState(7);
+　　　　const [loyaltyExpireDate, setLoyaltyExpireDate] = useState('');
+
   // 🏆 特別達成クーポン用ステート
   const [loyaltyEnabled, setLoyaltyEnabled] = useState(false);
   const [loyaltyTargetCount, setLoyaltyTargetCount] = useState(3);
@@ -188,6 +192,8 @@ export default function AdminPage() {
                 setLoyaltyTargetCount(shop.loyaltyCoupon.targetCount || 3);
                 setLoyaltyTitle(shop.loyaltyCoupon.title || '');
                 setLoyaltyExpireType(shop.loyaltyCoupon.expireType || 'none');
+                if (shop.loyaltyCoupon.expireDays) setLoyaltyExpireDays(shop.loyaltyCoupon.expireDays);
+                if (shop.loyaltyCoupon.expireDate) setLoyaltyExpireDate(shop.loyaltyCoupon.expireDate);
                 setLoyaltyCombinable(shop.loyaltyCoupon.combinable || false);
               }
 
@@ -456,6 +462,8 @@ export default function AdminPage() {
             targetCount: loyaltyTargetCount,
             title: loyaltyTitle,
             expireType: loyaltyExpireType,
+            expireDays: loyaltyExpireDays,
+            expireDate: loyaltyExpireDate,
             combinable: loyaltyCombinable,
           },
           proCoupons: {
@@ -1279,16 +1287,47 @@ export default function AdminPage() {
                         <span style={{ fontSize: '13px' }}>回で達成</span>
                       </div>
                       <input type="text" placeholder="特典タイトル" value={loyaltyTitle} onChange={(e) => setLoyaltyTitle(e.target.value)} style={{ width: '100%', padding: '6px' }} />
-                      <div style={{ display: 'flex', gap: '12px', fontSize: '12px' }}>
-                        <select value={loyaltyExpireType} onChange={(e) => setLoyaltyExpireType(e.target.value)}>
-                          <option value="none">無制限</option>
-                          <option value="days">出現からN日間有効</option>
-                          <option value="date">日付固定指定</option>
-                        </select>
-                        <label>
-                          <input type="checkbox" checked={loyaltyCombinable} onChange={(e) => setLoyaltyCombinable(e.target.checked)} /> 他クーポンと併用可能
-                        </label>
-                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px', marginTop: '6px' }}>
+  <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+    <span style={{ fontWeight: 'bold' }}>有効期限:</span>
+    <select value={loyaltyExpireType} onChange={(e) => setLoyaltyExpireType(e.target.value)} style={{ padding: '4px', borderRadius: '4px', border: '1px solid #ccc' }}>
+      <option value="none">無制限</option>
+      <option value="days">出現からN日間有効</option>
+      <option value="date">日付固定指定</option>
+    </select>
+
+    {/* ① N日間有効が選ばれた場合：日数入力欄を表示 */}
+    {loyaltyExpireType === 'days' && (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <input
+          type="number"
+          min="1"
+          value={loyaltyExpireDays}
+          onChange={(e) => setLoyaltyExpireDays(Number(e.target.value))}
+          style={{ width: '60px', padding: '4px', borderRadius: '4px', border: '1px solid #ccc' }}
+        />
+        <span>日間有効</span>
+      </div>
+    )}
+
+    {/* ② 日付固定指定が選ばれた場合：カレンダー選択を表示 */}
+    {loyaltyExpireType === 'date' && (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <input
+          type="date"
+          value={loyaltyExpireDate}
+          onChange={(e) => setLoyaltyExpireDate(e.target.value)}
+          style={{ padding: '4px', borderRadius: '4px', border: '1px solid #ccc' }}
+        />
+        <span>まで有効</span>
+      </div>
+    )}
+  </div>
+
+  <label style={{ cursor: 'pointer', marginTop: '4px' }}>
+    <input type="checkbox" checked={loyaltyCombinable} onChange={(e) => setLoyaltyCombinable(e.target.checked)} /> 他クーポンと併用可能
+  </label>
+</div>
                     </div>
                   )}
                 </div>
