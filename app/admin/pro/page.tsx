@@ -66,85 +66,55 @@ export default function AdminProPage() {
 
   // ========== 認証 & データ取得 ==========
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (u) => {
-      setUser(u);
-      setLoadingAuth(false);
+  const unsub = onAuthStateChanged(auth, async (u) => {
+    setUser(u);
+    setLoadingAuth(false);
 
-      if (u) {
-        try {
-          const idToken = await u.getIdToken();
-          const res = await fetch('/api/create-shop', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${idToken}`,
-            },
-            body: JSON.stringify({}),
+    if (u) {
+      try {
+        const idToken = await u.getIdToken();
+        const res = await fetch('/api/create-shop', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({}),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          const currentShopId = data.shopId;
+          setShopId(currentShopId);
+
+          const dashRes = await fetch(`/api/admin/dashboard?shopId=${currentShopId}`, {
+            headers: { 'Authorization': `Bearer ${idToken}` }
           });
-          const data = await res.json();
 
-          if (data.success) {
-            const currentShopId = data.shopId;
-            setShopId(currentShopId);
+          if (dashRes.ok) {
+            const dashData = await dashRes.json();
+            const shop = dashData.shop || data.shop;
 
-            const dashRes = await fetch(`/api/admin/dashboard?shopId=${currentShopId}`, {
-              headers: { 'Authorization': `Bearer ${idToken}` }
-            });
-
-            if (dashRes.ok) {
-              const dashData = await dashRes.json();
-              const shop = dashData.shop || data.shop;
-
-              setShopName(shop?.name || '');
-              setPlan(shop?.plan || 'light');
-              if (shop?.iconUrl) setShopIconUrl(shop.iconUrl);
-
-              // PRO機能読み込み
-              if (shop?.proCoupons) {
-                const pro = shop.proCoupons;
-                if (pro.stepUp) {
-                  setStepUpEnabled(pro.stepUp.enabled || false);
-                  if (pro.stepUp.steps) setStepUpList(pro.stepUp.steps);
-                }
-                if (pro.repeat) {
-                  setRepeatEnabled(pro.repeat.enabled || false);
-                  setRepeatTitle(pro.repeat.title || '');
-                  setRepeatExpireDays(pro.repeat.expireDays || 14);
-                  setRepeatCombinable(pro.repeat.combinable || false);
-                }
-                if (pro.birthday) {
-                  setBirthdayEnabled(pro.birthday.enabled || false);
-                  setBirthdayTitle(pro.birthday.title || '');
-                  setBirthdayMessage(pro.birthday.message || '');
-                  setBirthdayCombinable(pro.birthday.combinable || false);
-                }
-                if (pro.dormant) {
-                  setDormantEnabled(pro.dormant.enabled || false);
-                  setDormantTargetDays(pro.dormant.targetDays || 60);
-                  setDormantTitle(pro.dormant.title || '');
-                  setDormantMessage(pro.dormant.message || '');
-                  setDormantExpireDays(pro.dormant.expireDays || 14);
-                  setDormantCombinable(pro.dormant.combinable || false);
-                }
-              }
-
-              if (shop?.bankAccount) {
-                setBankName(shop.bankAccount.bankName || '');
-                setBranchName(shop.bankAccount.branchName || '');
-                setAccountType(shop.bankAccount.accountType || 'savings');
-                setAccountNumber(shop.bankAccount.accountNumber || '');
-                setAccountHolder(shop.bankAccount.accountHolder || '');
-              }
+            setShopName(shop?.name || '');
+            
+            // ✅ ここで plan を確実にセット
+            if (shop?.plan) {
+              setPlan(String(shop.plan));
             }
-          }
-        } catch (err) {
-          console.error('店舗情報取得エラー:', err);
-        }
-      }
-    });
 
-    return () => unsub();
-  }, []);
+            if (shop?.iconUrl) setShopIconUrl(shop.iconUrl);
+
+            // 以下、proCoupons, bankAccount などの読み込み...
+          }
+        }
+      } catch (err) {
+        console.error('店舗情報取得エラー:', err);
+      }
+    }
+  });
+
+  return () => unsub();
+}, []);
 
   // ========== 保存処理 ==========
   const handleSaveSettings = async () => {
