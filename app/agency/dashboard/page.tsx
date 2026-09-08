@@ -1,47 +1,60 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState, useEffect, useMemo } from 'react';
 import { auth } from '@/lib/firebase-client';
 import { onAuthStateChanged } from 'firebase/auth';
 
-interface ReferredShop {
+interface DetailedShop {
   id: string;
-  name?: string;
-  plan?: string;
-  status?: string;
-  createdAt?: any;
+  shopCode: string;
+  name: string;
+  address: string;
+  phone: string;
+  subscriberCount: number;
+  createdAt: string;
+  status: string;
+  canceledAt: string | null;
+  validUntil: string | null;
+  plan: string;
 }
 
-interface AgencyStats {
-  referredShopCount: number;
-  pendingPayout: number;
-  totalEarned: number;
+interface SummaryData {
+  totalShops: number;
+  monthlyNewCount: number;
+  monthlyCanceledCount: number;
+  planCounts: {
+    light: number;
+    standard: number;
+    pro: number;
+    other: number;
+  };
 }
 
 export default function AgencyDashboardPage() {
   const [loading, setLoading] = useState<boolean>(true);
-  const [agencyData, setAgencyData] = useState<any>(null);
-  const [stats, setStats] = useState<AgencyStats>({
-    referredShopCount: 0,
-    pendingPayout: 0,
-    totalEarned: 0,
+  const [agencyUid, setAgencyUid] = useState<string | null>(null);
+  const [summary, setSummary] = useState<SummaryData>({
+    totalShops: 0,
+    monthlyNewCount: 0,
+    monthlyCanceledCount: 0,
+    planCounts: { light: 0, standard: 0, pro: 0, other: 0 },
   });
-  const [shops, setShops] = useState<ReferredShop[]>([]);
-  const [copied, setCopied] = useState(false);
+  const [shops, setShops] = useState<DetailedShop[]>([]);
+  
+  // 🔍 検索・フィルター用ステート
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedPlanTab, setSelectedPlanTab] = useState<'all' | 'light' | 'standard' | 'pro'>('all');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        setAgencyUid(user.uid);
         try {
           const res = await fetch(`/api/agency/stats?agencyId=${user.uid}`);
           if (res.ok) {
             const data = await res.json();
-            setAgencyData(data.agency || null);
-            if (data.stats) {
-              setStats(data.stats);
-            }
-            setShops(data.shops || []);
+            if (data.summary) setSummary(data.summary);
+            if (data.shops) setShops(data.shops);
           }
         } catch (err) {
           console.error('代理店データ取得エラー:', err);
@@ -53,170 +66,209 @@ export default function AgencyDashboardPage() {
     return () => unsubscribe();
   }, []);
 
-  const referralCode = agencyData?.referralCode || agencyData?.id || 'AGENCY-PRO-999';
-
-  const handleCopyLink = () => {
-    const link = `https://push-taro.com/signup?ref=${referralCode}`;
-    navigator.clipboard.writeText(link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  // 還元率と進捗計算（リアル数値に基づく計算）
-  const activeCount = stats.referredShopCount;
-  const currentRate = activeCount >= 200 ? 45 : activeCount >= 100 ? 36 : 30;
-  const nextTarget = activeCount >= 100 ? 200 : 100;
-  const remainingForNext = Math.max(0, nextTarget - activeCount);
-  const progressPercent = Math.min(100, (activeCount / nextTarget) * 100);
+  // 🔍 店舗名・店舗コード・電話番号・プランタブによるリアルタイム絞り込み
+  const filteredShops = useMemo(() => {
+    return shops.filter((shop) => {
+      // 1. プランタブ絞り込み
+      if (selectedPlanTab !== 'all' && shop.plan.toLowerCase() !== selectedPlanTab) {
+        return false;
+      }
+      
+      // 2. 検索キーワード絞り込み（店舗名・店舗コード・電話番号）
+      if (!searchQuery.trim()) return true;
+      const query = searchQuery.toLowerCase().trim();
+      return (
+        shop.name.toLowerCase().includes(query) ||
+        shop.shopCode.toLowerCase().includes(query) ||
+        shop.phone.replace(/[-–—]/g, '').includes(query.replace(/[-–—]/g, ''))
+      );
+    });
+  }, [shops, searchQuery, selectedPlanTab]);
 
   if (loading) {
     return (
       <div style={{ padding: '60px', textAlign: 'center', fontFamily: 'sans-serif', color: '#718096' }}>
-        データを読み込み中...
+        代理店データを読み込み中...
       </div>
     );
   }
 
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-      <main style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      <main style={{ maxWidth: '1100px', margin: '0 auto' }}>
         
         {/* ヘッダー */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px' }}>
           <div>
             <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#1a202c', margin: '0 0 6px 0' }}>
-              代理店パートナー管理画面
+              代理店コンソール
             </h1>
             <p style={{ color: '#718096', fontSize: '14px', margin: 0 }}>
-              現在の実績と報酬ステータスをご確認いただけます。
+              傘下店舗の管理・契約ステータス・集計推移をご確認いただけます。
             </p>
           </div>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button
-              onClick={() => {
-                if (agencyData?.id) {
-                  window.open(`/api/referrals/export-csv?referrer_id=${agencyData.id}`, '_blank');
-                }
-              }}
-              style={{ padding: '10px 18px', background: '#edf2f7', color: '#2d3748', border: '1px solid #cbd5e0', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}
-            >
-              <span>📊</span> 明細CSV出力
-            </button>
-            <button
-              onClick={handleCopyLink}
-              style={{ padding: '10px 20px', background: '#3182ce', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px', boxShadow: '0 2px 6px rgba(49,130,206,0.3)' }}
-            >
-              {copied ? '✨ コピーしました！' : '紹介用リンクをコピー'}
-            </button>
-          </div>
         </div>
 
-        {/* 2カラム表示（有効紹介店舗数 / 当月報酬見込み） */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px', marginBottom: '25px' }}>
-          {/* 左カード */}
-          <div style={{ background: '#ffffff', padding: '28px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-            <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#718096', marginBottom: '12px' }}>
-              有効紹介店舗数（アクティブ）
-            </div>
-            <div style={{ fontSize: '40px', fontWeight: '900', color: '#1a202c', lineHeight: 1 }}>
-              {activeCount} <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#4a5568' }}>店舗</span>
-            </div>
-            <div style={{ fontSize: '13px', color: '#3182ce', fontWeight: 'bold', marginTop: '16px' }}>
-              現在の適用還元率 : {currentRate}%
+        {/* 📊 月末集計サマリーカード */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '30px' }}>
+          <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+            <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#718096', marginBottom: '6px' }}>全累計店舗数</div>
+            <div style={{ fontSize: '32px', fontWeight: '900', color: '#1a202c' }}>
+              {summary.totalShops} <span style={{ fontSize: '14px', fontWeight: 'normal' }}>店舗</span>
             </div>
           </div>
 
-          {/* 右カード */}
-          <div style={{ background: '#ffffff', padding: '28px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-            <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#718096', marginBottom: '12px' }}>
-              当月報酬見込み（一括請求・相殺予定）
+          <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+            <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#38a169', marginBottom: '6px' }}>当月新規登録数</div>
+            <div style={{ fontSize: '32px', fontWeight: '900', color: '#38a169' }}>
+              +{summary.monthlyNewCount} <span style={{ fontSize: '14px', fontWeight: 'normal' }}>店舗</span>
             </div>
-            <div style={{ fontSize: '40px', fontWeight: '900', color: '#38a169', lineHeight: 1 }}>
-              ¥{stats.pendingPayout.toLocaleString()}
+          </div>
+
+          <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+            <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#e53e3e', marginBottom: '6px' }}>当月退会件数</div>
+            <div style={{ fontSize: '32px', fontWeight: '900', color: '#e53e3e' }}>
+              {summary.monthlyCanceledCount} <span style={{ fontSize: '14px', fontWeight: 'normal' }}>店舗</span>
             </div>
-            <div style={{ fontSize: '12px', color: '#a0aec0', marginTop: '16px' }}>
-              ※毎月末締め・まとめて請求精算に統合
+          </div>
+
+          <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+            <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#3182ce', marginBottom: '6px' }}>プラン別内訳</div>
+            <div style={{ fontSize: '13px', color: '#2d3748', display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '4px' }}>
+              <span>ライト: <strong>{summary.planCounts.light}</strong>件</span>
+              <span>スタンダード: <strong>{summary.planCounts.standard}</strong>件</span>
+              <span>プロ: <strong>{summary.planCounts.pro}</strong>件</span>
             </div>
           </div>
         </div>
 
-        {/* 🚀 ランクアップ進捗バー */}
-        <div style={{ background: '#ffffff', padding: '24px 28px', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '25px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <div style={{ fontWeight: '800', fontSize: '15px', color: '#1a202c' }}>
-              🚀 ランクアップ進捗（ステージ{currentRate === 30 ? '2 (36%還元)' : '3 (45%還元)'} まで）
+        {/* 🔍 検索バー & プランタブ */}
+        <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+            
+            {/* 検索入力欄 */}
+            <div style={{ flex: '1 1 300px' }}>
+              <input
+                type="text"
+                placeholder="🔍 店舗名・店舗コード・電話番号で検索..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  border: '1px solid #cbd5e0',
+                  fontSize: '14px',
+                  boxSizing: 'border-box',
+                }}
+              />
             </div>
-            <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#3182ce' }}>
-              {remainingForNext > 0 ? `あと ${remainingForNext} 店舗で昇格！` : '最高ステージ到達！'}
+
+            {/* プラン切り替えタブ */}
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {(['all', 'light', 'standard', 'pro'] as const).map((tab) => {
+                const labels: Record<string, string> = {
+                  all: 'すべて',
+                  light: 'ライト',
+                  standard: 'スタンダード',
+                  pro: 'プロ',
+                };
+                const active = selectedPlanTab === tab;
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setSelectedPlanTab(tab)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      border: 'none',
+                      fontWeight: 'bold',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      background: active ? '#3182ce' : '#edf2f7',
+                      color: active ? '#ffffff' : '#4a5568',
+                    }}
+                  >
+                    {labels[tab]}
+                  </button>
+                );
+              })}
             </div>
-          </div>
 
-          <div style={{ height: '12px', background: '#edf2f7', borderRadius: '6px', overflow: 'hidden', marginBottom: '10px' }}>
-            <div style={{ width: `${progressPercent}%`, background: '#3182ce', height: '100%', borderRadius: '6px', transition: 'width 0.5s ease' }} />
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#718096' }}>
-            <span>0件 (30%)</span>
-            <span>100件 (36%)</span>
-            <span>200件以降 (45%)</span>
           </div>
         </div>
 
-        {/* 💡 あなたの紹介情報 */}
-        <div style={{ background: '#ffffff', padding: '24px 28px', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '25px' }}>
-          <div style={{ fontWeight: '800', fontSize: '15px', color: '#1a202c', marginBottom: '12px' }}>
-            💡 あなたの紹介情報
+        {/* 📋 傘下店舗詳細テーブル */}
+        <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: '800', color: '#1a202c', margin: 0 }}>
+              傘下店舗一覧 ({filteredShops.length}件)
+            </h2>
           </div>
-          <div style={{ fontSize: '14px', color: '#4a5568', marginBottom: '8px' }}>
-            紹介コード: <code style={{ background: '#edf2f7', padding: '4px 10px', borderRadius: '6px', border: '1px solid #cbd5e0', fontWeight: 'bold', color: '#2b6cb0' }}>
-              {referralCode}
-            </code>
-          </div>
-          <p style={{ fontSize: '12px', color: '#718096', margin: 0, lineHeight: 1.6 }}>
-            ※店舗様が新規登録またはSquare決済の際に、紹介コードをご入力いただくと自動であなたの紹介として紐づきます。代理店アカウントでの報酬は毎月の請求まとめて精算時に自動で控除・相殺されます。
-          </p>
-        </div>
 
-        {/* 紹介店舗一覧テーブル */}
-        <div style={{ background: '#ffffff', padding: '28px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: '800', color: '#1a202c', marginBottom: '20px' }}>
-            紹介顧客リスト（店舗一覧）
-          </h2>
-
-          {shops.length === 0 ? (
-            <p style={{ color: '#a0aec0', fontSize: '14px', textAlign: 'center', padding: '30px 0', margin: 0 }}>
-              現在、紹介コード経由で登録された店舗はありません。
+          {filteredShops.length === 0 ? (
+            <p style={{ color: '#a0aec0', fontSize: '14px', textAlign: 'center', padding: '40px 0', margin: 0 }}>
+              条件に一致する店舗が見つかりません。
             </p>
           ) : (
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
                 <thead>
-                  <tr style={{ background: '#f7fafc', borderBottom: '2px solid #edf2f7' }}>
-                    <th style={{ padding: '12px', color: '#4a5568' }}>店舗ID / 店舗名</th>
-                    <th style={{ padding: '12px', color: '#4a5568' }}>プラン</th>
-                    <th style={{ padding: '12px', color: '#4a5568' }}>ステータス</th>
+                  <tr style={{ background: '#f7fafc', borderBottom: '2px solid #edf2f7', color: '#4a5568' }}>
+                    <th style={{ padding: '12px 10px' }}>店舗名</th>
+                    <th style={{ padding: '12px 10px' }}>店舗コード</th>
+                    <th style={{ padding: '12px 10px' }}>プラン</th>
+                    <th style={{ padding: '12px 10px' }}>住所 / 電話番号</th>
+                    <th style={{ padding: '12px 10px', textAlign: 'center' }}>配信許可人数</th>
+                    <th style={{ padding: '12px 10px' }}>利用開始日</th>
+                    <th style={{ padding: '12px 10px' }}>退会申請状況</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {shops.map((shop) => (
+                  {filteredShops.map((shop) => (
                     <tr key={shop.id} style={{ borderBottom: '1px solid #edf2f7' }}>
-                      <td style={{ padding: '16px 12px', fontWeight: 'bold', color: '#2d3748' }}>
-                        {shop.name || shop.id}
+                      <td style={{ padding: '14px 10px', fontWeight: 'bold', color: '#2d3748' }}>
+                        {shop.name}
                       </td>
-                      <td style={{ padding: '16px 12px', color: '#3182ce', fontWeight: 'bold' }}>
-                        {shop.plan ? shop.plan.toUpperCase() : 'STANDARD'}
+                      <td style={{ padding: '14px 10px', fontFamily: 'monospace', color: '#4a5568' }}>
+                        {shop.shopCode}
                       </td>
-                      <td style={{ padding: '16px 12px' }}>
+                      <td style={{ padding: '14px 10px' }}>
                         <span style={{
-                          padding: '4px 10px',
-                          borderRadius: '12px',
-                          fontSize: '12px',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
                           fontWeight: 'bold',
-                          background: shop.status === 'active' || !shop.status ? '#c6f6d5' : '#fed7d7',
-                          color: shop.status === 'active' || !shop.status ? '#22543d' : '#9b2c2c'
+                          background: shop.plan === 'pro' ? '#feebc8' : shop.plan === 'standard' ? '#ebf8ff' : '#edf2f7',
+                          color: shop.plan === 'pro' ? '#c05621' : shop.plan === 'standard' ? '#2b6cb0' : '#4a5568',
                         }}>
-                          {shop.status === 'active' || !shop.status ? '契約中' : '解約 / 停止'}
+                          {shop.plan.toUpperCase()}
                         </span>
+                      </td>
+                      <td style={{ padding: '14px 10px', color: '#4a5568' }}>
+                        <div>{shop.address}</div>
+                        <div style={{ fontSize: '11px', color: '#718096' }}>📞 {shop.phone}</div>
+                      </td>
+                      <td style={{ padding: '14px 10px', textAlign: 'center', fontWeight: 'bold', color: '#3182ce', fontSize: '15px' }}>
+                        {shop.subscriberCount.toLocaleString()} 人
+                      </td>
+                      <td style={{ padding: '14px 10px', color: '#4a5568' }}>
+                        {shop.createdAt}
+                      </td>
+                      <td style={{ padding: '14px 10px' }}>
+                        {shop.status === 'canceled' ? (
+                          <span style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: '#fed7d7', color: '#9b2c2c' }}>
+                            退会済み ({shop.canceledAt || '日時不詳'})
+                          </span>
+                        ) : shop.status === 'payment_warning' ? (
+                          <span style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: '#feebc8', color: '#c05621' }}>
+                            決済未完了 (警告)
+                          </span>
+                        ) : (
+                          <span style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: '#c6f6d5', color: '#22543d' }}>
+                            契約中 (正常)
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))}
