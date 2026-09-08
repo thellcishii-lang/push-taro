@@ -34,13 +34,18 @@ export async function POST(request: Request) {
     }
 
     const shopData = shopDoc.data();
-    const price = PLAN_PRICES[shopData?.plan || 'light'] || 3800;
+    // 🔥 ここを追加（shopData が undefined の場合のガード）
+    if (!shopData) {
+      return NextResponse.json({ error: '店舗データが取得できません' }, { status: 404 });
+    }
+
+    const price = PLAN_PRICES[shopData.plan || 'light'] || 3800;
     const totalAmount = price * months;
 
     const paymentUrl = `${process.env.NEXT_PUBLIC_SQUARE_LINK_TEST}?shopId=${shopId}&amount=${totalAmount}&months=${months}`;
 
     await sendEmail({
-      to: shopData.email,
+      to: shopData.email,  // ← これで安全
       subject: `【Push-taro】決済リンクのご案内（${months}ヶ月分）`,
       html: `
         <h2>${shopData.name || '店舗'} 様</h2>
@@ -53,7 +58,6 @@ export async function POST(request: Request) {
       `,
     });
 
-    // 送信履歴を記録
     await db.collection('shops').doc(shopId).collection('invoice_history').add({
       months,
       amount: totalAmount,
