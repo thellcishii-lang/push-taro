@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { adminDb } from '@/lib/firebase-admin';
+import { db as adminDb } from '@/lib/firebase-admin';
 
 // 毎日/1時間ごとに定期実行されるAPI
 export async function GET(req: Request) {
