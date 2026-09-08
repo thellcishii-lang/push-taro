@@ -23,15 +23,22 @@ export default function TestConsolePage() {
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+
   // 🔍 shop-info 検証用ステート
-const [inspectShopId, setInspectShopId] = useState('');
-const [shopInfoResult, setShopInfoResult] = useState<any>(null);
-const [inspecting, setInspecting] = useState(false);
+  const [inspectShopId, setInspectShopId] = useState('');
+  const [shopInfoResult, setShopInfoResult] = useState<any>(null);
+  const [inspecting, setInspecting] = useState(false);
 
   // ⚡️ テスト用店舗アカウント即時発行用の状態
   const [dummyEmail, setDummyEmail] = useState('test-shop@example.com');
   const [createdAccount, setCreatedAccount] = useState<{ shopId: string; email: string; password: string } | null>(null);
   const [creatingShop, setCreatingShop] = useState(false);
+
+  // 🏢 テスト用代理店アカウント即時発行用の状態（新規追加）
+  const [agencyEmail, setAgencyEmail] = useState('test-agency@example.com');
+  const [agencyCompanyName, setAgencyCompanyName] = useState('テスト代理店');
+  const [createdAgency, setCreatedAgency] = useState<{ agencyUid: string; email: string; password: string; referralCode: string } | null>(null);
+  const [creatingAgency, setCreatingAgency] = useState(false);
 
   // 送信テスト用
   const [selectedToken, setSelectedToken] = useState('');
@@ -41,9 +48,9 @@ const [inspecting, setInspecting] = useState(false);
   const [sendResult, setSendResult] = useState<any>(null);
 
   // 強制アクティベーション用
-const [targetShopId, setTargetShopId] = useState('');
-const [activating, setActivating] = useState(false);
-const [activationResult, setActivationResult] = useState<any>(null);
+  const [targetShopId, setTargetShopId] = useState('');
+  const [activating, setActivating] = useState(false);
+  const [activationResult, setActivationResult] = useState<any>(null);
 
   // ⚡️ テスト用店舗発行処理
   const handleCreateTestShop = async () => {
@@ -72,6 +79,37 @@ const [activationResult, setActivationResult] = useState<any>(null);
     }
   };
 
+  // 🏢 テスト用代理店発行処理（新規追加）
+  const handleCreateTestAgency = async () => {
+    setCreatingAgency(true);
+    try {
+      const res = await fetch('/api/admin/create-test-agency', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: agencyEmail,
+          companyName: agencyCompanyName,
+        }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setCreatedAgency({
+          agencyUid: data.agencyUid,
+          email: data.email,
+          password: data.password,
+          referralCode: data.referralCode,
+        });
+      } else {
+        alert('エラー: ' + data.error);
+      }
+    } catch (err: any) {
+      alert('通信エラーが発生しました: ' + err.message);
+    } finally {
+      setCreatingAgency(false);
+    }
+  };
+
   // 🔍 1. subscriptions コレクションの全件取得（点検機能）
   const fetchSubscriptions = async () => {
     setLoading(true);
@@ -84,13 +122,11 @@ const [activationResult, setActivationResult] = useState<any>(null);
         list.push({
           id: docSnapshot.id,
           ...data,
-          // 日時フォーマット整形
           updatedAtFormatted: data.updatedAt?.toDate ? data.updatedAt.toDate().toLocaleString('ja-JP') : '不明',
           createdAtFormatted: data.createdAt?.toDate ? data.createdAt.toDate().toLocaleString('ja-JP') : '不明',
         });
       });
 
-      // 更新日時が新しい順にソート
       list.sort((a, b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
 
       setSubscriptions(list);
@@ -138,7 +174,7 @@ const [activationResult, setActivationResult] = useState<any>(null);
           'Authorization': `Bearer ${idToken}`
         },
         body: JSON.stringify({
-          targetToken: selectedToken, // ピンポイント送信用のパラメータ
+          targetToken: selectedToken,
           title: testTitle,
           body: testBody,
         }),
@@ -160,61 +196,47 @@ const [activationResult, setActivationResult] = useState<any>(null);
   };
 
   // 🔍 shop-info API 直接取得処理
-const handleInspectShopInfo = async () => {
-  if (!inspectShopId.trim()) {
-    alert('店舗IDを入力してください');
-    return;
-  }
-  setInspecting(true);
-  setShopInfoResult(null);
+  const handleInspectShopInfo = async () => {
+    if (!inspectShopId.trim()) {
+      alert('店舗IDを入力してください');
+      return;
+    }
+    setInspecting(true);
+    setShopInfoResult(null);
 
-  try {
-    const res = await fetch(`/api/shop-info?s=${inspectShopId.trim()}`, { cache: 'no-store' });
-    const data = await res.json();
-    setShopInfoResult(data);
-  } catch (err: any) {
-    setShopInfoResult({ success: false, error: err.message });
-  } finally {
-    setInspecting(false);
-  }
-};
-
-  const fetchPendingShops = async () => {
-  setLoading(true);
-  try {
-    const res = await fetch('/api/admin/pending-shops');
-    const data = await res.json();
-    // 店舗一覧を表示するためのステートがあればそれを使う
-    // ここでは簡易的に alert で表示するか、別途リスト表示用のステートを作る
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      const res = await fetch(`/api/shop-info?s=${inspectShopId.trim()}`, { cache: 'no-store' });
+      const data = await res.json();
+      setShopInfoResult(data);
+    } catch (err: any) {
+      setShopInfoResult({ success: false, error: err.message });
+    } finally {
+      setInspecting(false);
+    }
+  };
 
   const handleForceActivate = async () => {
-  if (!targetShopId) {
-    alert('店舗IDを入力してください');
-    return;
-  }
-  setActivating(true);
-  setActivationResult(null);
-  try {
-    const res = await fetch('/api/admin/force-activate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ shopId: targetShopId }),
-    });
-    const data = await res.json();
-    setActivationResult(data);
-    alert(`✅ アクティベーション完了: ${JSON.stringify(data, null, 2)}`);
-  } catch (err: any) {
-    alert('❌ エラー: ' + err.message);
-  } finally {
-    setActivating(false);
-  }
-};
+    if (!targetShopId) {
+      alert('店舗IDを入力してください');
+      return;
+    }
+    setActivating(true);
+    setActivationResult(null);
+    try {
+      const res = await fetch('/api/admin/force-activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shopId: targetShopId }),
+      });
+      const data = await res.json();
+      setActivationResult(data);
+      alert(`✅ アクティベーション完了: ${JSON.stringify(data, null, 2)}`);
+    } catch (err: any) {
+      alert('❌ エラー: ' + err.message);
+    } finally {
+      setActivating(false);
+    }
+  };
 
   return (
     <main style={{ padding: 24, maxWidth: 950, margin: '0 auto', fontFamily: 'sans-serif', background: '#f8fafc', minHeight: '100vh' }}>
@@ -225,6 +247,49 @@ const handleInspectShopInfo = async () => {
           {message}
         </div>
       )}
+
+      {/* 🏢 テスト用代理店アカウント即時発行フォーム（新規追加） */}
+      <section style={{ background: '#fff', border: '2px solid #3182ce', borderRadius: 8, padding: 20, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <h2 style={{ marginTop: 0, fontSize: 18, color: '#2b6cb0' }}>🏢 テスト用代理店アカウント即時発行</h2>
+        <p style={{ fontSize: 12, color: '#64748b', marginTop: -8, marginBottom: 16 }}>
+          代理店ログイン用のアカウント（Authユーザー・代理店データ・専用紹介コード）をテスト生成します。
+        </p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+          <input
+            type="text"
+            value={agencyCompanyName}
+            onChange={(e) => setAgencyCompanyName(e.target.value)}
+            style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 14 }}
+            placeholder="代理店会社名/屋号"
+          />
+          <input
+            type="email"
+            value={agencyEmail}
+            onChange={(e) => setAgencyEmail(e.target.value)}
+            style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 14 }}
+            placeholder="代理店ログインメールアドレス"
+          />
+        </div>
+
+        <button
+          onClick={handleCreateTestAgency}
+          disabled={creatingAgency}
+          style={{ width: '100%', padding: '10px', background: '#3182ce', color: '#fff', border: 'none', borderRadius: 6, cursor: creatingAgency ? 'wait' : 'pointer', fontWeight: 'bold', fontSize: 14 }}
+        >
+          {creatingAgency ? '代理店ID発行中...' : '🔑 代理店アカウント＆初期パスワード発行'}
+        </button>
+
+        {createdAgency && (
+          <div style={{ marginTop: 14, padding: 14, background: '#ebf8ff', border: '1px solid #90cdf4', borderRadius: 6, color: '#2c5282', fontSize: 13 }}>
+            <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', fontSize: 14 }}>✅ 代理店アカウント発行完了</p>
+            <p style={{ margin: '2px 0' }}>代理店UID: <code style={{ fontFamily: 'monospace', fontWeight: 'bold', background: '#fff', padding: '2px 6px', border: '1px solid #90cdf4', borderRadius: 4, color: '#1d4ed8' }}>{createdAgency.agencyUid}</code></p>
+            <p style={{ margin: '2px 0' }}>ログインメール: <strong>{createdAgency.email}</strong></p>
+            <p style={{ margin: '2px 0' }}>発行パスワード: <code style={{ fontFamily: 'monospace', fontWeight: 'bold', background: '#fff', padding: '2px 6px', border: '1px solid #90cdf4', borderRadius: 4, color: '#dc2626' }}>{createdAgency.password}</code></p>
+            <p style={{ margin: '2px 0' }}>専用紹介コード: <code style={{ fontFamily: 'monospace', fontWeight: 'bold', background: '#fff', padding: '2px 6px', border: '1px solid #90cdf4', borderRadius: 4, color: '#2b6cb0' }}>{createdAgency.referralCode}</code></p>
+          </div>
+        )}
+      </section>
 
       {/* ⚡️ テスト用店舗アカウント即時発行フォーム */}
       <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
@@ -315,10 +380,10 @@ const handleInspectShopInfo = async () => {
       </section>
 
       {/* 🚀 2. ピンポイント個別送信テスト領域 */}
-      <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+      <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <h2 style={{ marginTop: 0, fontSize: 18, color: '#1e293b' }}>🎯 選択端末への単体テスト送信</h2>
         <p style={{ fontSize: 12, color: '#64748b', marginTop: -8 }}>
-          全体送信を行わず、上記で選択した1台の端末（iPhone / Android / PC）宛てにのみテスト通知を送信します。
+          全体送信を行わず、上記で選択した1台の端末宛てにのみテスト通知を送信します。
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
@@ -342,7 +407,6 @@ const handleInspectShopInfo = async () => {
           {sending ? '送信中...' : '🚀 選択した端末だけにテスト送信を実行'}
         </button>
 
-        {/* 📋 レスポンスログ表示 */}
         {sendResult && (
           <div style={{ marginTop: 20, padding: 16, background: '#0f172a', color: '#f8fafc', borderRadius: 8, fontFamily: 'monospace', fontSize: 12 }}>
             <h3 style={{ margin: '0 0 8px 0', color: '#38bdf8', fontSize: 13 }}>📡 送信レスポンス</h3>
@@ -352,9 +416,8 @@ const handleInspectShopInfo = async () => {
           </div>
         )}
       </section>
-            {/* ============================================================ */}
-      {/* 🧪 今回追加した新機能のテストセクション */}
-      {/* ============================================================ */}
+
+      {/* 🧪 新機能テスト */}
       <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <h2 style={{ marginTop: 0, fontSize: 18, color: '#1e293b' }}>🧪 新機能テスト（紹介・アップグレード）</h2>
         <p style={{ fontSize: 12, color: '#64748b', marginTop: -8, marginBottom: 16 }}>
@@ -366,7 +429,7 @@ const handleInspectShopInfo = async () => {
           )}
         </p>
 
-        {/* -------- ① 紹介コード付き新規申し込みテスト -------- */}
+        {/* ① 紹介コード付き新規申し込みテスト */}
         <div style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: 16, marginBottom: 16, background: '#f8fafc' }}>
           <h3 style={{ margin: '0 0 8px 0', fontSize: 15, fontWeight: 'bold', color: '#0f172a' }}>① 紹介コード付き新規申し込み</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -424,7 +487,7 @@ const handleInspectShopInfo = async () => {
           </div>
         </div>
 
-        {/* -------- ② Standardアップグレードテスト -------- */}
+        {/* ② Standardアップグレードテスト */}
         <div style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: 16, marginBottom: 16, background: '#f0f9ff' }}>
           <h3 style={{ margin: '0 0 8px 0', fontSize: 15, fontWeight: 'bold', color: '#0284c7' }}>② Standardアップグレード</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -463,7 +526,7 @@ const handleInspectShopInfo = async () => {
           </div>
         </div>
 
-        {/* -------- ③ PROアップグレードテスト -------- */}
+        {/* ③ PROアップグレードテスト */}
         <div style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: 16, marginBottom: 16, background: '#fff7ed' }}>
           <h3 style={{ margin: '0 0 8px 0', fontSize: 15, fontWeight: 'bold', color: '#ea580c' }}>③ PROアップグレード</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -515,7 +578,7 @@ const handleInspectShopInfo = async () => {
           </div>
         </div>
 
-        {/* -------- ④ 紹介コード検証テスト -------- */}
+        {/* ④ 紹介コード検証テスト */}
         <div style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: 16, background: '#f5f3ff' }}>
           <h3 style={{ margin: '0 0 8px 0', fontSize: 15, fontWeight: 'bold', color: '#7c3aed' }}>④ 紹介コード検証</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -546,80 +609,75 @@ const handleInspectShopInfo = async () => {
       </section>
 
       {/* 強制アクティベーション */}
-<section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24 }}>
-  <h2>⚡ 強制アクティベーション（決済シミュレート）</h2>
-  <p style={{ fontSize: 12, color: '#64748b' }}>
-    pending_payment の店舗を強制的に active にします（実際の決済なしで本登録完了を再現）
-  </p>
-  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-    <input
-      type="text"
-      placeholder="店舗ID（例: abc123）"
-      value={targetShopId}
-      onChange={(e) => setTargetShopId(e.target.value)}
-      style={{ flex: 1, padding: 8, border: '1px solid #cbd5e1', borderRadius: 4 }}
-    />
-    <button
-      onClick={handleForceActivate}
-      disabled={activating}
-      style={{ padding: '8px 16px', background: '#22c55e', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}
-    >
-      {activating ? '実行中...' : '🚀 強制アクティベート'}
-    </button>
-  </div>
-  {activationResult && (
-    <pre style={{ marginTop: 12, background: '#f1f5f9', padding: 12, borderRadius: 4, fontSize: 12 }}>
-      {JSON.stringify(activationResult, null, 2)}
-    </pre>
-  )}
-</section>
+      <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24 }}>
+        <h2 style={{ marginTop: 0, fontSize: 18, color: '#1e293b' }}>⚡ 強制アクティベーション（決済シミュレート）</h2>
+        <p style={{ fontSize: 12, color: '#64748b' }}>
+          pending_payment の店舗を強制的に active にします（実際の決済なしで本登録完了を再現）
+        </p>
+        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+          <input
+            type="text"
+            placeholder="店舗ID（例: abc123）"
+            value={targetShopId}
+            onChange={(e) => setTargetShopId(e.target.value)}
+            style={{ flex: 1, padding: 8, border: '1px solid #cbd5e1', borderRadius: 4 }}
+          />
+          <button
+            onClick={handleForceActivate}
+            disabled={activating}
+            style={{ padding: '8px 16px', background: '#22c55e', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}
+          >
+            {activating ? '実行中...' : '🚀 強制アクティベート'}
+          </button>
+        </div>
+        {activationResult && (
+          <pre style={{ marginTop: 12, background: '#f1f5f9', padding: 12, borderRadius: 4, fontSize: 12 }}>
+            {JSON.stringify(activationResult, null, 2)}
+          </pre>
+        )}
+      </section>
 
-      {/* ============================================================ */}
-{/* アップグレード強制アクティベーション */}
-{/* ============================================================ */}
-<section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24 }}>
-  <h2 style={{ marginTop: 0, fontSize: 18, color: '#1e293b' }}>⚡ アップグレード強制アクティベーション</h2>
-  <p style={{ fontSize: 12, color: '#64748b', marginTop: -8, marginBottom: 16 }}>
-    upgradeStatus が pending_payment の店舗を、決済をスキップして Webhook 経由でアップグレード完了状態にします。
-  </p>
+      {/* アップグレード強制アクティベーション */}
+      <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24 }}>
+        <h2 style={{ marginTop: 0, fontSize: 18, color: '#1e293b' }}>⚡ アップグレード強制アクティベーション</h2>
+        <p style={{ fontSize: 12, color: '#64748b', marginTop: -8, marginBottom: 16 }}>
+          upgradeStatus が pending_payment の店舗を、決済をスキップして Webhook 経由でアップグレード完了状態にします。
+        </p>
 
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-      <input
-        type="text"
-        placeholder="店舗ID"
-        id="test-force-upgrade-shopid"
-        style={{ flex: 1, minWidth: 200, padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 13 }}
-      />
-    </div>
-    <button
-      onClick={async () => {
-        const shopId = (document.getElementById('test-force-upgrade-shopid') as HTMLInputElement)?.value;
-        if (!shopId) { alert('店舗IDを入力してください'); return; }
-        try {
-          // 残した force-activate 側の API に向ける
-          const res = await fetch('/api/admin/force-activate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ shopId }),
-          });
-          const data = await res.json();
-          alert(`✅ レスポンス:\n${JSON.stringify(data, null, 2)}`);
-        } catch (err: any) {
-          alert('❌ エラー: ' + err.message);
-        }
-      }}
-      style={{ padding: '8px 16px', background: '#8b5cf6', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 'bold' }}
-    >
-      🚀 強制アップグレード実行（Webhook模擬）
-    </button>
-    <span style={{ fontSize: 11, color: '#94a3b8' }}>※ 事前に管理画面でアップグレード申請（pending_payment状態）を作成してください。</span>
-  </div>
-</section>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              placeholder="店舗ID"
+              id="test-force-upgrade-shopid"
+              style={{ flex: 1, minWidth: 200, padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 13 }}
+            />
+          </div>
+          <button
+            onClick={async () => {
+              const shopId = (document.getElementById('test-force-upgrade-shopid') as HTMLInputElement)?.value;
+              if (!shopId) { alert('店舗IDを入力してください'); return; }
+              try {
+                const res = await fetch('/api/admin/force-activate', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ shopId }),
+                });
+                const data = await res.json();
+                alert(`✅ レスポンス:\n${JSON.stringify(data, null, 2)}`);
+              } catch (err: any) {
+                alert('❌ エラー: ' + err.message);
+              }
+            }}
+            style={{ padding: '8px 16px', background: '#8b5cf6', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            🚀 強制アップグレード実行（Webhook模擬）
+          </button>
+          <span style={{ fontSize: 11, color: '#94a3b8' }}>※ 事前に管理画面でアップグレード申請（pending_payment状態）を作成してください。</span>
+        </div>
+      </section>
 
-      {/* ============================================================ */}
-      {/* 🔍 店舗データ（shop-info）リアルタイム確認コンソール */}
-      {/* ============================================================ */}
+      {/* 🔍 店舗データ（shop-info）確認 */}
       <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <h2 style={{ marginTop: 0, fontSize: 18, color: '#1e293b' }}>🔍 店舗データ（shop-info）確認</h2>
         <p style={{ fontSize: 12, color: '#64748b', marginTop: -8, marginBottom: 16 }}>
