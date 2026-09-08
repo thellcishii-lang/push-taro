@@ -1,32 +1,12 @@
+// app/api/square-webhook/route.ts
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../lib/mailer';
-import path from 'path'; // path は必要（利用規約PDFのパス指定のため）
-import { generateInvoicePDF } from '../../../lib/pdf-generator';
-
-
 
 // ============================================================
-// ヘルパー関数
+// 管理者宛に1万円到達時の手動振込依頼メールを送る
 // ============================================================
-
-/**
- * 代理店の有効紹介数に応じて、超過累進方式で1件あたりの還元額を算出
- */
-function calculateTieredReward(activeCount: number, monthlyFee: number = 10000): number {
-  if (activeCount <= 100) {
-    return Math.floor(monthlyFee * 0.30); // 3,000円
-  } else if (activeCount <= 200) {
-    return Math.floor(monthlyFee * 0.36); // 3,600円
-  } else {
-    return Math.floor(monthlyFee * 0.45); // 4,500円
-  }
-}
-
-/**
- * 管理者宛に1万円到達時の手動振込依頼メールを送る
- */
 async function sendAdminPayoutNotification(referrerData: any, referrerId: string, totalAmount: number) {
   const adminEmail = 'pushtaro-info@gmail.com';
   const emailBody = `
@@ -51,6 +31,7 @@ async function sendAdminPayoutNotification(referrerData: any, referrerId: string
 `;
   console.log(`[管理者通知] 送信先: ${adminEmail}`);
   console.log(emailBody);
+
   // 実際にメールを送信する場合はコメントを外す
   // await sendEmail({
   //   to: adminEmail,
@@ -60,7 +41,7 @@ async function sendAdminPayoutNotification(referrerData: any, referrerId: string
 }
 
 // ============================================================
-// Webhook エンドポイント
+// メイン Webhook エンドポイント
 // ============================================================
 export async function POST(request: Request) {
   try {
@@ -71,7 +52,7 @@ export async function POST(request: Request) {
     console.log(`[Square Webhook 受信] イベント種別: ${eventType}`);
 
     // ============================================================
-    // 1. 引き落とし失敗
+    // 1. 引き落とし失敗（invoice.payment_failed）
     // ============================================================
     if (eventType === 'invoice.payment_failed') {
       const invoice = dataObject?.invoice;
@@ -94,7 +75,25 @@ export async function POST(request: Request) {
         const shopData = shopDoc.data();
         const currentStatus = shopData.status || 'active';
 
-        if (currentStatus !== 'payment_warning' && currentStatus !== 'send_disabled') {
+        // すでに警告中または送信停止中の場合は強制退会
+        if (currentStatus === 'send_disabled' || currentStatus === 'payment_warning') {
+          await shopDoc.ref.update({
+            status: 'cancelled',
+            cancelledAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
+          });
+
+          // 紹介リレーションを inactive に更新
+          const relSnap = await db.collection('referral_relations')
+            .where('referredTenantId', '==', shopDoc.id)
+            .get();
+          relSnap.docs.forEach(async (relDoc) => {
+            await relDoc.ref.update({ status: 'inactive' });
+          });
+
+          console.log(`[強制退会] 店舗: ${shopData.name} (${customerEmail})`);
+        } else if (currentStatus !== 'payment_warning') {
+          // 初めての失敗 → 警告状態 + 7日猶予
           const gracePeriodUntil = new Date();
           gracePeriodUntil.setDate(gracePeriodUntil.getDate() + 7);
           await shopDoc.ref.update({
@@ -104,32 +103,19 @@ export async function POST(request: Request) {
             updatedAt: FieldValue.serverTimestamp(),
           });
           console.log(`[警告] 店舗: ${shopData.name} (${customerEmail}) / 猶予期限: ${gracePeriodUntil.toISOString()}`);
-        } else if (currentStatus === 'send_disabled' || currentStatus === 'payment_warning') {
-          await shopDoc.ref.update({
-            status: 'cancelled',
-            cancelledAt: FieldValue.serverTimestamp(),
-            updatedAt: FieldValue.serverTimestamp(),
-          });
-          const relSnap = await db.collection('referral_relations')
-            .where('referredTenantId', '==', shopDoc.id)
-            .get();
-          relSnap.docs.forEach(async (relDoc) => {
-            await relDoc.ref.update({ status: 'inactive' });
-          });
-          console.log(`[強制退会] 店舗: ${shopData.name} (${customerEmail})`);
         }
       }
       return NextResponse.json({ success: true, message: '引き落とし失敗処理完了' }, { status: 200 });
     }
 
     // ============================================================
-    // 2. 決済成功
+    // 2. 決済成功（payment.updated / invoice.payment_made）
     // ============================================================
-    if (eventType === 'payment.updated' || eventType === 'order.fulfillment.updated' || eventType === 'invoice.payment_made') {
+    if (eventType === 'payment.updated' || eventType === 'invoice.payment_made') {
       const payment = dataObject?.payment || dataObject?.invoice;
       const paymentStatus = payment?.status;
-      const paymentId = payment?.id;
 
+      // payment.updated の場合は COMPLETED のみ処理
       if (eventType === 'payment.updated' && paymentStatus !== 'COMPLETED') {
         return NextResponse.json({ received: true }, { status: 200 });
       }
@@ -139,42 +125,40 @@ export async function POST(request: Request) {
       const note = payment?.note || '';
       const paidAmount = payment?.amount_money?.amount || 10000;
       const referralCode = payment?.reference_id || '';
+      const paymentId = payment?.id;
 
       if (!customerEmail) {
         return NextResponse.json({ error: '顧客のメールアドレスが見つかりません' }, { status: 400 });
       }
 
       // ============================================================
-      // ① 仮登録店舗（pending_payment）の処理
+      // 🔥 冪等性チェック（支払いIDがすでに処理済みか）
+      // ============================================================
+      if (paymentId) {
+        const alreadyProcessed = await db.collection('shops')
+          .where('squarePaymentId', '==', paymentId)
+          .limit(1)
+          .get();
+
+        if (!alreadyProcessed.empty) {
+          console.log(`[Webhook] 既に処理済みの支払いID: ${paymentId}`);
+          return NextResponse.json({ received: true, alreadyProcessed: true }, { status: 200 });
+        }
+      }
+
+      // ============================================================
+      // ① 新規登録（pending_payment）の処理
       // ============================================================
       const pendingShopSnap = await db.collection('shops')
         .where('email', '==', customerEmail)
         .where('status', '==', 'pending_payment')
         .limit(1)
         .get();
-　　　　　　　　　　　　// ============================================================
-　　　　　　　　　　　// 🔥 冪等性チェック（最初にやる！）
-　　　　　　　　　　　// ============================================================
-if (paymentId) {
-  const alreadyProcessed = await db.collection('shops')
-    .where('squarePaymentId', '==', paymentId)
-    .limit(1)
-    .get();
 
-  if (!alreadyProcessed.empty) {
-    console.log(`[Webhook] 既に処理済みの支払いID: ${paymentId}`);
-    return NextResponse.json({ received: true, alreadyProcessed: true }, { status: 200 });
-  }
-}
-
-// ============================================================
-// ① 仮登録店舗（pending_payment）の処理（処理済みチェックの後にやる）
-// ============================================================
-
-if (!pendingShopSnap.empty) {
-  const pendingShopDoc = pendingShopSnap.docs[0];
-  const pendingShopData = pendingShopDoc.data();
-  const shopId = pendingShopDoc.id;
+      if (!pendingShopSnap.empty) {
+        const pendingShopDoc = pendingShopSnap.docs[0];
+        const pendingShopData = pendingShopDoc.data();
+        const shopId = pendingShopDoc.id;
 
         // パスワード自動生成
         const generatedPassword = 'Pass-' + Math.random().toString(36).slice(-8) + 'A1!';
@@ -200,45 +184,47 @@ if (!pendingShopSnap.empty) {
 
         // 店舗更新（status: active, ownerUid 追加）
         await pendingShopDoc.ref.update({
-  status: 'active',
-  ownerUid: userRecord.uid,
-  squareCustomerId: customerId || '',
-  plan: pendingShopData.plan || 'light',
-  squarePaymentId: paymentId, // ← この1行を追加
-  updatedAt: FieldValue.serverTimestamp(),
-});
+          status: 'active',
+          ownerUid: userRecord.uid,
+          squareCustomerId: customerId || '',
+          plan: pendingShopData.plan || 'light',
+          squarePaymentId: paymentId,
+          failedAt: null,
+          gracePeriodUntil: null,
+          updatedAt: FieldValue.serverTimestamp(),
+        });
 
         // 本登録完了メール
-await sendEmail({
-  to: customerEmail,
-  subject: '【Push-taro】決済完了・本登録完了のお知らせ',
-  html: `
-    <h2>${pendingShopData.name || '店舗'} 様</h2>
-    <p>決済処理が完了して、本登録が完了いたしました。</p>
-    <p>この度は、Push-taroにご登録頂き誠にありがとうございます。</p>
-    <p>下記のリンクより、お客様のメールアドレスとパスワードでログインしてください。</p>
-    <hr />
-    <p>選択プラン: ${plan.toUpperCase()}</p>
-    <p>
-      <a 
-        href="${process.env.NEXT_PUBLIC_APP_URL}/admin" 
-        style="display:inline-block; padding:12px 24px; background:#ff4500; color:#fff; border-radius:6px; text-decoration:none; font-weight:bold;"
-      >
-        管理画面へログイン
-      </a>
-    </p>
-    <p>ログインID: ${customerEmail}</p>
-    <p>パスワード: <code>${generatedPassword}</code></p>
-    <hr />
-    <p><strong>Push-taro.com</strong></p>
-    <p>運営会社：the合同会社</p>
-    <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
-    <p><a href="mailto:pushtaro-info@gmail.com">pushtaro.info@gmail.com</a></p>
-  `,
-});
+        await sendEmail({
+          to: customerEmail,
+          subject: '【Push-taro】決済完了・本登録完了のお知らせ',
+          html: `
+            <h2>${pendingShopData.name || '店舗'} 様</h2>
+            <p>決済処理が完了して、本登録が完了いたしました。</p>
+            <p>この度は、Push-taroにご登録頂き誠にありがとうございます。</p>
+            <p>下記のリンクより、お客様のメールアドレスとパスワードでログインしてください。</p>
+            <hr />
+            <p>選択プラン: ${plan.toUpperCase()}</p>
+            <p>
+              <a 
+                href="${process.env.NEXT_PUBLIC_APP_URL}/admin" 
+                style="display:inline-block; padding:12px 24px; background:#ff4500; color:#fff; border-radius:6px; text-decoration:none; font-weight:bold;"
+              >
+                管理画面へログイン
+              </a>
+            </p>
+            <p>ログインID: ${customerEmail}</p>
+            <p>パスワード: <code>${generatedPassword}</code></p>
+            <hr />
+            <p><strong>Push-taro.com</strong></p>
+            <p>運営会社：the合同会社</p>
+            <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
+            <p><a href="mailto:pushtaro-info@gmail.com">pushtaro.info@gmail.com</a></p>
+          `,
+        });
 
         // ============================================================
-        // 🔑 新・紹介報酬計算ロジック（初回決済時）
+        // 🔑 紹介報酬計算（新規契約時）
         // ============================================================
         const referrerId = pendingShopData.referrerId;
         if (referrerId) {
@@ -250,30 +236,33 @@ await sendEmail({
               const isAgency = referrerData?.role === 'agency';
               const isPro = referrerData?.plan === 'pro' || referrerData?.role === 'pro';
 
-              // PRO会員または代理店の場合のみ報酬が発生
               if (isAgency || isPro) {
-                let effectiveRate = 0;
+                let baseRate = 0;
 
                 if (isAgency) {
-                  // 代理店: Proは30%、Light/Standardは18%
-                  effectiveRate = (plan === 'pro') ? 0.30 : 0.18;
-                } else if (isPro) {
-                  // PRO会員: 基本10%（インボイス未登録時は9%）
+                  // 代理店：PROプランは30%、Standard/Lightは18%（一律）
+                  baseRate = (plan === 'pro') ? 0.30 : 0.18;
+
+                  // 代理店：インボイスなしは10%差し引き
                   const hasInvoice = referrerData?.invoiceNumber && referrerData.invoiceNumber.trim() !== '';
-                  effectiveRate = hasInvoice ? 0.10 : 0.09;
+                  if (!hasInvoice) {
+                    baseRate = baseRate * 0.9; // 30%→27%, 18%→16.2%
+                  }
+                } else if (isPro) {
+                  // PRO会員：全プラン一律10%（インボイスなし9%）
+                  const hasInvoice = referrerData?.invoiceNumber && referrerData.invoiceNumber.trim() !== '';
+                  baseRate = hasInvoice ? 0.10 : 0.09;
                 }
 
-                // プランに応じた金額を取得（light:1980円, standard:3800円, pro:10000円）
+                // プラン別の月額金額
                 const planPrices: Record<string, number> = { light: 1980, standard: 3800, pro: 10000 };
                 const planAmount = planPrices[plan] || 1980;
 
-                // 実契約金額 × 報酬率 で報酬額を算出
-                const rewardAmount = Math.floor(planAmount * effectiveRate);
+                const rewardAmount = Math.floor(planAmount * baseRate);
 
                 if (rewardAmount > 0) {
                   const currentUnpaid = (referrerData?.unpaidRewardTotal || 0) + rewardAmount;
-                  
-                  // 未払い累計の更新 & 10,000円到達時の通知
+
                   if (currentUnpaid >= 10000) {
                     await referrerDoc.ref.update({
                       unpaidRewardTotal: currentUnpaid,
@@ -299,14 +288,14 @@ await sendEmail({
                   if (!relSnap.empty) {
                     await relSnap.docs[0].ref.update({
                       status: 'active',
-                      rewardRate: effectiveRate,
+                      rewardRate: baseRate,
                       updatedAt: FieldValue.serverTimestamp(),
                     });
                   } else {
                     await db.collection('referral_relations').add({
                       referrerId: referrerId,
                       referredTenantId: shopId,
-                      rewardRate: effectiveRate,
+                      rewardRate: baseRate,
                       status: 'active',
                       createdAt: FieldValue.serverTimestamp(),
                     });
@@ -334,7 +323,7 @@ await sendEmail({
       }
 
       // ============================================================
-      // ①-2. ✨ 追加: アップグレード申請中店舗（upgradeStatus == pending_payment）の処理
+      // ② アップグレード申請中（upgradeStatus == pending_payment）の処理
       // ============================================================
       const upgradeShopSnap = await db.collection('shops')
         .where('email', '==', customerEmail)
@@ -345,21 +334,19 @@ await sendEmail({
       if (!upgradeShopSnap.empty) {
         const upgradeShopDoc = upgradeShopSnap.docs[0];
         const upgradeShopData = upgradeShopDoc.data();
-        const targetPlan = upgradeShopData.targetPlan; // 'standard' か 'pro' がそのまま入っている
-　　　　　　　　　　　　　　　　　const planName = targetPlan === 'pro' ? 'PRO' : 'スタンダード';
-        
-        // アップグレード対象プラン（スタンダード / PRO）の判定
-        const upgradePlanName = targetPlan === 'pro' ? 'PRO' : 'スタンダード';
-        // 店舗更新（plan を反映し、upgradeStatus を completed へ）
+        const targetPlan = upgradeShopData.targetPlan;
+        const planName = targetPlan === 'pro' ? 'PRO' : 'スタンダード';
+
         await upgradeShopDoc.ref.update({
           plan: targetPlan,
           upgradeStatus: 'completed',
           upgradeCompletedAt: FieldValue.serverTimestamp(),
           squarePaymentId: paymentId || '',
+          failedAt: null,
+          gracePeriodUntil: null,
           updatedAt: FieldValue.serverTimestamp(),
         });
 
-        // アップグレード完了メール送信
         await sendEmail({
           to: customerEmail,
           subject: `【Push-taro】${planName}プランへのアップグレードが完了しました`,
@@ -389,27 +376,30 @@ await sendEmail({
       }
 
       // ============================================================
-      // ② 既存アカウントの決済（毎月の継続課金）
+      // ③ 既存アカウントの継続課金
       // ============================================================
       const existingShopSnap = await db.collection('shops').where('email', '==', customerEmail).get();
 
-if (!existingShopSnap.empty) {
-  const shopDoc = existingShopSnap.docs[0];
-  const shopData = shopDoc.data();
-  const plan = shopData.plan || 'light';
-  const planPrices: Record<string, number> = { light: 1980, standard: 3800, pro: 10000 };
-  const planAmount = planPrices[plan] || 1980;
+      if (!existingShopSnap.empty) {
+        const shopDoc = existingShopSnap.docs[0];
+        const shopData = shopDoc.data();
+        const plan = shopData.plan || 'light';
+        const planPrices: Record<string, number> = { light: 1980, standard: 3800, pro: 10000 };
+        const planAmount = planPrices[plan] || 1980;
 
-  await shopDoc.ref.update({
-    status: 'active',
-    squareCustomerId: customerId || shopData.squareCustomerId || '',
-    squarePaymentId: paymentId || '',
-    failedAt: null,                // ← 🔥 追加（失敗記録をクリア）
-    gracePeriodUntil: null,        // ← 🔥 追加（猶予期限をクリア）
-    updatedAt: FieldValue.serverTimestamp(),
-  });
+        // 🔥 決済成功時に failedAt と gracePeriodUntil をリセットする（②の問題対応）
+        await shopDoc.ref.update({
+          status: 'active',
+          squareCustomerId: customerId || shopData.squareCustomerId || '',
+          squarePaymentId: paymentId || '',
+          failedAt: null,
+          gracePeriodUntil: null,
+          updatedAt: FieldValue.serverTimestamp(),
+        });
 
+        // ============================================================
         // 継続課金に伴う紹介報酬の加算処理
+        // ============================================================
         const relSnap = await db.collection('referral_relations')
           .where('referredTenantId', '==', shopDoc.id)
           .where('status', '==', 'active')
@@ -426,16 +416,24 @@ if (!existingShopSnap.empty) {
             const isPro = referrerData?.plan === 'pro' || referrerData?.role === 'pro';
 
             if (isAgency || isPro) {
-              let effectiveRate = relData.rewardRate || 0.10;
+              let baseRate = 0;
 
               if (isAgency) {
-                effectiveRate = (plan === 'pro') ? 0.30 : 0.18;
-              } else if (isPro) {
+                // 代理店：PROプランは30%、Standard/Lightは18%（一律）
+                baseRate = (plan === 'pro') ? 0.30 : 0.18;
+
+                // 代理店：インボイスなしは10%差し引き
                 const hasInvoice = referrerData?.invoiceNumber && referrerData.invoiceNumber.trim() !== '';
-                effectiveRate = hasInvoice ? 0.10 : 0.09;
+                if (!hasInvoice) {
+                  baseRate = baseRate * 0.9;
+                }
+              } else if (isPro) {
+                // PRO会員：全プラン一律10%（インボイスなし9%）
+                const hasInvoice = referrerData?.invoiceNumber && referrerData.invoiceNumber.trim() !== '';
+                baseRate = hasInvoice ? 0.10 : 0.09;
               }
 
-              const rewardAmount = Math.floor(planAmount * effectiveRate);
+              const rewardAmount = Math.floor(planAmount * baseRate);
 
               if (rewardAmount > 0) {
                 const currentUnpaid = (referrerData?.unpaidRewardTotal || 0) + rewardAmount;
@@ -472,13 +470,15 @@ if (!existingShopSnap.empty) {
       }
 
       // ============================================================
-      // ③ その他（フォールバック）
+      // ④ フォールバック（該当なし）
       // ============================================================
       console.log(`[フォールバック] 該当なし: ${customerEmail}`);
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
+    // その他のイベントタイプは無視
     return NextResponse.json({ received: true }, { status: 200 });
+
   } catch (error: any) {
     console.error('[square-webhook] エラー:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
