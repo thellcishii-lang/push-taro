@@ -92,8 +92,9 @@ export default function AdminPage() {
   const [normalCouponDesc, setNormalCouponDesc] = useState('');
 
   // 特別達成クーポンの有効期限用ステート（ファイル上部に追加）
-　　　　const [loyaltyExpireDays, setLoyaltyExpireDays] = useState(7);
-　　　　const [loyaltyExpireDate, setLoyaltyExpireDate] = useState('');
+　　　// 🏆 特別達成クーポン用ステート
+  const [loyaltyExpireDays, setLoyaltyExpireDays] = useState(7);
+  const [loyaltyExpireDate, setLoyaltyExpireDate] = useState('');
 
   // 🏆 特別達成クーポン用ステート
   const [loyaltyEnabled, setLoyaltyEnabled] = useState(false);
