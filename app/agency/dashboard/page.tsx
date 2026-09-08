@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { auth } from '@/lib/firebase-client';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
 interface DetailedShop {
   id: string;
@@ -32,7 +32,14 @@ interface SummaryData {
 
 export default function AgencyDashboardPage() {
   const [loading, setLoading] = useState<boolean>(true);
-  const [agencyUid, setAgencyUid] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+  
+  // 🔑 ログインフォーム用ステート
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
   const [summary, setSummary] = useState<SummaryData>({
     totalShops: 0,
     monthlyNewCount: 0,
@@ -46,11 +53,11 @@ export default function AgencyDashboardPage() {
   const [selectedPlanTab, setSelectedPlanTab] = useState<'all' | 'light' | 'standard' | 'pro'>('all');
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        setAgencyUid(user.uid);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
         try {
-          const res = await fetch(`/api/agency/stats?agencyId=${user.uid}`);
+          const res = await fetch(`/api/agency/stats?agencyId=${currentUser.uid}`);
           if (res.ok) {
             const data = await res.json();
             if (data.summary) setSummary(data.summary);
@@ -59,6 +66,8 @@ export default function AgencyDashboardPage() {
         } catch (err) {
           console.error('代理店データ取得エラー:', err);
         }
+      } else {
+        setShops([]);
       }
       setLoading(false);
     });
@@ -66,15 +75,32 @@ export default function AgencyDashboardPage() {
     return () => unsubscribe();
   }, []);
 
-  // 🔍 店舗名・店舗コード・電話番号・プランタブによるリアルタイム絞り込み
+  // 🔑 ログイン実行処理
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    setIsLoggingIn(true);
+    try {
+      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+    } catch (err: any) {
+      console.error('ログインエラー:', err);
+      setLoginError('メールアドレスまたはパスワードが正しくありません。');
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  // 🚪 ログアウト処理
+  const handleLogout = async () => {
+    await signOut(auth);
+  };
+
+  // 🔍 検索・タブ絞り込み
   const filteredShops = useMemo(() => {
     return shops.filter((shop) => {
-      // 1. プランタブ絞り込み
       if (selectedPlanTab !== 'all' && shop.plan.toLowerCase() !== selectedPlanTab) {
         return false;
       }
-      
-      // 2. 検索キーワード絞り込み（店舗名・店舗コード・電話番号）
       if (!searchQuery.trim()) return true;
       const query = searchQuery.toLowerCase().trim();
       return (
@@ -88,11 +114,77 @@ export default function AgencyDashboardPage() {
   if (loading) {
     return (
       <div style={{ padding: '60px', textAlign: 'center', fontFamily: 'sans-serif', color: '#718096' }}>
-        代理店データを読み込み中...
+        読み込み中...
       </div>
     );
   }
 
+  // 🔒 未ログイン時のログイン画面UI
+  if (!user) {
+    return (
+      <div style={{ background: '#f8fafc', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '40px', width: '100%', maxWidth: '400px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <h1 style={{ fontSize: '22px', fontWeight: '800', color: '#1a202c', margin: '0 0 8px 0' }}>代理店コンソール ログイン</h1>
+            <p style={{ color: '#718096', fontSize: '13px', margin: 0 }}>ご登録の代理店アカウントでログインしてください</p>
+          </div>
+
+          {loginError && (
+            <div style={{ background: '#fff5f5', border: '1px solid #feb2b2', color: '#c53030', padding: '10px', borderRadius: '6px', fontSize: '13px', marginBottom: '16px' }}>
+              {loginError}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px' }}>メールアドレス</label>
+              <input
+                type="email"
+                required
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                placeholder="agency@example.com"
+                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '14px', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px' }}>パスワード</label>
+              <input
+                type="password"
+                required
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                placeholder="••••••••"
+                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '14px', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoggingIn}
+              style={{
+                marginTop: '8px',
+                width: '100%',
+                padding: '12px',
+                background: '#3182ce',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                fontWeight: 'bold',
+                fontSize: '14px',
+                cursor: isLoggingIn ? 'wait' : 'pointer',
+              }}
+            >
+              {isLoggingIn ? 'ログイン中...' : 'ログイン'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // 🔓 ログイン後の代理店ダッシュボード画面UI
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
       <main style={{ maxWidth: '1100px', margin: '0 auto' }}>
@@ -104,9 +196,15 @@ export default function AgencyDashboardPage() {
               代理店コンソール
             </h1>
             <p style={{ color: '#718096', fontSize: '14px', margin: 0 }}>
-              傘下店舗の管理・契約ステータス・集計推移をご確認いただけます。
+              ログイン中: <strong>{user.email}</strong>
             </p>
           </div>
+          <button
+            onClick={handleLogout}
+            style={{ padding: '8px 16px', background: '#edf2f7', color: '#4a5568', border: '1px solid #cbd5e0', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
+          >
+            ログアウト
+          </button>
         </div>
 
         {/* 📊 月末集計サマリーカード */}
@@ -145,8 +243,6 @@ export default function AgencyDashboardPage() {
         {/* 🔍 検索バー & プランタブ */}
         <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-            
-            {/* 検索入力欄 */}
             <div style={{ flex: '1 1 300px' }}>
               <input
                 type="text"
@@ -164,7 +260,6 @@ export default function AgencyDashboardPage() {
               />
             </div>
 
-            {/* プラン切り替えタブ */}
             <div style={{ display: 'flex', gap: '8px' }}>
               {(['all', 'light', 'standard', 'pro'] as const).map((tab) => {
                 const labels: Record<string, string> = {
@@ -194,7 +289,6 @@ export default function AgencyDashboardPage() {
                 );
               })}
             </div>
-
           </div>
         </div>
 
