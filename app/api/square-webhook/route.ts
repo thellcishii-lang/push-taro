@@ -393,21 +393,21 @@ await sendEmail({
       // ============================================================
       const existingShopSnap = await db.collection('shops').where('email', '==', customerEmail).get();
 
-      if (!existingShopSnap.empty) {
-        const shopDoc = existingShopSnap.docs[0];
-        const shopData = shopDoc.data();
-        const plan = shopData.plan || 'light';
-        const planPrices: Record<string, number> = { light: 1980, standard: 3800, pro: 10000 };
-        const planAmount = planPrices[plan] || 1980;
+if (!existingShopSnap.empty) {
+  const shopDoc = existingShopSnap.docs[0];
+  const shopData = shopDoc.data();
+  const plan = shopData.plan || 'light';
+  const planPrices: Record<string, number> = { light: 1980, standard: 3800, pro: 10000 };
+  const planAmount = planPrices[plan] || 1980;
 
-        await shopDoc.ref.update({
-          status: 'active',
-          squareCustomerId: customerId || shopData.squareCustomerId || '',
-          squarePaymentId: paymentId || '',
-          failedAt: null,
-          gracePeriodUntil: null,
-          updatedAt: FieldValue.serverTimestamp(),
-        });
+  await shopDoc.ref.update({
+    status: 'active',
+    squareCustomerId: customerId || shopData.squareCustomerId || '',
+    squarePaymentId: paymentId || '',
+    failedAt: null,                // ← 🔥 追加（失敗記録をクリア）
+    gracePeriodUntil: null,        // ← 🔥 追加（猶予期限をクリア）
+    updatedAt: FieldValue.serverTimestamp(),
+  });
 
         // 継続課金に伴う紹介報酬の加算処理
         const relSnap = await db.collection('referral_relations')
