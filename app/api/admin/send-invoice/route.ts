@@ -1,0 +1,72 @@
+import { NextResponse } from 'next/server';
+import { db, authAdmin } from '@/lib/firebase-admin';
+import { sendEmail } from '@/lib/mailer';
+
+const PLAN_PRICES: Record<string, number> = {
+  light: 1980,
+  standard: 3800,
+  pro: 10000,
+};
+
+export async function POST(request: Request) {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
+  }
+
+  try {
+    const idToken = authHeader.split('Bearer ')[1];
+    await authAdmin.verifyIdToken(idToken);
+  } catch {
+    return NextResponse.json({ error: '無効なトークンです' }, { status: 401 });
+  }
+
+  try {
+    const { shopId, months } = await request.json();
+
+    if (!shopId || !months || months < 1 || months > 3) {
+      return NextResponse.json({ error: '無効なパラメータです' }, { status: 400 });
+    }
+
+    const shopDoc = await db.collection('shops').doc(shopId).get();
+    if (!shopDoc.exists) {
+      return NextResponse.json({ error: '店舗が見つかりません' }, { status: 404 });
+    }
+
+    const shopData = shopDoc.data();
+    const price = PLAN_PRICES[shopData?.plan || 'light'] || 3800;
+    const totalAmount = price * months;
+
+    const paymentUrl = `${process.env.NEXT_PUBLIC_SQUARE_LINK_TEST}?shopId=${shopId}&amount=${totalAmount}&months=${months}`;
+
+    await sendEmail({
+      to: shopData.email,
+      subject: `【Push-taro】決済リンクのご案内（${months}ヶ月分）`,
+      html: `
+        <h2>${shopData.name || '店舗'} 様</h2>
+        <p>決済不履行によりサービスが停止しております。</p>
+        <p>以下のリンクより <strong>${months}ヶ月分（${totalAmount.toLocaleString()}円）</strong> の決済をお願いいたします。</p>
+        <p><a href="${paymentUrl}" style="display:inline-block;padding:12px 24px;background:#ff4500;color:#fff;border-radius:6px;text-decoration:none;">決済する</a></p>
+        <p>決済完了後、自動的にサービスが再開されます。</p>
+        <hr />
+        <p><strong>Push-taro.com</strong></p>
+      `,
+    });
+
+    // 送信履歴を記録
+    await db.collection('shops').doc(shopId).collection('invoice_history').add({
+      months,
+      amount: totalAmount,
+      sentAt: new Date(),
+      status: 'sent',
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `${months}ヶ月分の決済リンクを送信しました`,
+    });
+  } catch (error: any) {
+    console.error('[send-invoice] エラー:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
