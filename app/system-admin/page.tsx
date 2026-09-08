@@ -120,26 +120,33 @@ export default function SystemAdminPage() {
         </div>
 
         {/* タブ切替 */}
-        <div style={{ display: 'flex', gap: '20px', borderBottom: '2px solid #e2e8f0', marginBottom: '20px' }}>
-          <button
-            onClick={() => setActiveTab('all')}
-            style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'all' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'all' ? '#3182ce' : '#718096', cursor: 'pointer' }}
-          >
-            全店舗リスト
-          </button>
-          <button
-            onClick={() => setActiveTab('pro')}
-            style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'pro' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'pro' ? '#3182ce' : '#718096', cursor: 'pointer' }}
-          >
-            プロプラン顧客詳細
-          </button>
-          <button
-            onClick={() => setActiveTab('agencies')}
-            style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'agencies' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'agencies' ? '#3182ce' : '#718096', cursor: 'pointer' }}
-          >
-            代理店一覧 & 審査
-          </button>
-        </div>
+<div style={{ display: 'flex', gap: '20px', borderBottom: '2px solid #e2e8f0', marginBottom: '20px' }}>
+  <button
+    onClick={() => setActiveTab('all')}
+    style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'all' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'all' ? '#3182ce' : '#718096', cursor: 'pointer' }}
+  >
+    全店舗リスト
+  </button>
+  <button
+    onClick={() => setActiveTab('pro')}
+    style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'pro' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'pro' ? '#3182ce' : '#718096', cursor: 'pointer' }}
+  >
+    プロプラン顧客詳細
+  </button>
+  <button
+    onClick={() => setActiveTab('agencies')}
+    style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'agencies' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'agencies' ? '#3182ce' : '#718096', cursor: 'pointer' }}
+  >
+    代理店一覧 & 審査
+  </button>
+  {/* 🔥 ここに追加 */}
+  <button
+    onClick={() => setActiveTab('payment-failures')}
+    style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'payment-failures' ? '3px solid #ef4444' : 'none', fontWeight: 'bold', color: activeTab === 'payment-failures' ? '#ef4444' : '#718096', cursor: 'pointer' }}
+  >
+    ⚠️ 決済不履行一覧
+  </button>
+</div>
 
         {/* 店舗テーブル */}
         {activeTab !== 'agencies' && (
