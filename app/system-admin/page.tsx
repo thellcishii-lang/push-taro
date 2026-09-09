@@ -22,7 +22,10 @@ interface AgencyData {
   companyName?: string;
   ownerName?: string;
   email?: string;
-  approved?: boolean;
+  status?: string; // 'pending_approval' | 'active' | 'suspended'
+  approvedAt?: string | null;
+  referralCode?: string;
+  createdAt?: string | null;
 }
 
 export default function SystemAdminPage() {
@@ -288,41 +291,50 @@ export default function SystemAdminPage() {
 
         {/* 代理店一覧 */}
         {activeTab === 'agencies' && (
-          <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 16px 0' }}>代理店一覧</h2>
-            <p style={{ color: '#64748b', marginBottom: '16px' }}>現在の代理店一覧（審査機能は準備中）</p>
-            {agencies.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>代理店はまだありません</p>
-            ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
-                  <thead>
-                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>会社名</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>担当者</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>メール</th>
-                      <th style={{ padding: '12px', textAlign: 'center' }}>ステータス</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {agencies.map((agency) => (
-                      <tr key={agency.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                        <td style={{ padding: '12px', fontWeight: 'bold' }}>{agency.companyName || '未設定'}</td>
-                        <td style={{ padding: '12px' }}>{agency.ownerName || '-'}</td>
-                        <td style={{ padding: '12px' }}>{agency.email || '-'}</td>
-                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                          <span style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold', background: agency.approved ? '#c6f6d5' : '#fef3c7', color: agency.approved ? '#22543d' : '#d97706' }}>
-                            {agency.approved ? '承認済み' : '審査中'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
+  <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+    <h2>代理店一覧</h2>
+    <p style={{ color: '#64748b' }}>代理店パートナー一覧</p>
+    {agencies.length === 0 ? (
+      <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>代理店はまだありません</p>
+    ) : (
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+          <thead>
+            <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+              <th style={{ padding: '12px', textAlign: 'left' }}>会社名</th>
+              <th style={{ padding: '12px', textAlign: 'left' }}>担当者</th>
+              <th style={{ padding: '12px', textAlign: 'left' }}>メール</th>
+              <th style={{ padding: '12px', textAlign: 'left' }}>紹介コード</th>
+              <th style={{ padding: '12px', textAlign: 'center' }}>ステータス</th>
+            </tr>
+          </thead>
+          <tbody>
+            {agencies.map((agency) => (
+              <tr key={agency.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                <td style={{ padding: '12px', fontWeight: 'bold' }}>{agency.companyName || '未設定'}</td>
+                <td style={{ padding: '12px' }}>{agency.ownerName || '-'}</td>
+                <td style={{ padding: '12px' }}>{agency.email || '-'}</td>
+                <td style={{ padding: '12px', fontFamily: 'monospace' }}>{agency.referralCode || '-'}</td>
+                <td style={{ padding: '12px', textAlign: 'center' }}>
+                  <span style={{
+                    padding: '4px 12px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    background: agency.status === 'active' ? '#c6f6d5' : agency.status === 'approved_pending_payment' ? '#fef3c7' : '#f1f5f9',
+                    color: agency.status === 'active' ? '#22543d' : agency.status === 'approved_pending_payment' ? '#d97706' : '#64748b',
+                  }}>
+                    {agency.status === 'active' ? '承認済み' : agency.status === 'approved_pending_payment' ? '決済待ち' : '審査中'}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </div>
+)}
 
         {/* 決済不履行一覧 */}
         {activeTab === 'payment-failures' && <PaymentFailuresTab />}
