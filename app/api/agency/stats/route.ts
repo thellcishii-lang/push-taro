@@ -11,13 +11,20 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Agency ID is required' }, { status: 400 });
     }
 
-    // 🔥 1. 代理店自身の情報を `agencies` から取得（存在確認）
+    // 🔥 1. 代理店自身の情報を `agencies` から取得
     const agencyDoc = await db.collection('agencies').doc(agencyId).get();
     if (!agencyDoc.exists) {
       return NextResponse.json({ error: '代理店情報が見つかりません' }, { status: 404 });
     }
 
-    // 2. 対象の代理店IDに紐づく傘下店舗を取得（これは変わらない）
+    const agencyData = agencyDoc.data();
+
+    // 🔥 agencyData が undefined の場合のガード
+    if (!agencyData) {
+      return NextResponse.json({ error: '代理店データが不正です。' }, { status: 400 });
+    }
+
+    // 2. 対象の代理店IDに紐づく傘下店舗を取得
     const shopsSnapshot = await db
       .collection('shops')
       .where('agencyId', '==', agencyId)
@@ -86,8 +93,6 @@ export async function GET(request: Request) {
     });
 
     // 🔥 代理店情報も返す（ダッシュボードのヘッダー表示用）
-    const agencyData = agencyDoc.data();
-
     return NextResponse.json({
       success: true,
       agency: {
