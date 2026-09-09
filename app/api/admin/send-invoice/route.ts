@@ -55,6 +55,10 @@ export async function POST(request: Request) {
         <p>決済完了後、自動的にサービスが再開されます。</p>
         <hr />
         <p><strong>Push-taro.com</strong></p>
+           <hr />
+            <p>運営会社：the合同会社</p>
+            <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
+            <p><a href="mailto:pushtaro-info@gmail.com">pushtaro.info@gmail.com</a></p>
       `,
     });
 
