@@ -89,20 +89,21 @@ export default function AgencyPage() {
   // ============================================================
   // 完了画面
   // ============================================================
-  if (submitted) {
-    return (
-      <main style={{ maxWidth: '650px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif' }}>
-        <div style={{ background: '#f0fdf4', padding: '40px 30px', borderRadius: '12px', textAlign: 'center', border: '1px solid #bbf7d0' }}>
-          <h2 style={{ color: '#166534', marginBottom: '16px', fontSize: '24px' }}>代理店お申し込みを受け付けました</h2>
-          <p style={{ lineHeight: '1.8', color: '#374151', marginBottom: '24px', fontSize: '15px' }}>
-            ご登録ありがとうございます。ご入力いただいた内容をもとに審査を行わせていただきます。<br />
-            審査完了後、ご登録のメールアドレス宛（<strong>{sentEmail}</strong>）に<strong>決済手続き用のご案内メール</strong>をお送りいたします。
-          </p>
-          <Link href="/" style={{ display: 'inline-block', background: '#3182ce', color: '#fff', padding: '12px 28px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold' }}>トップページへ戻る</Link>
-        </div>
-      </main>
-    );
-  }
+ // 完了画面
+if (submitted) {
+  return (
+    <main style={{ maxWidth: '650px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif' }}>
+      <div style={{ background: '#f0fdf4', padding: '40px 30px', borderRadius: '12px', textAlign: 'center', border: '1px solid #bbf7d0' }}>
+        <h2 style={{ color: '#166534', marginBottom: '16px', fontSize: '24px' }}>代理店お申し込みを受け付けました</h2>
+        <p style={{ lineHeight: '1.8', color: '#374151', marginBottom: '24px', fontSize: '15px' }}>
+          ご登録ありがとうございます。ご入力いただいた内容をもとに審査を行わせていただきます。<br />
+          審査完了後、ご登録のメールアドレス宛（<strong>{sentEmail}</strong>）に<strong>決済手続き用のご案内メール</strong>をお送りいたします。
+        </p>
+        <Link href="/" style={{ display: 'inline-block', background: '#3182ce', color: '#fff', padding: '12px 28px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold' }}>トップページへ戻る</Link>
+      </div>
+    </main>
+  );
+}
 
   // ============================================================
   // 申し込みフォーム
