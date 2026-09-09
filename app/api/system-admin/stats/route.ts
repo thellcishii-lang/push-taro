@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     // 1. 全店舗データの取得
     const shopsSnapshot = await db.collection('shops').get();
     
-    // 2. subscriptions（購読データ）から店舗ごとのカウント集計
+    // 2. subscriptions から店舗ごとのカウント集計
     const subsSnapshot = await db.collection('subscriptions').get();
     const subscriberCounts: Record<string, number> = {};
 
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
       }
     });
 
-    const totalSubscribers = subsSnapshot.size; // 全購読ドキュメント数
+    const totalSubscribers = subsSnapshot.size;
 
     const shops = shopsSnapshot.docs.map((doc) => {
       const shopData = doc.data();
@@ -35,12 +35,21 @@ export async function GET(request: Request) {
       };
     });
 
-    // 3. 全代理店データの取得
+    // 🔥 3. agencies コレクションから代理店データを取得（変更点）
     const agenciesSnapshot = await db.collection('agencies').get();
-    const agencies = agenciesSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const agencies = agenciesSnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        companyName: data.companyName || '',
+        ownerName: data.ownerName || '',
+        email: data.email || '',
+        status: data.status || 'pending_approval',
+        approvedAt: data.approvedAt || null,
+        referralCode: data.referralCode || '',
+        createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
+      };
+    });
 
     // 4. プラン別・流入区分別の集計
     let lightCount = 0;
@@ -72,10 +81,10 @@ export async function GET(request: Request) {
           referral: referralCount,
           agency: agencyCount,
         },
-        agencyTotal: agencies.length,
+        agencyTotal: agencies.length, // 🔥 agencies の数
       },
       shops,
-      agencies,
+      agencies, // 🔥 agencies データを返す
     });
   } catch (error: any) {
     console.error('[API System Admin Error]:', error);
