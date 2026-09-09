@@ -3,7 +3,7 @@ import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
 
-// 紹介コード生成関数（AF-XXXXXX）
+// 紹介コード生成
 function generateReferralCode(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let code = 'AF-';
@@ -13,26 +13,36 @@ function generateReferralCode(): string {
   return code;
 }
 
+// パスワード自動生成（8桁）
+function generatePassword(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let password = '';
+  for (let i = 0; i < 8; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+}
+
 export async function POST(request: Request) {
   try {
-    const { name, email, password, bankAccount } = await request.json();
+    const { name, email, rewardType, bankAccount } = await request.json();
 
-    // ① バリデーション
-    if (!name || !email || !password) {
+    // バリデーション
+    if (!name || !email) {
       return NextResponse.json(
-        { error: '氏名・メールアドレス・パスワードは必須です' },
+        { error: '氏名とメールアドレスは必須です' },
         { status: 400 }
       );
     }
 
-    if (password.length < 6) {
+    if (!rewardType || !['recurring', 'one-time'].includes(rewardType)) {
       return NextResponse.json(
-        { error: 'パスワードは6文字以上にしてください' },
+        { error: '報酬タイプを選択してください' },
         { status: 400 }
       );
     }
 
-    // ② メールアドレスの重複チェック（Auth + Firestore）
+    // メールアドレス重複チェック
     try {
       await authAdmin.getUserByEmail(email);
       return NextResponse.json(
@@ -43,10 +53,8 @@ export async function POST(request: Request) {
       if (e.code !== 'auth/user-not-found') {
         throw e;
       }
-      // ユーザーが存在しない → 続行
     }
 
-    // Firestore でも重複チェック
     const existing = await db.collection('affiliates').where('email', '==', email).get();
     if (!existing.empty) {
       return NextResponse.json(
@@ -55,14 +63,17 @@ export async function POST(request: Request) {
       );
     }
 
-    // ③ Firebase Auth ユーザー作成
+    // パスワード自動生成
+    const generatedPassword = generatePassword();
+
+    // Firebase Auth ユーザー作成
     const userRecord = await authAdmin.createUser({
       email,
-      password,
+      password: generatedPassword,
       emailVerified: true,
     });
 
-    // ④ 紹介コード生成（重複防止）
+    // 紹介コード生成（重複防止）
     let referralCode = generateReferralCode();
     let codeExists = true;
     let attempts = 0;
@@ -78,12 +89,13 @@ export async function POST(request: Request) {
       }
     }
 
-    // ⑤ Firestore にアフィリエイトデータを作成
+    // Firestore 保存
     const affiliateData = {
       uid: userRecord.uid,
       name: name.trim(),
       email: email.trim(),
       referralCode,
+      rewardType,
       status: 'active',
       totalEarnings: 0,
       unpaidReward: 0,
@@ -94,7 +106,7 @@ export async function POST(request: Request) {
 
     const docRef = await db.collection('affiliates').add(affiliateData);
 
-    // ⑥ 登録完了メール送信
+    // 登録完了メール（パスワード含む）
     await sendEmail({
       to: email,
       subject: '【Push-taro】アフィリエイト登録完了のお知らせ',
@@ -103,9 +115,11 @@ export async function POST(request: Request) {
         <p>この度はPush-taroアフィリエイトプログラムへのご登録、誠にありがとうございます。</p>
         <p>以下の情報で管理画面にログインいただけます。</p>
         <hr />
-        <p><strong>ログインID:</strong> ${email}</p>
+        <p><strong>ログインID（メールアドレス）:</strong> ${email}</p>
+        <p><strong>パスワード:</strong> <code style="background:#f1f5f9;padding:4px 12px;border-radius:4px;font-weight:bold;font-size:16px;">${generatedPassword}</code></p>
         <p><strong>ご自身の紹介コード:</strong> <code style="background:#f1f5f9;padding:4px 12px;border-radius:4px;font-weight:bold;">${referralCode}</code></p>
         <hr />
+        <p>初回ログイン後、パスワードの変更をお勧めします。</p>
         <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/affiliate/dashboard" style="display:inline-block;padding:12px 24px;background:#ff4500;color:#fff;border-radius:6px;text-decoration:none;">アフィリエイトダッシュボードへ</a></p>
         <hr />
         <p><strong>Push-taro.com</strong></p>
