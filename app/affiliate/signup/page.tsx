@@ -65,6 +65,9 @@ export default function AffiliateSignupPage() {
     }
   };
 
+  const [rewardType, setRewardType] = useState<'recurring' | 'one-time'>('recurring');
+
+
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
       <main style={{ maxWidth: '560px', margin: '0 auto', background: '#fff', padding: '40px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
@@ -136,6 +139,42 @@ export default function AffiliateSignupPage() {
               style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
             />
           </div>
+
+          <div style={{ marginBottom: '20px' }}>
+  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', fontSize: '13px' }}>
+    報酬タイプを選択 <span style={{ color: '#e53e3e' }}>*</span>
+  </label>
+  <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+      <input
+        type="radio"
+        name="rewardType"
+        value="recurring"
+        checked={rewardType === 'recurring'}
+        onChange={() => setRewardType('recurring')}
+      />
+      <span>
+        <strong>継続課金型</strong>
+        <span style={{ fontSize: '12px', color: '#64748b', marginLeft: '4px' }}>（毎月5%継続還元）</span>
+      </span>
+    </label>
+    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+      <input
+        type="radio"
+        name="rewardType"
+        value="one-time"
+        checked={rewardType === 'one-time'}
+        onChange={() => setRewardType('one-time')}
+      />
+      <span>
+        <strong>一括報酬型</strong>
+        <span style={{ fontSize: '12px', color: '#64748b', marginLeft: '4px' }}>
+          （PRO:¥5,000 / Standard:¥2,000 / Light:¥1,000）
+        </span>
+      </span>
+    </label>
+  </div>
+</div>
 
           {/* 銀行口座情報（任意） */}
           <details style={{ marginBottom: '20px' }}>
