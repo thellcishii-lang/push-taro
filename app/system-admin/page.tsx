@@ -343,6 +343,124 @@ export default function SystemAdminPage() {
   </div>
 )}
 
+        // ============================================================
+// アフィリエイト一覧タブ（新規追加）
+// ============================================================
+function AffiliatesTab() {
+  const [loading, setLoading] = useState(true);
+  const [affiliates, setAffiliates] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchAffiliates();
+  }, []);
+
+  const fetchAffiliates = async () => {
+    try {
+      const res = await fetch('/api/admin/affiliates');
+      if (res.ok) {
+        const data = await res.json();
+        setAffiliates(data.affiliates || []);
+      }
+    } catch (err) {
+      console.error('アフィリエイトデータ取得エラー:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>読み込み中...</div>;
+
+  return (
+    <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>アフィリエイト一覧</h2>
+        <span style={{ fontSize: '13px', color: '#64748b' }}>全 {affiliates.length} 件</span>
+      </div>
+
+      {affiliates.length === 0 ? (
+        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>
+          まだアフィリエイト登録はありません
+        </p>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                <th style={{ padding: '10px', textAlign: 'left' }}>氏名</th>
+                <th style={{ padding: '10px', textAlign: 'left' }}>メール</th>
+                <th style={{ padding: '10px', textAlign: 'left' }}>紹介コード</th>
+                <th style={{ padding: '10px', textAlign: 'left' }}>報酬タイプ</th>
+                <th style={{ padding: '10px', textAlign: 'center' }}>累計報酬</th>
+                <th style={{ padding: '10px', textAlign: 'center' }}>未払い</th>
+                <th style={{ padding: '10px', textAlign: 'center' }}>インボイス</th>
+                <th style={{ padding: '10px', textAlign: 'center' }}>ステータス</th>
+                <th style={{ padding: '10px', textAlign: 'center' }}>登録日</th>
+              </tr>
+            </thead>
+            <tbody>
+              {affiliates.map((aff) => (
+                <tr key={aff.id} style={{ borderBottom: '1px solid #edf2f7' }}>
+                  <td style={{ padding: '10px', fontWeight: 'bold' }}>{aff.name}</td>
+                  <td style={{ padding: '10px', fontSize: '12px' }}>{aff.email}</td>
+                  <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '12px' }}>{aff.referralCode}</td>
+                  <td style={{ padding: '10px' }}>
+                    <span style={{
+                      padding: '2px 10px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      background: aff.rewardType === 'recurring' ? '#dbeafe' : '#fef3c7',
+                      color: aff.rewardType === 'recurring' ? '#1d4ed8' : '#d97706',
+                    }}>
+                      {aff.rewardType === 'recurring' ? '継続課金' : '一括'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: '#1a202c' }}>
+                    ¥{aff.totalEarnings.toLocaleString()}
+                  </td>
+                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: aff.unpaidReward >= 5000 ? '#22c55e' : '#eab308' }}>
+                    ¥{aff.unpaidReward.toLocaleString()}
+                    {aff.unpaidReward >= 5000 && (
+                      <span style={{ fontSize: '10px', color: '#22c55e', marginLeft: '4px' }}>✅</span>
+                    )}
+                  </td>
+                  <td style={{ padding: '10px', textAlign: 'center' }}>
+                    <span style={{
+                      padding: '2px 10px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      background: aff.hasInvoice ? '#c6f6d5' : '#fecaca',
+                      color: aff.hasInvoice ? '#22543d' : '#dc2626',
+                    }}>
+                      {aff.hasInvoice ? 'あり' : 'なし'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '10px', textAlign: 'center' }}>
+                    <span style={{
+                      padding: '3px 10px',
+                      borderRadius: '12px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      background: aff.status === 'active' ? '#c6f6d5' : '#f1f5f9',
+                      color: aff.status === 'active' ? '#22543d' : '#64748b',
+                    }}>
+                      {aff.status === 'active' ? '有効' : '停止'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '10px', textAlign: 'center', fontSize: '11px', color: '#64748b' }}>
+                    {aff.createdAt ? new Date(aff.createdAt).toLocaleDateString() : '-'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
         {/* 決済不履行一覧 */}
         {activeTab === 'payment-failures' && <PaymentFailuresTab />}
 
