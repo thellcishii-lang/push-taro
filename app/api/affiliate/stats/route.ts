@@ -12,7 +12,6 @@ export async function GET(request: Request) {
     const decoded = await authAdmin.verifyIdToken(idToken);
     const uid = decoded.uid;
 
-    // 1. アフィリエイト情報を取得
     const affiliateQuery = await db.collection('affiliates')
       .where('uid', '==', uid)
       .limit(1)
@@ -26,7 +25,7 @@ export async function GET(request: Request) {
     const affiliateData = affiliateDoc.data();
     const affiliateId = affiliateDoc.id;
 
-    // 2. 紹介した店舗一覧を取得
+    // 紹介店舗一覧
     const referralsSnapshot = await db.collection('affiliate_referrals')
       .where('affiliateId', '==', affiliateId)
       .get();
@@ -37,15 +36,11 @@ export async function GET(request: Request) {
         id: doc.id,
         shopName: data.shopName || '不明な店舗',
         plan: data.plan || 'light',
-        rewardType: data.rewardType || 'recurring', // 'recurring' | 'one-time'
-        rewardRate: data.rewardRate || 0,
-        oneTimeAmount: data.oneTimeAmount || 0,
         status: data.status || 'active',
-        createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
       };
     });
 
-    // 3. 報酬履歴を取得
+    // 報酬履歴
     const rewardsSnapshot = await db.collection('affiliate_rewards')
       .where('affiliateId', '==', affiliateId)
       .orderBy('createdAt', 'desc')
@@ -57,16 +52,10 @@ export async function GET(request: Request) {
         id: doc.id,
         amount: data.amount || 0,
         billingMonth: data.billingMonth || '',
-        status: data.status || 'unpaid', // 'unpaid' | 'paid'
-        createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
+        status: data.status || 'unpaid',
         sourceShopName: data.sourceShopName || '',
       };
     });
-
-    // 4. 集計情報
-    const totalEarnings = affiliateData.totalEarnings || 0;
-    const unpaidReward = affiliateData.unpaidReward || 0;
-    const referralCount = referrals.filter(r => r.status === 'active').length;
 
     return NextResponse.json({
       success: true,
@@ -75,15 +64,15 @@ export async function GET(request: Request) {
         name: affiliateData.name,
         email: affiliateData.email,
         referralCode: affiliateData.referralCode,
+        rewardType: affiliateData.rewardType || 'recurring',
         status: affiliateData.status,
-        createdAt: affiliateData.createdAt?.toDate?.()?.toISOString() || null,
       },
       summary: {
-        totalEarnings,
-        unpaidReward,
-        referralCount,
-        payoutThreshold: 5000, // アフィリエイトの換金条件
-        canPayout: unpaidReward >= 5000,
+        totalEarnings: affiliateData.totalEarnings || 0,
+        unpaidReward: affiliateData.unpaidReward || 0,
+        referralCount: referrals.filter(r => r.status === 'active').length,
+        payoutThreshold: 5000,
+        canPayout: (affiliateData.unpaidReward || 0) >= 5000,
       },
       referrals,
       rewards,
