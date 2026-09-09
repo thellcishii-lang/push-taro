@@ -21,14 +21,18 @@ export async function GET(request: Request) {
 
     const appData = appDoc.data();
 
+    // 🔥 appData が undefined の場合のガード
+    if (!appData) {
+      return NextResponse.json({ error: '申請データが不正です。' }, { status: 400 });
+    }
+
     // 1. 申請ステータスを「承認済み（決済待ち）」に更新
     await appRef.update({
       status: 'approved_pending_payment',
       approvedAt: new Date().toISOString(),
     });
 
-    // 🔥 2. agencies コレクションのステータスも更新（該当する代理店が存在する場合）
-    // 申請時に agencies に保存されているはずなので、email で検索して status を更新
+    // 🔥 2. agencies コレクションのステータスも更新
     const agencySnapshot = await adminDb.collection('agencies')
       .where('email', '==', appData.email)
       .get();
@@ -74,7 +78,7 @@ export async function GET(request: Request) {
       `,
     });
 
-    console.log(`[承認完了] 申請ID: ${applicationId} / 送信先: ${appData?.email}`);
+    console.log(`[承認完了] 申請ID: ${applicationId} / 送信先: ${appData.email}`);
 
     // 5. レスポンス
     const acceptHeader = request.headers.get('accept') || '';
@@ -83,7 +87,7 @@ export async function GET(request: Request) {
         `<html>
           <body style="font-family: sans-serif; padding: 40px; text-align: center;">
             <h2>代理店申請を承認しました</h2>
-            <p>${appData?.companyName} (${appData?.email}) 宛てに決済案内メールを送信しました。</p>
+            <p>${appData.companyName} (${appData.email}) 宛てに決済案内メールを送信しました。</p>
             <p><a href="/system-admin">全体管理画面に戻る</a></p>
           </body>
         </html>`,
