@@ -6,10 +6,7 @@ import Link from 'next/link';
 
 export default function AffiliateSignupPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-  const [sentEmail, setSentEmail] = useState('');
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -27,7 +24,22 @@ export default function AffiliateSignupPage() {
   const [accountNumber, setAccountNumber] = useState('');
   const [accountHolder, setAccountHolder] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // URLクエリパラメータから success をチェック
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [sentEmail, setSentEmail] = useState('');
+
+  // 初回ロード時に success パラメータをチェック
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('success') === 'true') {
+      const storedEmail = sessionStorage.getItem('affiliate_sent_email') || '';
+      setSentEmail(storedEmail);
+      setShowSuccess(true);
+      sessionStorage.removeItem('affiliate_sent_email');
+    }
+  }, []);
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -57,48 +69,28 @@ export default function AffiliateSignupPage() {
       return;
     }
 
-    setLoading(true);
+    // ✅ sessionStorage に保存して確認画面へ
+    sessionStorage.setItem('affiliate_signup_data', JSON.stringify({
+      name,
+      email,
+      phone,
+      address,
+      businessType,
+      companyName: businessType === 'corporation' ? companyName : null,
+      invoiceNumber: invoiceNumber || null,
+      rewardType,
+      bankAccount: { bankName, branchName, accountType, accountNumber, accountHolder },
+    }));
 
-    try {
-      const bankAccount = { bankName, branchName, accountType, accountNumber, accountHolder };
-
-      const res = await fetch('/api/affiliate/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          address,
-          businessType,
-          companyName: businessType === 'corporation' ? companyName : null,
-          invoiceNumber: invoiceNumber || null,
-          rewardType,
-          bankAccount,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || '登録に失敗しました');
-      }
-
-      setSuccess(true);
-      setSentEmail(email);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    router.push('/affiliate/confirm');
   };
 
   // ============================================================
-  // 登録完了画面
+  // 登録完了画面（successパラメータで表示）
   // ============================================================
-  if (success) {
+  if (showSuccess) {
     return (
-      <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '60px 20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+      <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '60px 20px', fontFamily: 'sans-serif' }}>
         <main style={{ maxWidth: '500px', margin: '0 auto', background: '#fff', padding: '40px', borderRadius: '16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
           <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#1a202c', marginBottom: '8px' }}>登録完了しました</h2>
@@ -109,10 +101,7 @@ export default function AffiliateSignupPage() {
           <p style={{ color: '#94a3b8', fontSize: '13px', marginTop: '12px' }}>
             メールをご確認の上、ダッシュボードにログインしてください。
           </p>
-          <Link
-            href="/affiliate/dashboard"
-            style={{ display: 'inline-block', marginTop: '24px', padding: '12px 32px', background: '#ff4500', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}
-          >
+          <Link href="/affiliate/dashboard" style={{ display: 'inline-block', marginTop: '24px', padding: '12px 32px', background: '#ff4500', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>
             ダッシュボードへログイン
           </Link>
         </main>
@@ -124,15 +113,11 @@ export default function AffiliateSignupPage() {
   // 申し込みフォーム
   // ============================================================
   return (
-    <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+    <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: 'sans-serif' }}>
       <main style={{ maxWidth: '560px', margin: '0 auto', background: '#fff', padding: '40px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#1a202c', margin: '0 0 8px 0' }}>
-            📢 アフィリエイト登録
-          </h1>
-          <p style={{ color: '#718096', fontSize: '14px', margin: 0 }}>
-            誰でも無料で始められる！収益化プログラム
-          </p>
+          <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#1a202c', margin: '0 0 8px 0' }}>📢 アフィリエイト登録</h1>
+          <p style={{ color: '#718096', fontSize: '14px', margin: 0 }}>誰でも無料で始められる！収益化プログラム</p>
         </div>
 
         {error && (
@@ -287,20 +272,20 @@ export default function AffiliateSignupPage() {
 
           <button
             type="submit"
-            disabled={loading || !termsAgreed}
+            disabled={!termsAgreed}
             style={{
               width: '100%',
               padding: '16px',
-              background: loading || !termsAgreed ? '#94a3b8' : '#ff4500',
+              background: !termsAgreed ? '#94a3b8' : '#ff4500',
               color: '#fff',
               border: 'none',
               borderRadius: '8px',
               fontWeight: 'bold',
               fontSize: '16px',
-              cursor: loading || !termsAgreed ? 'not-allowed' : 'pointer',
+              cursor: !termsAgreed ? 'not-allowed' : 'pointer',
             }}
           >
-            {loading ? '登録中...' : '🚀 アフィリエイトに登録する'}
+            確認画面へ進む
           </button>
         </form>
 
