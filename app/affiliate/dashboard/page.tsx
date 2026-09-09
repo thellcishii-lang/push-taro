@@ -124,6 +124,117 @@ export default function AffiliateDashboardPage() {
           </p>
         </div>
 
+        {/* 紹介した店舗一覧 */}
+<div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', marginTop: '20px' }}>
+  <h2 style={{ fontSize: '16px', fontWeight: '800', marginBottom: '16px' }}>
+    🏪 紹介した店舗一覧（{affiliateData?.referrals?.length || 0}件）
+  </h2>
+  {affiliateData?.referrals?.length === 0 ? (
+    <p style={{ color: '#94a3b8', textAlign: 'center', padding: '20px 0' }}>
+      まだ紹介した店舗はありません
+    </p>
+  ) : (
+    <div style={{ overflowX: 'auto' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+        <thead>
+          <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+            <th style={{ padding: '10px', textAlign: 'left' }}>店舗名</th>
+            <th style={{ padding: '10px', textAlign: 'left' }}>プラン</th>
+            <th style={{ padding: '10px', textAlign: 'left' }}>報酬タイプ</th>
+            <th style={{ padding: '10px', textAlign: 'center' }}>報酬額</th>
+            <th style={{ padding: '10px', textAlign: 'center' }}>ステータス</th>
+          </tr>
+        </thead>
+        <tbody>
+          {affiliateData.referrals.map((ref: any) => (
+            <tr key={ref.id} style={{ borderBottom: '1px solid #edf2f7' }}>
+              <td style={{ padding: '10px', fontWeight: 'bold' }}>{ref.shopName}</td>
+              <td style={{ padding: '10px' }}>
+                <span style={{
+                  padding: '2px 10px',
+                  borderRadius: '4px',
+                  fontSize: '11px',
+                  fontWeight: 'bold',
+                  background: ref.plan === 'pro' ? '#fef3c7' : ref.plan === 'standard' ? '#dbeafe' : '#f1f5f9',
+                  color: ref.plan === 'pro' ? '#b45309' : ref.plan === 'standard' ? '#1d4ed8' : '#475569',
+                }}>
+                  {ref.plan.toUpperCase()}
+                </span>
+              </td>
+              <td style={{ padding: '10px' }}>
+                {ref.rewardType === 'recurring' ? '継続課金 (5%)' : '一括報酬'}
+              </td>
+              <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: '#16a34a' }}>
+                ¥{ref.rewardType === 'recurring' ? ref.rewardRate : ref.oneTimeAmount}
+              </td>
+              <td style={{ padding: '10px', textAlign: 'center' }}>
+                <span style={{
+                  padding: '3px 10px',
+                  borderRadius: '12px',
+                  fontSize: '11px',
+                  fontWeight: 'bold',
+                  background: ref.status === 'active' ? '#c6f6d5' : '#f1f5f9',
+                  color: ref.status === 'active' ? '#22543d' : '#64748b',
+                }}>
+                  {ref.status === 'active' ? '契約中' : '停止'}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</div>
+
+        {/* 報酬履歴 */}
+<div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', marginTop: '20px' }}>
+  <h2 style={{ fontSize: '16px', fontWeight: '800', marginBottom: '16px' }}>
+    📊 報酬履歴（{affiliateData?.rewards?.length || 0}件）
+  </h2>
+  {affiliateData?.rewards?.length === 0 ? (
+    <p style={{ color: '#94a3b8', textAlign: 'center', padding: '20px 0' }}>
+      まだ報酬履歴はありません
+    </p>
+  ) : (
+    <div style={{ overflowX: 'auto' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+        <thead>
+          <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+            <th style={{ padding: '10px', textAlign: 'left' }}>対象月</th>
+            <th style={{ padding: '10px', textAlign: 'left' }}>店舗名</th>
+            <th style={{ padding: '10px', textAlign: 'center' }}>金額</th>
+            <th style={{ padding: '10px', textAlign: 'center' }}>ステータス</th>
+          </tr>
+        </thead>
+        <tbody>
+          {affiliateData.rewards.map((reward: any) => (
+            <tr key={reward.id} style={{ borderBottom: '1px solid #edf2f7' }}>
+              <td style={{ padding: '10px' }}>{reward.billingMonth}</td>
+              <td style={{ padding: '10px' }}>{reward.sourceShopName || '-'}</td>
+              <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold' }}>
+                ¥{reward.amount.toLocaleString()}
+              </td>
+              <td style={{ padding: '10px', textAlign: 'center' }}>
+                <span style={{
+                  padding: '3px 10px',
+                  borderRadius: '12px',
+                  fontSize: '11px',
+                  fontWeight: 'bold',
+                  background: reward.status === 'paid' ? '#c6f6d5' : '#fef3c7',
+                  color: reward.status === 'paid' ? '#22543d' : '#d97706',
+                }}>
+                  {reward.status === 'paid' ? '支払済み' : '未払い'}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</div>
+
         <div style={{ marginTop: '20px', textAlign: 'center' }}>
           <Link href="/" style={{ color: '#64748b', fontSize: '13px', textDecoration: 'none' }}>
             ← トップページに戻る
