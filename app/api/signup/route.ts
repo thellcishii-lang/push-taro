@@ -3,17 +3,24 @@ import { db } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../lib/mailer';
 
-// Square決済リンク生成関数（仮）
-function generateSquarePaymentLink(shopId: string, email: string, amount: number): string {
-  return `https://square.link/xxx?shopId=${shopId}&email=${encodeURIComponent(email)}`;
-}
-
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    
-    // ① bodyから checkOnly, bankAccount を含む全データを取り出す
-    const { plan, companyName, invoiceNumber, address, phone, email, checkOnly, bankAccount } = body;
+
+    // ============================================================
+    // 1. リクエストボディから全データを取得
+    // ============================================================
+    const {
+      plan,
+      companyName,
+      invoiceNumber,
+      address,
+      phone,
+      email,
+      checkOnly,
+      bankAccount,
+      referralCode: referralCodeFromBody,
+    } = body;
 
     // メールアドレスの必須チェック
     if (!email) {
@@ -26,7 +33,7 @@ export async function POST(request: Request) {
     const normalizedEmail = email.trim().toLowerCase();
 
     // ============================================================
-    // メールアドレスの重複チェック
+    // 2. メールアドレスの重複チェック
     // ============================================================
     const existingShops = await db.collection('shops')
       .where('email', '==', normalizedEmail)
@@ -63,8 +70,7 @@ export async function POST(request: Request) {
     }
 
     // ============================================================
-    // 🔑 入力画面（signup/page）からの重複チェック（checkOnly: true）時の処理
-    // DBへの登録やメール送信は行わずにここでレスポンスを返して終了
+    // 3. checkOnly の場合はここで終了（重複チェックのみ）
     // ============================================================
     if (checkOnly) {
       return NextResponse.json({
@@ -74,7 +80,7 @@ export async function POST(request: Request) {
     }
 
     // ============================================================
-    // これ以降は確認画面（signup/confirm/page）からの本申し込み処理
+    // 4. 必須項目チェック（本申し込み）
     // ============================================================
     if (!companyName) {
       return NextResponse.json(
@@ -83,144 +89,163 @@ export async function POST(request: Request) {
       );
     }
 
-    // ① 仮店舗ドキュメントを作成（status: pending_payment）
+    // ============================================================
+    // 5. 紹介コードの処理（変数宣言はここで行う）
+    // ============================================================
+    const refCode = referralCodeFromBody || '';
+    let referrerId: string | null = null;
+    let referrerType: string | null = null;
+    let referrerEmail: string | null = null;
+    let referrerName: string | null = null;
+    let rewardRate: number = 0;
+
+    if (refCode) {
+      // プレフィックスで検索先を振り分け
+      if (refCode.startsWith('AF-')) {
+        // アフィリエイト（affiliates コレクション）
+        const affiliateSnapshot = await db.collection('affiliates')
+          .where('referralCode', '==', refCode)
+          .limit(1)
+          .get();
+
+        if (!affiliateSnapshot.empty) {
+          const doc = affiliateSnapshot.docs[0];
+          const data = doc.data();
+          referrerId = doc.id;
+          referrerType = 'affiliate';
+          referrerEmail = data.email;
+          referrerName = data.name || 'アフィリエイト';
+          rewardRate = 0.05; // アフィリエイトは一律5%（継続課金型）
+        }
+      } else if (refCode.startsWith('AGENCY-')) {
+        // 代理店（agencies コレクション）
+        const agencySnapshot = await db.collection('agencies')
+          .where('referralCode', '==', refCode)
+          .limit(1)
+          .get();
+
+        if (!agencySnapshot.empty) {
+          const doc = agencySnapshot.docs[0];
+          const data = doc.data();
+          referrerId = doc.id;
+          referrerType = 'agency';
+          referrerEmail = data.email;
+          referrerName = data.companyName || data.ownerName || '代理店';
+          // 代理店の報酬率はプランによって後で計算（ここでは仮）
+          rewardRate = (plan === 'pro') ? 0.30 : 0.18;
+          // インボイス番号がない場合は10%差引
+          const hasInvoice = !!(data.invoiceNumber && data.invoiceNumber.trim() !== '');
+          if (!hasInvoice) {
+            rewardRate = rewardRate * 0.9;
+          }
+        }
+      } else {
+        // それ以外（shops コレクション）- PROユーザー or 一般店舗
+        const shopSnapshot = await db.collection('shops')
+          .where('referralCode', '==', refCode)
+          .limit(1)
+          .get();
+
+        if (!shopSnapshot.empty) {
+          const doc = shopSnapshot.docs[0];
+          const data = doc.data();
+          referrerId = doc.id;
+          referrerEmail = data.email;
+          referrerName = data.name || '紹介者';
+
+          // role で判定（agency はこの時点では shops に残っている可能性もあるが、AGENCY- プレフィックスで先に処理済み）
+          if (data.role === 'agency') {
+            referrerType = 'agency';
+            rewardRate = (plan === 'pro') ? 0.30 : 0.18;
+            const hasInvoice = !!(data.invoiceNumber && data.invoiceNumber.trim() !== '');
+            if (!hasInvoice) {
+              rewardRate = rewardRate * 0.9;
+            }
+          } else if (data.role === 'pro' || data.plan === 'pro') {
+            referrerType = 'pro';
+            rewardRate = 0.10;
+            const hasInvoice = !!(data.invoiceNumber && data.invoiceNumber.trim() !== '');
+            if (!hasInvoice) {
+              rewardRate = 0.09;
+            }
+          } else {
+            // 一般店舗は紹介報酬対象外
+            referrerType = 'shop';
+            rewardRate = 0;
+          }
+        }
+      }
+    }
+
+    // ============================================================
+    // 6. 仮店舗ドキュメントを作成（status: pending_payment）
+    // ============================================================
     const shopData = {
-  name: companyName,
-  email: normalizedEmail,
-  plan: plan || 'light',
-  status: 'pending_payment',
-  createdAt: FieldValue.serverTimestamp(),
-  coupon: { enabled: false, title: '', description: '', discountRate: 0 },
-  linkUrl: '',
-  iconUrl: '',
-  invoiceNumber: invoiceNumber || '',
-  address: address || '',
-  phone: phone || '',
-  bankAccount: bankAccount || null,
-  // 🔥 紹介情報（referrerType を追加）
-  referrerId: referrerId,
-  referredByCode: referralCodeFromBody || '',
-  referrerType: referrerType, // 'agency' | 'affiliate' | 'pro' | 'shop'
-};
+      name: companyName,
+      email: normalizedEmail,
+      plan: plan || 'light',
+      status: 'pending_payment',
+      createdAt: FieldValue.serverTimestamp(),
+      coupon: { enabled: false, title: '', description: '', discountRate: 0 },
+      linkUrl: '',
+      iconUrl: '',
+      invoiceNumber: invoiceNumber || '',
+      address: address || '',
+      phone: phone || '',
+      bankAccount: bankAccount || null,
+      // 紹介情報（変数を使用）
+      referrerId: referrerId,
+      referredByCode: refCode || '',
+      referrerType: referrerType,
+    };
 
     const shopRef = await db.collection('shops').add(shopData);
     const shopId = shopRef.id;
     const referralCode = shopId.slice(0, 8).toUpperCase();
     await shopRef.update({ referralCode });
 
-    // 紹介コードの処理
-    // app/api/signup/route.ts（該当部分）
+    // ============================================================
+    // 7. 紹介者が見つかった場合の追加処理
+    // ============================================================
+    if (referrerId && referrerType && rewardRate > 0) {
+      // 紹介リレーションを保存
+      await db.collection('referral_relations').add({
+        referrerId: referrerId,
+        referredTenantId: shopId,
+        rewardRate: rewardRate,
+        status: 'pending', // 決済完了で active になる
+        referrerType: referrerType, // 追加：紹介者の種別
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
 
-// 紹介コードの処理
-const referralCodeFromBody = body.referralCode || '';
-let referrerId: string | null = null;
-let referrerType: string | null = null;
-let referrerEmail: string | null = null;
-
-if (referralCodeFromBody) {
-  // 🔥 プレフィックスで検索先を振り分け
-  if (referralCodeFromBody.startsWith('AF-')) {
-    // アフィリエイト（affiliates コレクション）
-    const affiliateSnapshot = await db.collection('affiliates')
-      .where('referralCode', '==', referralCodeFromBody)
-      .limit(1)
-      .get();
-
-    if (!affiliateSnapshot.empty) {
-      const doc = affiliateSnapshot.docs[0];
-      const data = doc.data();
-      referrerId = doc.id;
-      referrerType = 'affiliate';
-      referrerEmail = data.email;
-    }
-  } else if (referralCodeFromBody.startsWith('AGENCY-')) {
-    // 代理店（agencies コレクション）
-    const agencySnapshot = await db.collection('agencies')
-      .where('referralCode', '==', referralCodeFromBody)
-      .limit(1)
-      .get();
-
-    if (!agencySnapshot.empty) {
-      const doc = agencySnapshot.docs[0];
-      const data = doc.data();
-      referrerId = doc.id;
-      referrerType = 'agency';
-      referrerEmail = data.email;
-    }
-  } else {
-    // それ以外（shops コレクション）- PROユーザー or 一般店舗
-    const shopSnapshot = await db.collection('shops')
-      .where('referralCode', '==', referralCodeFromBody)
-      .limit(1)
-      .get();
-
-    if (!shopSnapshot.empty) {
-      const doc = shopSnapshot.docs[0];
-      const data = doc.data();
-      referrerId = doc.id;
-      // role が 'pro' か plan が 'pro' なら 'pro'
-      referrerType = (data.role === 'pro' || data.plan === 'pro') ? 'pro' : 'shop';
-      referrerEmail = data.email;
-    }
-  }
-
-  // 🔥 紹介者が見つかった場合の処理
-  if (referrerId && referrerType) {
-    // 店舗作成時に referrerType も保存する（後で報酬計算で使う）
-    // 以下の shopRef.update または shopData に追加
-  
-        // 1. 紹介者の種別（代理店かPRO会員か）を判定
-        const isAgency = referrerData.role === 'agency';
-        const isPro = referrerData.plan === 'pro' || referrerData.role === 'pro';
-
-        // 🔑 代理店でもPRO会員でもない場合は、紹介報酬対象外とする
-        if (isAgency || isPro) {
-          const referrerType = isAgency ? 'agency' : 'pro';
-
-          // 2. 新仕様に基づいた報酬率（rewardRate）の計算
-          let rewardRate = 0;
-          if (isAgency) {
-            // 代理店の場合: Proは30%、Light/Standardは18%
-            rewardRate = (plan === 'pro') ? 0.30 : 0.18;
-          } else if (isPro) {
-            // PROプラン会員の場合: 全プラン一律10%
-            rewardRate = 0.10;
-          }
-
-          await shopRef.update({
-            referrerId: referrerId,
-            referredByCode: referralCodeFromBody,
-            referrerType: referrerType,
-          });
-
-          await db.collection('referral_relations').add({
-            referrerId: referrerId,
-            referredTenantId: shopId,
-            rewardRate: rewardRate, // 🔑 動的に計算された報酬率を保存
-            status: 'pending',
-            createdAt: FieldValue.serverTimestamp(),
-            updatedAt: FieldValue.serverTimestamp(),
-          });
-
-          await sendEmail({
-            to: referrerData.email,
-            subject: `【Push-taro】紹介コード [${referralCodeFromBody}] から新規登録がありました`,
-            html: `
-              <h2>${referrerData.name || '紹介者'} 様</h2>
-              <p>あなたの紹介コード（${referralCodeFromBody}）を使用して、新しい店舗が登録されました。</p>
-              <p><strong>店舗名:</strong> ${companyName || '未設定'}</p>
-              <p>この店舗が決済を完了すると、紹介報酬が確定します。</p>
-              <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin">ダッシュボードで確認する</a></p>
-            `,
-          });
-
-          console.log(`[紹介コード] 紹介者: ${referrerId} (${referrerType}), 新規店舗: ${shopId}, レート: ${rewardRate * 100}%`);
-        }
+      // 紹介者にメール通知
+      if (referrerEmail) {
+        const ratePercent = (rewardRate * 100).toFixed(1);
+        await sendEmail({
+          to: referrerEmail,
+          subject: `【Push-taro】紹介コード [${refCode}] から新規登録がありました`,
+          html: `
+            <h2>${referrerName} 様</h2>
+            <p>あなたの紹介コード（${refCode}）を使用して、新しい店舗が登録されました。</p>
+            <p><strong>店舗名:</strong> ${companyName || '未設定'}</p>
+            <p><strong>紹介報酬率:</strong> ${ratePercent}%</p>
+            <p>この店舗が決済を完了すると、紹介報酬が確定します。</p>
+            <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin">ダッシュボードで確認する</a></p>
+            <hr />
+            <p><strong>Push-taro.com</strong></p>
+          `,
+        });
       }
+
+      console.log(`[紹介コード] 紹介者: ${referrerId} (${referrerType}), 新規店舗: ${shopId}, レート: ${rewardRate * 100}%`);
     }
 
-    // ② Square決済リンク生成
-    let paymentUrl = '';
+    // ============================================================
+    // 8. Square決済リンク生成
+    // ============================================================
+    let paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+    // プランごとにリンクを変えたい場合は環境変数を分ける
     if (plan === 'light') {
       paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
     } else if (plan === 'standard') {
@@ -229,7 +254,9 @@ if (referralCodeFromBody) {
       paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
     }
 
-    // ③ 申し込み受付メール送信
+    // ============================================================
+    // 9. 申し込み受付メール送信
+    // ============================================================
     await sendEmail({
       to: normalizedEmail,
       subject: '【Push-taro】お申し込み受付のお知らせ（決済手続きのお願い）',
@@ -247,16 +274,18 @@ if (referralCodeFromBody) {
         </p>
         <p>※決済完了後、改めて本登録完了のメールをお送りいたします。</p>
         <hr />
-        <p>選択プラン: ${plan.toUpperCase()}</p>
+        <p>選択プラン: ${plan?.toUpperCase() || 'LIGHT'}</p>
         <hr />
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
         <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
-        <p><a href="mailto:pushtaro-info@gmail.com">pushtaro.info@gmail.com</a></p>
+        <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
       `,
     });
 
-    // ④ フロント（確認画面）へレスポンスを返す
+    // ============================================================
+    // 10. レスポンス
+    // ============================================================
     return NextResponse.json({
       success: true,
       shopId,
