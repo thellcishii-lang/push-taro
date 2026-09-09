@@ -29,7 +29,7 @@ export default function AffiliateSignupPage() {
   const [sentEmail, setSentEmail] = useState('');
 
   // 初回ロード時に success パラメータをチェック
-  React.useEffect(() => {
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'true') {
       const storedEmail = sessionStorage.getItem('affiliate_sent_email') || '';
