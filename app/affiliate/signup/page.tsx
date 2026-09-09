@@ -11,19 +11,16 @@ export default function AffiliateSignupPage() {
   const [success, setSuccess] = useState(false);
   const [sentEmail, setSentEmail] = useState('');
 
-  // 基本情報
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [businessType, setBusinessType] = useState<'individual' | 'corporation'>('individual');
   const [companyName, setCompanyName] = useState('');
-  const [invoiceNumber, setInvoiceNumber] = useState(''); // インボイス番号（任意）
-
+  const [invoiceNumber, setInvoiceNumber] = useState('');
   const [rewardType, setRewardType] = useState<'recurring' | 'one-time'>('recurring');
   const [termsAgreed, setTermsAgreed] = useState(false);
 
-  // 銀行口座（必須）
   const [bankName, setBankName] = useState('');
   const [branchName, setBranchName] = useState('');
   const [accountType, setAccountType] = useState('savings');
@@ -39,7 +36,6 @@ export default function AffiliateSignupPage() {
       return;
     }
 
-    // 基本情報チェック
     if (!address) {
       setError('住所を入力してください。');
       return;
@@ -50,7 +46,6 @@ export default function AffiliateSignupPage() {
       return;
     }
 
-    // 口座情報チェック
     if (!bankName || !branchName || !accountNumber || !accountHolder) {
       setError('振込先口座情報はすべて必須です。');
       return;
@@ -65,13 +60,7 @@ export default function AffiliateSignupPage() {
     setLoading(true);
 
     try {
-      const bankAccount = {
-        bankName,
-        branchName,
-        accountType,
-        accountNumber,
-        accountHolder,
-      };
+      const bankAccount = { bankName, branchName, accountType, accountNumber, accountHolder };
 
       const res = await fetch('/api/affiliate/signup', {
         method: 'POST',
@@ -97,7 +86,6 @@ export default function AffiliateSignupPage() {
 
       setSuccess(true);
       setSentEmail(email);
-
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -105,6 +93,9 @@ export default function AffiliateSignupPage() {
     }
   };
 
+  // ============================================================
+  // 登録完了画面
+  // ============================================================
   if (success) {
     return (
       <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '60px 20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
@@ -129,10 +120,12 @@ export default function AffiliateSignupPage() {
     );
   }
 
+  // ============================================================
+  // 申し込みフォーム
+  // ============================================================
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
       <main style={{ maxWidth: '560px', margin: '0 auto', background: '#fff', padding: '40px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-        
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
           <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#1a202c', margin: '0 0 8px 0' }}>
             📢 アフィリエイト登録
@@ -149,121 +142,63 @@ export default function AffiliateSignupPage() {
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* === 基本情報 === */}
+          {/* 基本情報 */}
           <div style={{ marginBottom: '20px' }}>
             <h3 style={{ fontSize: '14px', fontWeight: 'bold', margin: '0 0 12px 0', color: '#1a202c', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
               基本情報
             </h3>
 
-            {/* 氏名 */}
             <div style={{ marginBottom: '14px' }}>
               <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>氏名 <span style={{ color: '#e53e3e' }}>*</span></label>
-              <input
-                type="text"
-                required
-                placeholder="山田 太郎"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-              />
+              <input type="text" required placeholder="山田 太郎" value={name} onChange={(e) => setName(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }} />
             </div>
 
-            {/* メールアドレス */}
             <div style={{ marginBottom: '14px' }}>
               <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>メールアドレス <span style={{ color: '#e53e3e' }}>*</span></label>
-              <input
-                type="email"
-                required
-                placeholder="taro@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-              />
+              <input type="email" required placeholder="taro@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }} />
             </div>
 
-            {/* 電話番号 */}
             <div style={{ marginBottom: '14px' }}>
               <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>電話番号</label>
-              <input
-                type="tel"
-                placeholder="090-1234-5678"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-              />
+              <input type="tel" placeholder="090-1234-5678" value={phone} onChange={(e) => setPhone(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }} />
             </div>
 
-            {/* 住所 */}
             <div style={{ marginBottom: '14px' }}>
               <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>住所（請求書送付先） <span style={{ color: '#e53e3e' }}>*</span></label>
-              <input
-                type="text"
-                required
-                placeholder="東京都渋谷区○○1-2-3"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-              />
+              <input type="text" required placeholder="東京都渋谷区○○1-2-3" value={address} onChange={(e) => setAddress(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }} />
             </div>
 
-            {/* 事業形態 */}
             <div style={{ marginBottom: '14px' }}>
               <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>事業形態 <span style={{ color: '#e53e3e' }}>*</span></label>
               <div style={{ display: 'flex', gap: '20px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="businessType"
-                    value="individual"
-                    checked={businessType === 'individual'}
-                    onChange={() => setBusinessType('individual')}
-                  />
+                  <input type="radio" name="businessType" value="individual" checked={businessType === 'individual'} onChange={() => setBusinessType('individual')} />
                   個人
                 </label>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="businessType"
-                    value="corporation"
-                    checked={businessType === 'corporation'}
-                    onChange={() => setBusinessType('corporation')}
-                  />
+                  <input type="radio" name="businessType" value="corporation" checked={businessType === 'corporation'} onChange={() => setBusinessType('corporation')} />
                   法人
                 </label>
               </div>
             </div>
 
-            {/* 会社名（法人の場合のみ表示） */}
             {businessType === 'corporation' && (
               <div style={{ marginBottom: '14px' }}>
                 <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>会社名 <span style={{ color: '#e53e3e' }}>*</span></label>
-                <input
-                  type="text"
-                  required
-                  placeholder="株式会社〇〇"
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-                />
+                <input type="text" required placeholder="株式会社〇〇" value={companyName} onChange={(e) => setCompanyName(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }} />
               </div>
             )}
 
-            {/* インボイス番号（任意） */}
-<div>
-  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>インボイス登録番号（任意）</label>
-  <input
-    type="text"
-    placeholder="T1234567890123"
-    value={invoiceNumber}
-    onChange={(e) => setInvoiceNumber(e.target.value)}
-    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-  />
-  <div style={{ background: '#fef3c7', border: '1px solid #fcd34d', padding: '8px 12px', borderRadius: '6px', marginTop: '8px', fontSize: '12px', color: '#92400e' }}>
-    ⚠️ インボイス番号がない場合、報酬支払い時に <strong>10%</strong> が源泉徴収（または手数料）として差し引かれます。
-  </div>
-</div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>インボイス登録番号（任意）</label>
+              <input type="text" placeholder="T1234567890123" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }} />
+              <div style={{ background: '#fef3c7', border: '1px solid #fcd34d', padding: '8px 12px', borderRadius: '6px', marginTop: '8px', fontSize: '12px', color: '#92400e' }}>
+                ⚠️ インボイス番号がない場合、報酬支払い時に <strong>10%</strong> が源泉徴収（または手数料）として差し引かれます。
+              </div>
+            </div>
+          </div>
 
-          {/* === 報酬タイプ === */}
+          {/* 報酬タイプ */}
           <div style={{ marginBottom: '20px' }}>
             <h3 style={{ fontSize: '14px', fontWeight: 'bold', margin: '0 0 12px 0', color: '#1a202c', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
               報酬タイプ
@@ -275,26 +210,14 @@ export default function AffiliateSignupPage() {
 
             <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                <input
-                  type="radio"
-                  name="rewardType"
-                  value="recurring"
-                  checked={rewardType === 'recurring'}
-                  onChange={() => setRewardType('recurring')}
-                />
+                <input type="radio" name="rewardType" value="recurring" checked={rewardType === 'recurring'} onChange={() => setRewardType('recurring')} />
                 <span>
                   <strong>継続課金型</strong>
                   <span style={{ fontSize: '12px', color: '#64748b', marginLeft: '4px' }}>（毎月5%継続還元）</span>
                 </span>
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                <input
-                  type="radio"
-                  name="rewardType"
-                  value="one-time"
-                  checked={rewardType === 'one-time'}
-                  onChange={() => setRewardType('one-time')}
-                />
+                <input type="radio" name="rewardType" value="one-time" checked={rewardType === 'one-time'} onChange={() => setRewardType('one-time')} />
                 <span>
                   <strong>一括報酬型</strong>
                   <span style={{ fontSize: '12px', color: '#64748b', marginLeft: '4px' }}>
@@ -305,7 +228,7 @@ export default function AffiliateSignupPage() {
             </div>
           </div>
 
-          {/* === 銀行口座 === */}
+          {/* 銀行口座 */}
           <div style={{ marginBottom: '24px', padding: '16px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
             <h3 style={{ fontSize: '14px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#1a202c' }}>
               💰 振込先口座情報 <span style={{ color: '#e53e3e' }}>*</span>
@@ -316,36 +239,17 @@ export default function AffiliateSignupPage() {
 
             <div style={{ marginBottom: '10px' }}>
               <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>金融機関名 <span style={{ color: '#e53e3e' }}>*</span></label>
-              <input
-                type="text"
-                required
-                placeholder="〇〇銀行"
-                value={bankName}
-                onChange={(e) => setBankName(e.target.value)}
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-              />
+              <input type="text" required placeholder="〇〇銀行" value={bankName} onChange={(e) => setBankName(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }} />
             </div>
 
             <div style={{ marginBottom: '10px' }}>
               <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>支店名 <span style={{ color: '#e53e3e' }}>*</span></label>
-              <input
-                type="text"
-                required
-                placeholder="△△支店"
-                value={branchName}
-                onChange={(e) => setBranchName(e.target.value)}
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-              />
+              <input type="text" required placeholder="△△支店" value={branchName} onChange={(e) => setBranchName(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }} />
             </div>
 
             <div style={{ marginBottom: '10px' }}>
               <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>預金種目 <span style={{ color: '#e53e3e' }}>*</span></label>
-              <select
-                required
-                value={accountType}
-                onChange={(e) => setAccountType(e.target.value)}
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-              >
+              <select required value={accountType} onChange={(e) => setAccountType(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}>
                 <option value="savings">普通</option>
                 <option value="checking">当座</option>
               </select>
@@ -353,30 +257,16 @@ export default function AffiliateSignupPage() {
 
             <div style={{ marginBottom: '10px' }}>
               <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>口座番号 <span style={{ color: '#e53e3e' }}>*</span></label>
-              <input
-                type="text"
-                required
-                placeholder="1234567"
-                value={accountNumber}
-                onChange={(e) => setAccountNumber(e.target.value)}
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-              />
+              <input type="text" required placeholder="1234567" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }} />
             </div>
 
             <div>
               <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>口座名義（カナ） <span style={{ color: '#e53e3e' }}>*</span></label>
-              <input
-                type="text"
-                required
-                placeholder="ヤマダ タロウ"
-                value={accountHolder}
-                onChange={(e) => setAccountHolder(e.target.value)}
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-              />
+              <input type="text" required placeholder="ヤマダ タロウ" value={accountHolder} onChange={(e) => setAccountHolder(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }} />
             </div>
           </div>
 
-          {/* === 利用規約 === */}
+          {/* 利用規約 */}
           <div style={{ marginBottom: '24px' }}>
             <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '12px 16px', maxHeight: '150px', overflowY: 'auto', fontSize: '12px', color: '#475569', lineHeight: '1.7' }}>
               <p style={{ fontWeight: 'bold', margin: '0 0 4px 0' }}>📄 アフィリエイト利用規約</p>
@@ -390,12 +280,7 @@ export default function AffiliateSignupPage() {
             </div>
 
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginTop: '12px', fontSize: '14px', fontWeight: 'bold' }}>
-              <input
-                type="checkbox"
-                required
-                checked={termsAgreed}
-                onChange={(e) => setTermsAgreed(e.target.checked)}
-              />
+              <input type="checkbox" required checked={termsAgreed} onChange={(e) => setTermsAgreed(e.target.checked)} />
               アフィリエイト利用規約に同意する
             </label>
           </div>
