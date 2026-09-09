@@ -44,6 +44,8 @@ export default function AgencyConfirmPage() {
         throw new Error(data.error || '申込処理に失敗しました');
       }
 
+      // メールアドレスを保存して完了画面へ
+      sessionStorage.setItem('agency_sent_email', formData.email);
       sessionStorage.removeItem('agency_signup_data');
       router.push('/agency?success=true');
 
@@ -74,13 +76,18 @@ export default function AgencyConfirmPage() {
         <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '20px', marginBottom: '24px' }}>
           <h3 style={{ fontSize: '16px', marginBottom: '16px', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>代理店申し込み内容</h3>
           <div style={{ display: 'grid', gap: '12px' }}>
+            <div><strong>事業形態</strong><br />{formData.businessType === 'corporation' ? '法人' : '個人事業主'}</div>
             <div><strong>会社名 / 屋号</strong><br />{formData.companyName || '未入力'}</div>
             <div><strong>ご担当者様</strong><br />{formData.ownerName || '未入力'}</div>
             <div><strong>メールアドレス</strong><br />{formData.email || '未入力'}</div>
             <div><strong>電話番号</strong><br />{formData.phone || '未入力'}</div>
             <div><strong>住所</strong><br />{formData.address || '未入力'}</div>
             <div><strong>インボイス番号</strong><br />{formData.invoiceNumber || '未登録'}</div>
-            <div><strong>振込先口座</strong><br />{formData.bankInfo || '未入力'}</div>
+            <div><strong>金融機関名</strong><br />{formData.bankAccount?.bankName || '未入力'}</div>
+            <div><strong>支店名</strong><br />{formData.bankAccount?.branchName || '未入力'}</div>
+            <div><strong>口座種別</strong><br />{formData.bankAccount?.accountType === 'savings' ? '普通' : '当座'}</div>
+            <div><strong>口座番号</strong><br />{formData.bankAccount?.accountNumber || '未入力'}</div>
+            <div><strong>口座名義</strong><br />{formData.bankAccount?.accountHolder || '未入力'}</div>
           </div>
         </div>
 
