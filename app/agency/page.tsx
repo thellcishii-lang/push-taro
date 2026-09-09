@@ -1,56 +1,94 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function AgencyPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  // 基本情報
+  const [businessType, setBusinessType] = useState<'individual' | 'corporation'>('corporation');
   const [companyName, setCompanyName] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
-  const [bankInfo, setBankInfo] = useState('');
-  const [agreed, setAgreed] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // 銀行口座（詳細）
+  const [bankName, setBankName] = useState('');
+  const [branchName, setBranchName] = useState('');
+  const [accountType, setAccountType] = useState('savings');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [accountHolder, setAccountHolder] = useState('');
+
+  const [agreed, setAgreed] = useState(false);
+
+  // success パラメータのチェック（完了画面用）
+  const [submitted, setSubmitted] = useState(false);
+  const [sentEmail, setSentEmail] = useState('');
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('success') === 'true') {
+      const stored = sessionStorage.getItem('agency_sent_email') || '';
+      setSentEmail(stored);
+      setSubmitted(true);
+      sessionStorage.removeItem('agency_sent_email');
+    }
+  }, []);
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+
     if (!agreed) {
-      alert('代理店利用規約に同意してください。');
+      setError('代理店利用規約に同意してください。');
       return;
     }
 
-    setLoading(true);
-    try {
-      const res = await fetch('/api/agency/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          companyName,
-          ownerName,
-          email,
-          phone,
-          address,
-          invoiceNumber,
-          bankInfo,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || '申込処理に失敗しました。');
-      }
-
-      setSubmitted(true);
-    } catch (err: any) {
-      alert('エラーが発生しました: ' + err.message);
-    } finally {
-      setLoading(false);
+    if (!address) {
+      setError('住所を入力してください。');
+      return;
     }
+
+    if (businessType === 'corporation' && !companyName) {
+      setError('法人の場合は会社名を入力してください。');
+      return;
+    }
+
+    if (!bankName || !branchName || !accountNumber || !accountHolder) {
+      setError('振込先口座情報はすべて必須です。');
+      return;
+    }
+
+    const kanaRegex = /^[ァ-ヶー]+$/;
+    if (!kanaRegex.test(accountHolder)) {
+      setError('口座名義は全角カナで入力してください。');
+      return;
+    }
+
+    // ✅ sessionStorage に保存して確認画面へ
+    sessionStorage.setItem('agency_signup_data', JSON.stringify({
+      businessType,
+      companyName: businessType === 'corporation' ? companyName : null,
+      ownerName,
+      email,
+      phone,
+      address,
+      invoiceNumber: invoiceNumber || null,
+      bankAccount: { bankName, branchName, accountType, accountNumber, accountHolder },
+    }));
+
+    router.push('/agency/confirm');
   };
 
+  // ============================================================
+  // 完了画面
+  // ============================================================
   if (submitted) {
     return (
       <main style={{ maxWidth: '650px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif' }}>
@@ -58,27 +96,17 @@ export default function AgencyPage() {
           <h2 style={{ color: '#166534', marginBottom: '16px', fontSize: '24px' }}>代理店お申し込みを受け付けました</h2>
           <p style={{ lineHeight: '1.8', color: '#374151', marginBottom: '24px', fontSize: '15px' }}>
             ご登録ありがとうございます。ご入力いただいた内容をもとに審査を行わせていただきます。<br />
-            審査完了後、ご登録のメールアドレス宛（<strong>{email}</strong>）に<strong>決済手続き用のご案内メール</strong>をお送りいたします。
+            審査完了後、ご登録のメールアドレス宛（<strong>{sentEmail}</strong>）に<strong>決済手続き用のご案内メール</strong>をお送りいたします。
           </p>
-          <Link
-            href="/"
-            style={{
-              display: 'inline-block',
-              background: '#3182ce',
-              color: '#fff',
-              padding: '12px 28px',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontWeight: 'bold',
-            }}
-          >
-            トップページへ戻る
-          </Link>
+          <Link href="/" style={{ display: 'inline-block', background: '#3182ce', color: '#fff', padding: '12px 28px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold' }}>トップページへ戻る</Link>
         </div>
       </main>
     );
   }
 
+  // ============================================================
+  // 申し込みフォーム
+  // ============================================================
   return (
     <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', color: '#2d3748', background: '#f8fafc', minHeight: '100vh', margin: 0, padding: 0, lineHeight: 1.7 }}>
       <nav style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -103,6 +131,12 @@ export default function AgencyPage() {
             </p>
           </div>
 
+          {error && (
+            <div style={{ background: '#fecaca', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
+              {error}
+            </div>
+          )}
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '30px' }}>
             <div style={{ background: 'linear-gradient(135deg, #ebf8ff 0%, #eef2ff 100%)', border: '2px solid #bee3f8', padding: '20px', borderRadius: '12px', textAlign: 'center' }}>
               <h3 style={{ fontSize: '15px', fontWeight: '800', margin: '0 0 6px 0', color: '#1a202c' }}>加盟金（初期費用）</h3>
@@ -123,18 +157,37 @@ export default function AgencyPage() {
               申請者情報入力
             </h2>
 
+            {/* 事業形態 */}
             <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>会社名 / 屋号 <span style={{ color: 'red' }}>*</span></label>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>事業形態 <span style={{ color: 'red' }}>*</span></label>
+              <div style={{ display: 'flex', gap: '20px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <input type="radio" name="businessType" value="individual" checked={businessType === 'individual'} onChange={() => setBusinessType('individual')} />
+                  個人事業主
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <input type="radio" name="businessType" value="corporation" checked={businessType === 'corporation'} onChange={() => setBusinessType('corporation')} />
+                  法人
+                </label>
+              </div>
+            </div>
+
+            {/* 会社名 */}
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>
+                {businessType === 'corporation' ? '会社名' : '屋号'} <span style={{ color: 'red' }}>*</span>
+              </label>
               <input
                 type="text"
                 required
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                placeholder="例: 株式会社サンプルエージェンシー"
+                placeholder={businessType === 'corporation' ? '例: 株式会社サンプルエージェンシー' : '例: サンプル企画'}
                 style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
               />
             </div>
 
+            {/* 担当者名 */}
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>ご担当者様のお名前 <span style={{ color: 'red' }}>*</span></label>
               <input
@@ -147,6 +200,7 @@ export default function AgencyPage() {
               />
             </div>
 
+            {/* メールアドレス */}
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>メールアドレス（連絡用） <span style={{ color: 'red' }}>*</span></label>
               <input
@@ -159,6 +213,7 @@ export default function AgencyPage() {
               />
             </div>
 
+            {/* 電話番号 */}
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>お電話番号 <span style={{ color: 'red' }}>*</span></label>
               <input
@@ -171,6 +226,7 @@ export default function AgencyPage() {
               />
             </div>
 
+            {/* 住所 */}
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>ご住所 <span style={{ color: 'red' }}>*</span></label>
               <input
@@ -183,6 +239,7 @@ export default function AgencyPage() {
               />
             </div>
 
+            {/* インボイス番号 */}
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>適格請求書発行事業者登録番号（インボイス番号）</label>
               <input
@@ -192,20 +249,83 @@ export default function AgencyPage() {
                 placeholder="例: T1234567890123"
                 style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
               />
+              <div style={{ background: '#fef3c7', border: '1px solid #fcd34d', padding: '8px 12px', borderRadius: '6px', marginTop: '8px', fontSize: '12px', color: '#92400e' }}>
+                ⚠️ インボイス番号がない場合、代理店報酬の支払い時に <strong>10%</strong> が源泉徴収（または手数料）として差し引かれます。
+              </div>
             </div>
 
-            <div style={{ marginBottom: '25px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>成果報酬の振込先口座情報</label>
-              <input
-                type="text"
-                value={bankInfo}
-                onChange={(e) => setBankInfo(e.target.value)}
-                placeholder="例: 〇〇銀行 支店名 普通 1234567 口座名義"
-                style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-              />
+            {/* 銀行口座（詳細） */}
+            <div style={{ marginBottom: '25px', padding: '16px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#1a202c' }}>
+                💰 成果報酬の振込先口座情報 <span style={{ color: 'red' }}>*</span>
+              </h3>
+              <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '12px' }}>
+                代理店報酬をお振り込みする口座を登録してください（全項目必須）
+              </p>
+
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>金融機関名 <span style={{ color: 'red' }}>*</span></label>
+                <input
+                  type="text"
+                  required
+                  placeholder="〇〇銀行"
+                  value={bankName}
+                  onChange={(e) => setBankName(e.target.value)}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>支店名 <span style={{ color: 'red' }}>*</span></label>
+                <input
+                  type="text"
+                  required
+                  placeholder="△△支店"
+                  value={branchName}
+                  onChange={(e) => setBranchName(e.target.value)}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>預金種目 <span style={{ color: 'red' }}>*</span></label>
+                <select
+                  required
+                  value={accountType}
+                  onChange={(e) => setAccountType(e.target.value)}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+                >
+                  <option value="savings">普通</option>
+                  <option value="checking">当座</option>
+                </select>
+              </div>
+
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>口座番号 <span style={{ color: 'red' }}>*</span></label>
+                <input
+                  type="text"
+                  required
+                  placeholder="1234567"
+                  value={accountNumber}
+                  onChange={(e) => setAccountNumber(e.target.value)}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>口座名義（カナ） <span style={{ color: 'red' }}>*</span></label>
+                <input
+                  type="text"
+                  required
+                  placeholder="ヤマダ タロウ"
+                  value={accountHolder}
+                  onChange={(e) => setAccountHolder(e.target.value)}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+                />
+              </div>
             </div>
 
-            {/* 📜 代理店利用規約（全文復元版） */}
+            {/* 利用規約 */}
             <div style={{ background: '#f8fafc', border: '1px solid #cbd5e0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
               <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1a202c', marginBottom: '8px' }}>代理店利用規約（全文）</h3>
               <div style={{ height: '220px', overflowY: 'auto', fontSize: '12px', color: '#4a5568', background: '#ffffff', padding: '14px', borderRadius: '6px', border: '1px solid #e2e8f0', lineHeight: '1.8', marginBottom: '12px' }}>
@@ -220,15 +340,9 @@ export default function AgencyPage() {
                 <p style={{ margin: '0 0 10px 0' }}><strong>第9条（契約解除）</strong><br />代理店が本規約に違反した場合、または月額費用等の支払いを怠った場合、当社は事前の催告なく即座に代理店契約を解除し、紹介報酬の支払いを停止することができます。</p>
                 <p style={{ margin: '0 0 5px 0' }}><strong>第10条（管轄裁判所）</strong><br />本規約に関して紛争が生じた場合、当社の本社所在地を管轄する地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
               </div>
-              
+
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input
-                  type="checkbox"
-                  id="agreement"
-                  checked={agreed}
-                  onChange={(e) => setAgreed(e.target.checked)}
-                  style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                />
+                <input type="checkbox" id="agreement" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
                 <label htmlFor="agreement" style={{ fontSize: '14px', fontWeight: '600', color: '#2d3748', cursor: 'pointer' }}>
                   「代理店利用規約」の全条項を確認し、同意します。
                 </label>
@@ -248,10 +362,9 @@ export default function AgencyPage() {
                 border: 'none',
                 background: agreed && !loading ? '#3182ce' : '#cbd5e0',
                 cursor: agreed && !loading ? 'pointer' : 'not-allowed',
-                boxShadow: agreed && !loading ? '0 4px 12px rgba(49, 130, 206, 0.3)' : 'none',
               }}
             >
-              {loading ? '送信中...' : '代理店パートナーに申し込む'}
+              {loading ? '送信中...' : '確認画面へ進む'}
             </button>
           </form>
         </div>
