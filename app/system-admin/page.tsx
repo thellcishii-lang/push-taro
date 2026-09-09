@@ -29,6 +29,279 @@ interface AgencyData {
   createdAt?: string | null;
 }
 
+// ============================================================
+// アフィリエイト一覧タブ（SystemAdminPage の外に移動）
+// ============================================================
+function AffiliatesTab() {
+  const [loading, setLoading] = useState(true);
+  const [affiliates, setAffiliates] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchAffiliates();
+  }, []);
+
+  const fetchAffiliates = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/admin/affiliates', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAffiliates(data.affiliates || []);
+      }
+    } catch (err) {
+      console.error('アフィリエイトデータ取得エラー:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>読み込み中...</div>;
+
+  return (
+    <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>アフィリエイト一覧</h2>
+        <span style={{ fontSize: '13px', color: '#64748b' }}>全 {affiliates.length} 件</span>
+      </div>
+
+      {affiliates.length === 0 ? (
+        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>
+          まだアフィリエイト登録はありません
+        </p>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                <th style={{ padding: '10px', textAlign: 'left' }}>氏名</th>
+                <th style={{ padding: '10px', textAlign: 'left' }}>メール</th>
+                <th style={{ padding: '10px', textAlign: 'left' }}>紹介コード</th>
+                <th style={{ padding: '10px', textAlign: 'left' }}>報酬タイプ</th>
+                <th style={{ padding: '10px', textAlign: 'center' }}>累計報酬</th>
+                <th style={{ padding: '10px', textAlign: 'center' }}>未払い</th>
+                <th style={{ padding: '10px', textAlign: 'center' }}>インボイス</th>
+                <th style={{ padding: '10px', textAlign: 'center' }}>ステータス</th>
+                <th style={{ padding: '10px', textAlign: 'center' }}>登録日</th>
+              </tr>
+            </thead>
+            <tbody>
+              {affiliates.map((aff) => (
+                <tr key={aff.id} style={{ borderBottom: '1px solid #edf2f7' }}>
+                  <td style={{ padding: '10px', fontWeight: 'bold' }}>{aff.name}</td>
+                  <td style={{ padding: '10px', fontSize: '12px' }}>{aff.email}</td>
+                  <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '12px' }}>{aff.referralCode}</td>
+                  <td style={{ padding: '10px' }}>
+                    <span style={{
+                      padding: '2px 10px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      background: aff.rewardType === 'recurring' ? '#dbeafe' : '#fef3c7',
+                      color: aff.rewardType === 'recurring' ? '#1d4ed8' : '#d97706',
+                    }}>
+                      {aff.rewardType === 'recurring' ? '継続課金' : '一括'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: '#1a202c' }}>
+                    ¥{aff.totalEarnings.toLocaleString()}
+                  </td>
+                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: aff.unpaidReward >= 5000 ? '#22c55e' : '#eab308' }}>
+                    ¥{aff.unpaidReward.toLocaleString()}
+                    {aff.unpaidReward >= 5000 && (
+                      <span style={{ fontSize: '10px', color: '#22c55e', marginLeft: '4px' }}>✅</span>
+                    )}
+                  </td>
+                  <td style={{ padding: '10px', textAlign: 'center' }}>
+                    <span style={{
+                      padding: '2px 10px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      background: aff.hasInvoice ? '#c6f6d5' : '#fecaca',
+                      color: aff.hasInvoice ? '#22543d' : '#dc2626',
+                    }}>
+                      {aff.hasInvoice ? 'あり' : 'なし'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '10px', textAlign: 'center' }}>
+                    <span style={{
+                      padding: '3px 10px',
+                      borderRadius: '12px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      background: aff.status === 'active' ? '#c6f6d5' : '#f1f5f9',
+                      color: aff.status === 'active' ? '#22543d' : '#64748b',
+                    }}>
+                      {aff.status === 'active' ? '有効' : '停止'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '10px', textAlign: 'center', fontSize: '11px', color: '#64748b' }}>
+                    {aff.createdAt ? new Date(aff.createdAt).toLocaleDateString() : '-'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// 決済不履行一覧タブ（SystemAdminPage の外に移動）
+// ============================================================
+function PaymentFailuresTab() {
+  const [loading, setLoading] = useState(true);
+  const [shops, setShops] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchPaymentFailures();
+  }, []);
+
+  const fetchPaymentFailures = async () => {
+    try {
+      const res = await fetch('/api/admin/payment-failures');
+      if (res.ok) {
+        const data = await res.json();
+        setShops(data.shops || []);
+      }
+    } catch (err) {
+      console.error('決済不履行データ取得エラー:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendInvoice = async (shopId: string, months: number) => {
+    if (!confirm(`${months}ヶ月分の決済リンクを送信しますか？`)) return;
+    try {
+      const res = await fetch('/api/admin/send-invoice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shopId, months }),
+      });
+      if (res.ok) {
+        alert(`${months}ヶ月分の決済リンクを送信しました`);
+        fetchPaymentFailures();
+      } else {
+        const data = await res.json();
+        alert('エラー: ' + data.error);
+      }
+    } catch (err: any) {
+      alert('通信エラー: ' + err.message);
+    }
+  };
+
+  const handleDelete = async (shopId: string) => {
+    if (!confirm(`店舗を完全に削除しますか？（復元できません）`)) return;
+    try {
+      const res = await fetch('/api/admin/delete-shop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shopId }),
+      });
+      if (res.ok) {
+        alert('削除しました');
+        fetchPaymentFailures();
+      } else {
+        const data = await res.json();
+        alert('エラー: ' + data.error);
+      }
+    } catch (err: any) {
+      alert('通信エラー: ' + err.message);
+    }
+  };
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>読み込み中...</div>;
+
+  return (
+    <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>決済不履行店舗一覧</h2>
+        <span style={{ fontSize: '13px', color: '#64748b' }}>3回目の決済失敗で送信停止中の店舗</span>
+      </div>
+
+      {shops.length === 0 ? (
+        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>
+          現在、決済不履行の店舗はありません
+        </p>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                <th style={{ padding: '12px', textAlign: 'left' }}>店舗名</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>店舗ID</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>プラン</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>不履行開始日</th>
+                <th style={{ padding: '12px', textAlign: 'center' }}>失敗回数</th>
+                <th style={{ padding: '12px', textAlign: 'center' }}>アクション</th>
+                <th style={{ padding: '12px', textAlign: 'center' }}>削除</th>
+              </tr>
+            </thead>
+            <tbody>
+              {shops.map((shop) => (
+                <tr key={shop.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                  <td style={{ padding: '12px', fontWeight: 'bold' }}>{shop.name || '未設定'}</td>
+                  <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '11px' }}>{shop.id.slice(0, 12)}...</td>
+                  <td style={{ padding: '12px' }}>
+                    <span style={{
+                      padding: '2px 10px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      background: shop.plan === 'pro' ? '#fef3c7' : shop.plan === 'standard' ? '#dbeafe' : '#f1f5f9',
+                      color: shop.plan === 'pro' ? '#b45309' : shop.plan === 'standard' ? '#1d4ed8' : '#475569',
+                    }}>
+                      {shop.plan?.toUpperCase() || 'LIGHT'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '12px' }}>
+                    {shop.failedAt ? new Date(shop.failedAt).toLocaleDateString() : '不明'}
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <span style={{
+                      padding: '2px 12px',
+                      borderRadius: '12px',
+                      background: shop.failedCount >= 3 ? '#fecaca' : '#fef3c7',
+                      color: shop.failedCount >= 3 ? '#dc2626' : '#d97706',
+                      fontWeight: 'bold',
+                      fontSize: '13px',
+                    }}>
+                      {shop.failedCount || 0}回
+                    </span>
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                      <button onClick={() => handleSendInvoice(shop.id, 1)} style={{ padding: '4px 10px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>1ヶ月分</button>
+                      <button onClick={() => handleSendInvoice(shop.id, 2)} style={{ padding: '4px 10px', background: '#8b5cf6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>2ヶ月分</button>
+                      <button onClick={() => handleSendInvoice(shop.id, 3)} style={{ padding: '4px 10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>3ヶ月分</button>
+                    </div>
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <button onClick={() => handleDelete(shop.id)} style={{ padding: '4px 12px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}>削除</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// メインコンポーネント
+// ============================================================
 export default function SystemAdminPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'pro' | 'agencies' | 'affiliates' | 'payment-failures'>('all');
@@ -412,276 +685,6 @@ export default function SystemAdminPage() {
         {/* 決済不履行一覧 */}
         {activeTab === 'payment-failures' && <PaymentFailuresTab />}
       </main>
-    </div>
-  );
-}
-
-// ============================================================
-// アフィリエイト一覧タブ
-// ============================================================
-function AffiliatesTab() {
-  const [loading, setLoading] = useState(true);
-  const [affiliates, setAffiliates] = useState<any[]>([]);
-
-  useEffect(() => {
-    fetchAffiliates();
-  }, []);
-
-  const fetchAffiliates = async () => {
-    try {
-      const user = auth.currentUser;
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-      const idToken = await user.getIdToken();
-      const res = await fetch('/api/admin/affiliates', {
-        headers: { Authorization: `Bearer ${idToken}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setAffiliates(data.affiliates || []);
-      }
-    } catch (err) {
-      console.error('アフィリエイトデータ取得エラー:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>読み込み中...</div>;
-
-  return (
-    <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>アフィリエイト一覧</h2>
-        <span style={{ fontSize: '13px', color: '#64748b' }}>全 {affiliates.length} 件</span>
-      </div>
-
-      {affiliates.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>
-          まだアフィリエイト登録はありません
-        </p>
-      ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-            <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                <th style={{ padding: '10px', textAlign: 'left' }}>氏名</th>
-                <th style={{ padding: '10px', textAlign: 'left' }}>メール</th>
-                <th style={{ padding: '10px', textAlign: 'left' }}>紹介コード</th>
-                <th style={{ padding: '10px', textAlign: 'left' }}>報酬タイプ</th>
-                <th style={{ padding: '10px', textAlign: 'center' }}>累計報酬</th>
-                <th style={{ padding: '10px', textAlign: 'center' }}>未払い</th>
-                <th style={{ padding: '10px', textAlign: 'center' }}>インボイス</th>
-                <th style={{ padding: '10px', textAlign: 'center' }}>ステータス</th>
-                <th style={{ padding: '10px', textAlign: 'center' }}>登録日</th>
-              </tr>
-            </thead>
-            <tbody>
-              {affiliates.map((aff) => (
-                <tr key={aff.id} style={{ borderBottom: '1px solid #edf2f7' }}>
-                  <td style={{ padding: '10px', fontWeight: 'bold' }}>{aff.name}</td>
-                  <td style={{ padding: '10px', fontSize: '12px' }}>{aff.email}</td>
-                  <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '12px' }}>{aff.referralCode}</td>
-                  <td style={{ padding: '10px' }}>
-                    <span style={{
-                      padding: '2px 10px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      background: aff.rewardType === 'recurring' ? '#dbeafe' : '#fef3c7',
-                      color: aff.rewardType === 'recurring' ? '#1d4ed8' : '#d97706',
-                    }}>
-                      {aff.rewardType === 'recurring' ? '継続課金' : '一括'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: '#1a202c' }}>
-                    ¥{aff.totalEarnings.toLocaleString()}
-                  </td>
-                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: aff.unpaidReward >= 5000 ? '#22c55e' : '#eab308' }}>
-                    ¥{aff.unpaidReward.toLocaleString()}
-                    {aff.unpaidReward >= 5000 && (
-                      <span style={{ fontSize: '10px', color: '#22c55e', marginLeft: '4px' }}>✅</span>
-                    )}
-                  </td>
-                  <td style={{ padding: '10px', textAlign: 'center' }}>
-                    <span style={{
-                      padding: '2px 10px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      background: aff.hasInvoice ? '#c6f6d5' : '#fecaca',
-                      color: aff.hasInvoice ? '#22543d' : '#dc2626',
-                    }}>
-                      {aff.hasInvoice ? 'あり' : 'なし'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '10px', textAlign: 'center' }}>
-                    <span style={{
-                      padding: '3px 10px',
-                      borderRadius: '12px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      background: aff.status === 'active' ? '#c6f6d5' : '#f1f5f9',
-                      color: aff.status === 'active' ? '#22543d' : '#64748b',
-                    }}>
-                      {aff.status === 'active' ? '有効' : '停止'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '10px', textAlign: 'center', fontSize: '11px', color: '#64748b' }}>
-                    {aff.createdAt ? new Date(aff.createdAt).toLocaleDateString() : '-'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ============================================================
-// 決済不履行一覧タブ
-// ============================================================
-function PaymentFailuresTab() {
-  const [loading, setLoading] = useState(true);
-  const [shops, setShops] = useState<any[]>([]);
-
-  useEffect(() => {
-    fetchPaymentFailures();
-  }, []);
-
-  const fetchPaymentFailures = async () => {
-    try {
-      const res = await fetch('/api/admin/payment-failures');
-      if (res.ok) {
-        const data = await res.json();
-        setShops(data.shops || []);
-      }
-    } catch (err) {
-      console.error('決済不履行データ取得エラー:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSendInvoice = async (shopId: string, months: number) => {
-    if (!confirm(`${months}ヶ月分の決済リンクを送信しますか？`)) return;
-    try {
-      const res = await fetch('/api/admin/send-invoice', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ shopId, months }),
-      });
-      if (res.ok) {
-        alert(`${months}ヶ月分の決済リンクを送信しました`);
-        fetchPaymentFailures();
-      } else {
-        const data = await res.json();
-        alert('エラー: ' + data.error);
-      }
-    } catch (err: any) {
-      alert('通信エラー: ' + err.message);
-    }
-  };
-
-  const handleDelete = async (shopId: string) => {
-    if (!confirm(`店舗を完全に削除しますか？（復元できません）`)) return;
-    try {
-      const res = await fetch('/api/admin/delete-shop', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ shopId }),
-      });
-      if (res.ok) {
-        alert('削除しました');
-        fetchPaymentFailures();
-      } else {
-        const data = await res.json();
-        alert('エラー: ' + data.error);
-      }
-    } catch (err: any) {
-      alert('通信エラー: ' + err.message);
-    }
-  };
-
-  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>読み込み中...</div>;
-
-  return (
-    <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>決済不履行店舗一覧</h2>
-        <span style={{ fontSize: '13px', color: '#64748b' }}>3回目の決済失敗で送信停止中の店舗</span>
-      </div>
-
-      {shops.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>
-          現在、決済不履行の店舗はありません
-        </p>
-      ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-            <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                <th style={{ padding: '12px', textAlign: 'left' }}>店舗名</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>店舗ID</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>プラン</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>不履行開始日</th>
-                <th style={{ padding: '12px', textAlign: 'center' }}>失敗回数</th>
-                <th style={{ padding: '12px', textAlign: 'center' }}>アクション</th>
-                <th style={{ padding: '12px', textAlign: 'center' }}>削除</th>
-              </tr>
-            </thead>
-            <tbody>
-              {shops.map((shop) => (
-                <tr key={shop.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                  <td style={{ padding: '12px', fontWeight: 'bold' }}>{shop.name || '未設定'}</td>
-                  <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '11px' }}>{shop.id.slice(0, 12)}...</td>
-                  <td style={{ padding: '12px' }}>
-                    <span style={{
-                      padding: '2px 10px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      background: shop.plan === 'pro' ? '#fef3c7' : shop.plan === 'standard' ? '#dbeafe' : '#f1f5f9',
-                      color: shop.plan === 'pro' ? '#b45309' : shop.plan === 'standard' ? '#1d4ed8' : '#475569',
-                    }}>
-                      {shop.plan?.toUpperCase() || 'LIGHT'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px' }}>
-                    {shop.failedAt ? new Date(shop.failedAt).toLocaleDateString() : '不明'}
-                  </td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>
-                    <span style={{
-                      padding: '2px 12px',
-                      borderRadius: '12px',
-                      background: shop.failedCount >= 3 ? '#fecaca' : '#fef3c7',
-                      color: shop.failedCount >= 3 ? '#dc2626' : '#d97706',
-                      fontWeight: 'bold',
-                      fontSize: '13px',
-                    }}>
-                      {shop.failedCount || 0}回
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                      <button onClick={() => handleSendInvoice(shop.id, 1)} style={{ padding: '4px 10px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>1ヶ月分</button>
-                      <button onClick={() => handleSendInvoice(shop.id, 2)} style={{ padding: '4px 10px', background: '#8b5cf6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>2ヶ月分</button>
-                      <button onClick={() => handleSendInvoice(shop.id, 3)} style={{ padding: '4px 10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>3ヶ月分</button>
-                    </div>
-                  </td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>
-                    <button onClick={() => handleDelete(shop.id)} style={{ padding: '4px 12px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}>削除</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
     </div>
   );
 }
