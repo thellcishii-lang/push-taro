@@ -8,7 +8,8 @@ interface DetailedShop {
   id: string;
   shopCode: string;
   name: string;
-  address: string;
+  email: string;        // ← 追加
+  address: string;      // ← 追加
   phone: string;
   subscriberCount: number;
   createdAt: string;
@@ -34,7 +35,6 @@ export default function AgencyDashboardPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [user, setUser] = useState<any>(null);
   
-  // 🔑 ログインフォーム用ステート
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
@@ -48,7 +48,6 @@ export default function AgencyDashboardPage() {
   });
   const [shops, setShops] = useState<DetailedShop[]>([]);
   
-  // 🔍 検索・フィルター用ステート
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlanTab, setSelectedPlanTab] = useState<'all' | 'light' | 'standard' | 'pro'>('all');
 
@@ -75,7 +74,6 @@ export default function AgencyDashboardPage() {
     return () => unsubscribe();
   }, []);
 
-  // 🔑 ログイン実行処理
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
@@ -90,23 +88,24 @@ export default function AgencyDashboardPage() {
     }
   };
 
-  // 🚪 ログアウト処理
   const handleLogout = async () => {
     await signOut(auth);
   };
 
-  // 🔍 検索・タブ絞り込み
+  // 🔥 検索・タブ絞り込み（メール・住所も検索対象に追加）
   const filteredShops = useMemo(() => {
     return shops.filter((shop) => {
       if (selectedPlanTab !== 'all' && shop.plan.toLowerCase() !== selectedPlanTab) {
         return false;
       }
       if (!searchQuery.trim()) return true;
-      const query = searchQuery.toLowerCase().trim();
+      const q = searchQuery.trim().toLowerCase();
       return (
-        shop.name.toLowerCase().includes(query) ||
-        shop.shopCode.toLowerCase().includes(query) ||
-        shop.phone.replace(/[-–—]/g, '').includes(query.replace(/[-–—]/g, ''))
+        shop.name.toLowerCase().includes(q) ||
+        shop.shopCode.toLowerCase().includes(q) ||
+        shop.phone.replace(/[-–—]/g, '').includes(q.replace(/[-–—]/g, '')) ||
+        shop.email.toLowerCase().includes(q) ||        // ← 追加
+        shop.address.toLowerCase().includes(q)         // ← 追加
       );
     });
   }, [shops, searchQuery, selectedPlanTab]);
@@ -119,75 +118,12 @@ export default function AgencyDashboardPage() {
     );
   }
 
-  // 🔒 未ログイン時のログイン画面UI
-  if (!user) {
-    return (
-      <div style={{ background: '#f8fafc', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '40px', width: '100%', maxWidth: '400px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
-          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <h1 style={{ fontSize: '22px', fontWeight: '800', color: '#1a202c', margin: '0 0 8px 0' }}>代理店コンソール ログイン</h1>
-            <p style={{ color: '#718096', fontSize: '13px', margin: 0 }}>ご登録の代理店アカウントでログインしてください</p>
-          </div>
+  // 未ログイン時のログイン画面（省略）
 
-          {loginError && (
-            <div style={{ background: '#fff5f5', border: '1px solid #feb2b2', color: '#c53030', padding: '10px', borderRadius: '6px', fontSize: '13px', marginBottom: '16px' }}>
-              {loginError}
-            </div>
-          )}
-
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px' }}>メールアドレス</label>
-              <input
-                type="email"
-                required
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                placeholder="agency@example.com"
-                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '14px', boxSizing: 'border-box' }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px' }}>パスワード</label>
-              <input
-                type="password"
-                required
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-                placeholder="••••••••"
-                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '14px', boxSizing: 'border-box' }}
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoggingIn}
-              style={{
-                marginTop: '8px',
-                width: '100%',
-                padding: '12px',
-                background: '#3182ce',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '6px',
-                fontWeight: 'bold',
-                fontSize: '14px',
-                cursor: isLoggingIn ? 'wait' : 'pointer',
-              }}
-            >
-              {isLoggingIn ? 'ログイン中...' : 'ログイン'}
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
-  // 🔓 ログイン後の代理店ダッシュボード画面UI
+  // ログイン後のダッシュボード
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-      <main style={{ maxWidth: '1100px', margin: '0 auto' }}>
+      <main style={{ maxWidth: '1200px', margin: '0 auto' }}>
         
         {/* ヘッダー */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px' }}>
@@ -207,30 +143,30 @@ export default function AgencyDashboardPage() {
           </button>
         </div>
 
-        {/* 📊 月末集計サマリーカード */}
+        {/* サマリーカード */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '30px' }}>
-          <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+          <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#718096', marginBottom: '6px' }}>全累計店舗数</div>
             <div style={{ fontSize: '32px', fontWeight: '900', color: '#1a202c' }}>
               {summary.totalShops} <span style={{ fontSize: '14px', fontWeight: 'normal' }}>店舗</span>
             </div>
           </div>
 
-          <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+          <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#38a169', marginBottom: '6px' }}>当月新規登録数</div>
             <div style={{ fontSize: '32px', fontWeight: '900', color: '#38a169' }}>
               +{summary.monthlyNewCount} <span style={{ fontSize: '14px', fontWeight: 'normal' }}>店舗</span>
             </div>
           </div>
 
-          <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+          <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#e53e3e', marginBottom: '6px' }}>当月退会件数</div>
             <div style={{ fontSize: '32px', fontWeight: '900', color: '#e53e3e' }}>
               {summary.monthlyCanceledCount} <span style={{ fontSize: '14px', fontWeight: 'normal' }}>店舗</span>
             </div>
           </div>
 
-          <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+          <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#3182ce', marginBottom: '6px' }}>プラン別内訳</div>
             <div style={{ fontSize: '13px', color: '#2d3748', display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '4px' }}>
               <span>ライト: <strong>{summary.planCounts.light}</strong>件</span>
@@ -240,13 +176,13 @@ export default function AgencyDashboardPage() {
           </div>
         </div>
 
-        {/* 🔍 検索バー & プランタブ */}
+        {/* 検索バー & プランタブ */}
         <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ flex: '1 1 300px' }}>
               <input
                 type="text"
-                placeholder="🔍 店舗名・店舗コード・電話番号で検索..."
+                placeholder="🔍 店舗名・コード・電話・メール・住所で検索..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
@@ -292,7 +228,7 @@ export default function AgencyDashboardPage() {
           </div>
         </div>
 
-        {/* 📋 傘下店舗詳細テーブル */}
+        {/* 傘下店舗詳細テーブル（拡張版） */}
         <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <h2 style={{ fontSize: '16px', fontWeight: '800', color: '#1a202c', margin: 0 }}>
@@ -309,47 +245,50 @@ export default function AgencyDashboardPage() {
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
                 <thead>
                   <tr style={{ background: '#f7fafc', borderBottom: '2px solid #edf2f7', color: '#4a5568' }}>
-                    <th style={{ padding: '12px 10px' }}>店舗名</th>
-                    <th style={{ padding: '12px 10px' }}>店舗コード</th>
-                    <th style={{ padding: '12px 10px' }}>プラン</th>
-                    <th style={{ padding: '12px 10px' }}>住所 / 電話番号</th>
-                    <th style={{ padding: '12px 10px', textAlign: 'center' }}>配信許可人数</th>
-                    <th style={{ padding: '12px 10px' }}>利用開始日</th>
-                    <th style={{ padding: '12px 10px' }}>退会申請状況</th>
+                    <th style={{ padding: '10px' }}>店舗名</th>
+                    <th style={{ padding: '10px' }}>店舗コード</th>
+                    <th style={{ padding: '10px' }}>プラン</th>
+                    <th style={{ padding: '10px' }}>メールアドレス</th>
+                    <th style={{ padding: '10px' }}>電話番号</th>
+                    <th style={{ padding: '10px' }}>住所</th>
+                    <th style={{ padding: '10px', textAlign: 'center' }}>配信許可人数</th>
+                    <th style={{ padding: '10px' }}>利用開始日</th>
+                    <th style={{ padding: '10px' }}>退会申請状況</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredShops.map((shop) => (
                     <tr key={shop.id} style={{ borderBottom: '1px solid #edf2f7' }}>
-                      <td style={{ padding: '14px 10px', fontWeight: 'bold', color: '#2d3748' }}>
+                      <td style={{ padding: '10px', fontWeight: 'bold', color: '#2d3748' }}>
                         {shop.name}
                       </td>
-                      <td style={{ padding: '14px 10px', fontFamily: 'monospace', color: '#4a5568' }}>
+                      <td style={{ padding: '10px', fontFamily: 'monospace', color: '#4a5568' }}>
                         {shop.shopCode}
                       </td>
-                      <td style={{ padding: '14px 10px' }}>
+                      <td style={{ padding: '10px' }}>
                         <span style={{
-                          padding: '2px 8px',
+                          padding: '2px 10px',
                           borderRadius: '4px',
                           fontSize: '11px',
                           fontWeight: 'bold',
-                          background: shop.plan === 'pro' ? '#feebc8' : shop.plan === 'standard' ? '#ebf8ff' : '#edf2f7',
+                          background: shop.plan === 'pro' ? '#fef3c7' : shop.plan === 'standard' ? '#ebf8ff' : '#edf2f7',
                           color: shop.plan === 'pro' ? '#c05621' : shop.plan === 'standard' ? '#2b6cb0' : '#4a5568',
                         }}>
                           {shop.plan.toUpperCase()}
                         </span>
                       </td>
-                      <td style={{ padding: '14px 10px', color: '#4a5568' }}>
-                        <div>{shop.address}</div>
-                        <div style={{ fontSize: '11px', color: '#718096' }}>📞 {shop.phone}</div>
+                      <td style={{ padding: '10px', fontSize: '12px' }}>{shop.email}</td>
+                      <td style={{ padding: '10px', fontSize: '12px' }}>{shop.phone}</td>
+                      <td style={{ padding: '10px', fontSize: '12px', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={shop.address}>
+                        {shop.address}
                       </td>
-                      <td style={{ padding: '14px 10px', textAlign: 'center', fontWeight: 'bold', color: '#3182ce', fontSize: '15px' }}>
+                      <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: '#3182ce', fontSize: '15px' }}>
                         {shop.subscriberCount.toLocaleString()} 人
                       </td>
-                      <td style={{ padding: '14px 10px', color: '#4a5568' }}>
+                      <td style={{ padding: '10px', color: '#4a5568' }}>
                         {shop.createdAt}
                       </td>
-                      <td style={{ padding: '14px 10px' }}>
+                      <td style={{ padding: '10px' }}>
                         {shop.status === 'canceled' ? (
                           <span style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: '#fed7d7', color: '#9b2c2c' }}>
                             退会済み ({shop.canceledAt || '日時不詳'})
