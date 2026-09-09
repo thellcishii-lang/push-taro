@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { auth } from '@/lib/firebase-client';
 
 interface ShopData {
   id: string;
@@ -22,7 +23,7 @@ interface AgencyData {
   companyName?: string;
   ownerName?: string;
   email?: string;
-  status?: string; // 'pending_approval' | 'active' | 'suspended'
+  status?: string;
   approvedAt?: string | null;
   referralCode?: string;
   createdAt?: string | null;
@@ -144,23 +145,85 @@ export default function SystemAdminPage() {
 
         {/* タブ */}
         <div style={{ display: 'flex', gap: '20px', borderBottom: '2px solid #e2e8f0', marginBottom: '20px', flexWrap: 'wrap' }}>
-  <button onClick={() => setActiveTab('all')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'all' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'all' ? '#3182ce' : '#718096', cursor: 'pointer' }}>全店舗リスト</button>
+          <button
+            onClick={() => setActiveTab('all')}
+            style={{
+              padding: '10px 16px',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeTab === 'all' ? '3px solid #3182ce' : 'none',
+              fontWeight: 'bold',
+              color: activeTab === 'all' ? '#3182ce' : '#718096',
+              cursor: 'pointer',
+            }}
+          >
+            全店舗リスト
+          </button>
 
-  <button onClick={() => setActiveTab('pro')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'pro' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'pro' ? '#3182ce' : '#718096', cursor: 'pointer' }}>プロプラン顧客詳細</button>
+          <button
+            onClick={() => setActiveTab('pro')}
+            style={{
+              padding: '10px 16px',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeTab === 'pro' ? '3px solid #3182ce' : 'none',
+              fontWeight: 'bold',
+              color: activeTab === 'pro' ? '#3182ce' : '#718096',
+              cursor: 'pointer',
+            }}
+          >
+            プロプラン顧客詳細
+          </button>
 
-  <button onClick={() => setActiveTab('agencies')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'agencies' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'agencies' ? '#3182ce' : '#718096', cursor: 'pointer' }}>代理店一覧 & 審査</button>
+          <button
+            onClick={() => setActiveTab('agencies')}
+            style={{
+              padding: '10px 16px',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeTab === 'agencies' ? '3px solid #3182ce' : 'none',
+              fontWeight: 'bold',
+              color: activeTab === 'agencies' ? '#3182ce' : '#718096',
+              cursor: 'pointer',
+            }}
+          >
+            代理店一覧 & 審査
+          </button>
 
-  {/* 🔥 アフィリエイト一覧（4番目） */}
-  <button onClick={() => setActiveTab('affiliates')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'affiliates' ? '3px solid #16a34a' : 'none', fontWeight: 'bold', color: activeTab === 'affiliates' ? '#16a34a' : '#718096', cursor: 'pointer' }}>📢 アフィリエイト一覧</button>
+          <button
+            onClick={() => setActiveTab('affiliates')}
+            style={{
+              padding: '10px 16px',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeTab === 'affiliates' ? '3px solid #16a34a' : 'none',
+              fontWeight: 'bold',
+              color: activeTab === 'affiliates' ? '#16a34a' : '#718096',
+              cursor: 'pointer',
+            }}
+          >
+            📢 アフィリエイト一覧
+          </button>
 
-  {/* ⚠️ 決済不履行一覧（一番最後） */}
-  <button onClick={() => setActiveTab('payment-failures')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'payment-failures' ? '3px solid #ef4444' : 'none', fontWeight: 'bold', color: activeTab === 'payment-failures' ? '#ef4444' : '#718096', cursor: 'pointer' }}>⚠️ 決済不履行一覧</button>
-</div>
+          <button
+            onClick={() => setActiveTab('payment-failures')}
+            style={{
+              padding: '10px 16px',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeTab === 'payment-failures' ? '3px solid #ef4444' : 'none',
+              fontWeight: 'bold',
+              color: activeTab === 'payment-failures' ? '#ef4444' : '#718096',
+              cursor: 'pointer',
+            }}
+          >
+            ⚠️ 決済不履行一覧
+          </button>
+        </div>
 
         {/* 全店舗リスト / プロプラン */}
         {activeTab !== 'agencies' && activeTab !== 'payment-failures' && activeTab !== 'affiliates' && (
           <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-            
             {/* 検索バー & 大分類フィルター */}
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -298,53 +361,63 @@ export default function SystemAdminPage() {
 
         {/* 代理店一覧 */}
         {activeTab === 'agencies' && (
-  <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-    <h2>代理店一覧</h2>
-    <p style={{ color: '#64748b' }}>代理店パートナー一覧</p>
-    {agencies.length === 0 ? (
-      <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>代理店はまだありません</p>
-    ) : (
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
-          <thead>
-            <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-              <th style={{ padding: '12px', textAlign: 'left' }}>会社名</th>
-              <th style={{ padding: '12px', textAlign: 'left' }}>担当者</th>
-              <th style={{ padding: '12px', textAlign: 'left' }}>メール</th>
-              <th style={{ padding: '12px', textAlign: 'left' }}>紹介コード</th>
-              <th style={{ padding: '12px', textAlign: 'center' }}>ステータス</th>
-            </tr>
-          </thead>
-          <tbody>
-            {agencies.map((agency) => (
-              <tr key={agency.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                <td style={{ padding: '12px', fontWeight: 'bold' }}>{agency.companyName || '未設定'}</td>
-                <td style={{ padding: '12px' }}>{agency.ownerName || '-'}</td>
-                <td style={{ padding: '12px' }}>{agency.email || '-'}</td>
-                <td style={{ padding: '12px', fontFamily: 'monospace' }}>{agency.referralCode || '-'}</td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>
-                  <span style={{
-                    padding: '4px 12px',
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    background: agency.status === 'active' ? '#c6f6d5' : agency.status === 'approved_pending_payment' ? '#fef3c7' : '#f1f5f9',
-                    color: agency.status === 'active' ? '#22543d' : agency.status === 'approved_pending_payment' ? '#d97706' : '#64748b',
-                  }}>
-                    {agency.status === 'active' ? '承認済み' : agency.status === 'approved_pending_payment' ? '決済待ち' : '審査中'}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )}
-  </div>
-)}
+          <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+            <h2>代理店一覧</h2>
+            <p style={{ color: '#64748b' }}>代理店パートナー一覧</p>
+            {agencies.length === 0 ? (
+              <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>代理店はまだありません</p>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+                  <thead>
+                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>会社名</th>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>担当者</th>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>メール</th>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>紹介コード</th>
+                      <th style={{ padding: '12px', textAlign: 'center' }}>ステータス</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {agencies.map((agency) => (
+                      <tr key={agency.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                        <td style={{ padding: '12px', fontWeight: 'bold' }}>{agency.companyName || '未設定'}</td>
+                        <td style={{ padding: '12px' }}>{agency.ownerName || '-'}</td>
+                        <td style={{ padding: '12px' }}>{agency.email || '-'}</td>
+                        <td style={{ padding: '12px', fontFamily: 'monospace' }}>{agency.referralCode || '-'}</td>
+                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                          <span style={{
+                            padding: '4px 12px',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            background: agency.status === 'active' ? '#c6f6d5' : agency.status === 'approved_pending_payment' ? '#fef3c7' : '#f1f5f9',
+                            color: agency.status === 'active' ? '#22543d' : agency.status === 'approved_pending_payment' ? '#d97706' : '#64748b',
+                          }}>
+                            {agency.status === 'active' ? '承認済み' : agency.status === 'approved_pending_payment' ? '決済待ち' : '審査中'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
 
-        // ============================================================
-// アフィリエイト一覧タブ（新規追加）
+        {/* アフィリエイト一覧 */}
+        {activeTab === 'affiliates' && <AffiliatesTab />}
+
+        {/* 決済不履行一覧 */}
+        {activeTab === 'payment-failures' && <PaymentFailuresTab />}
+      </main>
+    </div>
+  );
+}
+
+// ============================================================
+// アフィリエイト一覧タブ
 // ============================================================
 function AffiliatesTab() {
   const [loading, setLoading] = useState(true);
@@ -356,7 +429,15 @@ function AffiliatesTab() {
 
   const fetchAffiliates = async () => {
     try {
-      const res = await fetch('/api/admin/affiliates');
+      const user = auth.currentUser;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/admin/affiliates', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
       if (res.ok) {
         const data = await res.json();
         setAffiliates(data.affiliates || []);
@@ -457,16 +538,6 @@ function AffiliatesTab() {
           </table>
         </div>
       )}
-    </div>
-  );
-}
-　　　　　　　　　　　　　　　　　{/* アフィリエイト一覧 */}
-　　　　　　　　　　　　　　　　　{activeTab === 'affiliates' && <AffiliatesTab />}
-
-        {/* 決済不履行一覧 */}
-        {activeTab === 'payment-failures' && <PaymentFailuresTab />}
-
-      </main>
     </div>
   );
 }
