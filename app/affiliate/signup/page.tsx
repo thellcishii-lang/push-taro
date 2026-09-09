@@ -14,8 +14,9 @@ export default function AffiliateSignupPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [rewardType, setRewardType] = useState<'recurring' | 'one-time'>('recurring');
+  const [termsAgreed, setTermsAgreed] = useState(false);
 
-  // 銀行口座（任意）
+  // 銀行口座（必須）
   const [bankName, setBankName] = useState('');
   const [branchName, setBranchName] = useState('');
   const [accountType, setAccountType] = useState('savings');
@@ -25,12 +26,36 @@ export default function AffiliateSignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // バリデーション
+    if (!termsAgreed) {
+      setError('利用規約に同意してください。');
+      return;
+    }
+
+    // 口座情報がすべて入力されているかチェック
+    if (!bankName || !branchName || !accountNumber || !accountHolder) {
+      setError('振込先口座情報はすべて必須です。');
+      return;
+    }
+
+    // 口座名義がカナかチェック
+    const kanaRegex = /^[ァ-ヶー]+$/;
+    if (!kanaRegex.test(accountHolder)) {
+      setError('口座名義は全角カナで入力してください。');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const bankAccount = bankName || branchName || accountNumber || accountHolder
-        ? { bankName, branchName, accountType, accountNumber, accountHolder }
-        : null;
+      const bankAccount = {
+        bankName,
+        branchName,
+        accountType,
+        accountNumber,
+        accountHolder,
+      };
 
       const res = await fetch('/api/affiliate/signup', {
         method: 'POST',
@@ -125,10 +150,13 @@ export default function AffiliateSignupPage() {
           </div>
 
           {/* 報酬タイプ選択 */}
-          <div style={{ marginBottom: '24px' }}>
+          <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', fontSize: '13px' }}>
               報酬タイプを選択 <span style={{ color: '#e53e3e' }}>*</span>
             </label>
+            <div style={{ background: '#fef3c7', border: '1px solid #fcd34d', padding: '10px 14px', borderRadius: '6px', marginBottom: '12px', fontSize: '13px', color: '#92400e' }}>
+              ⚠️ 報酬タイプは登録後に変更することはできません。慎重に選択してください。
+            </div>
             <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                 <input
@@ -161,51 +189,114 @@ export default function AffiliateSignupPage() {
             </div>
           </div>
 
-          {/* 銀行口座（任意） */}
-          <details style={{ marginBottom: '24px' }}>
-            <summary style={{ cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', color: '#2563eb' }}>
-              💰 振込先口座情報（任意）
-            </summary>
-            <div style={{ marginTop: '12px', padding: '16px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>金融機関名</label>
-                <input type="text" placeholder="〇〇銀行" value={bankName} onChange={(e) => setBankName(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }} />
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>支店名</label>
-                <input type="text" placeholder="△△支店" value={branchName} onChange={(e) => setBranchName(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }} />
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>預金種目</label>
-                <select value={accountType} onChange={(e) => setAccountType(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}>
-                  <option value="savings">普通</option>
-                  <option value="checking">当座</option>
-                </select>
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>口座番号</label>
-                <input type="text" placeholder="1234567" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }} />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>口座名義（カナ）</label>
-                <input type="text" placeholder="ヤマダ タロウ" value={accountHolder} onChange={(e) => setAccountHolder(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }} />
-              </div>
+          {/* 銀行口座（必須・常時表示） */}
+          <div style={{ marginBottom: '24px', padding: '16px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <h3 style={{ fontSize: '14px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#1a202c' }}>
+              💰 振込先口座情報 <span style={{ color: '#e53e3e' }}>*</span>
+            </h3>
+            <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '12px' }}>
+              報酬をお振り込みする口座を登録してください（全項目必須）
+            </p>
+
+            <div style={{ marginBottom: '10px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>金融機関名 <span style={{ color: '#e53e3e' }}>*</span></label>
+              <input
+                type="text"
+                required
+                placeholder="〇〇銀行"
+                value={bankName}
+                onChange={(e) => setBankName(e.target.value)}
+                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+              />
             </div>
-          </details>
+
+            <div style={{ marginBottom: '10px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>支店名 <span style={{ color: '#e53e3e' }}>*</span></label>
+              <input
+                type="text"
+                required
+                placeholder="△△支店"
+                value={branchName}
+                onChange={(e) => setBranchName(e.target.value)}
+                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '10px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>預金種目 <span style={{ color: '#e53e3e' }}>*</span></label>
+              <select
+                required
+                value={accountType}
+                onChange={(e) => setAccountType(e.target.value)}
+                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+              >
+                <option value="savings">普通</option>
+                <option value="checking">当座</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '10px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>口座番号 <span style={{ color: '#e53e3e' }}>*</span></label>
+              <input
+                type="text"
+                required
+                placeholder="1234567"
+                value={accountNumber}
+                onChange={(e) => setAccountNumber(e.target.value)}
+                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>口座名義（カナ） <span style={{ color: '#e53e3e' }}>*</span></label>
+              <input
+                type="text"
+                required
+                placeholder="ヤマダ タロウ"
+                value={accountHolder}
+                onChange={(e) => setAccountHolder(e.target.value)}
+                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+              />
+            </div>
+          </div>
+
+          {/* 利用規約 */}
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '12px 16px', maxHeight: '150px', overflowY: 'auto', fontSize: '12px', color: '#475569', lineHeight: '1.7' }}>
+              <p style={{ fontWeight: 'bold', margin: '0 0 4px 0' }}>📄 アフィリエイト利用規約</p>
+              <p>1. アフィリエイトプログラムはPush-taroの収益化プログラムの一部です。</p>
+              <p>2. 報酬は紹介した店舗のプランに応じて計算されます。</p>
+              <p>3. 不正な紹介行為が発覚した場合、報酬は無効となりアカウントは停止されます。</p>
+              <p>4. 報酬の換金は累計5,000円以上で可能です。</p>
+              <p>5. 報酬タイプの変更はできません。</p>
+              <p>6. 本規約は予告なく変更されることがあります。</p>
+              <p style={{ marginTop: '4px', fontSize: '11px', color: '#94a3b8' }}>詳細は <Link href="/terms" style={{ color: '#2563eb' }}>利用規約</Link> をご確認ください。</p>
+            </div>
+
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginTop: '12px', fontSize: '14px', fontWeight: 'bold' }}>
+              <input
+                type="checkbox"
+                required
+                checked={termsAgreed}
+                onChange={(e) => setTermsAgreed(e.target.checked)}
+              />
+              アフィリエイト利用規約に同意する
+            </label>
+          </div>
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !termsAgreed}
             style={{
               width: '100%',
               padding: '16px',
-              background: loading ? '#94a3b8' : '#ff4500',
+              background: loading || !termsAgreed ? '#94a3b8' : '#ff4500',
               color: '#fff',
               border: 'none',
               borderRadius: '8px',
               fontWeight: 'bold',
               fontSize: '16px',
-              cursor: loading ? 'not-allowed' : 'pointer',
+              cursor: loading || !termsAgreed ? 'not-allowed' : 'pointer',
             }}
           >
             {loading ? '登録中...' : '🚀 アフィリエイトに登録する'}
