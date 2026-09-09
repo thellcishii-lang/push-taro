@@ -34,11 +34,25 @@ export default function TestConsolePage() {
   const [createdAccount, setCreatedAccount] = useState<{ shopId: string; email: string; password: string } | null>(null);
   const [creatingShop, setCreatingShop] = useState(false);
 
-  // 🏢 テスト用代理店アカウント即時発行用の状態（新規追加）
+  // 🏢 テスト用代理店アカウント即時発行用の状態
   const [agencyEmail, setAgencyEmail] = useState('test-agency@example.com');
   const [agencyCompanyName, setAgencyCompanyName] = useState('テスト代理店');
   const [createdAgency, setCreatedAgency] = useState<{ agencyUid: string; email: string; password: string; referralCode: string } | null>(null);
   const [creatingAgency, setCreatingAgency] = useState(false);
+
+  // 📢 アフィリエイトテストアカウント即時発行用の状態（新規追加）
+  const [affiliateEmail, setAffiliateEmail] = useState('test-affiliate@example.com');
+  const [affiliateName, setAffiliateName] = useState('テストアフィリエイター');
+  const [affiliateRewardType, setAffiliateRewardType] = useState<'recurring' | 'one-time'>('recurring');
+  const [createdAffiliate, setCreatedAffiliate] = useState<{
+    affiliateId: string;
+    uid: string;
+    email: string;
+    password: string;
+    referralCode: string;
+    rewardType: string;
+  } | null>(null);
+  const [creatingAffiliate, setCreatingAffiliate] = useState(false);
 
   // 送信テスト用
   const [selectedToken, setSelectedToken] = useState('');
@@ -79,7 +93,7 @@ export default function TestConsolePage() {
     }
   };
 
-  // 🏢 テスト用代理店発行処理（新規追加）
+  // 🏢 テスト用代理店発行処理
   const handleCreateTestAgency = async () => {
     setCreatingAgency(true);
     try {
@@ -110,7 +124,41 @@ export default function TestConsolePage() {
     }
   };
 
-  // 🔍 1. subscriptions コレクションの全件取得（点検機能）
+  // 📢 アフィリエイトテストアカウント発行処理（新規追加）
+  const handleCreateTestAffiliate = async () => {
+    setCreatingAffiliate(true);
+    try {
+      const res = await fetch('/api/admin/create-test-affiliate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: affiliateEmail,
+          name: affiliateName,
+          rewardType: affiliateRewardType,
+        }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setCreatedAffiliate({
+          affiliateId: data.affiliateId,
+          uid: data.uid,
+          email: data.email,
+          password: data.password,
+          referralCode: data.referralCode,
+          rewardType: data.rewardType,
+        });
+      } else {
+        alert('エラー: ' + data.error);
+      }
+    } catch (err: any) {
+      alert('通信エラーが発生しました: ' + err.message);
+    } finally {
+      setCreatingAffiliate(false);
+    }
+  };
+
+  // 🔍 1. subscriptions コレクションの全件取得
   const fetchSubscriptions = async () => {
     setLoading(true);
     setMessage('');
@@ -248,7 +296,7 @@ export default function TestConsolePage() {
         </div>
       )}
 
-      {/* 🏢 テスト用代理店アカウント即時発行フォーム（新規追加） */}
+      {/* 🏢 テスト用代理店アカウント即時発行フォーム */}
       <section style={{ background: '#fff', border: '2px solid #3182ce', borderRadius: 8, padding: 20, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <h2 style={{ marginTop: 0, fontSize: 18, color: '#2b6cb0' }}>🏢 テスト用代理店アカウント即時発行</h2>
         <p style={{ fontSize: 12, color: '#64748b', marginTop: -8, marginBottom: 16 }}>
@@ -291,6 +339,72 @@ export default function TestConsolePage() {
         )}
       </section>
 
+      {/* 📢 アフィリエイトテストアカウント即時発行フォーム（新規追加） */}
+      <section style={{ background: '#fff', border: '2px solid #16a34a', borderRadius: 8, padding: 20, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <h2 style={{ marginTop: 0, fontSize: 18, color: '#16a34a' }}>📢 アフィリエイトテストアカウント即時発行</h2>
+        <p style={{ fontSize: 12, color: '#64748b', marginTop: -8, marginBottom: 16 }}>
+          アフィリエイトログイン用のテストアカウント（Authユーザー・アフィリエイトデータ・紹介コード）を生成します。
+        </p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+          <input
+            type="text"
+            value={affiliateName}
+            onChange={(e) => setAffiliateName(e.target.value)}
+            style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 14 }}
+            placeholder="アフィリエイト名"
+          />
+          <input
+            type="email"
+            value={affiliateEmail}
+            onChange={(e) => setAffiliateEmail(e.target.value)}
+            style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 14 }}
+            placeholder="ログインメールアドレス"
+          />
+        </div>
+
+        <div style={{ display: 'flex', gap: 20, marginBottom: 12 }}>
+          <label style={{ fontSize: 13, cursor: 'pointer' }}>
+            <input
+              type="radio"
+              name="affiliateRewardType"
+              value="recurring"
+              checked={affiliateRewardType === 'recurring'}
+              onChange={() => setAffiliateRewardType('recurring')}
+            /> 継続課金型（5%）
+          </label>
+          <label style={{ fontSize: 13, cursor: 'pointer' }}>
+            <input
+              type="radio"
+              name="affiliateRewardType"
+              value="one-time"
+              checked={affiliateRewardType === 'one-time'}
+              onChange={() => setAffiliateRewardType('one-time')}
+            /> 一括報酬型
+          </label>
+        </div>
+
+        <button
+          onClick={handleCreateTestAffiliate}
+          disabled={creatingAffiliate}
+          style={{ width: '100%', padding: '10px', background: creatingAffiliate ? '#ccc' : '#16a34a', color: '#fff', border: 'none', borderRadius: 6, cursor: creatingAffiliate ? 'wait' : 'pointer', fontWeight: 'bold', fontSize: 14 }}
+        >
+          {creatingAffiliate ? '発行中...' : '🔑 アフィリエイトアカウント＆パスワード発行'}
+        </button>
+
+        {createdAffiliate && (
+          <div style={{ marginTop: 14, padding: 14, background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 6, color: '#166534', fontSize: 13 }}>
+            <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', fontSize: 14 }}>✅ アフィリエイトアカウント発行完了</p>
+            <p style={{ margin: '2px 0' }}>アフィリエイトID: <code style={{ fontFamily: 'monospace', fontWeight: 'bold', background: '#fff', padding: '2px 6px', border: '1px solid #86efac', borderRadius: 4, color: '#1d4ed8' }}>{createdAffiliate.affiliateId}</code></p>
+            <p style={{ margin: '2px 0' }}>UID: <code style={{ fontFamily: 'monospace', background: '#fff', padding: '2px 6px', border: '1px solid #86efac', borderRadius: 4, color: '#1d4ed8' }}>{createdAffiliate.uid}</code></p>
+            <p style={{ margin: '2px 0' }}>ログインメール: <strong>{createdAffiliate.email}</strong></p>
+            <p style={{ margin: '2px 0' }}>発行パスワード: <code style={{ fontFamily: 'monospace', fontWeight: 'bold', background: '#fff', padding: '2px 6px', border: '1px solid #86efac', borderRadius: 4, color: '#dc2626' }}>{createdAffiliate.password}</code></p>
+            <p style={{ margin: '2px 0' }}>紹介コード: <code style={{ fontFamily: 'monospace', fontWeight: 'bold', background: '#fff', padding: '2px 6px', border: '1px solid #86efac', borderRadius: 4, color: '#2b6cb0' }}>{createdAffiliate.referralCode}</code></p>
+            <p style={{ margin: '2px 0' }}>報酬タイプ: <strong>{createdAffiliate.rewardType === 'recurring' ? '継続課金型（5%）' : '一括報酬型'}</strong></p>
+          </div>
+        )}
+      </section>
+
       {/* ⚡️ テスト用店舗アカウント即時発行フォーム */}
       <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <h2 style={{ marginTop: 0, fontSize: 18, color: '#1e293b' }}>⚡️ テスト用店舗アカウント即時発行</h2>
@@ -325,7 +439,7 @@ export default function TestConsolePage() {
         )}
       </section>
 
-      {/* 📊 1. subscriptions 登録データ一覧（通知が届いているかの確認） */}
+      {/* 📊 1. subscriptions 登録データ一覧 */}
       <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div>
