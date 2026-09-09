@@ -85,19 +85,23 @@ export async function POST(request: Request) {
 
     // ① 仮店舗ドキュメントを作成（status: pending_payment）
     const shopData = {
-      name: companyName,
-      email: normalizedEmail,
-      plan: plan || 'light',
-      status: 'pending_payment',
-      createdAt: FieldValue.serverTimestamp(),
-      coupon: { enabled: false, title: '', description: '', discountRate: 0 },
-      linkUrl: '',
-      iconUrl: '',
-      invoiceNumber: invoiceNumber || '',
-      address: address || '',
-      phone: phone || '',
-      bankAccount: bankAccount || null,
-    };
+  name: companyName,
+  email: normalizedEmail,
+  plan: plan || 'light',
+  status: 'pending_payment',
+  createdAt: FieldValue.serverTimestamp(),
+  coupon: { enabled: false, title: '', description: '', discountRate: 0 },
+  linkUrl: '',
+  iconUrl: '',
+  invoiceNumber: invoiceNumber || '',
+  address: address || '',
+  phone: phone || '',
+  bankAccount: bankAccount || null,
+  // 🔥 紹介情報（referrerType を追加）
+  referrerId: referrerId,
+  referredByCode: referralCodeFromBody || '',
+  referrerType: referrerType, // 'agency' | 'affiliate' | 'pro' | 'shop'
+};
 
     const shopRef = await db.collection('shops').add(shopData);
     const shopId = shopRef.id;
@@ -105,19 +109,66 @@ export async function POST(request: Request) {
     await shopRef.update({ referralCode });
 
     // 紹介コードの処理
-    const referralCodeFromBody = body.referralCode || '';
+    // app/api/signup/route.ts（該当部分）
 
-    if (referralCodeFromBody) {
-      const referrerSnapshot = await db.collection('shops')
-        .where('referralCode', '==', referralCodeFromBody)
-        .limit(1)
-        .get();
+// 紹介コードの処理
+const referralCodeFromBody = body.referralCode || '';
+let referrerId: string | null = null;
+let referrerType: string | null = null;
+let referrerEmail: string | null = null;
 
-      if (!referrerSnapshot.empty) {
-        const referrerDoc = referrerSnapshot.docs[0];
-        const referrerData = referrerDoc.data();
-        const referrerId = referrerDoc.id;
+if (referralCodeFromBody) {
+  // 🔥 プレフィックスで検索先を振り分け
+  if (referralCodeFromBody.startsWith('AF-')) {
+    // アフィリエイト（affiliates コレクション）
+    const affiliateSnapshot = await db.collection('affiliates')
+      .where('referralCode', '==', referralCodeFromBody)
+      .limit(1)
+      .get();
 
+    if (!affiliateSnapshot.empty) {
+      const doc = affiliateSnapshot.docs[0];
+      const data = doc.data();
+      referrerId = doc.id;
+      referrerType = 'affiliate';
+      referrerEmail = data.email;
+    }
+  } else if (referralCodeFromBody.startsWith('AGENCY-')) {
+    // 代理店（agencies コレクション）
+    const agencySnapshot = await db.collection('agencies')
+      .where('referralCode', '==', referralCodeFromBody)
+      .limit(1)
+      .get();
+
+    if (!agencySnapshot.empty) {
+      const doc = agencySnapshot.docs[0];
+      const data = doc.data();
+      referrerId = doc.id;
+      referrerType = 'agency';
+      referrerEmail = data.email;
+    }
+  } else {
+    // それ以外（shops コレクション）- PROユーザー or 一般店舗
+    const shopSnapshot = await db.collection('shops')
+      .where('referralCode', '==', referralCodeFromBody)
+      .limit(1)
+      .get();
+
+    if (!shopSnapshot.empty) {
+      const doc = shopSnapshot.docs[0];
+      const data = doc.data();
+      referrerId = doc.id;
+      // role が 'pro' か plan が 'pro' なら 'pro'
+      referrerType = (data.role === 'pro' || data.plan === 'pro') ? 'pro' : 'shop';
+      referrerEmail = data.email;
+    }
+  }
+
+  // 🔥 紹介者が見つかった場合の処理
+  if (referrerId && referrerType) {
+    // 店舗作成時に referrerType も保存する（後で報酬計算で使う）
+    // 以下の shopRef.update または shopData に追加
+  
         // 1. 紹介者の種別（代理店かPRO会員か）を判定
         const isAgency = referrerData.role === 'agency';
         const isPro = referrerData.plan === 'pro' || referrerData.role === 'pro';
