@@ -113,6 +113,8 @@ export async function POST(request: Request) {
 
     const docRef = await db.collection('affiliates').add(affiliateData);
 
+    const hasInvoice = !!invoiceNumber && invoiceNumber.trim() !== '';
+
     // 登録完了メール（パスワード含む）
     await sendEmail({
       to: email,
