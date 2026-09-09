@@ -1,3 +1,4 @@
+// app/api/agency/stats/route.ts
 import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/firebase-admin';
 
@@ -45,32 +46,30 @@ export async function GET(request: Request) {
       const data = doc.data();
       const shopId = doc.id;
 
-      // 日時オブジェクトの変換処理
       const createdAtDate = data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAt ? new Date(data.createdAt) : null);
       const canceledAtDate = data.canceledAt?.toDate ? data.canceledAt.toDate() : (data.canceledAt ? new Date(data.canceledAt) : null);
 
-      // ① 月末新規登録数の判定
       if (createdAtDate && createdAtDate >= startOfMonth && createdAtDate <= endOfMonth) {
         monthlyNewCount++;
       }
 
-      // ② 月末退会数の判定
       if (data.status === 'canceled' || (canceledAtDate && canceledAtDate >= startOfMonth && canceledAtDate <= endOfMonth)) {
         monthlyCanceledCount++;
       }
 
-      // ③ プラン別集計
       const plan = (data.plan || 'light').toLowerCase();
       if (plan === 'pro') planCounts.pro++;
       else if (plan === 'standard') planCounts.standard++;
       else if (plan === 'light') planCounts.light++;
       else planCounts.other++;
 
+      // 🔥 email と address も返す
       return {
         id: shopId,
         shopCode: data.referralCode || shopId,
         name: data.name || '未設定店舗',
-        address: data.address || '未登録',
+        email: data.email || '未登録',        // ← 追加
+        address: data.address || '未登録',    // ← 追加
         phone: data.phone || '未登録',
         subscriberCount: subscriberCounts[shopId] || 0,
         createdAt: createdAtDate ? createdAtDate.toISOString().slice(0, 10) : '不明',
