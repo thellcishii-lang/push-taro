@@ -25,12 +25,37 @@ function generatePassword(): string {
 
 export async function POST(request: Request) {
   try {
-    const { name, email, rewardType, bankAccount } = await request.json();
+    // 🔥 すべてのフィールドを受け取る
+    const {
+      name,
+      email,
+      phone,
+      address,
+      businessType,
+      companyName,
+      invoiceNumber,
+      rewardType,
+      bankAccount,
+    } = await request.json();
 
-    // バリデーション
+    // === バリデーション ===
     if (!name || !email) {
       return NextResponse.json(
         { error: '氏名とメールアドレスは必須です' },
+        { status: 400 }
+      );
+    }
+
+    if (!address) {
+      return NextResponse.json(
+        { error: '住所は必須です' },
+        { status: 400 }
+      );
+    }
+
+    if (businessType === 'corporation' && !companyName) {
+      return NextResponse.json(
+        { error: '法人の場合は会社名が必須です' },
         { status: 400 }
       );
     }
@@ -43,11 +68,11 @@ export async function POST(request: Request) {
     }
 
     if (!bankAccount || !bankAccount.bankName || !bankAccount.branchName || !bankAccount.accountNumber || !bankAccount.accountHolder) {
-  return NextResponse.json(
-    { error: '振込先口座情報はすべて必須です' },
-    { status: 400 }
-  );
-}
+      return NextResponse.json(
+        { error: '振込先口座情報はすべて必須です' },
+        { status: 400 }
+      );
+    }
 
     // メールアドレス重複チェック
     try {
@@ -96,26 +121,33 @@ export async function POST(request: Request) {
       }
     }
 
-    // Firestore 保存
+    // 🔥 インボイス番号の有無を判定
+    const hasInvoice = !!(invoiceNumber && invoiceNumber.trim() !== '');
+
+    // 🔥 Firestore 保存（全フィールドを保存）
     const affiliateData = {
       uid: userRecord.uid,
       name: name.trim(),
       email: email.trim(),
+      phone: phone || '',
+      address: address.trim(),
+      businessType: businessType || 'individual',
+      companyName: businessType === 'corporation' ? companyName.trim() : null,
+      invoiceNumber: invoiceNumber || null,
+      hasInvoice, // インボイス有無フラグ（報酬計算用）
       referralCode,
       rewardType,
       status: 'active',
       totalEarnings: 0,
       unpaidReward: 0,
-      bankAccount: bankAccount || null,
+      bankAccount: bankAccount,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     };
 
     const docRef = await db.collection('affiliates').add(affiliateData);
 
-    const hasInvoice = !!invoiceNumber && invoiceNumber.trim() !== '';
-
-    // 登録完了メール（パスワード含む）
+    // 🔥 登録完了メール（インボイス注意書き付き）
     await sendEmail({
       to: email,
       subject: '【Push-taro】アフィリエイト登録完了のお知らせ',
@@ -127,6 +159,16 @@ export async function POST(request: Request) {
         <p><strong>ログインID（メールアドレス）:</strong> ${email}</p>
         <p><strong>パスワード:</strong> <code style="background:#f1f5f9;padding:4px 12px;border-radius:4px;font-weight:bold;font-size:16px;">${generatedPassword}</code></p>
         <p><strong>ご自身の紹介コード:</strong> <code style="background:#f1f5f9;padding:4px 12px;border-radius:4px;font-weight:bold;">${referralCode}</code></p>
+        <hr />
+        <p><strong>インボイス登録番号:</strong> ${invoiceNumber || '未登録'}</p>
+        ${!hasInvoice ? `
+          <p style="color: #dc2626; font-weight: bold;">
+            ⚠️ インボイス番号が未登録のため、報酬支払い時に10%が源泉徴収（または手数料）として差し引かれます。
+          </p>
+          <p>インボイス番号は後日マイページから登録可能です。</p>
+        ` : `
+          <p>✅ インボイス番号が登録されています。報酬は全額支払われます。</p>
+        `}
         <hr />
         <p>初回ログイン後、パスワードの変更をお勧めします。</p>
         <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/affiliate/dashboard" style="display:inline-block;padding:12px 24px;background:#ff4500;color:#fff;border-radius:6px;text-decoration:none;">アフィリエイトダッシュボードへ</a></p>
