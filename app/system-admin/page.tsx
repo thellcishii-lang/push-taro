@@ -7,6 +7,7 @@ interface ShopData {
   name?: string;
   email?: string;
   phone?: string;
+  address?: string;
   plan?: string;
   status?: string;
   agencyId?: string;
@@ -62,30 +63,27 @@ export default function SystemAdminPage() {
     }
   };
 
-  // 🔥 検索 + フィルター
   const filteredShops = shops.filter((shop) => {
-    // タブフィルター（プロプランタブ）
     if (activeTab === 'pro' && shop.plan?.toLowerCase() !== 'pro') return false;
 
-    // 大分類フィルター
     if (filterType === 'agency') return !!shop.agencyId;
     if (filterType === 'referral') return !!shop.referrerId && !shop.agencyId;
     if (filterType === 'direct') return !shop.agencyId && !shop.referrerId;
 
-    // 検索クエリ（部分一致）
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
       const name = (shop.name || '').toLowerCase();
       const id = shop.id.toLowerCase();
       const email = (shop.email || '').toLowerCase();
       const phone = (shop.phone || '').replace(/[-－]/g, '');
+      const address = (shop.address || '').toLowerCase();
       const qClean = q.replace(/[-－]/g, '');
-
       return (
         name.includes(q) ||
         id.includes(q) ||
         email.includes(q) ||
-        phone.includes(qClean)
+        phone.includes(qClean) ||
+        address.includes(q)
       );
     }
 
@@ -102,7 +100,7 @@ export default function SystemAdminPage() {
 
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-      <main style={{ maxWidth: '1100px', margin: '0 auto' }}>
+      <main style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* ヘッダー */}
         <div style={{ marginBottom: '30px' }}>
           <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#1a202c', margin: '0 0 6px 0' }}>
@@ -149,11 +147,11 @@ export default function SystemAdminPage() {
           <button onClick={() => setActiveTab('payment-failures')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'payment-failures' ? '3px solid #ef4444' : 'none', fontWeight: 'bold', color: activeTab === 'payment-failures' ? '#ef4444' : '#718096', cursor: 'pointer' }}>⚠️ 決済不履行一覧</button>
         </div>
 
-        {/* 🔥 全店舗リスト / プロプラン */}
+        {/* 全店舗リスト / プロプラン */}
         {activeTab !== 'agencies' && activeTab !== 'payment-failures' && (
           <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
             
-            {/* 🔥 検索バー & 大分類フィルター */}
+            {/* 検索バー & 大分類フィルター */}
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {(['all', 'direct', 'referral', 'agency'] as const).map((type) => {
@@ -182,7 +180,7 @@ export default function SystemAdminPage() {
               <div style={{ flex: 1, minWidth: '200px' }}>
                 <input
                   type="text"
-                  placeholder="🔍 店舗名・ID・メール・電話番号で検索"
+                  placeholder="🔍 店舗名・ID・メール・電話・住所で検索"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   style={{
@@ -199,79 +197,100 @@ export default function SystemAdminPage() {
 
             {/* テーブル */}
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
                 <thead>
                   <tr style={{ background: '#f7fafc', borderBottom: '2px solid #edf2f7' }}>
-                    <th style={{ padding: '12px', color: '#4a5568' }}>店舗名 / ID</th>
-                    <th style={{ padding: '12px', color: '#4a5568' }}>プラン</th>
-                    <th style={{ padding: '12px', color: '#4a5568' }}>流入区分</th>
-                    <th style={{ padding: '12px', color: '#4a5568' }}>登録顧客数 (Push購読)</th>
-                    <th style={{ padding: '12px', color: '#4a5568' }}>月間PUSH数</th>
-                    <th style={{ padding: '12px', color: '#4a5568' }}>ステータス</th>
+                    <th style={{ padding: '10px', color: '#4a5568' }}>店舗名</th>
+                    <th style={{ padding: '10px', color: '#4a5568' }}>ID</th>
+                    <th style={{ padding: '10px', color: '#4a5568' }}>プラン</th>
+                    <th style={{ padding: '10px', color: '#4a5568' }}>メール</th>
+                    <th style={{ padding: '10px', color: '#4a5568' }}>電話</th>
+                    <th style={{ padding: '10px', color: '#4a5568' }}>住所</th>
+                    <th style={{ padding: '10px', color: '#4a5568' }}>流入</th>
+                    <th style={{ padding: '10px', color: '#4a5568', textAlign: 'center' }}>顧客数</th>
+                    <th style={{ padding: '10px', color: '#4a5568', textAlign: 'center' }}>PUSH</th>
+                    <th style={{ padding: '10px', color: '#4a5568' }}>ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredShops.map((shop) => (
-                    <tr key={shop.id} style={{ borderBottom: '1px solid #edf2f7' }}>
-                      <td style={{ padding: '16px 12px', fontWeight: 'bold', color: '#2d3748' }}>
-                        <div>{shop.name || '未設定'}</div>
-                        <div style={{ fontSize: '11px', fontFamily: 'monospace', color: '#94a3b8' }}>{shop.id}</div>
-                      </td>
-                      <td style={{ padding: '16px 12px' }}>
-                        <span style={{
-                          padding: '2px 10px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: 'bold',
-                          background: shop.plan === 'pro' ? '#fef3c7' : shop.plan === 'standard' ? '#dbeafe' : '#f1f5f9',
-                          color: shop.plan === 'pro' ? '#b45309' : shop.plan === 'standard' ? '#1d4ed8' : '#475569',
-                        }}>
-                          {shop.plan?.toUpperCase() || 'LIGHT'}
-                        </span>
-                      </td>
-                      <td style={{ padding: '16px 12px' }}>
-                        <span style={{
-                          padding: '3px 8px',
-                          borderRadius: '12px',
-                          fontSize: '11px',
-                          fontWeight: 'bold',
-                          background: shop.agencyId ? '#c6f6d5' : shop.referrerId ? '#feebc8' : '#edf2f7',
-                          color: shop.agencyId ? '#22543d' : shop.referrerId ? '#742a2a' : '#4a5568'
-                        }}>
-                          {shop.agencyId ? '代理店経由' : shop.referrerId ? 'プロ紹介' : '直接申込'}
-                        </span>
-                      </td>
-                      <td style={{ padding: '16px 12px', fontWeight: 'bold', color: '#0284c7' }}>
-                        {shop.subscriberCount || 0} 件
-                      </td>
-                      <td style={{ padding: '16px 12px', color: '#2d3748' }}>
-                        {shop.pushCount || 0} 通
-                      </td>
-                      <td style={{ padding: '16px 12px' }}>
-                        <span style={{
-                          padding: '4px 8px',
-                          borderRadius: '12px',
-                          fontSize: '12px',
-                          fontWeight: 'bold',
-                          background: shop.status === 'active' ? '#c6f6d5' : shop.status === 'send_disabled' ? '#fecaca' : '#fef3c7',
-                          color: shop.status === 'active' ? '#22543d' : shop.status === 'send_disabled' ? '#dc2626' : '#d97706',
-                        }}>
-                          {shop.status === 'active' ? '契約中' : shop.status === 'send_disabled' ? '送信停止' : shop.status || '契約中'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                  {filteredShops.map((shop) => {
+                    const statusMap: Record<string, { label: string; bg: string; color: string }> = {
+                      'active': { label: '契約中', bg: '#c6f6d5', color: '#22543d' },
+                      'payment_warning': { label: '支払い警告', bg: '#fef3c7', color: '#d97706' },
+                      'send_disabled': { label: '送信停止', bg: '#fecaca', color: '#dc2626' },
+                      'canceled': { label: '退会済み', bg: '#f1f5f9', color: '#64748b' },
+                      'cancelled': { label: '退会済み', bg: '#f1f5f9', color: '#64748b' },
+                      'pending_payment': { label: '仮登録（未決済）', bg: '#fef3c7', color: '#d97706' },
+                    };
+                    const s = statusMap[shop.status?.toLowerCase() || ''] || { label: '契約中', bg: '#c6f6d5', color: '#22543d' };
+
+                    return (
+                      <tr key={shop.id} style={{ borderBottom: '1px solid #edf2f7' }}>
+                        <td style={{ padding: '10px', fontWeight: 'bold' }}>{shop.name || '未設定'}</td>
+                        <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '11px', color: '#64748b' }}>{shop.id}</td>
+                        <td style={{ padding: '10px' }}>
+                          <span style={{
+                            padding: '2px 10px',
+                            borderRadius: '4px',
+                            fontSize: '10px',
+                            fontWeight: 'bold',
+                            background: shop.plan === 'pro' ? '#fef3c7' : shop.plan === 'standard' ? '#dbeafe' : '#f1f5f9',
+                            color: shop.plan === 'pro' ? '#b45309' : shop.plan === 'standard' ? '#1d4ed8' : '#475569',
+                          }}>
+                            {shop.plan?.toUpperCase() || 'LIGHT'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px', fontSize: '12px' }}>{shop.email || '-'}</td>
+                        <td style={{ padding: '10px', fontSize: '12px' }}>{shop.phone || '-'}</td>
+                        <td style={{ padding: '10px', fontSize: '12px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={shop.address || ''}>
+                          {shop.address || '-'}
+                        </td>
+                        <td style={{ padding: '10px' }}>
+                          <span style={{
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '10px',
+                            fontWeight: 'bold',
+                            background: shop.agencyId ? '#c6f6d5' : shop.referrerId ? '#feebc8' : '#edf2f7',
+                            color: shop.agencyId ? '#22543d' : shop.referrerId ? '#742a2a' : '#4a5568'
+                          }}>
+                            {shop.agencyId ? '代理店' : shop.referrerId ? '紹介' : '直接'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: '#0284c7' }}>{shop.subscriberCount || 0}</td>
+                        <td style={{ padding: '10px', textAlign: 'center', color: '#2d3748' }}>{shop.pushCount || 0}</td>
+                        <td style={{ padding: '10px' }}>
+                          <span style={{
+                            padding: '3px 8px',
+                            borderRadius: '12px',
+                            fontSize: '11px',
+                            fontWeight: 'bold',
+                            background: s.bg,
+                            color: s.color,
+                          }}>
+                            {s.label}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
+
+            {filteredShops.length === 0 && (
+              <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>
+                条件に一致する店舗はありません
+              </p>
+            )}
           </div>
         )}
 
         {/* 代理店一覧 */}
         {activeTab === 'agencies' && (
           <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-            <h2>代理店一覧</h2>
-            <p style={{ color: '#64748b' }}>現在の代理店一覧（審査機能は準備中）</p>
+            <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 16px 0' }}>代理店一覧</h2>
+            <p style={{ color: '#64748b', marginBottom: '16px' }}>現在の代理店一覧（審査機能は準備中）</p>
             {agencies.length === 0 ? (
               <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>代理店はまだありません</p>
             ) : (
@@ -314,7 +333,7 @@ export default function SystemAdminPage() {
 }
 
 // ============================================================
-// 決済不履行一覧タブ（変更なし）
+// 決済不履行一覧タブ
 // ============================================================
 function PaymentFailuresTab() {
   const [loading, setLoading] = useState(true);
