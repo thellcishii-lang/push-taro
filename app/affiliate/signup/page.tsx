@@ -11,8 +11,15 @@ export default function AffiliateSignupPage() {
   const [success, setSuccess] = useState(false);
   const [sentEmail, setSentEmail] = useState('');
 
+  // 基本情報
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [businessType, setBusinessType] = useState<'individual' | 'corporation'>('individual');
+  const [companyName, setCompanyName] = useState('');
+  const [invoiceNumber, setInvoiceNumber] = useState(''); // インボイス番号（任意）
+
   const [rewardType, setRewardType] = useState<'recurring' | 'one-time'>('recurring');
   const [termsAgreed, setTermsAgreed] = useState(false);
 
@@ -27,19 +34,28 @@ export default function AffiliateSignupPage() {
     e.preventDefault();
     setError('');
 
-    // バリデーション
     if (!termsAgreed) {
       setError('利用規約に同意してください。');
       return;
     }
 
-    // 口座情報がすべて入力されているかチェック
+    // 基本情報チェック
+    if (!address) {
+      setError('住所を入力してください。');
+      return;
+    }
+
+    if (businessType === 'corporation' && !companyName) {
+      setError('法人の場合は会社名を入力してください。');
+      return;
+    }
+
+    // 口座情報チェック
     if (!bankName || !branchName || !accountNumber || !accountHolder) {
       setError('振込先口座情報はすべて必須です。');
       return;
     }
 
-    // 口座名義がカナかチェック
     const kanaRegex = /^[ァ-ヶー]+$/;
     if (!kanaRegex.test(accountHolder)) {
       setError('口座名義は全角カナで入力してください。');
@@ -60,7 +76,17 @@ export default function AffiliateSignupPage() {
       const res = await fetch('/api/affiliate/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, rewardType, bankAccount }),
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          address,
+          businessType,
+          companyName: businessType === 'corporation' ? companyName : null,
+          invoiceNumber: invoiceNumber || null,
+          rewardType,
+          bankAccount,
+        }),
       });
 
       const data = await res.json();
@@ -123,40 +149,130 @@ export default function AffiliateSignupPage() {
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* 氏名 */}
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>氏名 <span style={{ color: '#e53e3e' }}>*</span></label>
-            <input
-              type="text"
-              required
-              placeholder="山田 太郎"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-            />
-          </div>
-
-          {/* メールアドレス */}
+          {/* === 基本情報 === */}
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>メールアドレス <span style={{ color: '#e53e3e' }}>*</span></label>
-            <input
-              type="email"
-              required
-              placeholder="taro@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
-            />
-          </div>
+            <h3 style={{ fontSize: '14px', fontWeight: 'bold', margin: '0 0 12px 0', color: '#1a202c', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
+              基本情報
+            </h3>
 
-          {/* 報酬タイプ選択 */}
+            {/* 氏名 */}
+            <div style={{ marginBottom: '14px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>氏名 <span style={{ color: '#e53e3e' }}>*</span></label>
+              <input
+                type="text"
+                required
+                placeholder="山田 太郎"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            {/* メールアドレス */}
+            <div style={{ marginBottom: '14px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>メールアドレス <span style={{ color: '#e53e3e' }}>*</span></label>
+              <input
+                type="email"
+                required
+                placeholder="taro@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            {/* 電話番号 */}
+            <div style={{ marginBottom: '14px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>電話番号</label>
+              <input
+                type="tel"
+                placeholder="090-1234-5678"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            {/* 住所 */}
+            <div style={{ marginBottom: '14px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>住所（請求書送付先） <span style={{ color: '#e53e3e' }}>*</span></label>
+              <input
+                type="text"
+                required
+                placeholder="東京都渋谷区○○1-2-3"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            {/* 事業形態 */}
+            <div style={{ marginBottom: '14px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>事業形態 <span style={{ color: '#e53e3e' }}>*</span></label>
+              <div style={{ display: 'flex', gap: '20px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="businessType"
+                    value="individual"
+                    checked={businessType === 'individual'}
+                    onChange={() => setBusinessType('individual')}
+                  />
+                  個人
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="businessType"
+                    value="corporation"
+                    checked={businessType === 'corporation'}
+                    onChange={() => setBusinessType('corporation')}
+                  />
+                  法人
+                </label>
+              </div>
+            </div>
+
+            {/* 会社名（法人の場合のみ表示） */}
+            {businessType === 'corporation' && (
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>会社名 <span style={{ color: '#e53e3e' }}>*</span></label>
+                <input
+                  type="text"
+                  required
+                  placeholder="株式会社〇〇"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+                />
+              </div>
+            )}
+
+            {/* インボイス番号（任意） */}
+<div>
+  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>インボイス登録番号（任意）</label>
+  <input
+    type="text"
+    placeholder="T1234567890123"
+    value={invoiceNumber}
+    onChange={(e) => setInvoiceNumber(e.target.value)}
+    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+  />
+  <div style={{ background: '#fef3c7', border: '1px solid #fcd34d', padding: '8px 12px', borderRadius: '6px', marginTop: '8px', fontSize: '12px', color: '#92400e' }}>
+    ⚠️ インボイス番号がない場合、報酬支払い時に <strong>10%</strong> が源泉徴収（または手数料）として差し引かれます。
+  </div>
+</div>
+
+          {/* === 報酬タイプ === */}
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', fontSize: '13px' }}>
-              報酬タイプを選択 <span style={{ color: '#e53e3e' }}>*</span>
-            </label>
+            <h3 style={{ fontSize: '14px', fontWeight: 'bold', margin: '0 0 12px 0', color: '#1a202c', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
+              報酬タイプ
+            </h3>
+
             <div style={{ background: '#fef3c7', border: '1px solid #fcd34d', padding: '10px 14px', borderRadius: '6px', marginBottom: '12px', fontSize: '13px', color: '#92400e' }}>
               ⚠️ 報酬タイプは登録後に変更することはできません。慎重に選択してください。
             </div>
+
             <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                 <input
@@ -189,7 +305,7 @@ export default function AffiliateSignupPage() {
             </div>
           </div>
 
-          {/* 銀行口座（必須・常時表示） */}
+          {/* === 銀行口座 === */}
           <div style={{ marginBottom: '24px', padding: '16px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
             <h3 style={{ fontSize: '14px', fontWeight: 'bold', margin: '0 0 4px 0', color: '#1a202c' }}>
               💰 振込先口座情報 <span style={{ color: '#e53e3e' }}>*</span>
@@ -260,7 +376,7 @@ export default function AffiliateSignupPage() {
             </div>
           </div>
 
-          {/* 利用規約 */}
+          {/* === 利用規約 === */}
           <div style={{ marginBottom: '24px' }}>
             <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '12px 16px', maxHeight: '150px', overflowY: 'auto', fontSize: '12px', color: '#475569', lineHeight: '1.7' }}>
               <p style={{ fontWeight: 'bold', margin: '0 0 4px 0' }}>📄 アフィリエイト利用規約</p>
