@@ -42,6 +42,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!bankAccount || !bankAccount.bankName || !bankAccount.branchName || !bankAccount.accountNumber || !bankAccount.accountHolder) {
+  return NextResponse.json(
+    { error: '振込先口座情報はすべて必須です' },
+    { status: 400 }
+  );
+}
+
     // メールアドレス重複チェック
     try {
       await authAdmin.getUserByEmail(email);
