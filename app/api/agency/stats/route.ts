@@ -11,13 +11,19 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Agency ID is required' }, { status: 400 });
     }
 
-    // 1. 対象の代理店IDに紐づく傘下店舗を取得
+    // 🔥 1. 代理店自身の情報を `agencies` から取得（存在確認）
+    const agencyDoc = await db.collection('agencies').doc(agencyId).get();
+    if (!agencyDoc.exists) {
+      return NextResponse.json({ error: '代理店情報が見つかりません' }, { status: 404 });
+    }
+
+    // 2. 対象の代理店IDに紐づく傘下店舗を取得（これは変わらない）
     const shopsSnapshot = await db
       .collection('shops')
       .where('agencyId', '==', agencyId)
       .get();
 
-    // 2. 全 subscriptions から店舗ごとの配信許可人数（端末数）を集計
+    // 3. 全 subscriptions から店舗ごとの配信許可人数を集計
     const subsSnapshot = await db.collection('subscriptions').get();
     const subscriberCounts: Record<string, number> = {};
 
@@ -32,7 +38,7 @@ export async function GET(request: Request) {
       }
     });
 
-    // 3. 当月の開始日時・終了日時の算出（月末集計用）
+    // 4. 当月の集計
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
@@ -41,7 +47,7 @@ export async function GET(request: Request) {
     let monthlyCanceledCount = 0;
     const planCounts = { light: 0, standard: 0, pro: 0, other: 0 };
 
-    // 4. 店舗データの整形と集計
+    // 5. 店舗データの整形
     const detailedShops = shopsSnapshot.docs.map((doc) => {
       const data = doc.data();
       const shopId = doc.id;
@@ -63,13 +69,12 @@ export async function GET(request: Request) {
       else if (plan === 'light') planCounts.light++;
       else planCounts.other++;
 
-      // 🔥 email と address も返す
       return {
         id: shopId,
         shopCode: data.referralCode || shopId,
         name: data.name || '未設定店舗',
-        email: data.email || '未登録',        // ← 追加
-        address: data.address || '未登録',    // ← 追加
+        email: data.email || '未登録',
+        address: data.address || '未登録',
         phone: data.phone || '未登録',
         subscriberCount: subscriberCounts[shopId] || 0,
         createdAt: createdAtDate ? createdAtDate.toISOString().slice(0, 10) : '不明',
@@ -80,8 +85,20 @@ export async function GET(request: Request) {
       };
     });
 
+    // 🔥 代理店情報も返す（ダッシュボードのヘッダー表示用）
+    const agencyData = agencyDoc.data();
+
     return NextResponse.json({
       success: true,
+      agency: {
+        id: agencyId,
+        companyName: agencyData.companyName,
+        ownerName: agencyData.ownerName,
+        email: agencyData.email,
+        referralCode: agencyData.referralCode,
+        status: agencyData.status,
+        approvedAt: agencyData.approvedAt,
+      },
       summary: {
         totalShops: detailedShops.length,
         monthlyNewCount,
