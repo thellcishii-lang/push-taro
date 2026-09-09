@@ -8,8 +8,8 @@ interface DetailedShop {
   id: string;
   shopCode: string;
   name: string;
-  email: string;        // ← 追加
-  address: string;      // ← 追加
+  email: string;
+  address: string;
   phone: string;
   subscriberCount: number;
   createdAt: string;
@@ -92,7 +92,6 @@ export default function AgencyDashboardPage() {
     await signOut(auth);
   };
 
-  // 🔥 検索・タブ絞り込み（メール・住所も検索対象に追加）
   const filteredShops = useMemo(() => {
     return shops.filter((shop) => {
       if (selectedPlanTab !== 'all' && shop.plan.toLowerCase() !== selectedPlanTab) {
@@ -104,8 +103,8 @@ export default function AgencyDashboardPage() {
         shop.name.toLowerCase().includes(q) ||
         shop.shopCode.toLowerCase().includes(q) ||
         shop.phone.replace(/[-–—]/g, '').includes(q.replace(/[-–—]/g, '')) ||
-        shop.email.toLowerCase().includes(q) ||        // ← 追加
-        shop.address.toLowerCase().includes(q)         // ← 追加
+        shop.email.toLowerCase().includes(q) ||
+        shop.address.toLowerCase().includes(q)
       );
     });
   }, [shops, searchQuery, selectedPlanTab]);
@@ -118,9 +117,72 @@ export default function AgencyDashboardPage() {
     );
   }
 
-  // 未ログイン時のログイン画面（省略）
+  // 🔥 未ログイン時はログイン画面を表示（これが実装されていなかった）
+  if (!user) {
+    return (
+      <div style={{ background: '#f8fafc', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '40px', maxWidth: '400px', width: '100%', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <h1 style={{ fontSize: '22px', fontWeight: '800', color: '#1a202c', margin: '0 0 8px 0' }}>代理店コンソール</h1>
+            <p style={{ color: '#718096', fontSize: '13px', margin: 0 }}>ご登録の代理店アカウントでログインしてください</p>
+          </div>
 
-  // ログイン後のダッシュボード
+          {loginError && (
+            <div style={{ background: '#fff5f5', border: '1px solid #feb2b2', color: '#c53030', padding: '10px', borderRadius: '6px', fontSize: '13px', marginBottom: '16px' }}>
+              {loginError}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px' }}>メールアドレス</label>
+              <input
+                type="email"
+                required
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                placeholder="agency@example.com"
+                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '14px', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px' }}>パスワード</label>
+              <input
+                type="password"
+                required
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                placeholder="••••••••"
+                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '14px', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoggingIn}
+              style={{
+                marginTop: '8px',
+                width: '100%',
+                padding: '12px',
+                background: '#3182ce',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                fontWeight: 'bold',
+                fontSize: '14px',
+                cursor: isLoggingIn ? 'wait' : 'pointer',
+              }}
+            >
+              {isLoggingIn ? 'ログイン中...' : 'ログイン'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // 🔓 ログイン後のダッシュボード（ここからは user が null でないことが保証されている）
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
       <main style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -228,7 +290,7 @@ export default function AgencyDashboardPage() {
           </div>
         </div>
 
-        {/* 傘下店舗詳細テーブル（拡張版） */}
+        {/* 傘下店舗詳細テーブル */}
         <div style={{ background: '#ffffff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <h2 style={{ fontSize: '16px', fontWeight: '800', color: '#1a202c', margin: 0 }}>
