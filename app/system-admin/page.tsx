@@ -6,6 +6,7 @@ interface ShopData {
   id: string;
   name?: string;
   email?: string;
+  phone?: string;
   plan?: string;
   status?: string;
   agencyId?: string;
@@ -25,9 +26,9 @@ interface AgencyData {
 
 export default function SystemAdminPage() {
   const [loading, setLoading] = useState(true);
-  // 🔥 'payment-failures' を追加
   const [activeTab, setActiveTab] = useState<'pro' | 'all' | 'agencies' | 'payment-failures'>('all');
   const [filterType, setFilterType] = useState<'all' | 'direct' | 'referral' | 'agency'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [summary, setSummary] = useState({
     totalSubscribers: 0,
@@ -61,13 +62,33 @@ export default function SystemAdminPage() {
     }
   };
 
+  // 🔥 検索 + フィルター
   const filteredShops = shops.filter((shop) => {
+    // タブフィルター（プロプランタブ）
     if (activeTab === 'pro' && shop.plan?.toLowerCase() !== 'pro') return false;
-    
+
+    // 大分類フィルター
     if (filterType === 'agency') return !!shop.agencyId;
     if (filterType === 'referral') return !!shop.referrerId && !shop.agencyId;
     if (filterType === 'direct') return !shop.agencyId && !shop.referrerId;
-    
+
+    // 検索クエリ（部分一致）
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      const name = (shop.name || '').toLowerCase();
+      const id = shop.id.toLowerCase();
+      const email = (shop.email || '').toLowerCase();
+      const phone = (shop.phone || '').replace(/[-－]/g, '');
+      const qClean = q.replace(/[-－]/g, '');
+
+      return (
+        name.includes(q) ||
+        id.includes(q) ||
+        email.includes(q) ||
+        phone.includes(qClean)
+      );
+    }
+
     return true;
   });
 
@@ -92,7 +113,7 @@ export default function SystemAdminPage() {
           </p>
         </div>
 
-        {/* 📊 サマリーカードエリア */}
+        {/* サマリーカード */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '30px' }}>
           <div style={{ background: '#f0fdf4', padding: '20px', borderRadius: '12px', border: '2px solid #22c55e' }}>
             <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#15803d', marginBottom: '6px' }}>全店舗 累計登録顧客数</div>
@@ -120,43 +141,69 @@ export default function SystemAdminPage() {
           </div>
         </div>
 
-        {/* 🔥 タブ切替（4つに増えた） */}
-        <div style={{ display: 'flex', gap: '20px', borderBottom: '2px solid #e2e8f0', marginBottom: '20px' }}>
-          <button
-            onClick={() => setActiveTab('all')}
-            style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'all' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'all' ? '#3182ce' : '#718096', cursor: 'pointer' }}
-          >
-            全店舗リスト
-          </button>
-          <button
-            onClick={() => setActiveTab('pro')}
-            style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'pro' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'pro' ? '#3182ce' : '#718096', cursor: 'pointer' }}
-          >
-            プロプラン顧客詳細
-          </button>
-          <button
-            onClick={() => setActiveTab('agencies')}
-            style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'agencies' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'agencies' ? '#3182ce' : '#718096', cursor: 'pointer' }}
-          >
-            代理店一覧 & 審査
-          </button>
-          {/* 🔥 新しく追加 */}
-          <button
-            onClick={() => setActiveTab('payment-failures')}
-            style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'payment-failures' ? '3px solid #ef4444' : 'none', fontWeight: 'bold', color: activeTab === 'payment-failures' ? '#ef4444' : '#718096', cursor: 'pointer' }}
-          >
-            ⚠️ 決済不履行一覧
-          </button>
+        {/* タブ */}
+        <div style={{ display: 'flex', gap: '20px', borderBottom: '2px solid #e2e8f0', marginBottom: '20px', flexWrap: 'wrap' }}>
+          <button onClick={() => setActiveTab('all')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'all' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'all' ? '#3182ce' : '#718096', cursor: 'pointer' }}>全店舗リスト</button>
+          <button onClick={() => setActiveTab('pro')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'pro' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'pro' ? '#3182ce' : '#718096', cursor: 'pointer' }}>プロプラン顧客詳細</button>
+          <button onClick={() => setActiveTab('agencies')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'agencies' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'agencies' ? '#3182ce' : '#718096', cursor: 'pointer' }}>代理店一覧 & 審査</button>
+          <button onClick={() => setActiveTab('payment-failures')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'payment-failures' ? '3px solid #ef4444' : 'none', fontWeight: 'bold', color: activeTab === 'payment-failures' ? '#ef4444' : '#718096', cursor: 'pointer' }}>⚠️ 決済不履行一覧</button>
         </div>
 
-        {/* 🔥 店舗テーブル（payment-failures の時は非表示） */}
+        {/* 🔥 全店舗リスト / プロプラン */}
         {activeTab !== 'agencies' && activeTab !== 'payment-failures' && (
           <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+            
+            {/* 🔥 検索バー & 大分類フィルター */}
+            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {(['all', 'direct', 'referral', 'agency'] as const).map((type) => {
+                  const labels = { all: 'すべて', direct: '直接申込', referral: 'プロ紹介', agency: '代理店経由' };
+                  return (
+                    <button
+                      key={type}
+                      onClick={() => setFilterType(type)}
+                      style={{
+                        padding: '6px 14px',
+                        borderRadius: '20px',
+                        border: filterType === type ? '2px solid #3182ce' : '1px solid #cbd5e0',
+                        background: filterType === type ? '#ebf8ff' : '#fff',
+                        fontWeight: filterType === type ? 'bold' : 'normal',
+                        color: filterType === type ? '#1d4ed8' : '#475569',
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                      }}
+                    >
+                      {labels[type]}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div style={{ flex: 1, minWidth: '200px' }}>
+                <input
+                  type="text"
+                  placeholder="🔍 店舗名・ID・メール・電話番号で検索"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 14px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e0',
+                    fontSize: '14px',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* テーブル */}
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
                 <thead>
                   <tr style={{ background: '#f7fafc', borderBottom: '2px solid #edf2f7' }}>
                     <th style={{ padding: '12px', color: '#4a5568' }}>店舗名 / ID</th>
+                    <th style={{ padding: '12px', color: '#4a5568' }}>プラン</th>
                     <th style={{ padding: '12px', color: '#4a5568' }}>流入区分</th>
                     <th style={{ padding: '12px', color: '#4a5568' }}>登録顧客数 (Push購読)</th>
                     <th style={{ padding: '12px', color: '#4a5568' }}>月間PUSH数</th>
@@ -167,11 +214,27 @@ export default function SystemAdminPage() {
                   {filteredShops.map((shop) => (
                     <tr key={shop.id} style={{ borderBottom: '1px solid #edf2f7' }}>
                       <td style={{ padding: '16px 12px', fontWeight: 'bold', color: '#2d3748' }}>
-                        {shop.name || shop.id}
+                        <div>{shop.name || '未設定'}</div>
+                        <div style={{ fontSize: '11px', fontFamily: 'monospace', color: '#94a3b8' }}>{shop.id}</div>
                       </td>
                       <td style={{ padding: '16px 12px' }}>
                         <span style={{
-                          padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold',
+                          padding: '2px 10px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          fontWeight: 'bold',
+                          background: shop.plan === 'pro' ? '#fef3c7' : shop.plan === 'standard' ? '#dbeafe' : '#f1f5f9',
+                          color: shop.plan === 'pro' ? '#b45309' : shop.plan === 'standard' ? '#1d4ed8' : '#475569',
+                        }}>
+                          {shop.plan?.toUpperCase() || 'LIGHT'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '16px 12px' }}>
+                        <span style={{
+                          padding: '3px 8px',
+                          borderRadius: '12px',
+                          fontSize: '11px',
+                          fontWeight: 'bold',
                           background: shop.agencyId ? '#c6f6d5' : shop.referrerId ? '#feebc8' : '#edf2f7',
                           color: shop.agencyId ? '#22543d' : shop.referrerId ? '#742a2a' : '#4a5568'
                         }}>
@@ -185,8 +248,15 @@ export default function SystemAdminPage() {
                         {shop.pushCount || 0} 通
                       </td>
                       <td style={{ padding: '16px 12px' }}>
-                        <span style={{ padding: '4px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold', background: '#c6f6d5', color: '#22543d' }}>
-                          {shop.status || '契約中'}
+                        <span style={{
+                          padding: '4px 8px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: 'bold',
+                          background: shop.status === 'active' ? '#c6f6d5' : shop.status === 'send_disabled' ? '#fecaca' : '#fef3c7',
+                          color: shop.status === 'active' ? '#22543d' : shop.status === 'send_disabled' ? '#dc2626' : '#d97706',
+                        }}>
+                          {shop.status === 'active' ? '契約中' : shop.status === 'send_disabled' ? '送信停止' : shop.status || '契約中'}
                         </span>
                       </td>
                     </tr>
@@ -197,7 +267,7 @@ export default function SystemAdminPage() {
           </div>
         )}
 
-        {/* 🔥 代理店一覧（元々あった） */}
+        {/* 代理店一覧 */}
         {activeTab === 'agencies' && (
           <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
             <h2>代理店一覧</h2>
@@ -235,7 +305,7 @@ export default function SystemAdminPage() {
           </div>
         )}
 
-        {/* 🔥 決済不履行一覧（新しく追加） */}
+        {/* 決済不履行一覧 */}
         {activeTab === 'payment-failures' && <PaymentFailuresTab />}
 
       </main>
@@ -244,7 +314,7 @@ export default function SystemAdminPage() {
 }
 
 // ============================================================
-// 🔥 決済不履行一覧タブ（新規追加）
+// 決済不履行一覧タブ（変更なし）
 // ============================================================
 function PaymentFailuresTab() {
   const [loading, setLoading] = useState(true);
@@ -369,33 +439,13 @@ function PaymentFailuresTab() {
                   </td>
                   <td style={{ padding: '12px', textAlign: 'center' }}>
                     <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                      <button
-                        onClick={() => handleSendInvoice(shop.id, 1)}
-                        style={{ padding: '4px 10px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
-                      >
-                        1ヶ月分
-                      </button>
-                      <button
-                        onClick={() => handleSendInvoice(shop.id, 2)}
-                        style={{ padding: '4px 10px', background: '#8b5cf6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
-                      >
-                        2ヶ月分
-                      </button>
-                      <button
-                        onClick={() => handleSendInvoice(shop.id, 3)}
-                        style={{ padding: '4px 10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
-                      >
-                        3ヶ月分
-                      </button>
+                      <button onClick={() => handleSendInvoice(shop.id, 1)} style={{ padding: '4px 10px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>1ヶ月分</button>
+                      <button onClick={() => handleSendInvoice(shop.id, 2)} style={{ padding: '4px 10px', background: '#8b5cf6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>2ヶ月分</button>
+                      <button onClick={() => handleSendInvoice(shop.id, 3)} style={{ padding: '4px 10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>3ヶ月分</button>
                     </div>
                   </td>
                   <td style={{ padding: '12px', textAlign: 'center' }}>
-                    <button
-                      onClick={() => handleDelete(shop.id)}
-                      style={{ padding: '4px 12px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
-                    >
-                      削除
-                    </button>
+                    <button onClick={() => handleDelete(shop.id)} style={{ padding: '4px 12px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}>削除</button>
                   </td>
                 </tr>
               ))}
