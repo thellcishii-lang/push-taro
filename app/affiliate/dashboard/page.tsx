@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase-client';
 import Link from 'next/link';
 
@@ -11,6 +11,12 @@ export default function AffiliateDashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
+
+  // ログイン用
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -34,6 +40,19 @@ export default function AffiliateDashboardPage() {
     return () => unsub();
   }, []);
 
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    setIsLoggingIn(true);
+    try {
+      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+    } catch (err: any) {
+      setLoginError('メールアドレスまたはパスワードが正しくありません。');
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/');
@@ -47,11 +66,83 @@ export default function AffiliateDashboardPage() {
     );
   }
 
+  // 🔥 未ログイン時はログイン画面を表示（申し込みページには飛ばない）
   if (!user) {
-    router.push('/affiliate/signup');
-    return null;
+    return (
+      <div style={{ background: '#f8fafc', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '40px', maxWidth: '400px', width: '100%', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <h1 style={{ fontSize: '22px', fontWeight: '800', color: '#1a202c', margin: '0 0 8px 0' }}>📢 アフィリエイトダッシュボード</h1>
+            <p style={{ color: '#718096', fontSize: '13px', margin: 0 }}>ログインしてダッシュボードを表示</p>
+          </div>
+
+          {loginError && (
+            <div style={{ background: '#fff5f5', border: '1px solid #feb2b2', color: '#c53030', padding: '10px', borderRadius: '6px', fontSize: '13px', marginBottom: '16px' }}>
+              {loginError}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px' }}>メールアドレス</label>
+              <input
+                type="email"
+                required
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                placeholder="affiliate@example.com"
+                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '14px', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px' }}>パスワード</label>
+              <input
+                type="password"
+                required
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                placeholder="••••••••"
+                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '14px', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoggingIn}
+              style={{
+                marginTop: '8px',
+                width: '100%',
+                padding: '12px',
+                background: '#3182ce',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                fontWeight: 'bold',
+                fontSize: '14px',
+                cursor: isLoggingIn ? 'wait' : 'pointer',
+              }}
+            >
+              {isLoggingIn ? 'ログイン中...' : 'ログイン'}
+            </button>
+          </form>
+
+          <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '13px', color: '#64748b' }}>
+            まだ登録していませんか？{' '}
+            <Link href="/affiliate/signup" style={{ color: '#2563eb', textDecoration: 'none', fontWeight: 'bold' }}>
+              今すぐ申し込む
+            </Link>
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: '12px', fontSize: '12px', color: '#94a3b8' }}>
+            <Link href="/" style={{ color: '#94a3b8', textDecoration: 'none' }}>トップページに戻る</Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
+  // 🔓 ログイン後のダッシュボード（ここからは user が null でないことが保証されている）
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
       <main style={{ maxWidth: '1000px', margin: '0 auto' }}>
@@ -101,7 +192,7 @@ export default function AffiliateDashboardPage() {
           </div>
         </div>
 
-        {/* 報酬タイプ設定 */}
+        {/* 報酬タイプ */}
         <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
           <h2 style={{ fontSize: '16px', fontWeight: '800', marginBottom: '8px' }}>⚙️ 報酬タイプ</h2>
           <p style={{ fontSize: '14px', color: '#475569' }}>
