@@ -55,58 +55,107 @@ export async function POST(request: Request) {
     // 1. 引き落とし失敗（invoice.payment_failed）
     // ============================================================
     if (eventType === 'invoice.payment_failed') {
-      const invoice = dataObject?.invoice;
-      const customerEmail = invoice?.primary_recipient?.email_address;
-      const customerId = invoice?.customer_id;
+  const invoice = dataObject?.invoice;
+  const customerEmail = invoice?.primary_recipient?.email_address;
+  const customerId = invoice?.customer_id;
 
-      if (!customerEmail && !customerId) {
-        return NextResponse.json({ received: true }, { status: 200 });
-      }
+  if (!customerEmail && !customerId) {
+    return NextResponse.json({ received: true }, { status: 200 });
+  }
 
-      let query = db.collection('shops').where('email', '==', customerEmail);
-      let shopSnap = await query.get();
+  let query = db.collection('shops').where('email', '==', customerEmail);
+  let shopSnap = await query.get();
 
-      if (shopSnap.empty && customerId) {
-        shopSnap = await db.collection('shops').where('squareCustomerId', '==', customerId).get();
-      }
+  if (shopSnap.empty && customerId) {
+    shopSnap = await db.collection('shops').where('squareCustomerId', '==', customerId).get();
+  }
 
-      if (!shopSnap.empty) {
-        const shopDoc = shopSnap.docs[0];
-        const shopData = shopDoc.data();
-        const currentStatus = shopData.status || 'active';
+  if (!shopSnap.empty) {
+    const shopDoc = shopSnap.docs[0];
+    const shopData = shopDoc.data();
+    const currentFailedCount = shopData.failedCount || 0;
+    const newFailedCount = currentFailedCount + 1;
 
-        // すでに警告中または送信停止中の場合は強制退会
-        if (currentStatus === 'send_disabled' || currentStatus === 'payment_warning') {
-          await shopDoc.ref.update({
-            status: 'cancelled',
-            cancelledAt: FieldValue.serverTimestamp(),
-            updatedAt: FieldValue.serverTimestamp(),
-          });
+    if (newFailedCount === 1) {
+      // 1回目：警告状態にする（メールは送らない。Squareがリトライするため）
+      await shopDoc.ref.update({
+        status: 'payment_warning',
+        failedCount: 1,
+        failedAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+      console.log(`[決済失敗 1回目] ${customerEmail} - payment_warning`);
 
-          // 紹介リレーションを inactive に更新
-          const relSnap = await db.collection('referral_relations')
-            .where('referredTenantId', '==', shopDoc.id)
-            .get();
-          relSnap.docs.forEach(async (relDoc) => {
-            await relDoc.ref.update({ status: 'inactive' });
-          });
+    } else if (newFailedCount === 2) {
+      // 2回目：リマインダーメール送信
+      await shopDoc.ref.update({
+        failedCount: 2,
+        failedAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
 
-          console.log(`[強制退会] 店舗: ${shopData.name} (${customerEmail})`);
-        } else if (currentStatus !== 'payment_warning') {
-          // 初めての失敗 → 警告状態 + 7日猶予
-          const gracePeriodUntil = new Date();
-          gracePeriodUntil.setDate(gracePeriodUntil.getDate() + 7);
-          await shopDoc.ref.update({
-            status: 'payment_warning',
-            failedAt: FieldValue.serverTimestamp(),
-            gracePeriodUntil: gracePeriodUntil.toISOString(),
-            updatedAt: FieldValue.serverTimestamp(),
-          });
-          console.log(`[警告] 店舗: ${shopData.name} (${customerEmail}) / 猶予期限: ${gracePeriodUntil.toISOString()}`);
-        }
-      }
-      return NextResponse.json({ success: true, message: '引き落とし失敗処理完了' }, { status: 200 });
+      await sendEmail({
+        to: shopData.email,
+        subject: '【Push-taro】決済失敗のお知らせ（再決済のお願い）',
+        html: `
+          <h2>${shopData.name || '店舗'} 様</h2>
+          <p>ご利用料金の決済に失敗しました（2回目）。</p>
+          <p>Squareよりカード情報更新のご案内が届いているかと思いますので、</p>
+          <p>お手数ですがカード情報を更新いただき、再決済をお願いいたします。</p>
+          <p style="color: #e53e3e; font-weight: bold;">※3回目の失敗でサービスが停止いたします。</p>
+          <hr />
+          <p><strong>Push-taro.com</strong></p>
+           <hr />
+            <p>運営会社：the合同会社</p>
+            <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
+            <p><a href="mailto:pushtaro-info@gmail.com">pushtaro.info@gmail.com</a></p>
+        `,
+      });
+      console.log(`[決済失敗 2回目] ${customerEmail} - リマインダーメール送信`);
+
+    } else if (newFailedCount >= 3) {
+      // 3回目：サービス停止（send_disabled）
+      await shopDoc.ref.update({
+        status: 'send_disabled',
+        failedCount: 3,
+        failedAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+
+      // 紹介リレーションを inactive に
+      const relSnap = await db.collection('referral_relations')
+        .where('referredTenantId', '==', shopDoc.id)
+        .get();
+      relSnap.docs.forEach(async (relDoc) => {
+        await relDoc.ref.update({ status: 'inactive' });
+      });
+
+      await sendEmail({
+        to: shopData.email,
+        subject: '【Push-taro】決済不履行によるサービス停止のお知らせ',
+        html: `
+          <h2>${shopData.name || '店舗'} 様</h2>
+          <p>ご利用料金の決済が3回連続で失敗したため、</p>
+          <p>Push-taroのサービスを一時停止いたしました。</p>
+          <p>カード情報を更新いただき、再決済が完了しましたら</p>
+          <p style="font-weight: bold; color: #16a34a;">自動的にサービスが再開されます。</p>
+          <hr />
+          <p>再開手続きはSquareのご案内メールに従って</p>
+          <p>カード情報を更新してください。</p>
+          <hr />
+          <p><strong>Push-taro.com</strong></p>
+           <hr />
+            <p>運営会社：the合同会社</p>
+            <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
+            <p><a href="mailto:pushtaro-info@gmail.com">pushtaro.info@gmail.com</a></p>
+        `,
+      });
+      console.log(`[決済失敗 3回目] ${customerEmail} - send_disabled + メール送信`);
     }
+  }
+
+  return NextResponse.json({ success: true, message: '決済失敗処理完了' }, { status: 200 });
+}
 
     // ============================================================
     // 2. 決済成功（payment.updated / invoice.payment_made）
