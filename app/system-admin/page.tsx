@@ -158,7 +158,7 @@ export default function SystemAdminPage() {
 </div>
 
         {/* 全店舗リスト / プロプラン */}
-        {activeTab !== 'agencies' && activeTab !== 'payment-failures' && (
+        {activeTab !== 'agencies' && activeTab !== 'payment-failures' && activeTab !== 'affiliates' && (
           <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
             
             {/* 検索バー & 大分類フィルター */}
@@ -460,6 +460,8 @@ function AffiliatesTab() {
     </div>
   );
 }
+　　　　　　　　　　　　　　　　　{/* アフィリエイト一覧 */}
+　　　　　　　　　　　　　　　　　{activeTab === 'affiliates' && <AffiliatesTab />}
 
         {/* 決済不履行一覧 */}
         {activeTab === 'payment-failures' && <PaymentFailuresTab />}
