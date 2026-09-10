@@ -532,7 +532,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
   console.error('[square-webhook] エラー:', error);
   
-  // 🔥 管理者通知（決済系は重要度高）
+  // 🔥 管理者通知
   await notifyAdmins(error, {
     source: 'square-webhook',
     details: {
