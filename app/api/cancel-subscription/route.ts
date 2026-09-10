@@ -1,3 +1,4 @@
+// app/api/cancel-subscription/route.ts（修正後）
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { Client, Environment } from 'square';
@@ -20,7 +21,6 @@ export async function POST(request: Request) {
 
     const { shopId } = await request.json();
 
-    // 店舗の所有権チェック
     const shopRef = db.collection('shops').doc(shopId);
     const shopDoc = await shopRef.get();
 
@@ -31,13 +31,11 @@ export async function POST(request: Request) {
     const shopData = shopDoc.data();
     let validUntilDate = new Date();
 
-    // Square サブスクリプションが存在する場合、Square側の解約APIを実行
+    // Square解約
     if (shopData?.subscriptionId) {
       try {
         const response = await squareClient.subscriptionsApi.cancelSubscription(shopData.subscriptionId);
         const subscription = response.result.subscription;
-        
-        // 契約終了日を取得（次回更新予定日＝有効期限）
         if (subscription?.chargedThroughDate) {
           validUntilDate = new Date(subscription.chargedThroughDate);
         }
@@ -46,12 +44,24 @@ export async function POST(request: Request) {
       }
     }
 
-    // DB側の店舗ステータスを「解約済み」へ更新
+    // Firestore更新
     await shopRef.update({
       status: 'canceled',
       canceledAt: new Date(),
       validUntil: validUntilDate,
     });
+
+    // ============================================================
+    // 🔥 Authユーザーも削除（退会後はログイン不可にする）
+    // ============================================================
+    try {
+      await authAdmin.deleteUser(uid);
+      console.log(`[cancel-subscription] Authユーザー削除完了: ${uid}`);
+    } catch (authErr: any) {
+      if (authErr.code !== 'auth/user-not-found') {
+        console.error('[cancel-subscription] Auth削除エラー:', authErr);
+      }
+    }
 
     return NextResponse.json({
       success: true,
