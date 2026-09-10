@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/firebase-admin';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   // 🔒 Cron認証（Vercel Cron Jobs からのみ実行）
   const authHeader = request.headers.get('authorization');
