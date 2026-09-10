@@ -3,6 +3,8 @@ import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import '@/lib/firebase-admin'; // 初期化のみ呼び出し
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
