@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';   // ← 追加
 import { auth } from '@/lib/firebase-client';
 
 interface ShopData {
@@ -437,6 +438,45 @@ const toggleCircuitBreaker = async () => {
             全店舗・代理店の稼働状況および顧客登録件数の全体サマリーです。
           </p>
         </div>
+
+        {/* 🔗 サブページへのナビゲーション */}
+<div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+  <Link
+    href="/system-admin/console"
+    style={{
+      padding: '10px 20px',
+      background: '#0f172a',
+      color: '#38bdf8',
+      borderRadius: '8px',
+      textDecoration: 'none',
+      fontWeight: 'bold',
+      fontSize: '13px',
+      fontFamily: 'monospace',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '6px',
+    }}
+  >
+    🖥️ エラーコンソール
+  </Link>
+  <Link
+    href="/system-admin/emails"
+    style={{
+      padding: '10px 20px',
+      background: '#3182ce',
+      color: '#fff',
+      borderRadius: '8px',
+      textDecoration: 'none',
+      fontWeight: 'bold',
+      fontSize: '13px',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '6px',
+    }}
+  >
+    📧 メール一斉配信
+  </Link>
+</div>
 
         {/* 🚨 サーキットブレーカー */}
 <div style={{
