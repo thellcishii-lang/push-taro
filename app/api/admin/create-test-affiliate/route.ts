@@ -3,6 +3,7 @@ import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import '@/lib/firebase-admin';
 
+
 // 紹介コード生成
 function generateReferralCode(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -22,6 +23,8 @@ function generatePassword(): string {
   }
   return password;
 }
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
