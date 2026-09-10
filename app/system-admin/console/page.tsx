@@ -18,7 +18,7 @@ interface ErrorLog {
 export default function ErrorConsolePage() {
   const [logs, setLogs] = useState<ErrorLog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const fetchLogs = async () => {
