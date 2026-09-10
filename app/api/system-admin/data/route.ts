@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { db as adminDb } from '../../../../lib/firebase-admin';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     // 1. 全店舗データの取得
