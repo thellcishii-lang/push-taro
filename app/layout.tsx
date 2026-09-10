@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 
+export const dynamic = 'force-dynamic';
+
 export const viewport: Viewport = {
   themeColor: '#ff6b6b',
   width: 'device-width',
