@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db as adminDb } from '@/lib/firebase-admin';
 
+export const dynamic = 'force-dynamic';
 // 毎日 0:00 UTC（日本時間 9:00）に実行される予約配信バッチ
 export async function GET(req: Request) {
   // 🔒 Cron認証（Vercel Cron Jobs からのみ実行可能）
