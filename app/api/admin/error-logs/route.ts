@@ -14,6 +14,8 @@ async function verifyAdmin(request: Request) {
   }
 }
 
+export const dynamic = 'force-dynamic';
+
 // 一覧取得
 export async function GET(request: Request) {
   const uid = await verifyAdmin(request);
