@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 
+export const dynamic = 'force-dynamic';
+
 // システム状態を取得
 export async function GET(request: Request) {
   try {
