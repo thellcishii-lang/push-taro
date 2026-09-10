@@ -28,8 +28,7 @@ export async function GET(req: Request) {
           shouldSend = true;
         }
         // ② 毎月指定日
-        else if (item.scheduleType === 'monthly' && item.scheduleRaw?.dayOfMonth === currentDayOfMonth) {
-          shouldSend = true;
+       else if (item.scheduleType === 'monthly' && String(item.scheduleRaw?.dayOfMonth) === currentDayOfMonth) {
         }
         // ③ 毎週指定曜日
         else if (item.scheduleType === 'weekly' && item.scheduleRaw?.dayOfWeek === currentDayOfWeek) {
