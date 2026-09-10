@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { messaging, db } from '../../../lib/firebase-admin';
 import { getAuth } from 'firebase-admin/auth';
 import { FieldValue } from 'firebase-admin/firestore';
+import { notifyAdmins } from '@/lib/error-notifier';
 
 // 🔍 トークンからプラットフォームを推測する簡易関数
 function guessPlatform(token: string): string {
