@@ -1,4 +1,6 @@
 import { sendEmail } from './mailer';
+import { db } from './firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 // 管理者のメールアドレス（環境変数から取得、カンマ区切りで複数指定可）
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'pushtaro-info@gmail.com')
@@ -89,6 +91,23 @@ export async function notifyAdmins(error: Error | any, context: ErrorContext) {
         </p>
       </div>
     `;
+
+    // 全管理者に送信
+        // 🔥 Firestore にエラーログを保存（エラーコンソール表示用）
+    try {
+      await db.collection('error_logs').add({
+        source: context.source,
+        message: errorMessage,
+        stack: errorStack,
+        userId: context.userId || null,
+        shopId: context.shopId || null,
+        details: context.details || null,
+        createdAt: FieldValue.serverTimestamp(),
+      });
+      console.log(`[error-notifier] Firestoreにログ保存完了`);
+    } catch (logError) {
+      console.error('[error-notifier] Firestoreログ保存失敗:', logError);
+    }
 
     // 全管理者に送信
     await Promise.all(
