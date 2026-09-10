@@ -308,6 +308,7 @@ export default function SystemAdminPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'pro' | 'agencies' | 'affiliates' | 'payment-failures'>('all');
   const [filterType, setFilterType] = useState<'all' | 'direct' | 'referral' | 'agency'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [errorCount, setErrorCount] = useState(0);
   const [isCircuitBreakerOpen, setIsCircuitBreakerOpen] = useState(false);
 　　　　const [circuitLoading, setCircuitLoading] = useState(false);
 
@@ -326,6 +327,7 @@ export default function SystemAdminPage() {
   useEffect(() => {
     fetchSystemStats();
     fetchSystemStatus();
+    fetchErrorCount();
   }, []);
 
   // 🚨 システム状態を取得
@@ -390,6 +392,24 @@ const toggleCircuitBreaker = async () => {
       setLoading(false);
     }
   };
+
+  // 🔥 エラー件数を取得
+const fetchErrorCount = async () => {
+  try {
+    const user = auth.currentUser;
+    if (!user) return;
+    const idToken = await user.getIdToken();
+    const res = await fetch('/api/admin/error-logs', {
+      headers: { Authorization: `Bearer ${idToken}` },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setErrorCount(data.logs?.length || 0);
+    }
+  } catch (err) {
+    console.error('エラー件数取得失敗:', err);
+  }
+};
 
   const filteredShops = shops.filter((shop) => {
     if (activeTab === 'pro' && shop.plan?.toLowerCase() !== 'pro') return false;
@@ -460,22 +480,35 @@ const toggleCircuitBreaker = async () => {
     🖥️ エラーコンソール
   </Link>
   <Link
-    href="/system-admin/emails"
-    style={{
-      padding: '10px 20px',
-      background: '#3182ce',
+  href="/system-admin/console"
+  style={{
+    padding: '10px 20px',
+    background: '#0f172a',
+    color: '#38bdf8',
+    borderRadius: '8px',
+    textDecoration: 'none',
+    fontWeight: 'bold',
+    fontSize: '13px',
+    fontFamily: 'monospace',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+  }}
+>
+  🖥️ エラーコンソール
+  {errorCount > 0 && (
+    <span style={{
+      background: '#ef4444',
       color: '#fff',
-      borderRadius: '8px',
-      textDecoration: 'none',
+      borderRadius: '12px',
+      padding: '2px 8px',
+      fontSize: '11px',
       fontWeight: 'bold',
-      fontSize: '13px',
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: '6px',
-    }}
-  >
-    📧 メール一斉配信
-  </Link>
+    }}>
+      {errorCount}
+    </span>
+  )}
+</Link>
 </div>
 
         {/* 🚨 サーキットブレーカー */}
