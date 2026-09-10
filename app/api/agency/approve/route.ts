@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { db as adminDb } from '../../../../lib/firebase-admin';
 import { sendEmail } from '@/lib/mailer';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const applicationId = searchParams.get('id');
