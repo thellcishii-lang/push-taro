@@ -313,16 +313,17 @@ export async function POST(request: Request) {
     });
 
   } catch (error: any) {
-  console.error('[signup] エラー:', error);
-  
-  // 🔥 管理者通知
-  await notifyAdmins(error, {
-    source: 'signup',
-    details: { email: body?.email },
-  });
+    console.error('[signup] エラー:', error);
+    
+    // 🔥 管理者通知
+    await notifyAdmins(error, {
+      source: 'signup',
+      details: { email: body?.email },
+    });
 
-  return NextResponse.json(
-    { error: error.message || '登録処理に失敗しました' },
-    { status: 500 }
-  );
+    return NextResponse.json(
+      { error: error.message || '登録処理に失敗しました' },
+      { status: 500 }
+    );
+  }
 }
