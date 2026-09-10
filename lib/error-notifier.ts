@@ -109,7 +109,7 @@ export async function notifyAdmins(error: Error | any, context: ErrorContext) {
       console.error('[error-notifier] Firestoreログ保存失敗:', logError);
     }
 
-    // 全管理者に送信
+    // 🔥 全管理者にメール送信
     await Promise.all(
       ADMIN_EMAILS.map((to) =>
         sendEmail({
