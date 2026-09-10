@@ -15,6 +15,8 @@ async function verifyAdmin(request: Request) {
   }
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   const uid = await verifyAdmin(request);
   if (!uid) {
