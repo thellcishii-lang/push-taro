@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/firebase-admin'; // パスはプロジェクト環境に合わせてください
 import { POST as webhookPOST } from '../../square-webhook/route';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const { shopId } = await request.json();
