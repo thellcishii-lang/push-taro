@@ -38,6 +38,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: '無効な認証トークンです' }, { status: 401 });
   }
 
+  // ============================================================
+  try {
+    const systemConfig = await db.collection('config').doc('system').get();
+    if (systemConfig.exists && systemConfig.data()?.isCircuitBreakerOpen === true) {
+      console.warn('[send-push] 🚨 サーキットブレーカー発動中 - 送信をブロックしました');
+      return NextResponse.json({
+        success: false,
+        error: '現在、システムは緊急停止中です。管理者にお問い合わせください。',
+      }, { status: 503 });
+    }
+  } catch (err) {
+    console.warn('[send-push] システム状態チェック失敗（続行）:', err);
+  }
+
   try {
     const shopQuery = await db.collection('shops').where('ownerUid', '==', uid).limit(1).get();
     if (shopQuery.empty) {
