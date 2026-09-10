@@ -40,7 +40,7 @@ async function sendAdminPayoutNotification(referrerData: any, referrerId: string
   //   html: emailBody.replace(/\n/g, '<br>'),
   // });
 }
-
+export const dynamic = 'force-dynamic';
 // ============================================================
 // メイン Webhook エンドポイント
 // ============================================================
