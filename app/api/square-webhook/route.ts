@@ -45,8 +45,10 @@ async function sendAdminPayoutNotification(referrerData: any, referrerId: string
 // メイン Webhook エンドポイント
 // ============================================================
 export async function POST(request: Request) {
+  let body: any = {};  // 🔥 try の外で宣言
+
   try {
-    const body = await request.json();
+    body = await request.json();  // 🔥 const を削除
     const eventType = body?.type;
     const dataObject = body?.data?.object;
 
