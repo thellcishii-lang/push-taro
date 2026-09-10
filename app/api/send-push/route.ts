@@ -259,7 +259,14 @@ export async function POST(request: Request) {
     }, { status: 200 });
 
   } catch (error: any) {
-    console.error('[send-push] エラー:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  console.error('[send-push] エラー:', error);
+  
+  // 🔥 管理者通知
+  await notifyAdmins(error, {
+    source: 'send-push',
+    userId: uid,
+    shopId: typeof shopId !== 'undefined' ? shopId : undefined,
+  });
+
+  return NextResponse.json({ error: error.message }, { status: 500 });
 }
