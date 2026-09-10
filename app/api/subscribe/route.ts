@@ -16,6 +16,8 @@ function isRateLimited(ip: string): boolean {
   return false;
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
 
