@@ -307,6 +307,8 @@ export default function SystemAdminPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'pro' | 'agencies' | 'affiliates' | 'payment-failures'>('all');
   const [filterType, setFilterType] = useState<'all' | 'direct' | 'referral' | 'agency'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isCircuitBreakerOpen, setIsCircuitBreakerOpen] = useState(false);
+　　　　const [circuitLoading, setCircuitLoading] = useState(false);
 
   const [summary, setSummary] = useState({
     totalSubscribers: 0,
@@ -322,7 +324,55 @@ export default function SystemAdminPage() {
 
   useEffect(() => {
     fetchSystemStats();
+    fetchSystemStatus();
   }, []);
+
+  // 🚨 システム状態を取得
+const fetchSystemStatus = async () => {
+  try {
+    const res = await fetch('/api/admin/system-status');
+    if (res.ok) {
+      const data = await res.json();
+      setIsCircuitBreakerOpen(data.isCircuitBreakerOpen || false);
+    }
+  } catch (err) {
+    console.error('システム状態取得エラー:', err);
+  }
+};
+
+// 🚨 サーキットブレーカー切り替え
+const toggleCircuitBreaker = async () => {
+  const action = isCircuitBreakerOpen ? '再開' : '緊急停止';
+  if (!confirm(`⚠️ システムを${action}しますか？`)) return;
+
+  setCircuitLoading(true);
+  try {
+    const user = auth.currentUser;
+    if (!user) return;
+    const idToken = await user.getIdToken();
+
+    const res = await fetch('/api/admin/system-status', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({ isCircuitBreakerOpen: !isCircuitBreakerOpen }),
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      setIsCircuitBreakerOpen(data.isCircuitBreakerOpen);
+      alert(`✅ ${data.message}`);
+    } else {
+      alert('エラー: ' + data.error);
+    }
+  } catch (err: any) {
+    alert('通信エラー: ' + err.message);
+  } finally {
+    setCircuitLoading(false);
+  }
+};
 
   const fetchSystemStats = async () => {
     try {
@@ -387,6 +437,48 @@ export default function SystemAdminPage() {
             全店舗・代理店の稼働状況および顧客登録件数の全体サマリーです。
           </p>
         </div>
+
+        {/* 🚨 サーキットブレーカー */}
+<div style={{
+  background: isCircuitBreakerOpen ? '#fecaca' : '#f0fdf4',
+  border: isCircuitBreakerOpen ? '2px solid #dc2626' : '2px solid #22c55e',
+  padding: '16px 20px',
+  borderRadius: '12px',
+  marginBottom: '24px',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  flexWrap: 'wrap',
+  gap: '12px',
+}}>
+  <div>
+    <div style={{ fontSize: '15px', fontWeight: 'bold', color: isCircuitBreakerOpen ? '#dc2626' : '#15803d' }}>
+      {isCircuitBreakerOpen ? '🚨 システム緊急停止中' : '✅ システム正常稼働中'}
+    </div>
+    <div style={{ fontSize: '13px', color: '#475569', marginTop: '4px' }}>
+      {isCircuitBreakerOpen 
+        ? 'プッシュ通知の送信が全て停止されています。'
+        : 'プッシュ通知は正常に送信されています。'}
+    </div>
+  </div>
+  <button
+    onClick={toggleCircuitBreaker}
+    disabled={circuitLoading}
+    style={{
+      padding: '12px 24px',
+      background: isCircuitBreakerOpen ? '#22c55e' : '#dc2626',
+      color: '#fff',
+      border: 'none',
+      borderRadius: '8px',
+      fontWeight: 'bold',
+      fontSize: '14px',
+      cursor: circuitLoading ? 'wait' : 'pointer',
+      minWidth: '160px',
+    }}
+  >
+    {circuitLoading ? '処理中...' : isCircuitBreakerOpen ? '▶ システムを再開' : '⏸ システムを緊急停止'}
+  </button>
+</div>
 
         {/* サマリーカード */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '30px' }}>
