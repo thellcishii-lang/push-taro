@@ -39,9 +39,9 @@ export async function notifyAdmins(error: Error | any, context: ErrorContext) {
     // 古いエントリのクリーンアップ
     if (recentErrors.size > 100) {
       const cutoff = now - THROTTLE_MS;
-      for (const [key, timestamp] of recentErrors.entries()) {
+      recentErrors.forEach((timestamp, key) => {
         if (timestamp < cutoff) recentErrors.delete(key);
-      }
+      });
     }
 
     const html = `
