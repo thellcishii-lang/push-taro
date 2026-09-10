@@ -8,6 +8,8 @@ const squareClient = new Client({
   environment: process.env.NODE_ENV === 'production' ? Environment.Production : Environment.Sandbox,
 });
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
