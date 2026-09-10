@@ -3,6 +3,12 @@ import { db as adminDb } from '@/lib/firebase-admin';
 
 // 毎日/1時間ごとに定期実行されるAPI
 export async function GET(req: Request) {
+  // 🔒 Cron認証（Vercel Cron Jobs からのみ実行可能）
+  const authHeader = req.headers.get('authorization');
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const today = new Date();
     const currentDateStr = today.toISOString().slice(0, 10); // YYYY-MM-DD
