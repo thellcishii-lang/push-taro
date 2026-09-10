@@ -8,6 +8,8 @@ const PLAN_PRICES: Record<string, number> = {
   pro: 10000,
 };
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
