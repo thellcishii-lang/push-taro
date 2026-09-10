@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';   // ← 追加
 import { auth } from '@/lib/firebase-client';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
 interface ShopData {
   id: string;
@@ -29,6 +30,16 @@ interface AgencyData {
   referralCode?: string;
   createdAt?: string | null;
 }
+
+export default function SystemAdminPage() {
+  // 🔥 認証関連
+  const [user, setUser] = useState<any>(null);
+  const [authChecking, setAuthChecking] = useState(true);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
 // ============================================================
 // アフィリエイト一覧タブ（SystemAdminPage の外に移動）
@@ -221,6 +232,93 @@ function PaymentFailuresTab() {
     }
   };
 
+  // 🔥 認証チェック中
+if (authChecking) {
+  return (
+    <div style={{ background: '#0f172a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', color: '#64748b' }}>
+      認証を確認中...
+    </div>
+  );
+}
+
+// 🔥 未ログイン時のログイン画面
+if (!user) {
+  return (
+    <div style={{ background: '#0f172a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', padding: '20px' }}>
+      <div style={{ background: '#1e293b', padding: '40px', borderRadius: '12px', border: '1px solid #334155', maxWidth: '400px', width: '100%' }}>
+        <h1 style={{ color: '#38bdf8', fontSize: '20px', marginBottom: '8px', textAlign: 'center' }}>
+          🖥️ System Admin
+        </h1>
+        <p style={{ color: '#64748b', fontSize: '13px', textAlign: 'center', marginBottom: '24px' }}>
+          管理者権限を持つアカウントでログインしてください
+        </p>
+
+        {loginError && (
+          <div style={{ background: '#7f1d1d', color: '#fecaca', padding: '10px', borderRadius: '6px', marginBottom: '16px', fontSize: '13px' }}>
+            {loginError}
+          </div>
+        )}
+
+        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <input
+            type="email"
+            placeholder="メールアドレス"
+            value={loginEmail}
+            onChange={(e) => setLoginEmail(e.target.value)}
+            required
+            style={{ padding: '12px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: '#f8fafc', fontSize: '14px' }}
+          />
+          <input
+            type="password"
+            placeholder="パスワード"
+            value={loginPassword}
+            onChange={(e) => setLoginPassword(e.target.value)}
+            required
+            style={{ padding: '12px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: '#f8fafc', fontSize: '14px' }}
+          />
+          <button
+            type="submit"
+            disabled={isLoggingIn}
+            style={{ padding: '12px', background: isLoggingIn ? '#475569' : '#3182ce', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: isLoggingIn ? 'wait' : 'pointer', fontSize: '14px' }}
+          >
+            {isLoggingIn ? 'ログイン中...' : 'ログイン'}
+          </button>
+        </form>
+
+        <p style={{ color: '#64748b', fontSize: '12px', textAlign: 'center', marginTop: '20px' }}>
+          <Link href="/admin" style={{ color: '#38bdf8', textDecoration: 'none' }}>
+            ← 店舗管理画面へ
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// 🔥 ログイン済みだが管理者権限がない場合
+if (user && !isAdmin) {
+  return (
+    <div style={{ background: '#0f172a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', padding: '20px' }}>
+      <div style={{ background: '#1e293b', padding: '40px', borderRadius: '12px', border: '1px solid #7f1d1d', maxWidth: '400px', width: '100%', textAlign: 'center' }}>
+        <div style={{ fontSize: '48px', marginBottom: '16px' }}>🚫</div>
+        <h1 style={{ color: '#ef4444', fontSize: '18px', marginBottom: '8px' }}>
+          アクセス権限がありません
+        </h1>
+        <p style={{ color: '#94a3b8', fontSize: '13px', marginBottom: '24px', lineHeight: 1.6 }}>
+          このページは管理者専用です。<br />
+          ログイン中のアカウント: <strong style={{ color: '#f8fafc' }}>{user.email}</strong>
+        </p>
+        <button
+          onClick={handleLogout}
+          style={{ padding: '12px 24px', background: '#475569', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}
+        >
+          ログアウト
+        </button>
+      </div>
+    </div>
+  );
+}
+
   if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>読み込み中...</div>;
 
   return (
@@ -325,10 +423,31 @@ export default function SystemAdminPage() {
   const [agencies, setAgencies] = useState<AgencyData[]>([]);
 
   useEffect(() => {
-    fetchSystemStats();
-    fetchSystemStatus();
-    fetchErrorCount();
-  }, []);
+  const unsub = onAuthStateChanged(auth, async (u) => {
+    setUser(u);
+    setAuthChecking(false);
+
+    if (u) {
+      // adminクレームをチェック
+      try {
+        const idTokenResult = await u.getIdTokenResult(true);
+        const hasAdminClaim = idTokenResult.claims.admin === true;
+        setIsAdmin(hasAdminClaim);
+
+        if (hasAdminClaim) {
+          // 管理者の場合のみデータ取得
+          fetchSystemStats();
+          fetchSystemStatus();
+          fetchErrorCount();
+        }
+      } catch (err) {
+        console.error('クレーム取得エラー:', err);
+        setIsAdmin(false);
+      }
+    }
+  });
+  return () => unsub();
+}, []);
 
   // 🚨 システム状態を取得
 const fetchSystemStatus = async () => {
@@ -409,6 +528,26 @@ const fetchErrorCount = async () => {
   } catch (err) {
     console.error('エラー件数取得失敗:', err);
   }
+};
+
+  // 🔥 ログイン処理
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoginError('');
+  setIsLoggingIn(true);
+  try {
+    await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+  } catch (err: any) {
+    console.error('ログインエラー:', err);
+    setLoginError('メールアドレスまたはパスワードが正しくありません。');
+  } finally {
+    setIsLoggingIn(false);
+  }
+};
+
+// 🔥 ログアウト処理
+const handleLogout = async () => {
+  await signOut(auth);
 };
 
   const filteredShops = shops.filter((shop) => {
