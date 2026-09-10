@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';   // ← 追加
+import Link from 'next/link';
 import { auth } from '@/lib/firebase-client';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
@@ -31,18 +31,8 @@ interface AgencyData {
   createdAt?: string | null;
 }
 
-export default function SystemAdminPage() {
-  // 🔥 認証関連
-  const [user, setUser] = useState<any>(null);
-  const [authChecking, setAuthChecking] = useState(true);
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [loginError, setLoginError] = useState('');
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-
 // ============================================================
-// アフィリエイト一覧タブ（SystemAdminPage の外に移動）
+// アフィリエイト一覧タブ
 // ============================================================
 function AffiliatesTab() {
   const [loading, setLoading] = useState(true);
@@ -122,13 +112,10 @@ function AffiliatesTab() {
                     </span>
                   </td>
                   <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: '#1a202c' }}>
-                    ¥{aff.totalEarnings.toLocaleString()}
+                    ¥{aff.totalEarnings?.toLocaleString() || 0}
                   </td>
-                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: aff.unpaidReward >= 5000 ? '#22c55e' : '#eab308' }}>
-                    ¥{aff.unpaidReward.toLocaleString()}
-                    {aff.unpaidReward >= 5000 && (
-                      <span style={{ fontSize: '10px', color: '#22c55e', marginLeft: '4px' }}>✅</span>
-                    )}
+                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: (aff.unpaidReward || 0) >= 5000 ? '#22c55e' : '#eab308' }}>
+                    ¥{aff.unpaidReward?.toLocaleString() || 0}
                   </td>
                   <td style={{ padding: '10px', textAlign: 'center' }}>
                     <span style={{
@@ -168,7 +155,7 @@ function AffiliatesTab() {
 }
 
 // ============================================================
-// 決済不履行一覧タブ（SystemAdminPage の外に移動）
+// 決済不履行一覧タブ
 // ============================================================
 function PaymentFailuresTab() {
   const [loading, setLoading] = useState(true);
@@ -231,93 +218,6 @@ function PaymentFailuresTab() {
       alert('通信エラー: ' + err.message);
     }
   };
-
-  // 🔥 認証チェック中
-if (authChecking) {
-  return (
-    <div style={{ background: '#0f172a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', color: '#64748b' }}>
-      認証を確認中...
-    </div>
-  );
-}
-
-// 🔥 未ログイン時のログイン画面
-if (!user) {
-  return (
-    <div style={{ background: '#0f172a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', padding: '20px' }}>
-      <div style={{ background: '#1e293b', padding: '40px', borderRadius: '12px', border: '1px solid #334155', maxWidth: '400px', width: '100%' }}>
-        <h1 style={{ color: '#38bdf8', fontSize: '20px', marginBottom: '8px', textAlign: 'center' }}>
-          🖥️ System Admin
-        </h1>
-        <p style={{ color: '#64748b', fontSize: '13px', textAlign: 'center', marginBottom: '24px' }}>
-          管理者権限を持つアカウントでログインしてください
-        </p>
-
-        {loginError && (
-          <div style={{ background: '#7f1d1d', color: '#fecaca', padding: '10px', borderRadius: '6px', marginBottom: '16px', fontSize: '13px' }}>
-            {loginError}
-          </div>
-        )}
-
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <input
-            type="email"
-            placeholder="メールアドレス"
-            value={loginEmail}
-            onChange={(e) => setLoginEmail(e.target.value)}
-            required
-            style={{ padding: '12px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: '#f8fafc', fontSize: '14px' }}
-          />
-          <input
-            type="password"
-            placeholder="パスワード"
-            value={loginPassword}
-            onChange={(e) => setLoginPassword(e.target.value)}
-            required
-            style={{ padding: '12px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: '#f8fafc', fontSize: '14px' }}
-          />
-          <button
-            type="submit"
-            disabled={isLoggingIn}
-            style={{ padding: '12px', background: isLoggingIn ? '#475569' : '#3182ce', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: isLoggingIn ? 'wait' : 'pointer', fontSize: '14px' }}
-          >
-            {isLoggingIn ? 'ログイン中...' : 'ログイン'}
-          </button>
-        </form>
-
-        <p style={{ color: '#64748b', fontSize: '12px', textAlign: 'center', marginTop: '20px' }}>
-          <Link href="/admin" style={{ color: '#38bdf8', textDecoration: 'none' }}>
-            ← 店舗管理画面へ
-          </Link>
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// 🔥 ログイン済みだが管理者権限がない場合
-if (user && !isAdmin) {
-  return (
-    <div style={{ background: '#0f172a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', padding: '20px' }}>
-      <div style={{ background: '#1e293b', padding: '40px', borderRadius: '12px', border: '1px solid #7f1d1d', maxWidth: '400px', width: '100%', textAlign: 'center' }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>🚫</div>
-        <h1 style={{ color: '#ef4444', fontSize: '18px', marginBottom: '8px' }}>
-          アクセス権限がありません
-        </h1>
-        <p style={{ color: '#94a3b8', fontSize: '13px', marginBottom: '24px', lineHeight: 1.6 }}>
-          このページは管理者専用です。<br />
-          ログイン中のアカウント: <strong style={{ color: '#f8fafc' }}>{user.email}</strong>
-        </p>
-        <button
-          onClick={handleLogout}
-          style={{ padding: '12px 24px', background: '#475569', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}
-        >
-          ログアウト
-        </button>
-      </div>
-    </div>
-  );
-}
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>読み込み中...</div>;
 
@@ -402,13 +302,23 @@ if (user && !isAdmin) {
 // メインコンポーネント
 // ============================================================
 export default function SystemAdminPage() {
+  // 🔥 認証関連
+  const [user, setUser] = useState<any>(null);
+  const [authChecking, setAuthChecking] = useState(true);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // データ関連
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'pro' | 'agencies' | 'affiliates' | 'payment-failures'>('all');
   const [filterType, setFilterType] = useState<'all' | 'direct' | 'referral' | 'agency'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [errorCount, setErrorCount] = useState(0);
   const [isCircuitBreakerOpen, setIsCircuitBreakerOpen] = useState(false);
-　　　　const [circuitLoading, setCircuitLoading] = useState(false);
+  const [circuitLoading, setCircuitLoading] = useState(false);
 
   const [summary, setSummary] = useState({
     totalSubscribers: 0,
@@ -423,78 +333,29 @@ export default function SystemAdminPage() {
   const [agencies, setAgencies] = useState<AgencyData[]>([]);
 
   useEffect(() => {
-  const unsub = onAuthStateChanged(auth, async (u) => {
-    setUser(u);
-    setAuthChecking(false);
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      setUser(u);
+      setAuthChecking(false);
 
-    if (u) {
-      // adminクレームをチェック
-      try {
-        const idTokenResult = await u.getIdTokenResult(true);
-        const hasAdminClaim = idTokenResult.claims.admin === true;
-        setIsAdmin(hasAdminClaim);
+      if (u) {
+        try {
+          const idTokenResult = await u.getIdTokenResult(true);
+          const hasAdminClaim = idTokenResult.claims.admin === true;
+          setIsAdmin(hasAdminClaim);
 
-        if (hasAdminClaim) {
-          // 管理者の場合のみデータ取得
-          fetchSystemStats();
-          fetchSystemStatus();
-          fetchErrorCount();
+          if (hasAdminClaim) {
+            fetchSystemStats();
+            fetchSystemStatus();
+            fetchErrorCount();
+          }
+        } catch (err) {
+          console.error('クレーム取得エラー:', err);
+          setIsAdmin(false);
         }
-      } catch (err) {
-        console.error('クレーム取得エラー:', err);
-        setIsAdmin(false);
       }
-    }
-  });
-  return () => unsub();
-}, []);
-
-  // 🚨 システム状態を取得
-const fetchSystemStatus = async () => {
-  try {
-    const res = await fetch('/api/admin/system-status');
-    if (res.ok) {
-      const data = await res.json();
-      setIsCircuitBreakerOpen(data.isCircuitBreakerOpen || false);
-    }
-  } catch (err) {
-    console.error('システム状態取得エラー:', err);
-  }
-};
-
-// 🚨 サーキットブレーカー切り替え
-const toggleCircuitBreaker = async () => {
-  const action = isCircuitBreakerOpen ? '再開' : '緊急停止';
-  if (!confirm(`⚠️ システムを${action}しますか？`)) return;
-
-  setCircuitLoading(true);
-  try {
-    const user = auth.currentUser;
-    if (!user) return;
-    const idToken = await user.getIdToken();
-
-    const res = await fetch('/api/admin/system-status', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${idToken}`,
-      },
-      body: JSON.stringify({ isCircuitBreakerOpen: !isCircuitBreakerOpen }),
     });
-
-    const data = await res.json();
-    if (res.ok) {
-      setIsCircuitBreakerOpen(data.isCircuitBreakerOpen);
-      alert(`✅ ${data.message}`);
-    } else {
-      alert('エラー: ' + data.error);
-    }
-  } catch (err: any) {
-    alert('通信エラー: ' + err.message);
-  } finally {
-    setCircuitLoading(false);
-  }
-};
+    return () => unsub();
+  }, []);
 
   const fetchSystemStats = async () => {
     try {
@@ -512,43 +373,85 @@ const toggleCircuitBreaker = async () => {
     }
   };
 
-  // 🔥 エラー件数を取得
-const fetchErrorCount = async () => {
-  try {
-    const user = auth.currentUser;
-    if (!user) return;
-    const idToken = await user.getIdToken();
-    const res = await fetch('/api/admin/error-logs', {
-      headers: { Authorization: `Bearer ${idToken}` },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      setErrorCount(data.logs?.length || 0);
+  const fetchSystemStatus = async () => {
+    try {
+      const res = await fetch('/api/admin/system-status');
+      if (res.ok) {
+        const data = await res.json();
+        setIsCircuitBreakerOpen(data.isCircuitBreakerOpen || false);
+      }
+    } catch (err) {
+      console.error('システム状態取得エラー:', err);
     }
-  } catch (err) {
-    console.error('エラー件数取得失敗:', err);
-  }
-};
+  };
 
-  // 🔥 ログイン処理
-const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoginError('');
-  setIsLoggingIn(true);
-  try {
-    await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
-  } catch (err: any) {
-    console.error('ログインエラー:', err);
-    setLoginError('メールアドレスまたはパスワードが正しくありません。');
-  } finally {
-    setIsLoggingIn(false);
-  }
-};
+  const fetchErrorCount = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/admin/error-logs', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setErrorCount(data.logs?.length || 0);
+      }
+    } catch (err) {
+      console.error('エラー件数取得失敗:', err);
+    }
+  };
 
-// 🔥 ログアウト処理
-const handleLogout = async () => {
-  await signOut(auth);
-};
+  const toggleCircuitBreaker = async () => {
+    const action = isCircuitBreakerOpen ? '再開' : '緊急停止';
+    if (!confirm(`⚠️ システムを${action}しますか？`)) return;
+
+    setCircuitLoading(true);
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const idToken = await user.getIdToken();
+
+      const res = await fetch('/api/admin/system-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ isCircuitBreakerOpen: !isCircuitBreakerOpen }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setIsCircuitBreakerOpen(data.isCircuitBreakerOpen);
+        alert(`✅ ${data.message}`);
+      } else {
+        alert('エラー: ' + data.error);
+      }
+    } catch (err: any) {
+      alert('通信エラー: ' + err.message);
+    } finally {
+      setCircuitLoading(false);
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    setIsLoggingIn(true);
+    try {
+      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+    } catch (err: any) {
+      console.error('ログインエラー:', err);
+      setLoginError('メールアドレスまたはパスワードが正しくありません。');
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+  };
 
   const filteredShops = shops.filter((shop) => {
     if (activeTab === 'pro' && shop.plan?.toLowerCase() !== 'pro') return false;
@@ -577,6 +480,102 @@ const handleLogout = async () => {
     return true;
   });
 
+  // ============================================================
+  // 認証チェック中
+  // ============================================================
+  if (authChecking) {
+    return (
+      <div style={{ background: '#0f172a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', color: '#64748b' }}>
+        認証を確認中...
+      </div>
+    );
+  }
+
+  // ============================================================
+  // 未ログイン：ログイン画面
+  // ============================================================
+  if (!user) {
+    return (
+      <div style={{ background: '#0f172a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', padding: '20px' }}>
+        <div style={{ background: '#1e293b', padding: '40px', borderRadius: '12px', border: '1px solid #334155', maxWidth: '400px', width: '100%' }}>
+          <h1 style={{ color: '#38bdf8', fontSize: '20px', marginBottom: '8px', textAlign: 'center' }}>
+            🖥️ System Admin
+          </h1>
+          <p style={{ color: '#64748b', fontSize: '13px', textAlign: 'center', marginBottom: '24px' }}>
+            管理者権限を持つアカウントでログインしてください
+          </p>
+
+          {loginError && (
+            <div style={{ background: '#7f1d1d', color: '#fecaca', padding: '10px', borderRadius: '6px', marginBottom: '16px', fontSize: '13px' }}>
+              {loginError}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <input
+              type="email"
+              placeholder="メールアドレス"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+              required
+              style={{ padding: '12px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: '#f8fafc', fontSize: '14px' }}
+            />
+            <input
+              type="password"
+              placeholder="パスワード"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              required
+              style={{ padding: '12px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: '#f8fafc', fontSize: '14px' }}
+            />
+            <button
+              type="submit"
+              disabled={isLoggingIn}
+              style={{ padding: '12px', background: isLoggingIn ? '#475569' : '#3182ce', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: isLoggingIn ? 'wait' : 'pointer', fontSize: '14px' }}
+            >
+              {isLoggingIn ? 'ログイン中...' : 'ログイン'}
+            </button>
+          </form>
+
+          <p style={{ color: '#64748b', fontSize: '12px', textAlign: 'center', marginTop: '20px' }}>
+            <Link href="/admin" style={{ color: '#38bdf8', textDecoration: 'none' }}>
+              ← 店舗管理画面へ
+            </Link>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ============================================================
+  // ログイン済みだが管理者権限なし
+  // ============================================================
+  if (!isAdmin) {
+    return (
+      <div style={{ background: '#0f172a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', padding: '20px' }}>
+        <div style={{ background: '#1e293b', padding: '40px', borderRadius: '12px', border: '1px solid #7f1d1d', maxWidth: '400px', width: '100%', textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🚫</div>
+          <h1 style={{ color: '#ef4444', fontSize: '18px', marginBottom: '8px' }}>
+            アクセス権限がありません
+          </h1>
+          <p style={{ color: '#94a3b8', fontSize: '13px', marginBottom: '24px', lineHeight: 1.6 }}>
+            このページは管理者専用です。<br />
+            ログイン中のアカウント: <strong style={{ color: '#f8fafc' }}>{user.email}</strong>
+          </p>
+          <button
+            onClick={handleLogout}
+            style={{ padding: '12px 24px', background: '#475569', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}
+          >
+            ログアウト
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ============================================================
+  // データ読み込み中
+  // ============================================================
   if (loading) {
     return (
       <div style={{ padding: '60px', textAlign: 'center', fontFamily: 'sans-serif', color: '#718096' }}>
@@ -585,6 +584,9 @@ const handleLogout = async () => {
     );
   }
 
+  // ============================================================
+  // 管理画面
+  // ============================================================
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
       <main style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -598,98 +600,111 @@ const handleLogout = async () => {
           </p>
         </div>
 
-        {/* 🔗 サブページへのナビゲーション */}
-<div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-  <Link
-    href="/system-admin/console"
-    style={{
-      padding: '10px 20px',
-      background: '#0f172a',
-      color: '#38bdf8',
-      borderRadius: '8px',
-      textDecoration: 'none',
-      fontWeight: 'bold',
-      fontSize: '13px',
-      fontFamily: 'monospace',
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: '6px',
-    }}
-  >
-    🖥️ エラーコンソール
-    {errorCount > 0 && (
-      <span style={{
-        background: '#ef4444',
-        color: '#fff',
-        borderRadius: '12px',
-        padding: '2px 8px',
-        fontSize: '11px',
-        fontWeight: 'bold',
-      }}>
-        {errorCount}
-      </span>
-    )}
-  </Link>
-  <Link
-    href="/system-admin/emails"
-    style={{
-      padding: '10px 20px',
-      background: '#3182ce',
-      color: '#fff',
-      borderRadius: '8px',
-      textDecoration: 'none',
-      fontWeight: 'bold',
-      fontSize: '13px',
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: '6px',
-    }}
-  >
-    📧 メール一斉配信
-  </Link>
-</div>
+        {/* ユーザー情報 + ログアウト */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+          <div style={{ fontSize: '12px', color: '#64748b' }}>
+            ログイン中: <strong style={{ color: '#1a202c' }}>{user?.email}</strong>
+          </div>
+          <button
+            onClick={handleLogout}
+            style={{ padding: '6px 16px', background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e0', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+          >
+            ログアウト
+          </button>
+        </div>
 
-        {/* 🚨 サーキットブレーカー */}
-<div style={{
-  background: isCircuitBreakerOpen ? '#fecaca' : '#f0fdf4',
-  border: isCircuitBreakerOpen ? '2px solid #dc2626' : '2px solid #22c55e',
-  padding: '16px 20px',
-  borderRadius: '12px',
-  marginBottom: '24px',
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  flexWrap: 'wrap',
-  gap: '12px',
-}}>
-  <div>
-    <div style={{ fontSize: '15px', fontWeight: 'bold', color: isCircuitBreakerOpen ? '#dc2626' : '#15803d' }}>
-      {isCircuitBreakerOpen ? '🚨 システム緊急停止中' : '✅ システム正常稼働中'}
-    </div>
-    <div style={{ fontSize: '13px', color: '#475569', marginTop: '4px' }}>
-      {isCircuitBreakerOpen 
-        ? 'プッシュ通知の送信が全て停止されています。'
-        : 'プッシュ通知は正常に送信されています。'}
-    </div>
-  </div>
-  <button
-    onClick={toggleCircuitBreaker}
-    disabled={circuitLoading}
-    style={{
-      padding: '12px 24px',
-      background: isCircuitBreakerOpen ? '#22c55e' : '#dc2626',
-      color: '#fff',
-      border: 'none',
-      borderRadius: '8px',
-      fontWeight: 'bold',
-      fontSize: '14px',
-      cursor: circuitLoading ? 'wait' : 'pointer',
-      minWidth: '160px',
-    }}
-  >
-    {circuitLoading ? '処理中...' : isCircuitBreakerOpen ? '▶ システムを再開' : '⏸ システムを緊急停止'}
-  </button>
-</div>
+        {/* サブページへのナビゲーション */}
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
+          <Link
+            href="/system-admin/console"
+            style={{
+              padding: '10px 20px',
+              background: '#0f172a',
+              color: '#38bdf8',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              fontWeight: 'bold',
+              fontSize: '13px',
+              fontFamily: 'monospace',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            🖥️ エラーコンソール
+            {errorCount > 0 && (
+              <span style={{
+                background: '#ef4444',
+                color: '#fff',
+                borderRadius: '12px',
+                padding: '2px 8px',
+                fontSize: '11px',
+                fontWeight: 'bold',
+              }}>
+                {errorCount}
+              </span>
+            )}
+          </Link>
+          <Link
+            href="/system-admin/emails"
+            style={{
+              padding: '10px 20px',
+              background: '#3182ce',
+              color: '#fff',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              fontWeight: 'bold',
+              fontSize: '13px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            📧 メール一斉配信
+          </Link>
+        </div>
+
+        {/* サーキットブレーカー */}
+        <div style={{
+          background: isCircuitBreakerOpen ? '#fecaca' : '#f0fdf4',
+          border: isCircuitBreakerOpen ? '2px solid #dc2626' : '2px solid #22c55e',
+          padding: '16px 20px',
+          borderRadius: '12px',
+          marginBottom: '24px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+        }}>
+          <div>
+            <div style={{ fontSize: '15px', fontWeight: 'bold', color: isCircuitBreakerOpen ? '#dc2626' : '#15803d' }}>
+              {isCircuitBreakerOpen ? '🚨 システム緊急停止中' : '✅ システム正常稼働中'}
+            </div>
+            <div style={{ fontSize: '13px', color: '#475569', marginTop: '4px' }}>
+              {isCircuitBreakerOpen
+                ? 'プッシュ通知の送信が全て停止されています。'
+                : 'プッシュ通知は正常に送信されています。'}
+            </div>
+          </div>
+          <button
+            onClick={toggleCircuitBreaker}
+            disabled={circuitLoading}
+            style={{
+              padding: '12px 24px',
+              background: isCircuitBreakerOpen ? '#22c55e' : '#dc2626',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: 'bold',
+              fontSize: '14px',
+              cursor: circuitLoading ? 'wait' : 'pointer',
+              minWidth: '160px',
+            }}
+          >
+            {circuitLoading ? '処理中...' : isCircuitBreakerOpen ? '▶ システムを再開' : '⏸ システムを緊急停止'}
+          </button>
+        </div>
 
         {/* サマリーカード */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '30px' }}>
@@ -697,22 +712,18 @@ const handleLogout = async () => {
             <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#15803d', marginBottom: '6px' }}>全店舗 累計登録顧客数</div>
             <div style={{ fontSize: '32px', fontWeight: '800', color: '#166534' }}>{summary.totalSubscribers.toLocaleString()} <span style={{ fontSize: '14px', fontWeight: 'normal' }}>件</span></div>
           </div>
-
           <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#718096', marginBottom: '6px' }}>ライトプラン</div>
             <div style={{ fontSize: '32px', fontWeight: '800', color: '#2b6cb0' }}>{summary.lightCount} <span style={{ fontSize: '14px', fontWeight: 'normal' }}>件</span></div>
           </div>
-
           <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#718096', marginBottom: '6px' }}>スタンダードプラン</div>
             <div style={{ fontSize: '32px', fontWeight: '800', color: '#2b6cb0' }}>{summary.standardCount} <span style={{ fontSize: '14px', fontWeight: 'normal' }}>件</span></div>
           </div>
-
           <div style={{ background: '#ebf8ff', padding: '20px', borderRadius: '12px', border: '2px solid #3182ce' }}>
             <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#2b6cb0', marginBottom: '6px' }}>プロプラン（合計）</div>
             <div style={{ fontSize: '32px', fontWeight: '800', color: '#2b6cb0' }}>{summary.proCount} <span style={{ fontSize: '14px', fontWeight: 'normal' }}>件</span></div>
           </div>
-
           <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#718096', marginBottom: '6px' }}>加盟代理店数</div>
             <div style={{ fontSize: '32px', fontWeight: '800', color: '#38a169' }}>{summary.agencyTotal} <span style={{ fontSize: '14px', fontWeight: 'normal' }}>社</span></div>
@@ -721,86 +732,16 @@ const handleLogout = async () => {
 
         {/* タブ */}
         <div style={{ display: 'flex', gap: '20px', borderBottom: '2px solid #e2e8f0', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => setActiveTab('all')}
-            style={{
-              padding: '10px 16px',
-              background: 'none',
-              border: 'none',
-              borderBottom: activeTab === 'all' ? '3px solid #3182ce' : 'none',
-              fontWeight: 'bold',
-              color: activeTab === 'all' ? '#3182ce' : '#718096',
-              cursor: 'pointer',
-            }}
-          >
-            全店舗リスト
-          </button>
-
-          <button
-            onClick={() => setActiveTab('pro')}
-            style={{
-              padding: '10px 16px',
-              background: 'none',
-              border: 'none',
-              borderBottom: activeTab === 'pro' ? '3px solid #3182ce' : 'none',
-              fontWeight: 'bold',
-              color: activeTab === 'pro' ? '#3182ce' : '#718096',
-              cursor: 'pointer',
-            }}
-          >
-            プロプラン顧客詳細
-          </button>
-
-          <button
-            onClick={() => setActiveTab('agencies')}
-            style={{
-              padding: '10px 16px',
-              background: 'none',
-              border: 'none',
-              borderBottom: activeTab === 'agencies' ? '3px solid #3182ce' : 'none',
-              fontWeight: 'bold',
-              color: activeTab === 'agencies' ? '#3182ce' : '#718096',
-              cursor: 'pointer',
-            }}
-          >
-            代理店一覧 & 審査
-          </button>
-
-          <button
-            onClick={() => setActiveTab('affiliates')}
-            style={{
-              padding: '10px 16px',
-              background: 'none',
-              border: 'none',
-              borderBottom: activeTab === 'affiliates' ? '3px solid #16a34a' : 'none',
-              fontWeight: 'bold',
-              color: activeTab === 'affiliates' ? '#16a34a' : '#718096',
-              cursor: 'pointer',
-            }}
-          >
-            📢 アフィリエイト一覧
-          </button>
-
-          <button
-            onClick={() => setActiveTab('payment-failures')}
-            style={{
-              padding: '10px 16px',
-              background: 'none',
-              border: 'none',
-              borderBottom: activeTab === 'payment-failures' ? '3px solid #ef4444' : 'none',
-              fontWeight: 'bold',
-              color: activeTab === 'payment-failures' ? '#ef4444' : '#718096',
-              cursor: 'pointer',
-            }}
-          >
-            ⚠️ 決済不履行一覧
-          </button>
+          <button onClick={() => setActiveTab('all')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'all' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'all' ? '#3182ce' : '#718096', cursor: 'pointer' }}>全店舗リスト</button>
+          <button onClick={() => setActiveTab('pro')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'pro' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'pro' ? '#3182ce' : '#718096', cursor: 'pointer' }}>プロプラン顧客詳細</button>
+          <button onClick={() => setActiveTab('agencies')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'agencies' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'agencies' ? '#3182ce' : '#718096', cursor: 'pointer' }}>代理店一覧 & 審査</button>
+          <button onClick={() => setActiveTab('affiliates')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'affiliates' ? '3px solid #16a34a' : 'none', fontWeight: 'bold', color: activeTab === 'affiliates' ? '#16a34a' : '#718096', cursor: 'pointer' }}>📢 アフィリエイト一覧</button>
+          <button onClick={() => setActiveTab('payment-failures')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'payment-failures' ? '3px solid #ef4444' : 'none', fontWeight: 'bold', color: activeTab === 'payment-failures' ? '#ef4444' : '#718096', cursor: 'pointer' }}>⚠️ 決済不履行一覧</button>
         </div>
 
         {/* 全店舗リスト / プロプラン */}
         {activeTab !== 'agencies' && activeTab !== 'payment-failures' && activeTab !== 'affiliates' && (
           <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-            {/* 検索バー & 大分類フィルター */}
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {(['all', 'direct', 'referral', 'agency'] as const).map((type) => {
@@ -825,26 +766,17 @@ const handleLogout = async () => {
                   );
                 })}
               </div>
-
               <div style={{ flex: 1, minWidth: '200px' }}>
                 <input
                   type="text"
                   placeholder="🔍 店舗名・ID・メール・電話・住所で検索"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px 14px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e0',
-                    fontSize: '14px',
-                    boxSizing: 'border-box',
-                  }}
+                  style={{ width: '100%', padding: '8px 14px', borderRadius: '8px', border: '1px solid #cbd5e0', fontSize: '14px', boxSizing: 'border-box' }}
                 />
               </div>
             </div>
 
-            {/* テーブル */}
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
                 <thead>
@@ -878,14 +810,7 @@ const handleLogout = async () => {
                         <td style={{ padding: '10px', fontWeight: 'bold' }}>{shop.name || '未設定'}</td>
                         <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '11px', color: '#64748b' }}>{shop.id}</td>
                         <td style={{ padding: '10px' }}>
-                          <span style={{
-                            padding: '2px 10px',
-                            borderRadius: '4px',
-                            fontSize: '10px',
-                            fontWeight: 'bold',
-                            background: shop.plan === 'pro' ? '#fef3c7' : shop.plan === 'standard' ? '#dbeafe' : '#f1f5f9',
-                            color: shop.plan === 'pro' ? '#b45309' : shop.plan === 'standard' ? '#1d4ed8' : '#475569',
-                          }}>
+                          <span style={{ padding: '2px 10px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold', background: shop.plan === 'pro' ? '#fef3c7' : shop.plan === 'standard' ? '#dbeafe' : '#f1f5f9', color: shop.plan === 'pro' ? '#b45309' : shop.plan === 'standard' ? '#1d4ed8' : '#475569' }}>
                             {shop.plan?.toUpperCase() || 'LIGHT'}
                           </span>
                         </td>
@@ -895,28 +820,14 @@ const handleLogout = async () => {
                           {shop.address || '-'}
                         </td>
                         <td style={{ padding: '10px' }}>
-                          <span style={{
-                            padding: '2px 8px',
-                            borderRadius: '12px',
-                            fontSize: '10px',
-                            fontWeight: 'bold',
-                            background: shop.agencyId ? '#c6f6d5' : shop.referrerId ? '#feebc8' : '#edf2f7',
-                            color: shop.agencyId ? '#22543d' : shop.referrerId ? '#742a2a' : '#4a5568'
-                          }}>
+                          <span style={{ padding: '2px 8px', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold', background: shop.agencyId ? '#c6f6d5' : shop.referrerId ? '#feebc8' : '#edf2f7', color: shop.agencyId ? '#22543d' : shop.referrerId ? '#742a2a' : '#4a5568' }}>
                             {shop.agencyId ? '代理店' : shop.referrerId ? '紹介' : '直接'}
                           </span>
                         </td>
                         <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: '#0284c7' }}>{shop.subscriberCount || 0}</td>
                         <td style={{ padding: '10px', textAlign: 'center', color: '#2d3748' }}>{shop.pushCount || 0}</td>
                         <td style={{ padding: '10px' }}>
-                          <span style={{
-                            padding: '3px 8px',
-                            borderRadius: '12px',
-                            fontSize: '11px',
-                            fontWeight: 'bold',
-                            background: s.bg,
-                            color: s.color,
-                          }}>
+                          <span style={{ padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: s.bg, color: s.color }}>
                             {s.label}
                           </span>
                         </td>
@@ -928,9 +839,7 @@ const handleLogout = async () => {
             </div>
 
             {filteredShops.length === 0 && (
-              <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>
-                条件に一致する店舗はありません
-              </p>
+              <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>条件に一致する店舗はありません</p>
             )}
           </div>
         )}
@@ -962,14 +871,7 @@ const handleLogout = async () => {
                         <td style={{ padding: '12px' }}>{agency.email || '-'}</td>
                         <td style={{ padding: '12px', fontFamily: 'monospace' }}>{agency.referralCode || '-'}</td>
                         <td style={{ padding: '12px', textAlign: 'center' }}>
-                          <span style={{
-                            padding: '4px 12px',
-                            borderRadius: '12px',
-                            fontSize: '12px',
-                            fontWeight: 'bold',
-                            background: agency.status === 'active' ? '#c6f6d5' : agency.status === 'approved_pending_payment' ? '#fef3c7' : '#f1f5f9',
-                            color: agency.status === 'active' ? '#22543d' : agency.status === 'approved_pending_payment' ? '#d97706' : '#64748b',
-                          }}>
+                          <span style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold', background: agency.status === 'active' ? '#c6f6d5' : agency.status === 'approved_pending_payment' ? '#fef3c7' : '#f1f5f9', color: agency.status === 'active' ? '#22543d' : agency.status === 'approved_pending_payment' ? '#d97706' : '#64748b' }}>
                             {agency.status === 'active' ? '承認済み' : agency.status === 'approved_pending_payment' ? '決済待ち' : '審査中'}
                           </span>
                         </td>
