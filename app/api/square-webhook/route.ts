@@ -530,16 +530,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true }, { status: 200 });
 
   } catch (error: any) {
-  console.error('[square-webhook] エラー:', error);
-  
-  // 🔥 管理者通知
-  await notifyAdmins(error, {
-    source: 'square-webhook',
-    details: {
-      eventType: body?.type,
-      paymentId: body?.data?.object?.payment?.id,
-    },
-  });
+    console.error('[square-webhook] エラー:', error);
+    
+    await notifyAdmins(error, {
+      source: 'square-webhook',
+      details: {
+        eventType: body?.type,
+      },
+    });
 
-  return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 }
