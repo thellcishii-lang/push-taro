@@ -1,50 +1,60 @@
 import admin from 'firebase-admin';
 
-console.log('[firebase-admin.ts] Admin SDK 初期化チェック。apps.length:', admin.apps.length);
+// 🔥 遅延初期化：初回アクセス時にのみ初期化する
+function getAdminApp(): admin.app.App {
+  // 既に初期化済みなら、それを返す
+  if (admin.apps.length > 0) {
+    return admin.apps[0]!;
+  }
 
-if (!admin.apps.length) {
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
   console.log('[firebase-admin.ts] Admin SDK 初期化開始。projectId:', projectId);
 
-  try {
-    if (projectId && clientEmail && privateKey) {
-      admin.initializeApp({
-        credential: admin.credential.cert({
-          projectId,
-          clientEmail,
-          privateKey,
-        }),
-      });
-      console.log('[firebase-admin.ts] Admin SDK 初期化完了');
-    } else {
-      console.error('[firebase-admin.ts] エラー: 環境変数が不足しています', {
-        hasProjectId: !!projectId,
-        hasClientEmail: !!clientEmail,
-        hasPrivateKey: !!privateKey,
-      });
-    }
-  } catch (error) {
-    console.error('[firebase-admin.ts] 初期化失敗:', error);
+  if (!projectId || !clientEmail || !privateKey) {
+    console.error('[firebase-admin.ts] エラー: 環境変数が不足しています', {
+      hasProjectId: !!projectId,
+      hasClientEmail: !!clientEmail,
+      hasPrivateKey: !!privateKey,
+    });
+    throw new Error('Firebase Admin SDK の環境変数が不足しています');
   }
-} else {
-  console.log('[firebase-admin.ts] Admin SDK は既に初期化済み');
+
+  const app = admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId,
+      clientEmail,
+      privateKey,
+    }),
+  });
+
+  console.log('[firebase-admin.ts] Admin SDK 初期化完了');
+  return app;
 }
 
-// 🔥 各インスタンスは初期化失敗時にも安全に取得できるようガード
-let messaging: admin.messaging.Messaging;
-let db: admin.firestore.Firestore;
-let authAdmin: admin.auth.Auth;
+// 🔥 getter 経由で遅延初期化（ビルド時には実行されない）
+export const messaging = new Proxy({} as admin.messaging.Messaging, {
+  get: (_, prop) => {
+    const app = getAdminApp();
+    const instance = admin.messaging(app);
+    return (instance as any)[prop];
+  },
+});
 
-try {
-  messaging = admin.messaging();
-  db = admin.firestore();
-  authAdmin = admin.auth();
-} catch (error) {
-  console.error('[firebase-admin.ts] Firebase サービスの取得に失敗:', error);
-  throw error;
-}
+export const db = new Proxy({} as admin.firestore.Firestore, {
+  get: (_, prop) => {
+    const app = getAdminApp();
+    const instance = admin.firestore(app);
+    return (instance as any)[prop];
+  },
+});
 
-export { messaging, db, authAdmin };
+export const authAdmin = new Proxy({} as admin.auth.Auth, {
+  get: (_, prop) => {
+    const app = getAdminApp();
+    const instance = admin.auth(app);
+    return (instance as any)[prop];
+  },
+});
