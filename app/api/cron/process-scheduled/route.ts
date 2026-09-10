@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db as adminDb } from '@/lib/firebase-admin';
 
-// 毎日/1時間ごとに定期実行されるAPI
+// 毎日 0:00 UTC（日本時間 9:00）に実行される予約配信バッチ
 export async function GET(req: Request) {
   // 🔒 Cron認証（Vercel Cron Jobs からのみ実行可能）
   const authHeader = req.headers.get('authorization');
