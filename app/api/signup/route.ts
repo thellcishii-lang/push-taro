@@ -5,8 +5,10 @@ import { sendEmail } from '../../../lib/mailer';
 import { notifyAdmins } from '@/lib/error-notifier';
 
 export async function POST(request: Request) {
+  let body: any = {};  // 🔥 try の外で宣言
+
   try {
-    const body = await request.json();
+    body = await request.json();
 
     // ============================================================
     // 1. リクエストボディから全データを取得
