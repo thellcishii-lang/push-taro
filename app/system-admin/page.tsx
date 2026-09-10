@@ -478,37 +478,36 @@ const fetchErrorCount = async () => {
     }}
   >
     🖥️ エラーコンソール
+    {errorCount > 0 && (
+      <span style={{
+        background: '#ef4444',
+        color: '#fff',
+        borderRadius: '12px',
+        padding: '2px 8px',
+        fontSize: '11px',
+        fontWeight: 'bold',
+      }}>
+        {errorCount}
+      </span>
+    )}
   </Link>
   <Link
-  href="/system-admin/console"
-  style={{
-    padding: '10px 20px',
-    background: '#0f172a',
-    color: '#38bdf8',
-    borderRadius: '8px',
-    textDecoration: 'none',
-    fontWeight: 'bold',
-    fontSize: '13px',
-    fontFamily: 'monospace',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '6px',
-  }}
->
-  🖥️ エラーコンソール
-  {errorCount > 0 && (
-    <span style={{
-      background: '#ef4444',
+    href="/system-admin/emails"
+    style={{
+      padding: '10px 20px',
+      background: '#3182ce',
       color: '#fff',
-      borderRadius: '12px',
-      padding: '2px 8px',
-      fontSize: '11px',
+      borderRadius: '8px',
+      textDecoration: 'none',
       fontWeight: 'bold',
-    }}>
-      {errorCount}
-    </span>
-  )}
-</Link>
+      fontSize: '13px',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '6px',
+    }}
+  >
+    📧 メール一斉配信
+  </Link>
 </div>
 
         {/* 🚨 サーキットブレーカー */}
