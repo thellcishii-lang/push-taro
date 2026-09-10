@@ -9,13 +9,12 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'プッシュ太郎 - プッシュ通知でお届け',
+  title: 'Push-taro - プッシュ通知でお届け',
   description: 'お得な情報をプッシュ通知で受け取ろう',
-  manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'プッシュ太郎',
+    title: 'Push-taro',
   },
 };
 
