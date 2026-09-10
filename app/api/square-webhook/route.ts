@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { db, authAdmin } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../lib/mailer';
+import { notifyAdmins } from '@/lib/error-notifier';
 
 // ============================================================
 // 管理者宛に1万円到達時の手動振込依頼メールを送る
@@ -529,7 +530,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true }, { status: 200 });
 
   } catch (error: any) {
-    console.error('[square-webhook] エラー:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  console.error('[square-webhook] エラー:', error);
+  
+  // 🔥 管理者通知（決済系は重要度高）
+  await notifyAdmins(error, {
+    source: 'square-webhook',
+    details: {
+      eventType: body?.type,
+      paymentId: body?.data?.object?.payment?.id,
+    },
+  });
+
+  return NextResponse.json({ error: error.message }, { status: 500 });
 }
