@@ -7,6 +7,8 @@ import { sendEmail } from '../../../lib/mailer';
 // StandardプランのSquareリンク（環境変数から取得）
 const STANDARD_PAYMENT_URL = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
