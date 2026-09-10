@@ -4,6 +4,8 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../lib/mailer';
 import { notifyAdmins } from '@/lib/error-notifier';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   let body: any = {};  // 🔥 try の外で宣言
 
