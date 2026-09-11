@@ -313,7 +313,7 @@ export default function SystemAdminPage() {
 
   // データ関連
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'all' | 'pro' | 'agencies' | 'affiliates' | 'payment-failures' | 'pending-payouts'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'pro' | 'agencies' | 'affiliates' | 'pending-payouts' | 'payment-failures'>('all');
   const [filterType, setFilterType] = useState<'all' | 'direct' | 'referral' | 'agency'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [errorCount, setErrorCount] = useState(0);
@@ -885,9 +885,185 @@ export default function SystemAdminPage() {
           </div>
         )}
 
+      // ============================================================
+// 報酬振込管理タブ
+// ============================================================
+function PendingPayoutsTab() {
+  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<any[]>([]);
+  const [processing, setProcessing] = useState<string | null>(null);
+
+  const fetchPendingPayouts = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/admin/pending-payouts', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(data.users || []);
+      }
+    } catch (err) {
+      console.error('報酬振込データ取得エラー:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPendingPayouts();
+  }, []);
+
+  const handlePayoutComplete = async (userId: string, amount: number, userName: string) => {
+    if (!confirm(`${userName} への振込 ¥${amount.toLocaleString()} を「完了」として処理しますか？\n\n※実際の銀行振込が完了していることを確認してください。`)) {
+      return;
+    }
+
+    setProcessing(userId);
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const idToken = await user.getIdToken();
+
+      const res = await fetch('/api/admin/complete-payout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ userId, amount }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert('✅ 振込完了処理を実行しました。ユーザーにメールを送信しました。');
+        fetchPendingPayouts();
+      } else {
+        alert('エラー: ' + data.error);
+      }
+    } catch (err: any) {
+      alert('通信エラー: ' + err.message);
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>読み込み中...</div>;
+
+  const totalPending = users.reduce((acc, u) => acc + (u.unpaidReward || 0), 0);
+
+  return (
+    <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+        <div>
+          <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>報酬振込管理</h2>
+          <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>
+            未払い報酬があるユーザー一覧。振込完了後、右のボタンで処理してください。
+          </p>
+        </div>
+        <div style={{ fontSize: '13px', color: '#64748b' }}>
+          合計未払い: <strong style={{ color: '#dc2626', fontSize: '16px' }}>¥{totalPending.toLocaleString()}</strong>
+        </div>
+      </div>
+
+      {users.length === 0 ? (
+        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>
+          現在、未払い報酬のあるユーザーはいません
+        </p>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                <th style={{ padding: '12px', textAlign: 'left' }}>氏名/店舗名</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>種別</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>メール</th>
+                <th style={{ padding: '12px', textAlign: 'right' }}>未払い報酬</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>振込先口座</th>
+                <th style={{ padding: '12px', textAlign: 'center' }}>ステータス</th>
+                <th style={{ padding: '12px', textAlign: 'center' }}>アクション</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr key={u.id} style={{ borderBottom: '1px solid #edf2f7' }}>
+                  <td style={{ padding: '12px', fontWeight: 'bold' }}>{u.name}</td>
+                  <td style={{ padding: '12px' }}>
+                    <span style={{
+                      padding: '2px 10px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      background: u.type === '代理店' ? '#c6f6d5' : u.type === 'PRO紹介者' ? '#fef3c7' : '#dbeafe',
+                      color: u.type === '代理店' ? '#22543d' : u.type === 'PRO紹介者' ? '#b45309' : '#1d4ed8',
+                    }}>
+                      {u.type}
+                    </span>
+                  </td>
+                  <td style={{ padding: '12px', fontSize: '12px' }}>{u.email}</td>
+                  <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: u.unpaidReward >= 10000 ? '#dc2626' : '#1a202c' }}>
+                    ¥{u.unpaidReward.toLocaleString()}
+                  </td>
+                  <td style={{ padding: '12px', fontSize: '11px', color: '#475569' }}>
+                    {u.bankAccount ? (
+                      <>
+                        {u.bankAccount.bankName} {u.bankAccount.branchName}<br />
+                        {u.bankAccount.accountNumber} / {u.bankAccount.accountHolder}
+                      </>
+                    ) : (
+                      <span style={{ color: '#dc2626' }}>未登録</span>
+                    )}
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    {u.payoutStatus === 'pending' ? (
+                      <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: '#fecaca', color: '#dc2626' }}>
+                        振込依頼中
+                      </span>
+                    ) : (
+                      <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: '#fef3c7', color: '#d97706' }}>
+                        累積中
+                      </span>
+                    )}
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <button
+                      onClick={() => handlePayoutComplete(u.id, u.unpaidReward, u.name)}
+                      disabled={processing === u.id}
+                      style={{
+                        padding: '6px 14px',
+                        background: processing === u.id ? '#94a3b8' : '#16a34a',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: processing === u.id ? 'wait' : 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      {processing === u.id ? '処理中...' : '✓ 振込完了'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
         {/* アフィリエイト一覧 */}
         {activeTab === 'affiliates' && <AffiliatesTab />}
 
+        {/* 報酬振込管理 */}
+　　　　　　　　　　　　　　　　{activeTab === 'pending-payouts' && <PendingPayoutsTab />}
+      
         {/* 決済不履行一覧 */}
         {activeTab === 'payment-failures' && <PaymentFailuresTab />}
       </main>
