@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { sendEmail } from '@/lib/mailer';
-import { authAdmin } from '@/lib/firebase-admin';
 
 const PLAN_PRICES: Record<string, number> = {
   light: 1980,
