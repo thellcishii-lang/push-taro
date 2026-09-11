@@ -32,16 +32,16 @@ export async function GET(request: Request) {
 
     const pendingUsers: any[] = [];
 
-    // 店舗・代理店・PRO の場合
+    // 🔥 店舗・代理店・PRO の場合
     shopsSnap.docs.forEach((doc) => {
       const data = doc.data();
       const isAgency = data.role === 'agency';
       const isPro = data.plan === 'pro' || data.role === 'pro';
-      const isShop = !isAgency && !isPro;
 
       if (isAgency || isPro) {
         pendingUsers.push({
           id: doc.id,
+          collection: 'shops',
           name: data.name || '未設定',
           email: data.email || '',
           type: isAgency ? '代理店' : 'PRO紹介者',
@@ -53,11 +53,12 @@ export async function GET(request: Request) {
       }
     });
 
-    // アフィリエイトの場合
+    // 🔥 アフィリエイトの場合
     affiliatesSnap.docs.forEach((doc) => {
       const data = doc.data();
       pendingUsers.push({
         id: doc.id,
+        collection: 'affiliates',
         name: data.name || '未設定',
         email: data.email || '',
         type: 'アフィリエイト',
