@@ -65,6 +65,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
   }
 
+  let adminUid: string;
   try {
     const idToken = authHeader.split('Bearer ')[1];
     const decoded = await authAdmin.verifyIdToken(idToken);
@@ -72,6 +73,7 @@ export async function POST(req: Request) {
     if (userRecord.customClaims?.admin !== true) {
       return NextResponse.json({ error: '管理者権限が必要です' }, { status: 403 });
     }
+    adminUid = decoded.uid;
   } catch {
     return NextResponse.json({ error: '無効なトークンです' }, { status: 401 });
   }
@@ -107,7 +109,7 @@ export async function POST(req: Request) {
       amount,
       bankAccount: userData?.bankAccount || null,
       paidAt: FieldValue.serverTimestamp(),
-      paidBy: userRecord.uid,
+      paidBy: adminUid,
     });
 
     return NextResponse.json({ success: true });
