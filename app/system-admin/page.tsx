@@ -100,44 +100,19 @@ function AffiliatesTab() {
                   <td style={{ padding: '10px', fontSize: '12px' }}>{aff.email}</td>
                   <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '12px' }}>{aff.referralCode}</td>
                   <td style={{ padding: '10px' }}>
-                    <span style={{
-                      padding: '2px 10px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      background: aff.rewardType === 'recurring' ? '#dbeafe' : '#fef3c7',
-                      color: aff.rewardType === 'recurring' ? '#1d4ed8' : '#d97706',
-                    }}>
+                    <span style={{ padding: '2px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', background: aff.rewardType === 'recurring' ? '#dbeafe' : '#fef3c7', color: aff.rewardType === 'recurring' ? '#1d4ed8' : '#d97706' }}>
                       {aff.rewardType === 'recurring' ? '継続課金' : '一括'}
                     </span>
                   </td>
-                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: '#1a202c' }}>
-                    ¥{aff.totalEarnings?.toLocaleString() || 0}
-                  </td>
-                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: (aff.unpaidReward || 0) >= 5000 ? '#22c55e' : '#eab308' }}>
-                    ¥{aff.unpaidReward?.toLocaleString() || 0}
-                  </td>
+                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: '#1a202c' }}>¥{aff.totalEarnings?.toLocaleString() || 0}</td>
+                  <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: (aff.unpaidReward || 0) >= 5000 ? '#22c55e' : '#eab308' }}>¥{aff.unpaidReward?.toLocaleString() || 0}</td>
                   <td style={{ padding: '10px', textAlign: 'center' }}>
-                    <span style={{
-                      padding: '2px 10px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      background: aff.hasInvoice ? '#c6f6d5' : '#fecaca',
-                      color: aff.hasInvoice ? '#22543d' : '#dc2626',
-                    }}>
+                    <span style={{ padding: '2px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', background: aff.hasInvoice ? '#c6f6d5' : '#fecaca', color: aff.hasInvoice ? '#22543d' : '#dc2626' }}>
                       {aff.hasInvoice ? 'あり' : 'なし'}
                     </span>
                   </td>
                   <td style={{ padding: '10px', textAlign: 'center' }}>
-                    <span style={{
-                      padding: '3px 10px',
-                      borderRadius: '12px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      background: aff.status === 'active' ? '#c6f6d5' : '#f1f5f9',
-                      color: aff.status === 'active' ? '#22543d' : '#64748b',
-                    }}>
+                    <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: aff.status === 'active' ? '#c6f6d5' : '#f1f5f9', color: aff.status === 'active' ? '#22543d' : '#64748b' }}>
                       {aff.status === 'active' ? '有効' : '停止'}
                     </span>
                   </td>
@@ -229,9 +204,7 @@ function PaymentFailuresTab() {
       </div>
 
       {shops.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>
-          現在、決済不履行の店舗はありません
-        </p>
+        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>現在、決済不履行の店舗はありません</p>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
@@ -252,29 +225,13 @@ function PaymentFailuresTab() {
                   <td style={{ padding: '12px', fontWeight: 'bold' }}>{shop.name || '未設定'}</td>
                   <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '11px' }}>{shop.id.slice(0, 12)}...</td>
                   <td style={{ padding: '12px' }}>
-                    <span style={{
-                      padding: '2px 10px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      background: shop.plan === 'pro' ? '#fef3c7' : shop.plan === 'standard' ? '#dbeafe' : '#f1f5f9',
-                      color: shop.plan === 'pro' ? '#b45309' : shop.plan === 'standard' ? '#1d4ed8' : '#475569',
-                    }}>
+                    <span style={{ padding: '2px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', background: shop.plan === 'pro' ? '#fef3c7' : shop.plan === 'standard' ? '#dbeafe' : '#f1f5f9', color: shop.plan === 'pro' ? '#b45309' : shop.plan === 'standard' ? '#1d4ed8' : '#475569' }}>
                       {shop.plan?.toUpperCase() || 'LIGHT'}
                     </span>
                   </td>
-                  <td style={{ padding: '12px' }}>
-                    {shop.failedAt ? new Date(shop.failedAt).toLocaleDateString() : '不明'}
-                  </td>
+                  <td style={{ padding: '12px' }}>{shop.failedAt ? new Date(shop.failedAt).toLocaleDateString() : '不明'}</td>
                   <td style={{ padding: '12px', textAlign: 'center' }}>
-                    <span style={{
-                      padding: '2px 12px',
-                      borderRadius: '12px',
-                      background: shop.failedCount >= 3 ? '#fecaca' : '#fef3c7',
-                      color: shop.failedCount >= 3 ? '#dc2626' : '#d97706',
-                      fontWeight: 'bold',
-                      fontSize: '13px',
-                    }}>
+                    <span style={{ padding: '2px 12px', borderRadius: '12px', background: shop.failedCount >= 3 ? '#fecaca' : '#fef3c7', color: shop.failedCount >= 3 ? '#dc2626' : '#d97706', fontWeight: 'bold', fontSize: '13px' }}>
                       {shop.failedCount || 0}回
                     </span>
                   </td>
@@ -299,10 +256,166 @@ function PaymentFailuresTab() {
 }
 
 // ============================================================
+// 報酬振込管理タブ
+// ============================================================
+function PendingPayoutsTab() {
+  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<any[]>([]);
+  const [processing, setProcessing] = useState<string | null>(null);
+
+  const fetchPendingPayouts = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/admin/pending-payouts', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(data.users || []);
+      }
+    } catch (err) {
+      console.error('報酬振込データ取得エラー:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPendingPayouts();
+  }, []);
+
+  const handlePayoutComplete = async (userId: string, amount: number, userName: string) => {
+    if (!confirm(`${userName} への振込 ¥${amount.toLocaleString()} を「完了」として処理しますか？\n\n※実際の銀行振込が完了していることを確認してください。`)) {
+      return;
+    }
+
+    setProcessing(userId);
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const idToken = await user.getIdToken();
+
+      const res = await fetch('/api/admin/complete-payout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ userId, amount }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert('✅ 振込完了処理を実行しました。ユーザーにメールを送信しました。');
+        fetchPendingPayouts();
+      } else {
+        alert('エラー: ' + data.error);
+      }
+    } catch (err: any) {
+      alert('通信エラー: ' + err.message);
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>読み込み中...</div>;
+
+  const totalPending = users.reduce((acc, u) => acc + (u.unpaidReward || 0), 0);
+
+  return (
+    <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+        <div>
+          <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>報酬振込管理</h2>
+          <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>
+            未払い報酬があるユーザー一覧。振込完了後、右のボタンで処理してください。
+          </p>
+        </div>
+        <div style={{ fontSize: '13px', color: '#64748b' }}>
+          合計未払い: <strong style={{ color: '#dc2626', fontSize: '16px' }}>¥{totalPending.toLocaleString()}</strong>
+        </div>
+      </div>
+
+      {users.length === 0 ? (
+        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>
+          現在、未払い報酬のあるユーザーはいません
+        </p>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                <th style={{ padding: '12px', textAlign: 'left' }}>氏名/店舗名</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>種別</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>メール</th>
+                <th style={{ padding: '12px', textAlign: 'right' }}>未払い報酬</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>振込先口座</th>
+                <th style={{ padding: '12px', textAlign: 'center' }}>ステータス</th>
+                <th style={{ padding: '12px', textAlign: 'center' }}>アクション</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr key={u.id} style={{ borderBottom: '1px solid #edf2f7' }}>
+                  <td style={{ padding: '12px', fontWeight: 'bold' }}>{u.name}</td>
+                  <td style={{ padding: '12px' }}>
+                    <span style={{ padding: '2px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', background: u.type === '代理店' ? '#c6f6d5' : u.type === 'PRO紹介者' ? '#fef3c7' : '#dbeafe', color: u.type === '代理店' ? '#22543d' : u.type === 'PRO紹介者' ? '#b45309' : '#1d4ed8' }}>
+                      {u.type}
+                    </span>
+                  </td>
+                  <td style={{ padding: '12px', fontSize: '12px' }}>{u.email}</td>
+                  <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: u.unpaidReward >= 10000 ? '#dc2626' : '#1a202c' }}>
+                    ¥{u.unpaidReward.toLocaleString()}
+                  </td>
+                  <td style={{ padding: '12px', fontSize: '11px', color: '#475569' }}>
+                    {u.bankAccount ? (
+                      <>
+                        {u.bankAccount.bankName} {u.bankAccount.branchName}<br />
+                        {u.bankAccount.accountNumber} / {u.bankAccount.accountHolder}
+                      </>
+                    ) : (
+                      <span style={{ color: '#dc2626' }}>未登録</span>
+                    )}
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    {u.payoutStatus === 'pending' ? (
+                      <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: '#fecaca', color: '#dc2626' }}>
+                        振込依頼中
+                      </span>
+                    ) : (
+                      <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: '#fef3c7', color: '#d97706' }}>
+                        累積中
+                      </span>
+                    )}
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <button
+                      onClick={() => handlePayoutComplete(u.id, u.unpaidReward, u.name)}
+                      disabled={processing === u.id}
+                      style={{ padding: '6px 14px', background: processing === u.id ? '#94a3b8' : '#16a34a', color: '#fff', border: 'none', borderRadius: '4px', cursor: processing === u.id ? 'wait' : 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                    >
+                      {processing === u.id ? '処理中...' : '✓ 振込完了'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
 // メインコンポーネント
 // ============================================================
 export default function SystemAdminPage() {
-  // 🔥 認証関連
   const [user, setUser] = useState<any>(null);
   const [authChecking, setAuthChecking] = useState(true);
   const [loginEmail, setLoginEmail] = useState('');
@@ -311,7 +424,6 @@ export default function SystemAdminPage() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // データ関連
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'pro' | 'agencies' | 'affiliates' | 'pending-payouts' | 'payment-failures'>('all');
   const [filterType, setFilterType] = useState<'all' | 'direct' | 'referral' | 'agency'>('all');
@@ -480,9 +592,6 @@ export default function SystemAdminPage() {
     return true;
   });
 
-  // ============================================================
-  // 認証チェック中
-  // ============================================================
   if (authChecking) {
     return (
       <div style={{ background: '#0f172a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', color: '#64748b' }}>
@@ -491,222 +600,94 @@ export default function SystemAdminPage() {
     );
   }
 
-  // ============================================================
-  // 未ログイン：ログイン画面
-  // ============================================================
   if (!user) {
     return (
       <div style={{ background: '#0f172a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', padding: '20px' }}>
         <div style={{ background: '#1e293b', padding: '40px', borderRadius: '12px', border: '1px solid #334155', maxWidth: '400px', width: '100%' }}>
-          <h1 style={{ color: '#38bdf8', fontSize: '20px', marginBottom: '8px', textAlign: 'center' }}>
-            🖥️ System Admin
-          </h1>
-          <p style={{ color: '#64748b', fontSize: '13px', textAlign: 'center', marginBottom: '24px' }}>
-            管理者権限を持つアカウントでログインしてください
-          </p>
+          <h1 style={{ color: '#38bdf8', fontSize: '20px', marginBottom: '8px', textAlign: 'center' }}>🖥️ System Admin</h1>
+          <p style={{ color: '#64748b', fontSize: '13px', textAlign: 'center', marginBottom: '24px' }}>管理者権限を持つアカウントでログインしてください</p>
 
           {loginError && (
-            <div style={{ background: '#7f1d1d', color: '#fecaca', padding: '10px', borderRadius: '6px', marginBottom: '16px', fontSize: '13px' }}>
-              {loginError}
-            </div>
+            <div style={{ background: '#7f1d1d', color: '#fecaca', padding: '10px', borderRadius: '6px', marginBottom: '16px', fontSize: '13px' }}>{loginError}</div>
           )}
 
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <input
-              type="email"
-              placeholder="メールアドレス"
-              value={loginEmail}
-              onChange={(e) => setLoginEmail(e.target.value)}
-              required
-              style={{ padding: '12px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: '#f8fafc', fontSize: '14px' }}
-            />
-            <input
-              type="password"
-              placeholder="パスワード"
-              value={loginPassword}
-              onChange={(e) => setLoginPassword(e.target.value)}
-              required
-              style={{ padding: '12px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: '#f8fafc', fontSize: '14px' }}
-            />
-            <button
-              type="submit"
-              disabled={isLoggingIn}
-              style={{ padding: '12px', background: isLoggingIn ? '#475569' : '#3182ce', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: isLoggingIn ? 'wait' : 'pointer', fontSize: '14px' }}
-            >
+            <input type="email" placeholder="メールアドレス" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required style={{ padding: '12px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: '#f8fafc', fontSize: '14px' }} />
+            <input type="password" placeholder="パスワード" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required style={{ padding: '12px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: '#f8fafc', fontSize: '14px' }} />
+            <button type="submit" disabled={isLoggingIn} style={{ padding: '12px', background: isLoggingIn ? '#475569' : '#3182ce', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: isLoggingIn ? 'wait' : 'pointer', fontSize: '14px' }}>
               {isLoggingIn ? 'ログイン中...' : 'ログイン'}
             </button>
           </form>
 
           <p style={{ color: '#64748b', fontSize: '12px', textAlign: 'center', marginTop: '20px' }}>
-            <Link href="/admin" style={{ color: '#38bdf8', textDecoration: 'none' }}>
-              ← 店舗管理画面へ
-            </Link>
+            <Link href="/admin" style={{ color: '#38bdf8', textDecoration: 'none' }}>← 店舗管理画面へ</Link>
           </p>
         </div>
       </div>
     );
   }
 
-  // ============================================================
-  // ログイン済みだが管理者権限なし
-  // ============================================================
   if (!isAdmin) {
     return (
       <div style={{ background: '#0f172a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', padding: '20px' }}>
         <div style={{ background: '#1e293b', padding: '40px', borderRadius: '12px', border: '1px solid #7f1d1d', maxWidth: '400px', width: '100%', textAlign: 'center' }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>🚫</div>
-          <h1 style={{ color: '#ef4444', fontSize: '18px', marginBottom: '8px' }}>
-            アクセス権限がありません
-          </h1>
+          <h1 style={{ color: '#ef4444', fontSize: '18px', marginBottom: '8px' }}>アクセス権限がありません</h1>
           <p style={{ color: '#94a3b8', fontSize: '13px', marginBottom: '24px', lineHeight: 1.6 }}>
             このページは管理者専用です。<br />
             ログイン中のアカウント: <strong style={{ color: '#f8fafc' }}>{user.email}</strong>
           </p>
-          <button
-            onClick={handleLogout}
-            style={{ padding: '12px 24px', background: '#475569', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}
-          >
-            ログアウト
-          </button>
+          <button onClick={handleLogout} style={{ padding: '12px 24px', background: '#475569', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>ログアウト</button>
         </div>
       </div>
     );
   }
 
-  // ============================================================
-  // データ読み込み中
-  // ============================================================
   if (loading) {
-    return (
-      <div style={{ padding: '60px', textAlign: 'center', fontFamily: 'sans-serif', color: '#718096' }}>
-        全体管理データを読み込み中...
-      </div>
-    );
+    return <div style={{ padding: '60px', textAlign: 'center', fontFamily: 'sans-serif', color: '#718096' }}>全体管理データを読み込み中...</div>;
   }
 
-  // ============================================================
-  // 管理画面
-  // ============================================================
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
       <main style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        {/* ヘッダー */}
         <div style={{ marginBottom: '30px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#1a202c', margin: '0 0 6px 0' }}>
-            Push-taro 全体管理画面 Dashboard
-          </h1>
-          <p style={{ color: '#718096', fontSize: '14px', margin: 0 }}>
-            全店舗・代理店の稼働状況および顧客登録件数の全体サマリーです。
-          </p>
+          <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#1a202c', margin: '0 0 6px 0' }}>Push-taro 全体管理画面 Dashboard</h1>
+          <p style={{ color: '#718096', fontSize: '14px', margin: 0 }}>全店舗・代理店の稼働状況および顧客登録件数の全体サマリーです。</p>
         </div>
 
-        {/* ユーザー情報 + ログアウト */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
           <div style={{ fontSize: '12px', color: '#64748b' }}>
             ログイン中: <strong style={{ color: '#1a202c' }}>{user?.email}</strong>
           </div>
-          <button
-            onClick={handleLogout}
-            style={{ padding: '6px 16px', background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e0', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
-          >
-            ログアウト
-          </button>
+          <button onClick={handleLogout} style={{ padding: '6px 16px', background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e0', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>ログアウト</button>
         </div>
 
-        {/* サブページへのナビゲーション */}
         <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <Link
-            href="/system-admin/console"
-            style={{
-              padding: '10px 20px',
-              background: '#0f172a',
-              color: '#38bdf8',
-              borderRadius: '8px',
-              textDecoration: 'none',
-              fontWeight: 'bold',
-              fontSize: '13px',
-              fontFamily: 'monospace',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-          >
+          <Link href="/system-admin/console" style={{ padding: '10px 20px', background: '#0f172a', color: '#38bdf8', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px', fontFamily: 'monospace', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
             🖥️ エラーコンソール
             {errorCount > 0 && (
-              <span style={{
-                background: '#ef4444',
-                color: '#fff',
-                borderRadius: '12px',
-                padding: '2px 8px',
-                fontSize: '11px',
-                fontWeight: 'bold',
-              }}>
-                {errorCount}
-              </span>
+              <span style={{ background: '#ef4444', color: '#fff', borderRadius: '12px', padding: '2px 8px', fontSize: '11px', fontWeight: 'bold' }}>{errorCount}</span>
             )}
           </Link>
-          <Link
-            href="/system-admin/emails"
-            style={{
-              padding: '10px 20px',
-              background: '#3182ce',
-              color: '#fff',
-              borderRadius: '8px',
-              textDecoration: 'none',
-              fontWeight: 'bold',
-              fontSize: '13px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-          >
+          <Link href="/system-admin/emails" style={{ padding: '10px 20px', background: '#3182ce', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
             📧 メール一斉配信
           </Link>
         </div>
 
-        {/* サーキットブレーカー */}
-        <div style={{
-          background: isCircuitBreakerOpen ? '#fecaca' : '#f0fdf4',
-          border: isCircuitBreakerOpen ? '2px solid #dc2626' : '2px solid #22c55e',
-          padding: '16px 20px',
-          borderRadius: '12px',
-          marginBottom: '24px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '12px',
-        }}>
+        <div style={{ background: isCircuitBreakerOpen ? '#fecaca' : '#f0fdf4', border: isCircuitBreakerOpen ? '2px solid #dc2626' : '2px solid #22c55e', padding: '16px 20px', borderRadius: '12px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <div style={{ fontSize: '15px', fontWeight: 'bold', color: isCircuitBreakerOpen ? '#dc2626' : '#15803d' }}>
               {isCircuitBreakerOpen ? '🚨 システム緊急停止中' : '✅ システム正常稼働中'}
             </div>
             <div style={{ fontSize: '13px', color: '#475569', marginTop: '4px' }}>
-              {isCircuitBreakerOpen
-                ? 'プッシュ通知の送信が全て停止されています。'
-                : 'プッシュ通知は正常に送信されています。'}
+              {isCircuitBreakerOpen ? 'プッシュ通知の送信が全て停止されています。' : 'プッシュ通知は正常に送信されています。'}
             </div>
           </div>
-          <button
-            onClick={toggleCircuitBreaker}
-            disabled={circuitLoading}
-            style={{
-              padding: '12px 24px',
-              background: isCircuitBreakerOpen ? '#22c55e' : '#dc2626',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              fontWeight: 'bold',
-              fontSize: '14px',
-              cursor: circuitLoading ? 'wait' : 'pointer',
-              minWidth: '160px',
-            }}
-          >
+          <button onClick={toggleCircuitBreaker} disabled={circuitLoading} style={{ padding: '12px 24px', background: isCircuitBreakerOpen ? '#22c55e' : '#dc2626', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', cursor: circuitLoading ? 'wait' : 'pointer', minWidth: '160px' }}>
             {circuitLoading ? '処理中...' : isCircuitBreakerOpen ? '▶ システムを再開' : '⏸ システムを緊急停止'}
           </button>
         </div>
 
-        {/* サマリーカード */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '30px' }}>
           <div style={{ background: '#f0fdf4', padding: '20px', borderRadius: '12px', border: '2px solid #22c55e' }}>
             <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#15803d', marginBottom: '6px' }}>全店舗 累計登録顧客数</div>
@@ -730,51 +711,30 @@ export default function SystemAdminPage() {
           </div>
         </div>
 
-        {/* タブ */}
         <div style={{ display: 'flex', gap: '20px', borderBottom: '2px solid #e2e8f0', marginBottom: '20px', flexWrap: 'wrap' }}>
           <button onClick={() => setActiveTab('all')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'all' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'all' ? '#3182ce' : '#718096', cursor: 'pointer' }}>全店舗リスト</button>
           <button onClick={() => setActiveTab('pro')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'pro' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'pro' ? '#3182ce' : '#718096', cursor: 'pointer' }}>プロプラン顧客詳細</button>
           <button onClick={() => setActiveTab('agencies')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'agencies' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'agencies' ? '#3182ce' : '#718096', cursor: 'pointer' }}>代理店一覧 & 審査</button>
           <button onClick={() => setActiveTab('affiliates')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'affiliates' ? '3px solid #16a34a' : 'none', fontWeight: 'bold', color: activeTab === 'affiliates' ? '#16a34a' : '#718096', cursor: 'pointer' }}>📢 アフィリエイト一覧</button>
-          <buttononClick={() => setActiveTab('pending-payouts')}style={{padding: '10px 16px',background: 'none',border: 'none',borderBottom: activeTab === 'pending-payouts' ? '3px solid #f59e0b' : 'none',fontWeight: 'bold',color: activeTab === 'pending-payouts' ? '#f59e0b' : '#718096',cursor: 'pointer',}}>💰 報酬振込管理</button>
+          <button onClick={() => setActiveTab('pending-payouts')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'pending-payouts' ? '3px solid #f59e0b' : 'none', fontWeight: 'bold', color: activeTab === 'pending-payouts' ? '#f59e0b' : '#718096', cursor: 'pointer' }}>💰 報酬振込管理</button>
           <button onClick={() => setActiveTab('payment-failures')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'payment-failures' ? '3px solid #ef4444' : 'none', fontWeight: 'bold', color: activeTab === 'payment-failures' ? '#ef4444' : '#718096', cursor: 'pointer' }}>⚠️ 決済不履行一覧</button>
         </div>
 
-        {/* 全店舗リスト / プロプラン */}
-        {activeTab !== 'agencies' && activeTab !== 'payment-failures' && activeTab !== 'affiliates' && (
+        {activeTab !== 'agencies' && activeTab !== 'payment-failures' && activeTab !== 'affiliates' && activeTab !== 'pending-payouts' && (
           <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {(['all', 'direct', 'referral', 'agency'] as const).map((type) => {
                   const labels = { all: 'すべて', direct: '直接申込', referral: 'プロ紹介', agency: '代理店経由' };
                   return (
-                    <button
-                      key={type}
-                      onClick={() => setFilterType(type)}
-                      style={{
-                        padding: '6px 14px',
-                        borderRadius: '20px',
-                        border: filterType === type ? '2px solid #3182ce' : '1px solid #cbd5e0',
-                        background: filterType === type ? '#ebf8ff' : '#fff',
-                        fontWeight: filterType === type ? 'bold' : 'normal',
-                        color: filterType === type ? '#1d4ed8' : '#475569',
-                        cursor: 'pointer',
-                        fontSize: '13px',
-                      }}
-                    >
+                    <button key={type} onClick={() => setFilterType(type)} style={{ padding: '6px 14px', borderRadius: '20px', border: filterType === type ? '2px solid #3182ce' : '1px solid #cbd5e0', background: filterType === type ? '#ebf8ff' : '#fff', fontWeight: filterType === type ? 'bold' : 'normal', color: filterType === type ? '#1d4ed8' : '#475569', cursor: 'pointer', fontSize: '13px' }}>
                       {labels[type]}
                     </button>
                   );
                 })}
               </div>
               <div style={{ flex: 1, minWidth: '200px' }}>
-                <input
-                  type="text"
-                  placeholder="🔍 店舗名・ID・メール・電話・住所で検索"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{ width: '100%', padding: '8px 14px', borderRadius: '8px', border: '1px solid #cbd5e0', fontSize: '14px', boxSizing: 'border-box' }}
-                />
+                <input type="text" placeholder="🔍 店舗名・ID・メール・電話・住所で検索" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} style={{ width: '100%', padding: '8px 14px', borderRadius: '8px', border: '1px solid #cbd5e0', fontSize: '14px', boxSizing: 'border-box' }} />
               </div>
             </div>
 
@@ -817,9 +777,7 @@ export default function SystemAdminPage() {
                         </td>
                         <td style={{ padding: '10px', fontSize: '12px' }}>{shop.email || '-'}</td>
                         <td style={{ padding: '10px', fontSize: '12px' }}>{shop.phone || '-'}</td>
-                        <td style={{ padding: '10px', fontSize: '12px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={shop.address || ''}>
-                          {shop.address || '-'}
-                        </td>
+                        <td style={{ padding: '10px', fontSize: '12px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={shop.address || ''}>{shop.address || '-'}</td>
                         <td style={{ padding: '10px' }}>
                           <span style={{ padding: '2px 8px', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold', background: shop.agencyId ? '#c6f6d5' : shop.referrerId ? '#feebc8' : '#edf2f7', color: shop.agencyId ? '#22543d' : shop.referrerId ? '#742a2a' : '#4a5568' }}>
                             {shop.agencyId ? '代理店' : shop.referrerId ? '紹介' : '直接'}
@@ -828,9 +786,7 @@ export default function SystemAdminPage() {
                         <td style={{ padding: '10px', textAlign: 'center', fontWeight: 'bold', color: '#0284c7' }}>{shop.subscriberCount || 0}</td>
                         <td style={{ padding: '10px', textAlign: 'center', color: '#2d3748' }}>{shop.pushCount || 0}</td>
                         <td style={{ padding: '10px' }}>
-                          <span style={{ padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: s.bg, color: s.color }}>
-                            {s.label}
-                          </span>
+                          <span style={{ padding: '3px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: s.bg, color: s.color }}>{s.label}</span>
                         </td>
                       </tr>
                     );
@@ -845,7 +801,6 @@ export default function SystemAdminPage() {
           </div>
         )}
 
-        {/* 代理店一覧 */}
         {activeTab === 'agencies' && (
           <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
             <h2>代理店一覧</h2>
@@ -885,186 +840,8 @@ export default function SystemAdminPage() {
           </div>
         )}
 
-      // ============================================================
-// 報酬振込管理タブ
-// ============================================================
-function PendingPayoutsTab() {
-  const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState<any[]>([]);
-  const [processing, setProcessing] = useState<string | null>(null);
-
-  const fetchPendingPayouts = async () => {
-    try {
-      const user = auth.currentUser;
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-      const idToken = await user.getIdToken();
-      const res = await fetch('/api/admin/pending-payouts', {
-        headers: { Authorization: `Bearer ${idToken}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setUsers(data.users || []);
-      }
-    } catch (err) {
-      console.error('報酬振込データ取得エラー:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPendingPayouts();
-  }, []);
-
-  const handlePayoutComplete = async (userId: string, amount: number, userName: string) => {
-    if (!confirm(`${userName} への振込 ¥${amount.toLocaleString()} を「完了」として処理しますか？\n\n※実際の銀行振込が完了していることを確認してください。`)) {
-      return;
-    }
-
-    setProcessing(userId);
-    try {
-      const user = auth.currentUser;
-      if (!user) return;
-      const idToken = await user.getIdToken();
-
-      const res = await fetch('/api/admin/complete-payout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${idToken}`,
-        },
-        body: JSON.stringify({ userId, amount }),
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        alert('✅ 振込完了処理を実行しました。ユーザーにメールを送信しました。');
-        fetchPendingPayouts();
-      } else {
-        alert('エラー: ' + data.error);
-      }
-    } catch (err: any) {
-      alert('通信エラー: ' + err.message);
-    } finally {
-      setProcessing(null);
-    }
-  };
-
-  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>読み込み中...</div>;
-
-  const totalPending = users.reduce((acc, u) => acc + (u.unpaidReward || 0), 0);
-
-  return (
-    <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
-        <div>
-          <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>報酬振込管理</h2>
-          <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>
-            未払い報酬があるユーザー一覧。振込完了後、右のボタンで処理してください。
-          </p>
-        </div>
-        <div style={{ fontSize: '13px', color: '#64748b' }}>
-          合計未払い: <strong style={{ color: '#dc2626', fontSize: '16px' }}>¥{totalPending.toLocaleString()}</strong>
-        </div>
-      </div>
-
-      {users.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>
-          現在、未払い報酬のあるユーザーはいません
-        </p>
-      ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-            <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                <th style={{ padding: '12px', textAlign: 'left' }}>氏名/店舗名</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>種別</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>メール</th>
-                <th style={{ padding: '12px', textAlign: 'right' }}>未払い報酬</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>振込先口座</th>
-                <th style={{ padding: '12px', textAlign: 'center' }}>ステータス</th>
-                <th style={{ padding: '12px', textAlign: 'center' }}>アクション</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <tr key={u.id} style={{ borderBottom: '1px solid #edf2f7' }}>
-                  <td style={{ padding: '12px', fontWeight: 'bold' }}>{u.name}</td>
-                  <td style={{ padding: '12px' }}>
-                    <span style={{
-                      padding: '2px 10px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      background: u.type === '代理店' ? '#c6f6d5' : u.type === 'PRO紹介者' ? '#fef3c7' : '#dbeafe',
-                      color: u.type === '代理店' ? '#22543d' : u.type === 'PRO紹介者' ? '#b45309' : '#1d4ed8',
-                    }}>
-                      {u.type}
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px', fontSize: '12px' }}>{u.email}</td>
-                  <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: u.unpaidReward >= 10000 ? '#dc2626' : '#1a202c' }}>
-                    ¥{u.unpaidReward.toLocaleString()}
-                  </td>
-                  <td style={{ padding: '12px', fontSize: '11px', color: '#475569' }}>
-                    {u.bankAccount ? (
-                      <>
-                        {u.bankAccount.bankName} {u.bankAccount.branchName}<br />
-                        {u.bankAccount.accountNumber} / {u.bankAccount.accountHolder}
-                      </>
-                    ) : (
-                      <span style={{ color: '#dc2626' }}>未登録</span>
-                    )}
-                  </td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>
-                    {u.payoutStatus === 'pending' ? (
-                      <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: '#fecaca', color: '#dc2626' }}>
-                        振込依頼中
-                      </span>
-                    ) : (
-                      <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: '#fef3c7', color: '#d97706' }}>
-                        累積中
-                      </span>
-                    )}
-                  </td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>
-                    <button
-                      onClick={() => handlePayoutComplete(u.id, u.unpaidReward, u.name)}
-                      disabled={processing === u.id}
-                      style={{
-                        padding: '6px 14px',
-                        background: processing === u.id ? '#94a3b8' : '#16a34a',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: processing === u.id ? 'wait' : 'pointer',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      {processing === u.id ? '処理中...' : '✓ 振込完了'}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
-}
-
-        {/* アフィリエイト一覧 */}
         {activeTab === 'affiliates' && <AffiliatesTab />}
-
-        {/* 報酬振込管理 */}
-　　　　　　　　　　　　　　　　{activeTab === 'pending-payouts' && <PendingPayoutsTab />}
-      
-        {/* 決済不履行一覧 */}
+        {activeTab === 'pending-payouts' && <PendingPayoutsTab />}
         {activeTab === 'payment-failures' && <PaymentFailuresTab />}
       </main>
     </div>
