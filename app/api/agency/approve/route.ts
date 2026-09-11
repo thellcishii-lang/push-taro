@@ -2,10 +2,29 @@
 import { NextResponse } from 'next/server';
 import { db as adminDb } from '../../../../lib/firebase-admin';
 import { sendEmail } from '@/lib/mailer';
+import { authAdmin } from '@/lib/firebase-admin';
+
+// 管理者チェック関数
+async function verifyAdmin(request: Request) {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) return null;
+  try {
+    const idToken = authHeader.split('Bearer ')[1];
+    const decoded = await authAdmin.verifyIdToken(idToken);
+    const userRecord = await authAdmin.getUser(decoded.uid);
+    return userRecord.customClaims?.admin === true ? decoded.uid : null;
+  } catch {
+    return null;
+  }
+}
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
+  const uid = await verifyAdmin(request);
+  if (!uid) {
+    return NextResponse.json({ error: '管理者権限が必要です' }, { status: 403 });
+  }
   const { searchParams } = new URL(request.url);
   const applicationId = searchParams.get('id');
 
