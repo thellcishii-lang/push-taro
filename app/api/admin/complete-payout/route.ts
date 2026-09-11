@@ -3,25 +3,27 @@ import { db, authAdmin } from '@/lib/firebase-admin';
 import { sendEmail } from '@/lib/mailer';
 import { FieldValue } from 'firebase-admin/firestore';
 
-// 🔥 実際にメールを送信するヘルパー
+// 振込完了メール送信
 async function sendUserPayoutEmail({
   to,
   amount,
   bankHolder,
+  typeLabel,
 }: {
   to: string;
   amount: number;
   bankHolder?: string;
+  typeLabel: string;
 }) {
   try {
     await sendEmail({
       to,
-      subject: '【Push-taro】紹介報酬のお振込み完了のお知らせ',
+      subject: '【Push-taro】報酬のお振込み完了のお知らせ',
       html: `
         <div style="font-family: sans-serif; padding: 20px;">
-          <h2>紹介報酬のお振込みが完了しました</h2>
+          <h2>${typeLabel}報酬のお振込みが完了しました</h2>
           <p>いつもPush-taroをご利用いただき、ありがとうございます。</p>
-          <p>下記の通り、紹介報酬のお振込みが完了いたしましたのでご報告いたします。</p>
+          <p>下記の通り、報酬のお振込みが完了いたしましたのでご報告いたします。</p>
           <hr />
           <table style="font-size: 14px;">
             <tr>
@@ -55,9 +57,6 @@ async function sendUserPayoutEmail({
   }
 }
 
-// ============================================================
-// メイン API
-// ============================================================
 export async function POST(req: Request) {
   // 🔒 管理者チェック
   const authHeader = req.headers.get('Authorization');
@@ -79,38 +78,66 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { userId, amount } = await req.json();
-    const userRef = db.collection('shops').doc(userId);
+    const { userId, amount, collection } = await req.json();
+
+    if (!userId) {
+      return NextResponse.json({ error: 'userIdが必要です' }, { status: 400 });
+    }
+
+    // collection パラメータを検証（デフォルトは shops で後方互換）
+    const targetCollection: string = collection === 'affiliates' ? 'affiliates' : 'shops';
+
+    const userRef = db.collection(targetCollection).doc(userId);
     const userDoc = await userRef.get();
 
     if (!userDoc.exists) {
-      return NextResponse.json({ error: 'ユーザーが存在しません' }, { status: 400 });
+      return NextResponse.json(
+        { error: `${targetCollection}/${userId} が存在しません` },
+        { status: 400 }
+      );
     }
 
-    const userData = userDoc.data();
+    const userData = userDoc.data()!;
 
-    // 1. 未払い累計額を0にリセット＆ステータス更新
+    // コレクションごとに未払いフィールド名を切り替え
+    const unpaidField = targetCollection === 'affiliates' ? 'unpaidReward' : 'unpaidRewardTotal';
+    const typeLabel =
+      targetCollection === 'affiliates' ? 'アフィリエイト' :
+      userData.role === 'agency' ? '代理店' :
+      userData.plan === 'pro' ? 'PRO紹介' :
+      '店舗';
+
+    // 1. 未払い累計額を0にリセット
     await userRef.update({
-      unpaidRewardTotal: 0,
+      [unpaidField]: 0,
       payoutStatus: 'none',
       lastPaidAt: FieldValue.serverTimestamp(),
     });
 
-    // 2. ユーザーへ振込完了通知メールを送信
-    await sendUserPayoutEmail({
-      to: userData?.email,
-      amount: amount,
-      bankHolder: userData?.bankAccount?.accountHolder,
-    });
+    // 2. 振込完了通知メール
+    if (userData.email) {
+      await sendUserPayoutEmail({
+        to: userData.email,
+        amount: amount,
+        bankHolder: userData.bankAccount?.accountHolder,
+        typeLabel,
+      });
+    } else {
+      console.warn(`[complete-payout] メールアドレスなし: ${targetCollection}/${userId}`);
+    }
 
     // 3. 振込履歴を記録
     await db.collection('payout_history').add({
       userId,
+      collection: targetCollection,
+      type: typeLabel,
       amount,
-      bankAccount: userData?.bankAccount || null,
+      bankAccount: userData.bankAccount || null,
       paidAt: FieldValue.serverTimestamp(),
       paidBy: adminUid,
     });
+
+    console.log(`[complete-payout] ✅ 完了: ${targetCollection}/${userId} / ${typeLabel} / ¥${amount.toLocaleString()}`);
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
