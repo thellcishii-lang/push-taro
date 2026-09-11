@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { sendEmail } from '@/lib/mailer';
+import { authAdmin } from '@/lib/firebase-admin';
 
 const PLAN_PRICES: Record<string, number> = {
   light: 1980,
@@ -11,6 +12,18 @@ const PLAN_PRICES: Record<string, number> = {
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+
+  try {
+    const idToken = authHeader.split('Bearer ')[1];
+    const decoded = await authAdmin.verifyIdToken(idToken);
+    const userRecord = await authAdmin.getUser(decoded.uid);
+    if (userRecord.customClaims?.admin !== true) {
+      return NextResponse.json({ error: '管理者権限が必要です' }, { status: 403 });
+    }
+  } catch {
+    return NextResponse.json({ error: '権限確認に失敗しました' }, { status: 403 });
+  }
+  
   const authHeader = request.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
     return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
