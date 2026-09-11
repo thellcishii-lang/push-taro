@@ -313,7 +313,7 @@ export default function SystemAdminPage() {
 
   // データ関連
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'all' | 'pro' | 'agencies' | 'affiliates' | 'payment-failures'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'pro' | 'agencies' | 'affiliates' | 'payment-failures' | 'pending-payouts'>('all');
   const [filterType, setFilterType] = useState<'all' | 'direct' | 'referral' | 'agency'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [errorCount, setErrorCount] = useState(0);
