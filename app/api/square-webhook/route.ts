@@ -39,7 +39,6 @@ async function countActiveProReferrals(referrerId: string): Promise<number> {
 // ヘルパー: 報酬率を計算（代理店 / PRO会員 両対応）
 // ============================================================
 async function calculateRewardRate(
-  referrerDoc: any,
   referrerData: any,
   plan: string,
   referrerId: string
@@ -53,7 +52,7 @@ async function calculateRewardRate(
 
   if (isAgency) {
     if (plan === 'pro') {
-      // 🔥 PRO: 超過累進（30% / 36% / 45%）
+      // PRO: 超過累進（30% / 36% / 45%）
       const activeProCount = await countActiveProReferrals(referrerId);
       if (activeProCount <= 100) {
         baseRate = 0.30;
@@ -63,7 +62,7 @@ async function calculateRewardRate(
         baseRate = 0.45;
       }
     } else {
-      // 🔥 LIGHT / STANDARD: 一律18%
+      // LIGHT / STANDARD: 一律18%
       baseRate = 0.18;
     }
 
@@ -73,7 +72,7 @@ async function calculateRewardRate(
       baseRate = baseRate * 0.9;
     }
   } else if (isPro) {
-    // 🔥 PRO会員: 全プラン一律10%（インボイスなし9%）
+    // PRO会員: 全プラン一律10%（インボイスなし9%）
     const hasInvoice = referrerData?.invoiceNumber && referrerData.invoiceNumber.trim() !== '';
     baseRate = hasInvoice ? 0.10 : 0.09;
   }
@@ -86,28 +85,42 @@ async function calculateRewardRate(
 // ============================================================
 async function sendAdminPayoutNotification(referrerData: any, referrerId: string, totalAmount: number) {
   const adminEmail = 'pushtaro-info@gmail.com';
-  const emailBody = `
-【要対応】紹介報酬 10,000円到達のお知らせ
 
-ユーザーの紹介報酬累計額が10,000円に達しました。
-口座情報をご確認の上、手動でお振り込み（PayPay銀行等）をお願いいたします。
-
-----------------------------------------
-■ ユーザー情報
-ユーザーID: ${referrerId}
-メールアドレス: ${referrerData.email}
-現在の未払い累計額: ¥${totalAmount.toLocaleString()}
-
-■ 振込先口座情報
-金融機関名: ${referrerData.bankAccount?.bankName || '未登録'}
-支店名: ${referrerData.bankAccount?.branchName || '未登録'}
-口座種別: ${referrerData.bankAccount?.accountType === 'savings' ? '普通' : '当座'}
-口座番号: ${referrerData.bankAccount?.accountNumber || '未登録'}
-口座名義: ${referrerData.bankAccount?.accountHolder || '未登録'}
-----------------------------------------
-`;
-  console.log(`[管理者通知] 送信先: ${adminEmail}`);
-  console.log(emailBody);
+  try {
+    await sendEmail({
+      to: adminEmail,
+      subject: `【要対応】紹介報酬の振込リクエストが発生しました（${referrerData.email}）`,
+      html: `
+        <div style="font-family: sans-serif; padding: 20px; background: #fff5f5; border: 2px solid #dc2626; border-radius: 8px;">
+          <h2 style="color: #dc2626; margin: 0 0 16px 0;">【要対応】紹介報酬 10,000円到達</h2>
+          <p>ユーザーの紹介報酬累計額が10,000円に達しました。</p>
+          <p>口座情報をご確認の上、手動でお振り込み（PayPay銀行等）をお願いいたします。</p>
+          <hr />
+          <h3>■ ユーザー情報</h3>
+          <ul>
+            <li>ユーザーID: <code>${referrerId}</code></li>
+            <li>メールアドレス: ${referrerData.email}</li>
+            <li>現在の未払い累計額: <strong>¥${totalAmount.toLocaleString()}</strong></li>
+          </ul>
+          <h3>■ 振込先口座情報</h3>
+          <ul>
+            <li>金融機関名: ${referrerData.bankAccount?.bankName || '未登録'}</li>
+            <li>支店名: ${referrerData.bankAccount?.branchName || '未登録'}</li>
+            <li>口座種別: ${referrerData.bankAccount?.accountType === 'savings' ? '普通' : '当座'}</li>
+            <li>口座番号: ${referrerData.bankAccount?.accountNumber || '未登録'}</li>
+            <li>口座名義: ${referrerData.bankAccount?.accountHolder || '未登録'}</li>
+          </ul>
+          <hr />
+          <p style="font-size: 12px; color: #64748b;">
+            振込完了後、管理画面から「振込完了処理」を実行してください。
+          </p>
+        </div>
+      `,
+    });
+    console.log(`[管理者通知] 送信完了: ${adminEmail}`);
+  } catch (error) {
+    console.error('[管理者通知] 送信失敗:', error);
+  }
 }
 
 // ============================================================
@@ -316,7 +329,7 @@ export async function POST(request: Request) {
           `,
         });
 
-        // 🔥 紹介報酬計算（新規契約時）
+        // 紹介報酬計算（新規契約時）
         const referrerId = pendingShopData.referrerId;
         if (referrerId) {
           try {
@@ -324,9 +337,7 @@ export async function POST(request: Request) {
 
             if (referrerDoc.exists) {
               const referrerData = referrerDoc.data();
-
-              // 🔥 共通の報酬率計算関数を呼び出す
-              const effectiveRate = await calculateRewardRate(referrerDoc, referrerData, plan, referrerId);
+              const effectiveRate = await calculateRewardRate(referrerData, plan, referrerId);
 
               if (effectiveRate > 0) {
                 const planPrices: Record<string, number> = { light: 1980, standard: 3800, pro: 10000 };
@@ -463,7 +474,7 @@ export async function POST(request: Request) {
           updatedAt: FieldValue.serverTimestamp(),
         });
 
-        // 🔥 継続課金時の紹介報酬
+        // 継続課金時の紹介報酬
         const relSnap = await db.collection('referral_relations')
           .where('referredTenantId', '==', shopDoc.id)
           .where('status', '==', 'active')
@@ -476,9 +487,7 @@ export async function POST(request: Request) {
 
           if (referrerDoc.exists) {
             const referrerData = referrerDoc.data();
-
-            // 🔥 共通の報酬率計算関数を呼び出す
-            const effectiveRate = await calculateRewardRate(referrerDoc, referrerData, plan, referrerDoc.id);
+            const effectiveRate = await calculateRewardRate(referrerData, plan, referrerDoc.id);
 
             if (effectiveRate > 0) {
               const rewardAmount = Math.floor(planAmount * effectiveRate);
@@ -518,12 +527,13 @@ export async function POST(request: Request) {
       }
 
       // ============================================================
-      // ④ フォールバック
+      // ④ フォールバック（該当なし）
       // ============================================================
       console.log(`[フォールバック] 該当なし: ${customerEmail}`);
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
+    // その他のイベントタイプは無視
     return NextResponse.json({ received: true }, { status: 200 });
 
   } catch (error: any) {
