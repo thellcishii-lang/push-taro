@@ -4,6 +4,10 @@ import { db, authAdmin } from '@/lib/firebase-admin';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
+  }
 
   try {
     const idToken = authHeader.split('Bearer ')[1];
@@ -12,18 +16,6 @@ export async function POST(request: Request) {
     if (userRecord.customClaims?.admin !== true) {
       return NextResponse.json({ error: '管理者権限が必要です' }, { status: 403 });
     }
-  } catch {
-    return NextResponse.json({ error: '権限確認に失敗しました' }, { status: 403 });
-  }
-  
-  const authHeader = request.headers.get('Authorization');
-  if (!authHeader?.startsWith('Bearer ')) {
-    return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
-  }
-
-  try {
-    const idToken = authHeader.split('Bearer ')[1];
-    await authAdmin.verifyIdToken(idToken);
   } catch {
     return NextResponse.json({ error: '無効なトークンです' }, { status: 401 });
   }
