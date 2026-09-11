@@ -49,7 +49,7 @@ function CancelContent() {
     setLoading(true);
     try {
       const idToken = await user.getIdToken();
-      const res = await fetch('/api/cancel-subscription', {
+      const res = await fetch('/api/cancel-shop', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
