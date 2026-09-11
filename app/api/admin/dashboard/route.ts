@@ -1,10 +1,28 @@
 // app/api/admin/dashboard/route.ts
 import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/firebase-admin';
+import { authAdmin } from '@/lib/firebase-admin';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
+
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
+  }
+
+  let requesterUid: string;
+  let isAdmin = false;
+  try {
+    const idToken = authHeader.split('Bearer ')[1];
+    const decoded = await authAdmin.verifyIdToken(idToken);
+    requesterUid = decoded.uid;
+    const userRecord = await authAdmin.getUser(requesterUid);
+    isAdmin = userRecord.customClaims?.admin === true;
+  } catch {
+    return NextResponse.json({ error: '無効なトークンです' }, { status: 401 });
+  }
   try {
     const { searchParams } = new URL(request.url);
     const shopId = searchParams.get('shopId');
@@ -15,6 +33,14 @@ export async function GET(request: Request) {
 
     // 1. 店舗基本情報の取得
     const shopDoc = await db.collection('shops').doc(shopId).get();
+
+    if (shopDoc.exists) {
+    const shopData = shopDoc.data();
+    if (shopData?.ownerUid !== requesterUid && !isAdmin) {
+      return NextResponse.json({ error: '権限がありません' }, { status: 403 });
+    }
+  }
+    
     const shopData = shopDoc.exists ? shopDoc.data() : {};
 
     // 2. subscriptions コレクションから shopIds 配列に shopId が含まれるドキュメントをカウント
