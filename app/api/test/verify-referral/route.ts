@@ -1,10 +1,28 @@
 // app/api/test/verify-referral/route.ts
 import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/firebase-admin';
+import { authAdmin } from '@/lib/firebase-admin';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
+
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
+  }
+
+  try {
+    const idToken = authHeader.split('Bearer ')[1];
+    const decoded = await authAdmin.verifyIdToken(idToken);
+    const userRecord = await authAdmin.getUser(decoded.uid);
+    if (userRecord.customClaims?.admin !== true) {
+      return NextResponse.json({ error: '管理者権限が必要です' }, { status: 403 });
+    }
+  } catch {
+    return NextResponse.json({ error: '無効なトークンです' }, { status: 401 });
+  }
+  
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
 
