@@ -400,8 +400,8 @@ function PendingPayoutsTab() {
                   </td>
                   <td style={{ padding: '12px', textAlign: 'center' }}>
                     <button
-                      onClick={() => handlePayoutComplete(u.id, u.unpaidReward, u.name)}
-                      disabled={processing === u.id}
+                      onClick={() => handlePayoutComplete(u.id, u.unpaidReward, u.name, u.collection)}
+                              disabled={processing === u.id}
                       style={{ padding: '6px 14px', background: processing === u.id ? '#94a3b8' : '#16a34a', color: '#fff', border: 'none', borderRadius: '4px', cursor: processing === u.id ? 'wait' : 'pointer', fontSize: '12px', fontWeight: 'bold' }}
                     >
                       {processing === u.id ? '処理中...' : '✓ 振込完了'}
