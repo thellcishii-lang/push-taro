@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
-import { authAdmin } from '@/lib/firebase-admin';
 
 export const dynamic = 'force-dynamic';
 
