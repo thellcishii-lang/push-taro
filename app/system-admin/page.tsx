@@ -289,7 +289,12 @@ function PendingPayoutsTab() {
     fetchPendingPayouts();
   }, []);
 
-  const handlePayoutComplete = async (userId: string, amount: number, userName: string) => {
+    const handlePayoutComplete = async (
+    userId: string,
+    amount: number,
+    userName: string,
+    collection: string
+  ) => {
     if (!confirm(`${userName} への振込 ¥${amount.toLocaleString()} を「完了」として処理しますか？\n\n※実際の銀行振込が完了していることを確認してください。`)) {
       return;
     }
@@ -306,7 +311,7 @@ function PendingPayoutsTab() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${idToken}`,
         },
-        body: JSON.stringify({ userId, amount }),
+        body: JSON.stringify({ userId, amount, collection }),
       });
 
       const data = await res.json();
