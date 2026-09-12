@@ -14,7 +14,7 @@ export async function approveAgency(agencyShopId: string, email: string) {
 
     await sendEmail({
       to: email,
-      subject: '【プッシュ太郎】代理店申請承認のお知らせ',
+      subject: '【push-taro】代理店申請承認のお知らせ',
       html: `
         <p>代理店申請が承認されました。</p>
         <p>管理画面より代理店ダッシュボードをご利用いただけます。</p>
@@ -39,7 +39,7 @@ export async function rejectAgency(agencyShopId: string, email: string, reason?:
 
     await sendEmail({
       to: email,
-      subject: '【プッシュ太郎】代理店申請結果のお知らせ',
+      subject: '【push-taro】代理店申請結果のお知らせ',
       html: `
         <p>大変恐れ入りますが、審査の結果、今回の代理店申請は見送りとなりました。</p>
         ${reason ? `<p>理由: ${reason}</p>` : ''}
