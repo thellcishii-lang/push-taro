@@ -275,6 +275,10 @@ export default function ProShopDashboardPage() {
         </div>
       </div>
 
+      {shopId && (
+        <PaymentFailuresSection referrerId={shopId} referrerType="pro" />
+      )}
+
       {/* 紹介コード & URL */}
       <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '12px', padding: '20px', marginBottom: '24px' }}>
         <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', color: '#c2410c' }}>
