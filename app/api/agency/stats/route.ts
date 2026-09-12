@@ -1,12 +1,10 @@
 // app/api/agency/stats/route.ts
 import { NextResponse } from 'next/server';
-import { db } from '../../../../lib/firebase-admin';
-import { authAdmin } from '@/lib/firebase-admin';
+import { db, authAdmin } from '@/lib/firebase-admin';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-
   const authHeader = request.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
     return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
@@ -23,38 +21,66 @@ export async function GET(request: Request) {
   } catch {
     return NextResponse.json({ error: '無効なトークンです' }, { status: 401 });
   }
+
   try {
     const { searchParams } = new URL(request.url);
     const agencyId = searchParams.get('agencyId');
 
-    if (requesterUid !== agencyId && !isAdmin) {
-    return NextResponse.json({ error: '権限がありません' }, { status: 403 });
-  }
-
     if (!agencyId) {
-      return NextResponse.json({ error: 'Agency ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'agencyId が必要です' }, { status: 400 });
     }
 
-    // 🔥 1. 代理店自身の情報を `agencies` から取得
+    if (requesterUid !== agencyId && !isAdmin) {
+      return NextResponse.json({ error: '権限がありません' }, { status: 403 });
+    }
+
+    // ============================================================
+    // 1. 代理店自身の情報
+    // ============================================================
     const agencyDoc = await db.collection('agencies').doc(agencyId).get();
     if (!agencyDoc.exists) {
       return NextResponse.json({ error: '代理店情報が見つかりません' }, { status: 404 });
     }
 
-    const agencyData = agencyDoc.data();
+    const agencyData = agencyDoc.data()!;
 
-    // 🔥 agencyData が undefined の場合のガード
-    if (!agencyData) {
-      return NextResponse.json({ error: '代理店データが不正です。' }, { status: 400 });
-    }
-
-    // 2. 対象の代理店IDに紐づく傘下店舗を取得
-    const shopsSnapshot = await db
-      .collection('shops')
-      .where('agencyId', '==', agencyId)
+    // ============================================================
+    // 2. referral_relations から配下店舗IDを取得
+    // ============================================================
+    const relSnap = await db.collection('referral_relations')
+      .where('referrerId', '==', agencyId)
+      .where('referrerType', '==', 'agency')
       .get();
 
-    // 3. 全 subscriptions から店舗ごとの配信許可人数を集計
+    const shopIds: string[] = [];
+    const relationMap: Record<string, any> = {};
+
+    relSnap.docs.forEach((relDoc) => {
+      const relData = relDoc.data();
+      if (relData.referredTenantId) {
+        shopIds.push(relData.referredTenantId);
+        relationMap[relData.referredTenantId] = relData;
+      }
+    });
+
+    // ============================================================
+    // 3. 各店舗の詳細を shops から取得
+    // ============================================================
+    const shopDocsData: any[] = [];
+    for (const shopId of shopIds) {
+      const shopDoc = await db.collection('shops').doc(shopId).get();
+      if (shopDoc.exists) {
+        shopDocsData.push({
+          id: shopDoc.id,
+          ...shopDoc.data(),
+          _relation: relationMap[shopId],
+        });
+      }
+    }
+
+    // ============================================================
+    // 4. subscriptions から店舗ごとの配信許可人数を集計
+    // ============================================================
     const subsSnapshot = await db.collection('subscriptions').get();
     const subscriberCounts: Record<string, number> = {};
 
@@ -69,7 +95,9 @@ export async function GET(request: Request) {
       }
     });
 
-    // 4. 当月の集計
+    // ============================================================
+    // 5. 当月の集計
+    // ============================================================
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
@@ -78,19 +106,31 @@ export async function GET(request: Request) {
     let monthlyCanceledCount = 0;
     const planCounts = { light: 0, standard: 0, pro: 0, other: 0 };
 
-    // 5. 店舗データの整形
-    const detailedShops = shopsSnapshot.docs.map((doc) => {
-      const data = doc.data();
-      const shopId = doc.id;
+    // ============================================================
+    // 6. 店舗データの整形
+    // ============================================================
+    const detailedShops = shopDocsData.map((data) => {
+      const shopId = data.id;
 
-      const createdAtDate = data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAt ? new Date(data.createdAt) : null);
-      const canceledAtDate = data.canceledAt?.toDate ? data.canceledAt.toDate() : (data.canceledAt ? new Date(data.canceledAt) : null);
+      const createdAtDate = data.createdAt?.toDate
+        ? data.createdAt.toDate()
+        : data.createdAt
+        ? new Date(data.createdAt)
+        : null;
+      const canceledAtDate = data.canceledAt?.toDate
+        ? data.canceledAt.toDate()
+        : data.canceledAt
+        ? new Date(data.canceledAt)
+        : null;
 
       if (createdAtDate && createdAtDate >= startOfMonth && createdAtDate <= endOfMonth) {
         monthlyNewCount++;
       }
 
-      if (data.status === 'canceled' || (canceledAtDate && canceledAtDate >= startOfMonth && canceledAtDate <= endOfMonth)) {
+      if (
+        data.status === 'canceled' ||
+        (canceledAtDate && canceledAtDate >= startOfMonth && canceledAtDate <= endOfMonth)
+      ) {
         monthlyCanceledCount++;
       }
 
@@ -111,12 +151,18 @@ export async function GET(request: Request) {
         createdAt: createdAtDate ? createdAtDate.toISOString().slice(0, 10) : '不明',
         status: data.status || 'active',
         canceledAt: canceledAtDate ? canceledAtDate.toISOString().slice(0, 10) : null,
-        validUntil: data.validUntil ? (data.validUntil.toDate ? data.validUntil.toDate().toISOString().slice(0, 10) : String(data.validUntil).slice(0, 10)) : null,
+        validUntil: data.validUntil
+          ? data.validUntil.toDate
+            ? data.validUntil.toDate().toISOString().slice(0, 10)
+            : String(data.validUntil).slice(0, 10)
+          : null,
         plan: plan,
       };
     });
 
-    // 🔥 代理店情報も返す（ダッシュボードのヘッダー表示用）
+    // ============================================================
+    // 7. レスポンス
+    // ============================================================
     return NextResponse.json({
       success: true,
       agency: {
