@@ -13,28 +13,73 @@ export async function GET(
     return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
   }
 
+  let uid: string;
+  let isAdmin = false;
   try {
     const idToken = authHeader.split('Bearer ')[1];
     const decoded = await authAdmin.verifyIdToken(idToken);
-    const userRecord = await authAdmin.getUser(decoded.uid);
+    uid = decoded.uid;
+    const userRecord = await authAdmin.getUser(uid);
+    isAdmin = userRecord.customClaims?.admin === true;
+  } catch {
+    return NextResponse.json({ error: '無効なトークンです' }, { status: 401 });
+  }
 
+  try {
     const shopId = params.shopId;
     const shopDoc = await db.collection('shops').doc(shopId).get();
     if (!shopDoc.exists) {
       return NextResponse.json({ error: '店舗が見つかりません' }, { status: 404 });
     }
 
-    // 権限チェック：管理者 OR 店舗オーナー OR 紹介者
-    const shopData = shopDoc.data();
-    const isAdmin = userRecord.customClaims?.admin === true;
-    const isOwner = shopData?.ownerUid === decoded.uid;
-    const isReferrer = shopData?.referrerId === decoded.uid;
+    const shopData = shopDoc.data()!;
 
-    if (!isAdmin && !isOwner && !isReferrer) {
+    // ============================================================
+    // 権限チェック
+    //   管理者 OR 店舗オーナー OR 紹介者（agency / affiliate / pro）
+    // ============================================================
+    let hasAccess = false;
+
+    if (isAdmin) {
+      hasAccess = true;
+    } else if (shopData.ownerUid === uid) {
+      hasAccess = true;
+    } else {
+      // 紹介者かどうかを referral_relations で確認
+      const relSnap = await db.collection('referral_relations')
+        .where('referredTenantId', '==', shopId)
+        .get();
+
+      for (const relDoc of relSnap.docs) {
+        const relData = relDoc.data();
+        const referrerId = relData.referrerId;
+        const referrerType = relData.referrerType;
+
+        if (!referrerId || !referrerType) continue;
+
+        // 紹介者の種別に応じて、コレクションを切り替えて uid を確認
+        let collection = 'shops';
+        if (referrerType === 'agency') collection = 'agencies';
+        else if (referrerType === 'affiliate') collection = 'affiliates';
+
+        const referrerDoc = await db.collection(collection).doc(referrerId).get();
+        if (referrerDoc.exists) {
+          const referrerData = referrerDoc.data()!;
+          if (referrerData.uid === uid || referrerData.ownerUid === uid) {
+            hasAccess = true;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!hasAccess) {
       return NextResponse.json({ error: '権限がありません' }, { status: 403 });
     }
 
+    // ============================================================
     // payment_history を取得（attemptedAt 降順）
+    // ============================================================
     const historySnap = await db.collection('shops')
       .doc(shopId)
       .collection('payment_history')
