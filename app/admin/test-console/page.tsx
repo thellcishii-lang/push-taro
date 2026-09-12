@@ -40,7 +40,7 @@ export default function TestConsolePage() {
   const [createdAgency, setCreatedAgency] = useState<{ agencyUid: string; email: string; password: string; referralCode: string } | null>(null);
   const [creatingAgency, setCreatingAgency] = useState(false);
 
-  // 📢 アフィリエイトテストアカウント即時発行用の状態（新規追加）
+  // 📢 アフィリエイトテストアカウント即時発行用の状態
   const [affiliateEmail, setAffiliateEmail] = useState('test-affiliate@example.com');
   const [affiliateName, setAffiliateName] = useState('テストアフィリエイター');
   const [affiliateRewardType, setAffiliateRewardType] = useState<'recurring' | 'one-time'>('recurring');
@@ -70,7 +70,7 @@ export default function TestConsolePage() {
   const handleCreateTestShop = async () => {
     setCreatingShop(true);
     try {
-      const res = await fetch('/api/admin/create-test-shop', {
+      const res = await fetch('/api/test/create-shop', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: dummyEmail }),
@@ -97,7 +97,7 @@ export default function TestConsolePage() {
   const handleCreateTestAgency = async () => {
     setCreatingAgency(true);
     try {
-      const res = await fetch('/api/admin/create-test-agency', {
+      const res = await fetch('/api/test/create-agency', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -124,11 +124,11 @@ export default function TestConsolePage() {
     }
   };
 
-  // 📢 アフィリエイトテストアカウント発行処理（新規追加）
+  // 📢 アフィリエイトテストアカウント発行処理
   const handleCreateTestAffiliate = async () => {
     setCreatingAffiliate(true);
     try {
-      const res = await fetch('/api/admin/create-test-affiliate', {
+      const res = await fetch('/api/test/create-affiliate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -271,7 +271,7 @@ export default function TestConsolePage() {
     setActivating(true);
     setActivationResult(null);
     try {
-      const res = await fetch('/api/admin/force-activate', {
+      const res = await fetch('/api/test/force-activate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ shopId: targetShopId }),
@@ -339,7 +339,7 @@ export default function TestConsolePage() {
         )}
       </section>
 
-      {/* 📢 アフィリエイトテストアカウント即時発行フォーム（新規追加） */}
+      {/* 📢 アフィリエイトテストアカウント即時発行フォーム */}
       <section style={{ background: '#fff', border: '2px solid #16a34a', borderRadius: 8, padding: 20, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <h2 style={{ marginTop: 0, fontSize: 18, color: '#16a34a' }}>📢 アフィリエイトテストアカウント即時発行</h2>
         <p style={{ fontSize: 12, color: '#64748b', marginTop: -8, marginBottom: 16 }}>
@@ -772,7 +772,7 @@ export default function TestConsolePage() {
               const shopId = (document.getElementById('test-force-upgrade-shopid') as HTMLInputElement)?.value;
               if (!shopId) { alert('店舗IDを入力してください'); return; }
               try {
-                const res = await fetch('/api/admin/force-activate', {
+                const res = await fetch('/api/test/force-activate', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ shopId }),
