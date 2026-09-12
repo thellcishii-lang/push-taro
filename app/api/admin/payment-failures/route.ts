@@ -45,6 +45,19 @@ export async function GET(request: Request) {
           }
         }
 
+        snap.docs.forEach((doc) => {
+        const data = doc.data();
+        
+        // 🆕 非表示フラグが立っている店舗は除外
+        if (data.paymentFailureHidden === true) {
+          return;
+        }
+        
+        // 30日経過した canceled は除外
+        if (status === 'canceled' && data.paymentCanceledAt) {
+          // ... 既存の処理 ...
+        }
+
         shopsMap.set(doc.id, {
           id: doc.id,
           name: data.name || '未設定',
