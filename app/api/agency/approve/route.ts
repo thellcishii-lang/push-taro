@@ -1,13 +1,14 @@
 // app/api/agency/approve/route.ts
 import { NextResponse } from 'next/server';
-import { db as adminDb } from '../../../../lib/firebase-admin';
+import { db, authAdmin } from '@/lib/firebase-admin';
 import { sendEmail } from '@/lib/mailer';
-import { authAdmin } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
-// 管理者チェック関数
+export const dynamic = 'force-dynamic';
+
 async function verifyAdmin(request: Request) {
   const authHeader = request.headers.get('Authorization');
-  if (!authHeader?.startsWith('Bearer ')) return null;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
   try {
     const idToken = authHeader.split('Bearer ')[1];
     const decoded = await authAdmin.verifyIdToken(idToken);
@@ -18,71 +19,70 @@ async function verifyAdmin(request: Request) {
   }
 }
 
-export const dynamic = 'force-dynamic';
-
+// ============================================================
+// 承認処理（GET）
+// ============================================================
 export async function GET(request: Request) {
   const uid = await verifyAdmin(request);
   if (!uid) {
     return NextResponse.json({ error: '管理者権限が必要です' }, { status: 403 });
   }
-  const { searchParams } = new URL(request.url);
-  const applicationId = searchParams.get('id');
 
-  if (!applicationId) {
-    return NextResponse.json({ error: '申請IDが指定されていません。' }, { status: 400 });
+  const { searchParams } = new URL(request.url);
+  const agencyId = searchParams.get('agencyId');
+
+  if (!agencyId) {
+    return NextResponse.json({ error: 'agencyId が指定されていません。' }, { status: 400 });
   }
 
   try {
-    const appRef = adminDb.collection('agency_applications').doc(applicationId);
-    const appDoc = await appRef.get();
+    const agencyRef = db.collection('agencies').doc(agencyId);
+    const agencyDoc = await agencyRef.get();
 
-    if (!appDoc.exists) {
-      return NextResponse.json({ error: '該当の申請データが見つかりません。' }, { status: 404 });
+    if (!agencyDoc.exists) {
+      return NextResponse.json({ error: '該当の代理店データが見つかりません。' }, { status: 404 });
     }
 
-    const appData = appDoc.data();
-
-    // 🔥 appData が undefined の場合のガード
-    if (!appData) {
-      return NextResponse.json({ error: '申請データが不正です。' }, { status: 400 });
+    const agencyData = agencyDoc.data();
+    if (!agencyData) {
+      return NextResponse.json({ error: '代理店データが不正です。' }, { status: 400 });
     }
 
-    // 1. 申請ステータスを「承認済み（決済待ち）」に更新
-    await appRef.update({
+    // 既に承認済みチェック
+    if (agencyData.status !== 'pending_approval') {
+      return NextResponse.json(
+        { error: `既に ${agencyData.status} の状態です。` },
+        { status: 400 }
+      );
+    }
+
+    // ============================================================
+    // 1. agencies のステータスを更新
+    // ============================================================
+    await agencyRef.update({
       status: 'approved_pending_payment',
-      approvedAt: new Date().toISOString(),
+      approvedAt: FieldValue.serverTimestamp(),
+      approvedBy: uid,
+      updatedAt: FieldValue.serverTimestamp(),
     });
 
-    // 🔥 2. agencies コレクションのステータスも更新
-    const agencySnapshot = await adminDb.collection('agencies')
-      .where('email', '==', appData.email)
-      .get();
-
-    if (!agencySnapshot.empty) {
-      const agencyDoc = agencySnapshot.docs[0];
-      await agencyDoc.ref.update({
-        status: 'active',
-        approvedAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
-      console.log(`[承認] agencies コレクションのステータスを更新: ${agencyDoc.id}`);
-    } else {
-      console.warn(`[承認] agencies コレクションに対応するドキュメントが見つかりません: ${appData.email}`);
-    }
-
-    // 3. Square 決済リンクの準備
+    // ============================================================
+    // 2. 決済リンクの準備
+    // ============================================================
     const initialFeeUrl = process.env.SQUARE_AGENCY_INITIAL_URL || 'https://square.link/u/your-initial-fee-link';
     const monthlyFeeUrl = process.env.SQUARE_AGENCY_MONTHLY_URL || 'https://square.link/u/your-monthly-fee-link';
 
-    const initialPaymentLink = `${initialFeeUrl}?client_id=${applicationId}`;
-    const monthlyPaymentLink = `${monthlyFeeUrl}?client_id=${applicationId}`;
+    const initialPaymentLink = `${initialFeeUrl}?client_id=${agencyId}`;
+    const monthlyPaymentLink = `${monthlyFeeUrl}?client_id=${agencyId}`;
 
-    // 4. 決済案内メールを送信
+    // ============================================================
+    // 3. 決済案内メール送信
+    // ============================================================
     await sendEmail({
-      to: appData.email,
+      to: agencyData.email,
       subject: '【Push-taro】代理店パートナー 審査完了・決済手続きのご案内',
       html: `
-        <h2>${appData.companyName || appData.ownerName} 様</h2>
+        <h2>${agencyData.companyName || agencyData.ownerName || '代理店'} 様</h2>
         <p>この度はPush-taro代理店パートナーへのご申請、誠にありがとうございます。</p>
         <p>社内審査が完了いたしましたので、今後の決済手続きについてご案内いたします。</p>
         <hr />
@@ -99,16 +99,18 @@ export async function GET(request: Request) {
       `,
     });
 
-    console.log(`[承認完了] 申請ID: ${applicationId} / 送信先: ${appData.email}`);
+    console.log(`[代理店承認] agencyId: ${agencyId} / 送信先: ${agencyData.email}`);
 
-    // 5. レスポンス
+    // ============================================================
+    // 4. レスポンス（HTML / JSON 両対応）
+    // ============================================================
     const acceptHeader = request.headers.get('accept') || '';
     if (acceptHeader.includes('text/html')) {
       return new NextResponse(
         `<html>
           <body style="font-family: sans-serif; padding: 40px; text-align: center;">
             <h2>代理店申請を承認しました</h2>
-            <p>${appData.companyName} (${appData.email}) 宛てに決済案内メールを送信しました。</p>
+            <p>${agencyData.companyName || agencyData.ownerName}（${agencyData.email}）宛てに決済案内メールを送信しました。</p>
             <p><a href="/system-admin">全体管理画面に戻る</a></p>
           </body>
         </html>`,
@@ -119,10 +121,83 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       message: '承認処理および決済案内メールの送信が完了しました。',
-      applicationId,
+      agencyId,
     });
   } catch (error: any) {
-    console.error('承認処理エラー:', error);
-    return NextResponse.json({ error: error.message || 'サーバーエラーが発生しました' }, { status: 500 });
+    console.error('[代理店承認] エラー:', error);
+    return NextResponse.json(
+      { error: error.message || 'サーバーエラーが発生しました' },
+      { status: 500 }
+    );
+  }
+}
+
+// ============================================================
+// 却下処理（POST）
+// ============================================================
+export async function POST(request: Request) {
+  const uid = await verifyAdmin(request);
+  if (!uid) {
+    return NextResponse.json({ error: '管理者権限が必要です' }, { status: 403 });
+  }
+
+  try {
+    const { agencyId, reason } = await request.json();
+
+    if (!agencyId) {
+      return NextResponse.json({ error: 'agencyId が必要です' }, { status: 400 });
+    }
+
+    const agencyRef = db.collection('agencies').doc(agencyId);
+    const agencyDoc = await agencyRef.get();
+
+    if (!agencyDoc.exists) {
+      return NextResponse.json({ error: '該当の代理店データが見つかりません。' }, { status: 404 });
+    }
+
+    const agencyData = agencyDoc.data();
+    if (!agencyData) {
+      return NextResponse.json({ error: '代理店データが不正です。' }, { status: 400 });
+    }
+
+    // ステータス更新
+    await agencyRef.update({
+      status: 'rejected',
+      rejectedAt: FieldValue.serverTimestamp(),
+      rejectedBy: uid,
+      rejectReason: reason || '',
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    // 却下メール送信
+    await sendEmail({
+      to: agencyData.email,
+      subject: '【Push-taro】代理店申請結果のお知らせ',
+      html: `
+        <h2>${agencyData.companyName || agencyData.ownerName || '代理店'} 様</h2>
+        <p>この度はPush-taro代理店パートナーへのご申請、誠にありがとうございます。</p>
+        <p>厳正なる審査の結果、誠に恐れ入りますが、今回はご期待に沿えない結果となりました。</p>
+        ${reason ? `<p><strong>理由:</strong> ${reason}</p>` : ''}
+        <p>今後ともPush-taroをよろしくお願いいたします。</p>
+        <hr />
+        <p><strong>Push-taro.com</strong></p>
+        <p>運営会社：the合同会社</p>
+        <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
+      `,
+    });
+
+    console.log(`[代理店却下] agencyId: ${agencyId}`);
+
+    return NextResponse.json({
+      success: true,
+      message: '却下処理および通知メールの送信が完了しました。',
+      agencyId,
+    });
+  } catch (error: any) {
+    console.error('[代理店却下] エラー:', error);
+    return NextResponse.json(
+      { error: error.message || 'サーバーエラーが発生しました' },
+      { status: 500 }
+    );
   }
 }
