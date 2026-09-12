@@ -48,6 +48,19 @@ export default function AgencyDashboardPage() {
     planCounts: { light: 0, standard: 0, pro: 0, other: 0 },
   });
   const [shops, setShops] = useState<DetailedShop[]>([]);
+
+    // 🆕 紹介情報・報酬
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<'shops' | 'rewards'>('shops');
+  const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  
+  // 口座情報
+  const [bankName, setBankName] = useState('');
+  const [branchName, setBranchName] = useState('');
+  const [accountType, setAccountType] = useState('savings');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [accountHolder, setAccountHolder] = useState('');
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlanTab, setSelectedPlanTab] = useState<'all' | 'light' | 'standard' | 'pro'>('all');
