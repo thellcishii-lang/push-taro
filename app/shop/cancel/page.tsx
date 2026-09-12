@@ -61,7 +61,7 @@ function CancelContent() {
       const data = await res.json();
       if (res.ok) {
         alert('退会手続きが完了いたしました。');
-        router.push('/admin');
+        router.push('/shop');
       } else {
         alert('エラー: ' + data.error);
       }
@@ -106,7 +106,7 @@ function CancelContent() {
 
       <div style={{ display: 'flex', gap: '10px' }}>
         <button
-          onClick={() => router.push('/admin')}
+          onClick={() => router.push('/shop')}
           style={{ flex: 1, padding: '12px', background: '#e0e0e0', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
         >
           キャンセル（管理画面に戻る）
