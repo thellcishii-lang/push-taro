@@ -671,6 +671,243 @@ function PendingPayoutsTab() {
 }
 
 // ============================================================
+// 代理店一覧タブ
+// ============================================================
+function AgenciesTab() {
+  const [loading, setLoading] = useState(true);
+  const [agencies, setAgencies] = useState<any[]>([]);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [selectedAgency, setSelectedAgency] = useState<any>(null);
+
+  const fetchAgencies = async () => {
+    try {
+      const res = await fetch('/api/system-admin/stats');
+      if (res.ok) {
+        const data = await res.json();
+        setAgencies(data.agencies || []);
+      }
+    } catch (err) {
+      console.error('代理店データ取得エラー:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAgencies();
+  }, []);
+
+  const handleApprove = async (agencyId: string, companyName: string) => {
+    if (!confirm(`${companyName} を承認して、決済案内メールを送信しますか？`)) return;
+
+    setActionLoading(agencyId);
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        alert('ログインが必要です');
+        return;
+      }
+      const idToken = await user.getIdToken();
+
+      const res = await fetch(`/api/agency/approve?agencyId=${agencyId}`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert('✅ 承認処理が完了しました。決済案内メールを送信しました。');
+        fetchAgencies();
+      } else {
+        alert('エラー: ' + data.error);
+      }
+    } catch (err: any) {
+      alert('通信エラー: ' + err.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleReject = async (agencyId: string, companyName: string) => {
+    const reason = prompt(`【却下理由】（空欄でもOK）\n\n${companyName} を却下します。\n理由を入力してください（任意）:`);
+    if (reason === null) return;
+
+    setActionLoading(agencyId);
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        alert('ログインが必要です');
+        return;
+      }
+      const idToken = await user.getIdToken();
+
+      const res = await fetch('/api/agency/approve', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ agencyId, reason }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert('✅ 却下処理が完了しました。通知メールを送信しました。');
+        fetchAgencies();
+      } else {
+        alert('エラー: ' + data.error);
+      }
+    } catch (err: any) {
+      alert('通信エラー: ' + err.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    const map: Record<string, { label: string; bg: string; color: string }> = {
+      pending_approval:         { label: '審査中',    bg: '#fef3c7', color: '#92400e' },
+      approved_pending_payment: { label: '決済待ち',  bg: '#dbeafe', color: '#1e40af' },
+      active:                   { label: '稼働中',    bg: '#c6f6d5', color: '#22543d' },
+      suspended:                { label: '停止中',    bg: '#fecaca', color: '#991b1b' },
+      rejected:                 { label: '却下',      bg: '#e2e8f0', color: '#475569' },
+    };
+    const s = map[status] || { label: status, bg: '#f1f5f9', color: '#475569' };
+    return (
+      <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: s.bg, color: s.color }}>
+        {s.label}
+      </span>
+    );
+  };
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>読み込み中...</div>;
+
+  return (
+    <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+        <div>
+          <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>代理店一覧 & 審査</h2>
+          <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>
+            審査中の代理店には承認・却下ボタンが表示されます
+          </p>
+        </div>
+        <span style={{ fontSize: '13px', color: '#64748b' }}>全 {agencies.length} 件</span>
+      </div>
+
+      {agencies.length === 0 ? (
+        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>代理店はまだありません</p>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                <th style={{ padding: '12px', textAlign: 'left' }}>会社名</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>担当者</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>メール</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>紹介コード</th>
+                <th style={{ padding: '12px', textAlign: 'center' }}>ステータス</th>
+                <th style={{ padding: '12px', textAlign: 'center' }}>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {agencies.map((agency) => {
+                const isPending = agency.status === 'pending_approval';
+                const isLoading = actionLoading === agency.id;
+
+                return (
+                  <tr key={agency.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                    <td style={{ padding: '12px', fontWeight: 'bold' }}>
+                      <button
+                        onClick={() => setSelectedAgency(agency)}
+                        style={{ background: 'none', border: 'none', color: '#3182ce', cursor: 'pointer', fontWeight: 'bold', textDecoration: 'underline', padding: 0, fontSize: '13px' }}
+                      >
+                        {agency.companyName || agency.ownerName || '未設定'}
+                      </button>
+                    </td>
+                    <td style={{ padding: '12px' }}>{agency.ownerName || '-'}</td>
+                    <td style={{ padding: '12px', fontSize: '12px' }}>{agency.email || '-'}</td>
+                    <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '12px' }}>{agency.referralCode || '-'}</td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>{getStatusBadge(agency.status)}</td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                      {isPending ? (
+                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                          <button
+                            onClick={() => handleApprove(agency.id, agency.companyName || agency.ownerName)}
+                            disabled={isLoading}
+                            style={{
+                              padding: '6px 14px',
+                              background: isLoading ? '#94a3b8' : '#16a34a',
+                              color: '#fff', border: 'none', borderRadius: '4px',
+                              cursor: isLoading ? 'wait' : 'pointer',
+                              fontSize: '12px', fontWeight: 'bold',
+                            }}
+                          >
+                            {isLoading ? '処理中...' : '✓ 承認'}
+                          </button>
+                          <button
+                            onClick={() => handleReject(agency.id, agency.companyName || agency.ownerName)}
+                            disabled={isLoading}
+                            style={{
+                              padding: '6px 14px',
+                              background: isLoading ? '#94a3b8' : '#dc2626',
+                              color: '#fff', border: 'none', borderRadius: '4px',
+                              cursor: isLoading ? 'wait' : 'pointer',
+                              fontSize: '12px', fontWeight: 'bold',
+                            }}
+                          >
+                            却下
+                          </button>
+                        </div>
+                      ) : (
+                        <span style={{ fontSize: '12px', color: '#94a3b8' }}>―</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {selectedAgency && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '20px', overflowY: 'auto' }}>
+          <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', maxWidth: '600px', width: '100%', marginTop: '40px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '2px solid #eee', paddingBottom: '12px' }}>
+              <h3 style={{ margin: 0, fontSize: '18px' }}>代理店 詳細情報</h3>
+              <button
+                onClick={() => setSelectedAgency(null)}
+                style={{ padding: '6px 14px', background: '#e2e8f0', color: '#475569', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
+              >
+                ✕ 閉じる
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gap: '12px', fontSize: '13px' }}>
+              <div><strong>会社名 / 屋号</strong><br />{selectedAgency.companyName || '未設定'}</div>
+              <div><strong>担当者名</strong><br />{selectedAgency.ownerName || '未設定'}</div>
+              <div><strong>メールアドレス</strong><br />{selectedAgency.email || '未設定'}</div>
+              <div><strong>電話番号</strong><br />{selectedAgency.phone || '未設定'}</div>
+              <div><strong>住所</strong><br />{selectedAgency.address || '未設定'}</div>
+              <div><strong>事業形態</strong><br />{selectedAgency.businessType === 'corporation' ? '法人' : '個人事業主'}</div>
+              <div><strong>インボイス番号</strong><br />{selectedAgency.invoiceNumber || '未登録'}</div>
+              <div><strong>紹介コード</strong><br /><code>{selectedAgency.referralCode || '未設定'}</code></div>
+              <div><strong>ステータス</strong><br />{getStatusBadge(selectedAgency.status)}</div>
+              {selectedAgency.approvedAt && (
+                <div><strong>承認日時</strong><br />{new Date(selectedAgency.approvedAt).toLocaleString('ja-JP')}</div>
+              )}
+              {selectedAgency.rejectReason && (
+                <div><strong>却下理由</strong><br />{selectedAgency.rejectReason}</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
 // メインコンポーネント
 // ============================================================
 export default function SystemAdminPage() {
@@ -1059,45 +1296,8 @@ export default function SystemAdminPage() {
           </div>
         )}
 
-        {activeTab === 'agencies' && (
-          <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-            <h2>代理店一覧</h2>
-            <p style={{ color: '#64748b' }}>代理店パートナー一覧</p>
-            {agencies.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>代理店はまだありません</p>
-            ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
-                  <thead>
-                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>会社名</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>担当者</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>メール</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>紹介コード</th>
-                      <th style={{ padding: '12px', textAlign: 'center' }}>ステータス</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {agencies.map((agency) => (
-                      <tr key={agency.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                        <td style={{ padding: '12px', fontWeight: 'bold' }}>{agency.companyName || '未設定'}</td>
-                        <td style={{ padding: '12px' }}>{agency.ownerName || '-'}</td>
-                        <td style={{ padding: '12px' }}>{agency.email || '-'}</td>
-                        <td style={{ padding: '12px', fontFamily: 'monospace' }}>{agency.referralCode || '-'}</td>
-                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                          <span style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold', background: agency.status === 'active' ? '#c6f6d5' : agency.status === 'approved_pending_payment' ? '#fef3c7' : '#f1f5f9', color: agency.status === 'active' ? '#22543d' : agency.status === 'approved_pending_payment' ? '#d97706' : '#64748b' }}>
-                            {agency.status === 'active' ? '承認済み' : agency.status === 'approved_pending_payment' ? '決済待ち' : '審査中'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
-
+        
+　　　　　　　　　　　　　　　　{activeTab === 'agencies' && <AgenciesTab />}
         {activeTab === 'affiliates' && <AffiliatesTab />}
         {activeTab === 'pending-payouts' && <PendingPayoutsTab />}
         {activeTab === 'payment-failures' && <PaymentFailuresTab />}
