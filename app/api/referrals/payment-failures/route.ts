@@ -83,6 +83,10 @@ export async function GET(request: Request) {
       const shopData = shopDoc.data();
       const paymentStatus = shopData?.paymentStatus?.current || 'normal';
 
+      if (shopData?.paymentFailureHidden === true) {
+        continue;
+      } 
+      
       if (!FAILURE_STATUSES.includes(paymentStatus)) continue;
 
       // canceled は30日経過したら除外
