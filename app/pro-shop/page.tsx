@@ -1,0 +1,1220 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+} from 'firebase/auth';
+import { auth } from '@/lib/firebase-client';
+import { db as localDb, exportHistoryToJSON, importHistoryFromJSON, PushHistory } from '../../lib/db';
+import { QRCodeSVG } from 'qrcode.react';
+import ImageUploader from '../../components/ImageUploader';
+import { Html5Qrcode } from 'html5-qrcode';
+
+export default function ProShopPage() {
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [loadingAuth, setLoadingAuth] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // 店舗情報
+  const [shopId, setShopId] = useState<string | null>(null);
+  const [shopName, setShopName] = useState('');
+  const [couponEnabled, setCouponEnabled] = useState(false);
+  const [couponTitle, setCouponTitle] = useState('');
+  const [couponDesc, setCouponDesc] = useState('');
+  const [couponRate, setCouponRate] = useState(0);
+  const [clientLinkUrl, setClientLinkUrl] = useState('');
+  const [shopIconUrl, setShopIconUrl] = useState('');
+
+  // タブ管理
+  const [activeTab, setActiveTab] = useState<'push' | 'shop' | 'pro' | 'reserve'>('push');
+
+  // 即時通知
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [linkUrl, setLinkUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  // 履歴・購読者
+  const [history, setHistory] = useState<PushHistory[]>([]);
+  const [subscriberCount, setSubscriberCount] = useState<number | null>(null);
+
+  // 退会
+  const [shopStatus, setShopStatus] = useState<string>('active');
+  const [validUntilDate, setValidUntilDate] = useState<string>('');
+
+  // 通常クーポン
+  const [normalCouponEnabled, setNormalCouponEnabled] = useState(false);
+  const [normalCouponTitle, setNormalCouponTitle] = useState('');
+  const [normalCouponDesc, setNormalCouponDesc] = useState('');
+
+  // 特別達成クーポン
+  const [loyaltyEnabled, setLoyaltyEnabled] = useState(false);
+  const [loyaltyTargetCount, setLoyaltyTargetCount] = useState(3);
+  const [loyaltyTitle, setLoyaltyTitle] = useState('');
+  const [loyaltyExpireType, setLoyaltyExpireType] = useState('none');
+  const [loyaltyExpireDays, setLoyaltyExpireDays] = useState(7);
+  const [loyaltyExpireDate, setLoyaltyExpireDate] = useState('');
+  const [loyaltyCombinable, setLoyaltyCombinable] = useState(false);
+
+  // PRO機能：ステップアップ
+  const [stepUpEnabled, setStepUpEnabled] = useState(false);
+  const [stepUpList, setStepUpList] = useState<Array<{ title: string; expireType: string; expireDays: number; combinable: boolean }>>([
+    { title: '', expireType: 'days', expireDays: 7, combinable: false },
+    { title: '', expireType: 'days', expireDays: 14, combinable: false },
+  ]);
+
+  // PRO機能：連続クーポン
+  const [repeatEnabled, setRepeatEnabled] = useState(false);
+  const [repeatTitle, setRepeatTitle] = useState('');
+  const [repeatExpireType, setRepeatExpireType] = useState('days');
+  const [repeatExpireDays, setRepeatExpireDays] = useState(14);
+  const [repeatCombinable, setRepeatCombinable] = useState(false);
+
+  // PRO機能：誕生日
+  const [birthdayEnabled, setBirthdayEnabled] = useState(false);
+  const [birthdayTitle, setBirthdayTitle] = useState('');
+  const [birthdayMessage, setBirthdayMessage] = useState('');
+  const [birthdayCombinable, setBirthdayCombinable] = useState(true);
+
+  // PRO機能：休眠復活
+  const [dormantEnabled, setDormantEnabled] = useState(false);
+  const [dormantTargetDays, setDormantTargetDays] = useState(60);
+  const [dormantTitle, setDormantTitle] = useState('');
+  const [dormantMessage, setDormantMessage] = useState('');
+  const [dormantExpireDays, setDormantExpireDays] = useState(14);
+  const [dormantCombinable, setDormantCombinable] = useState(false);
+
+  // 予約配信
+  const [scheduledList, setScheduledList] = useState<Array<{
+    id: string;
+    type: 'notification' | 'coupon';
+    scheduleType: 'once' | 'monthly' | 'weekly';
+    scheduleValue: string;
+    title: string;
+    body: string;
+    linkUrl?: string;
+  }>>([]);
+
+  const [reserveType, setReserveType] = useState<'notification' | 'coupon'>('notification');
+  const [reserveScheduleType, setReserveScheduleType] = useState<'once' | 'monthly' | 'weekly'>('once');
+  const [reserveDate, setReserveDate] = useState('');
+  const [reserveDayOfMonth, setReserveDayOfMonth] = useState('1');
+  const [reserveDayOfWeek, setReserveDayOfWeek] = useState('mon');
+  const [reserveTitle, setReserveTitle] = useState('');
+  const [reserveBody, setReserveBody] = useState('');
+  const [reserveLinkUrl, setReserveLinkUrl] = useState('');
+
+  // QRスキャン
+  const [scanOpen, setScanOpen] = useState(false);
+  const [scanResult, setScanResult] = useState<string | null>(null);
+  const [scanLoading, setScanLoading] = useState(false);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      setUser(u);
+      setLoadingAuth(false);
+
+      if (u) {
+        await loadHistory();
+
+        try {
+          const idToken = await u.getIdToken();
+
+          const res = await fetch('/api/create-shop', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${idToken}`,
+            },
+            body: JSON.stringify({}),
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            const currentShopId = data.shopId;
+            setShopId(currentShopId);
+
+            const dashRes = await fetch(`/api/admin/dashboard?shopId=${currentShopId}`, {
+              headers: { 'Authorization': `Bearer ${idToken}` },
+            });
+
+            if (dashRes.ok) {
+              const dashData = await dashRes.json();
+              const shop = dashData.shop || data.shop;
+
+              setShopName(shop?.name || '');
+
+              if (shop?.scheduledList) {
+                setScheduledList(shop.scheduledList);
+              }
+
+              if (shop?.status) setShopStatus(shop.status);
+              if (shop?.validUntil) {
+                const vDate = shop.validUntil._seconds
+                  ? new Date(shop.validUntil._seconds * 1000)
+                  : new Date(shop.validUntil);
+                setValidUntilDate(vDate.toISOString().slice(0, 10));
+              }
+
+              if (shop?.normalCoupon) {
+                setNormalCouponEnabled(shop.normalCoupon.enabled || false);
+                setNormalCouponTitle(shop.normalCoupon.title || '');
+                setNormalCouponDesc(shop.normalCoupon.description || '');
+              }
+
+              if (shop?.loyaltyCoupon) {
+                setLoyaltyEnabled(shop.loyaltyCoupon.enabled || false);
+                setLoyaltyTargetCount(shop.loyaltyCoupon.targetCount || 3);
+                setLoyaltyTitle(shop.loyaltyCoupon.title || '');
+                setLoyaltyExpireType(shop.loyaltyCoupon.expireType || 'none');
+                if (shop.loyaltyCoupon.expireDays) setLoyaltyExpireDays(shop.loyaltyCoupon.expireDays);
+                if (shop.loyaltyCoupon.expireDate) setLoyaltyExpireDate(shop.loyaltyCoupon.expireDate);
+                setLoyaltyCombinable(shop.loyaltyCoupon.combinable || false);
+              }
+
+              if (shop?.proCoupons) {
+                const pro = shop.proCoupons;
+                if (pro.stepUp) {
+                  setStepUpEnabled(pro.stepUp.enabled || false);
+                  if (pro.stepUp.steps) setStepUpList(pro.stepUp.steps);
+                }
+                if (pro.repeat) {
+                  setRepeatEnabled(pro.repeat.enabled || false);
+                  setRepeatTitle(pro.repeat.title || '');
+                  setRepeatExpireType(pro.repeat.expireType || 'days');
+                  setRepeatExpireDays(pro.repeat.expireDays || 14);
+                  setRepeatCombinable(pro.repeat.combinable || false);
+                }
+                if (pro.birthday) {
+                  setBirthdayEnabled(pro.birthday.enabled || false);
+                  setBirthdayTitle(pro.birthday.title || '');
+                  setBirthdayMessage(pro.birthday.message || '');
+                  setBirthdayCombinable(pro.birthday.combinable || false);
+                }
+                if (pro.dormant) {
+                  setDormantEnabled(pro.dormant.enabled || false);
+                  setDormantTargetDays(pro.dormant.targetDays || 60);
+                  setDormantTitle(pro.dormant.title || '');
+                  setDormantMessage(pro.dormant.message || '');
+                  setDormantExpireDays(pro.dormant.expireDays || 14);
+                  setDormantCombinable(pro.dormant.combinable || false);
+                }
+              }
+
+              if (shop?.coupon) {
+                setCouponEnabled(shop.coupon.enabled);
+                setCouponTitle(shop.coupon.title || '');
+                setCouponDesc(shop.coupon.description || '');
+                setCouponRate(shop.coupon.discountRate || 0);
+              }
+              if (shop?.linkUrl) setClientLinkUrl(shop.linkUrl);
+              if (shop?.iconUrl) setShopIconUrl(shop.iconUrl);
+
+              if (dashData.stats && typeof dashData.stats.subscriberCount === 'number') {
+                setSubscriberCount(dashData.stats.subscriberCount);
+              }
+            }
+          }
+        } catch (err) {
+          console.error('店舗情報取得エラー:', err);
+        }
+      }
+    });
+
+    return () => unsub();
+  }, []);
+
+  const loadHistory = async () => {
+    const all = await localDb.history.orderBy('sentAt').reverse().toArray();
+    setHistory(all);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err: any) {
+      alert('ログイン失敗: ' + err.message);
+    }
+  };
+
+  const startCamera = async () => {
+    try {
+      setScanLoading(true);
+      const html5QrCode = new Html5Qrcode('qr-reader');
+      (window as any).__html5QrCode = html5QrCode;
+
+      await html5QrCode.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        async (decodedText) => {
+          await stopCamera();
+          handleRedeemCoupon(decodedText);
+        },
+        () => {}
+      );
+    } catch (err: any) {
+      console.error('カメラ起動エラー:', err);
+      alert('❌ カメラの起動に失敗しました。\n' + err);
+    } finally {
+      setScanLoading(false);
+    }
+  };
+
+  const stopCamera = async () => {
+    const html5QrCode = (window as any).__html5QrCode;
+    if (html5QrCode && html5QrCode.isScanning) {
+      try {
+        await html5QrCode.stop();
+        html5QrCode.clear();
+      } catch (err) {
+        console.error('カメラ停止エラー:', err);
+      }
+    }
+    (window as any).__html5QrCode = null;
+  };
+
+  const handleRedeemCoupon = async (qrDataStr: string) => {
+    try {
+      setScanLoading(true);
+      const parsedData = JSON.parse(qrDataStr);
+
+      if (!parsedData.shopId || !parsedData.couponType || !parsedData.token) {
+        alert('❌ 無効なクーポンQRコードです。');
+        setScanOpen(false);
+        return;
+      }
+
+      if (user) {
+        const idToken = await user.getIdToken();
+        const res = await fetch('/api/redeem-coupon', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${idToken}`,
+          },
+          body: JSON.stringify(parsedData),
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          setScanResult(`✅ 消し込み完了！\n【${data.couponTitle}】を適用しました。`);
+        } else {
+          alert('❌ エラー: ' + data.error);
+        }
+      }
+    } catch (err) {
+      alert('❌ QRコードの形式が正しくありません。');
+    } finally {
+      setScanLoading(false);
+    }
+  };
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!user || !shopId) {
+      setMessage('❌ ユーザーまたは店舗IDが取得できていません');
+      return;
+    }
+
+    setLoading(true);
+    setMessage('');
+
+    try {
+      const idToken = await user.getIdToken();
+      const response = await fetch('/api/send-push', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ shopId, title, body, url: linkUrl || undefined }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || '送信に失敗しました');
+      }
+
+      await localDb.history.add({
+        title,
+        body,
+        linkUrl: linkUrl || undefined,
+        sentAt: new Date(),
+        status: 'success',
+        successCount: data.successCount || 0,
+      });
+
+      await loadHistory();
+
+      setMessage('✨ 送信が完了しました！');
+      setTitle('');
+      setBody('');
+      setLinkUrl('');
+
+      setTimeout(() => setMessage(''), 3000);
+    } catch (err: any) {
+      console.error('送信エラー:', err);
+      setMessage(`❌ エラー: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    if (!user || !shopId) return;
+    setSaving(true);
+    setSaveSuccess(false);
+    try {
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/update-shop', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          shopId,
+          name: shopName,
+          normalCoupon: {
+            enabled: normalCouponEnabled,
+            title: normalCouponTitle,
+            description: normalCouponDesc,
+          },
+          loyaltyCoupon: {
+            enabled: loyaltyEnabled,
+            targetCount: loyaltyTargetCount,
+            title: loyaltyTitle,
+            expireType: loyaltyExpireType,
+            expireDays: loyaltyExpireDays,
+            expireDate: loyaltyExpireDate,
+            combinable: loyaltyCombinable,
+          },
+          proCoupons: {
+            stepUp: { enabled: stepUpEnabled, steps: stepUpList },
+            repeat: { enabled: repeatEnabled, title: repeatTitle, expireType: repeatExpireType, expireDays: repeatExpireDays, combinable: repeatCombinable },
+            birthday: { enabled: birthdayEnabled, title: birthdayTitle, message: birthdayMessage, combinable: birthdayCombinable },
+            dormant: { enabled: dormantEnabled, targetDays: dormantTargetDays, title: dormantTitle, message: dormantMessage, expireDays: dormantExpireDays, combinable: dormantCombinable },
+          },
+          coupon: {
+            enabled: couponEnabled,
+            title: couponTitle,
+            description: couponDesc,
+            discountRate: couponRate,
+          },
+          linkUrl: clientLinkUrl,
+          iconUrl: shopIconUrl,
+        }),
+      });
+      if (res.ok) {
+        setSaveSuccess(true);
+        setMessage('✅ 設定を保存しました');
+        setTimeout(() => {
+          setSaveSuccess(false);
+          setMessage('');
+        }, 3000);
+      } else {
+        const data = await res.json();
+        throw new Error(data.error);
+      }
+    } catch (err: any) {
+      setMessage('❌ 保存エラー: ' + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAddSchedule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reserveTitle || !reserveBody) {
+      alert('タイトルと本文を入力してください');
+      return;
+    }
+
+    let val = '';
+    if (reserveScheduleType === 'once') {
+      if (!reserveDate) {
+        alert('配信指定日を入力してください');
+        return;
+      }
+      val = reserveDate;
+    } else if (reserveScheduleType === 'monthly') {
+      val = `毎月 ${reserveDayOfMonth} 日`;
+    } else if (reserveScheduleType === 'weekly') {
+      const dayMap: Record<string, string> = { mon: '月', tue: '火', wed: '水', thu: '木', fri: '金', sat: '土', sun: '日' };
+      val = `毎週 ${dayMap[reserveDayOfWeek] || ''} 曜日`;
+    }
+
+    const newItem = {
+      id: Date.now().toString(),
+      type: reserveType,
+      scheduleType: reserveScheduleType,
+      scheduleValue: val,
+      scheduleRaw: {
+        date: reserveDate,
+        dayOfMonth: reserveDayOfMonth,
+        dayOfWeek: reserveDayOfWeek,
+      },
+      title: reserveTitle,
+      body: reserveBody,
+      linkUrl: reserveLinkUrl || undefined,
+      createdAt: new Date().toISOString(),
+    };
+
+    const updatedList = [...scheduledList, newItem];
+    setScheduledList(updatedList);
+
+    if (user && shopId) {
+      try {
+        const idToken = await user.getIdToken();
+        await fetch('/api/update-shop', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({ shopId, scheduledList: updatedList }),
+        });
+      } catch (err) {
+        console.error('予約リスト保存エラー:', err);
+      }
+    }
+
+    setReserveTitle('');
+    setReserveBody('');
+    setReserveLinkUrl('');
+    alert('✅ 予約を送信リストにセットし、保存しました！');
+  };
+
+  const handleDeleteSchedule = async (id: string) => {
+    if (confirm('この予約配信を取り消して削除しますか？')) {
+      const updatedList = scheduledList.filter((item) => item.id !== id);
+      setScheduledList(updatedList);
+
+      if (user && shopId) {
+        try {
+          const idToken = await user.getIdToken();
+          await fetch('/api/update-shop', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${idToken}`,
+            },
+            body: JSON.stringify({ shopId, scheduledList: updatedList }),
+          });
+        } catch (err) {
+          console.error('予約削除エラー:', err);
+        }
+      }
+    }
+  };
+
+  const handleExport = async () => {
+    const json = await exportHistoryToJSON();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `push-taro-history-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    try {
+      await importHistoryFromJSON(text);
+      await loadHistory();
+      alert('履歴フォルダを読み込みました！');
+    } catch (err) {
+      alert('インポート失敗: 不正なJSONファイルです');
+    }
+  };
+
+  const handleCleanup = async () => {
+    if (!user) return;
+    try {
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/cleanup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(`✅ ${data.removed}件の古いトークンを削除しました`);
+      } else {
+        alert('❌ クリーンアップ失敗: ' + data.error);
+      }
+    } catch (err: any) {
+      alert('エラー: ' + err.message);
+    }
+  };
+
+  if (loadingAuth) {
+    return (
+      <main style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center' }}>
+        <p>読み込み中...</p>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return (
+      <main style={{ maxWidth: '400px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif', textAlign: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
+          <img src="/icon-192x192.png" alt="Push-taro" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover' }} />
+        </div>
+        <h1>Push-taro</h1>
+        <p style={{ color: '#666', marginBottom: '20px' }}>PROオーナー専用ログイン画面</p>
+        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <input
+            type="email"
+            placeholder="メールアドレス（ログインID）"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            style={{ padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #ccc' }}
+          />
+          <input
+            type="password"
+            placeholder="パスワード"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={{ padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #ccc' }}
+          />
+          <button
+            type="submit"
+            style={{ padding: '14px', background: '#ff4500', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', borderRadius: '6px', marginTop: '5px' }}
+          >
+            ログイン
+          </button>
+        </form>
+      </main>
+    );
+  }
+
+  const qrUrl = typeof window !== 'undefined' ? `${window.location.origin}/subscribe?s=${shopId}` : '';
+
+  return (
+    <main style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
+      {/* ヘッダー */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '10px', borderBottom: '2px solid #eee', paddingBottom: '15px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {shopIconUrl ? (
+            <img src={shopIconUrl} alt="アイコン" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #ddd' }} />
+          ) : (
+            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#eee' }} />
+          )}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <h1 style={{ margin: 0, fontSize: '24px' }}>{shopName}</h1>
+              <span style={{
+                fontSize: '11px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '12px',
+                color: '#fff', backgroundColor: '#ff4500',
+              }}>
+                PRO プラン
+              </span>
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Link
+            href="/pro-shop/dashboard"
+            style={{ padding: '8px 16px', background: '#fff7ed', color: '#c2410c', border: '1px solid #fdba74', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none' }}
+          >
+            🤝 紹介・報酬
+          </Link>
+          <span style={{ fontSize: '14px', color: '#666' }}>{user.email}</span>
+          <button onClick={() => signOut(auth)} style={{ padding: '8px 16px', cursor: 'pointer', borderRadius: '4px', border: '1px solid #ccc' }}>
+            ログアウト
+          </button>
+        </div>
+      </div>
+
+      {/* タブ */}
+      <div style={{ display: 'flex', gap: '8px', borderBottom: '2px solid #e2e8f0', paddingBottom: '4px', marginBottom: '20px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <button
+          onClick={() => setActiveTab('push')}
+          style={{
+            padding: '10px 16px', border: 'none',
+            borderBottom: activeTab === 'push' ? '3px solid #ff4500' : '3px solid transparent',
+            background: 'none', fontWeight: 'bold',
+            color: activeTab === 'push' ? '#ff4500' : '#64748b',
+            cursor: 'pointer', fontSize: '15px', whiteSpace: 'nowrap'
+          }}
+        >
+          📢 即時通知・消し込み
+        </button>
+        <button
+          onClick={() => setActiveTab('shop')}
+          style={{
+            padding: '10px 16px', border: 'none',
+            borderBottom: activeTab === 'shop' ? '3px solid #0284c7' : '3px solid transparent',
+            background: 'none', fontWeight: 'bold',
+            color: activeTab === 'shop' ? '#0284c7' : '#64748b',
+            cursor: 'pointer', fontSize: '15px', whiteSpace: 'nowrap'
+          }}
+        >
+          🏪 店舗・基本クーポン
+        </button>
+        <button
+          onClick={() => setActiveTab('pro')}
+          style={{
+            padding: '10px 16px', border: 'none',
+            borderBottom: activeTab === 'pro' ? '3px solid #16a34a' : '3px solid transparent',
+            background: 'none', fontWeight: 'bold',
+            color: activeTab === 'pro' ? '#16a34a' : '#64748b',
+            cursor: 'pointer', fontSize: '15px', whiteSpace: 'nowrap'
+          }}
+        >
+          🔥 PRO機能
+        </button>
+        <button
+          onClick={() => setActiveTab('reserve')}
+          style={{
+            padding: '10px 16px', border: 'none',
+            borderBottom: activeTab === 'reserve' ? '3px solid #d97706' : '3px solid transparent',
+            background: 'none', fontWeight: 'bold',
+            color: activeTab === 'reserve' ? '#d97706' : '#64748b',
+            cursor: 'pointer', fontSize: '15px', whiteSpace: 'nowrap'
+          }}
+        >
+          📅 予約配信
+        </button>
+      </div>
+
+      {/* ━━━ 即時通知タブ ━━━ */}
+      {activeTab === 'push' && (
+        <>
+          {/* 消し込み */}
+          <div style={{ marginBottom: '20px' }}>
+            <button
+              onClick={() => { setScanResult(null); setScanOpen(true); }}
+              style={{
+                width: '100%', padding: '16px', background: '#16a34a', color: '#fff',
+                border: 'none', borderRadius: '8px', fontSize: '18px', fontWeight: 'bold',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                gap: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              }}
+            >
+              📷 クーポンQRコードを読み取る（消し込み）
+            </button>
+          </div>
+
+          {/* 即時送信フォーム */}
+          <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '30px', background: '#fff', padding: '20px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
+            <h3 style={{ margin: '0 0 10px 0' }}>📢 プッシュ通知を作成・即時送信</h3>
+            <div>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>タイトル</label>
+              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="例: 新着セールのお知らせ" style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>本文</label>
+              <textarea value={body} onChange={(e) => setBody(e.target.value)} required rows={4} placeholder="例: 本日から全品20%OFFセール開催中！" style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>リンク先URL（任意）</label>
+              <input type="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="https://example.com/sale" style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }} />
+            </div>
+            <button type="submit" disabled={loading} style={{ padding: '14px', backgroundColor: loading ? '#ccc' : '#ff4500', color: '#fff', fontWeight: 'bold', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', fontSize: '18px', borderRadius: '6px', marginTop: '5px' }}>
+              {loading ? '送信中...' : '🔥 Push 通知送信'}
+            </button>
+            {message && (
+              <p style={{ marginTop: '10px', fontWeight: 'bold', color: message.includes('❌') ? '#d32f2f' : '#2e7d32' }}>
+                {message}
+              </p>
+            )}
+          </form>
+
+          {/* 配信無制限の表示 */}
+          <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', padding: '12px 20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#c2410c', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              🔥 月間送信ステータス
+              <span style={{ fontSize: '11px', background: '#ea580c', color: '#fff', padding: '2px 8px', borderRadius: '12px' }}>PROプラン</span>
+            </span>
+            <span style={{ fontSize: '14px', fontWeight: '800', color: '#c2410c' }}>配信無制限</span>
+          </div>
+
+          {/* 履歴 */}
+          <div style={{ borderTop: '2px solid #eee', paddingTop: '20px' }}>
+            <div style={{ marginBottom: '15px', padding: '12px 16px', background: '#e3f2fd', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '15px', fontWeight: 'bold', color: '#0d47a1' }}>📱 現在の受取許可件数</span>
+              <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#1565c0' }}>
+                {subscriberCount !== null ? `${subscriberCount} 件` : '取得中...'}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
+              <h2 style={{ margin: 0, fontSize: '20px' }}>📁 送信履歴</h2>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <button onClick={handleExport} style={{ padding: '8px 16px', background: '#4CAF50', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}>📤 エクスポート</button>
+                <label style={{ padding: '8px 16px', background: '#2196F3', color: '#fff', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', display: 'inline-block' }}>
+                  📥 インポート
+                  <input type="file" accept=".json" onChange={handleImport} style={{ display: 'none' }} />
+                </label>
+                <button onClick={handleCleanup} style={{ padding: '8px 16px', background: '#ff5722', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}>🧹 古いトークン削除</button>
+              </div>
+            </div>
+
+            {history.length === 0 ? (
+              <p style={{ color: '#999' }}>履歴がありません。</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {history.map((h) => (
+                  <div key={h.id} style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '12px', background: h.status === 'error' ? '#fff0f0' : '#f9f9f9' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                      <strong style={{ fontSize: '16px' }}>{h.title}</strong>
+                      <span style={{ fontSize: '12px', color: '#666' }}>{new Date(h.sentAt).toLocaleString('ja-JP')}</span>
+                    </div>
+                    <p style={{ margin: '8px 0', fontSize: '14px', color: '#333' }}>{h.body}</p>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
+                      {h.status === 'success' ? (
+                        <span style={{ fontSize: '11px', color: '#4CAF50', background: '#e8f5e9', padding: '2px 8px', borderRadius: '12px' }}>送信成功</span>
+                      ) : (
+                        <span style={{ fontSize: '11px', color: '#d32f2f', background: '#ffebee', padding: '2px 8px', borderRadius: '12px' }}>送信失敗</span>
+                      )}
+                      {typeof h.successCount === 'number' && (
+                        <span style={{ fontSize: '12px', color: '#555', fontWeight: 'bold' }}>（送信数: {h.successCount}件）</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* ━━━ 店舗・基本クーポンタブ ━━━ */}
+      {shopId && activeTab === 'shop' && (
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <h3 style={{ margin: '0 0 15px 0', fontSize: '18px' }}>🏪 店舗基本情報 & クーポン設定</h3>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>店舗名</label>
+              <input type="text" value={shopName} onChange={(e) => setShopName(e.target.value)} style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>店舗アイコン画像</label>
+              <ImageUploader onImageUploaded={(url) => setShopIconUrl(url)} currentUrl={shopIconUrl} />
+            </div>
+
+            <p style={{ fontSize: '14px', color: '#666' }}>店舗ID: <code>{shopId}</code></p>
+
+            {qrUrl && (
+              <div style={{ marginTop: '15px', textAlign: 'center', padding: '15px', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <QRCodeSVG value={qrUrl} size={180} />
+                <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>📱 スマホで読み取って通知を受け取れます</p>
+              </div>
+            )}
+
+            {/* 初回クーポン */}
+            <h4 style={{ marginTop: '25px', marginBottom: '10px', fontSize: '16px' }}>🎫 初回クーポン設定</h4>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '10px' }}>
+              <input type="checkbox" checked={couponEnabled} onChange={(e) => setCouponEnabled(e.target.checked)} /> 初回クーポンを有効にする
+            </label>
+            {couponEnabled && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                <input type="text" placeholder="クーポンタイトル" value={couponTitle} onChange={(e) => setCouponTitle(e.target.value)} style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                <input type="text" placeholder="説明文" value={couponDesc} onChange={(e) => setCouponDesc(e.target.value)} style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                <input type="number" placeholder="割引率 (%)" value={couponRate} onChange={(e) => setCouponRate(Number(e.target.value))} style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
+              </div>
+            )}
+
+            {/* 通常クーポン */}
+            <div style={{ marginTop: '25px', borderTop: '1px solid #ddd', paddingTop: '15px' }}>
+              <h4 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>🎟️ 通常クーポン設定</h4>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', marginBottom: '10px' }}>
+                <input type="checkbox" checked={normalCouponEnabled} onChange={(e) => setNormalCouponEnabled(e.target.checked)} /> 通常クーポンを有効にする
+              </label>
+              {normalCouponEnabled && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                  <input type="text" placeholder="クーポンタイトル" value={normalCouponTitle} onChange={(e) => setNormalCouponTitle(e.target.value)} style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                  <textarea placeholder="説明文・利用条件" value={normalCouponDesc} onChange={(e) => setNormalCouponDesc(e.target.value)} rows={2} style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                </div>
+              )}
+            </div>
+
+            {/* 特別達成クーポン */}
+            <div style={{ background: '#fff', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '16px' }}>
+              <h4 style={{ margin: '0 0 10px 0', fontSize: '15px' }}>🏆 特別達成クーポン設定</h4>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px' }}>
+                <input type="checkbox" checked={loyaltyEnabled} onChange={(e) => setLoyaltyEnabled(e.target.checked)} /> 有効にする
+              </label>
+              {loyaltyEnabled && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '13px' }}>累計消し込み回数:</span>
+                    <input type="number" min="1" value={loyaltyTargetCount} onChange={(e) => setLoyaltyTargetCount(Number(e.target.value))} style={{ width: '60px', padding: '4px' }} />
+                    <span style={{ fontSize: '13px' }}>回で達成</span>
+                  </div>
+                  <input type="text" placeholder="特典タイトル" value={loyaltyTitle} onChange={(e) => setLoyaltyTitle(e.target.value)} style={{ width: '100%', padding: '6px' }} />
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', fontSize: '12px' }}>
+                    <span style={{ fontWeight: 'bold' }}>有効期限:</span>
+                    <select value={loyaltyExpireType} onChange={(e) => setLoyaltyExpireType(e.target.value)} style={{ padding: '4px', borderRadius: '4px', border: '1px solid #ccc' }}>
+                      <option value="none">無制限</option>
+                      <option value="days">出現からN日間有効</option>
+                      <option value="date">日付固定指定</option>
+                    </select>
+                    {loyaltyExpireType === 'days' && (
+                      <input type="number" min="1" value={loyaltyExpireDays} onChange={(e) => setLoyaltyExpireDays(Number(e.target.value))} style={{ width: '60px', padding: '4px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                    )}
+                    {loyaltyExpireType === 'date' && (
+                      <input type="date" value={loyaltyExpireDate} onChange={(e) => setLoyaltyExpireDate(e.target.value)} style={{ padding: '4px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                    )}
+                  </div>
+                  <label style={{ cursor: 'pointer' }}>
+                    <input type="checkbox" checked={loyaltyCombinable} onChange={(e) => setLoyaltyCombinable(e.target.checked)} /> 他クーポンと併用可能
+                  </label>
+                </div>
+              )}
+            </div>
+
+            <button onClick={handleSaveSettings} disabled={saving} style={{ marginTop: '20px', padding: '12px 20px', background: saveSuccess ? '#4CAF50' : saving ? '#cccccc' : '#2196F3', color: '#fff', border: 'none', borderRadius: '4px', cursor: saving ? 'wait' : 'pointer', fontSize: '16px', fontWeight: 'bold' }}>
+              {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 基本設定を保存'}
+            </button>
+          </div>
+
+          {/* 退会エリア */}
+          <div style={{ marginTop: '30px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
+            {shopStatus === 'canceled' ? (
+              <div style={{ background: '#fff3e0', border: '1px solid #ffe0b2', padding: '16px', borderRadius: '8px', color: '#e65100', fontWeight: 'bold', fontSize: '14px' }}>
+                ⚠️ 退会手続きが完了しています。{validUntilDate ? `${validUntilDate} までご利用いただけます。` : ''}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => router.push(`/shop/cancel?shopId=${shopId}`)}
+                style={{ padding: '10px 16px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
+              >
+                店舗の退会手続きを行う
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ━━━ PRO機能タブ ━━━ */}
+      {activeTab === 'pro' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '30px' }}>
+          <h2 style={{ margin: 0, fontSize: '20px', color: '#16a34a' }}>🔥 PROマーケティング機能設定</h2>
+
+          {/* ステップアップクーポン */}
+          <div style={{ background: '#f0fdf4', padding: '16px', borderRadius: '8px', border: '1px solid #86efac' }}>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#166534' }}>🐾 ステップアップクーポン</h3>
+            <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
+              <input type="checkbox" checked={stepUpEnabled} onChange={(e) => setStepUpEnabled(e.target.checked)} /> 有効にする
+            </label>
+            {stepUpEnabled && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {stepUpList.map((step, index) => (
+                  <div key={index} style={{ background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                    <strong style={{ fontSize: '13px', color: '#166534' }}>ステップ {index + 1}</strong>
+                    <input
+                      type="text"
+                      placeholder={`例: ${index + 1}回目来店特典`}
+                      value={step.title}
+                      onChange={(e) => {
+                        const newList = [...stepUpList];
+                        newList[index].title = e.target.value;
+                        setStepUpList(newList);
+                      }}
+                      style={{ width: '100%', padding: '8px', margin: '6px 0', borderRadius: '4px', border: '1px solid #ccc' }}
+                    />
+                    <div style={{ display: 'flex', gap: '12px', fontSize: '12px', alignItems: 'center' }}>
+                      <label>
+                        有効日数:
+                        <input
+                          type="number"
+                          value={step.expireDays}
+                          onChange={(e) => {
+                            const newList = [...stepUpList];
+                            newList[index].expireDays = Number(e.target.value);
+                            setStepUpList(newList);
+                          }}
+                          style={{ width: '50px', marginLeft: '4px', padding: '2px 4px' }}
+                        /> 日間
+                      </label>
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={step.combinable}
+                          onChange={(e) => {
+                            const newList = [...stepUpList];
+                            newList[index].combinable = e.target.checked;
+                            setStepUpList(newList);
+                          }}
+                        /> 他クーポンと併用可能
+                      </label>
+                    </div>
+                  </div>
+                ))}
+                {stepUpList.length < 10 && (
+                  <button
+                    type="button"
+                    onClick={() => setStepUpList([...stepUpList, { title: '', expireType: 'days', expireDays: 7, combinable: false }])}
+                    style={{ padding: '8px', background: '#dcfce7', border: '1px solid #86efac', color: '#166534', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+                  >
+                    ＋ ステップを追加（最大10段階）
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* 連続クーポン */}
+          <div style={{ background: '#f0f9ff', padding: '16px', borderRadius: '8px', border: '1px solid #7dd3fc' }}>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#0369a1' }}>🔄 連続クーポン（消し込みで次回クーポン即時発効）</h3>
+            <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
+              <input type="checkbox" checked={repeatEnabled} onChange={(e) => setRepeatEnabled(e.target.checked)} /> 有効にする
+            </label>
+            {repeatEnabled && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <input type="text" placeholder="次回使える特典タイトル" value={repeatTitle} onChange={(e) => setRepeatTitle(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                <div style={{ display: 'flex', gap: '12px', fontSize: '12px', alignItems: 'center' }}>
+                  <label>
+                    有効日数:
+                    <input type="number" value={repeatExpireDays} onChange={(e) => setRepeatExpireDays(Number(e.target.value))} style={{ width: '50px', marginLeft: '4px', padding: '2px 4px' }} /> 日間
+                  </label>
+                  <label>
+                    <input type="checkbox" checked={repeatCombinable} onChange={(e) => setRepeatCombinable(e.target.checked)} /> 他クーポンと併用可能
+                  </label>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 誕生日クーポン */}
+          <div style={{ background: '#fff5f5', padding: '16px', borderRadius: '8px', border: '1px solid #feb2b2' }}>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#9b2c2c' }}>🎂 誕生日クーポン設定</h3>
+            <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
+              <input type="checkbox" checked={birthdayEnabled} onChange={(e) => setBirthdayEnabled(e.target.checked)} /> 有効にする
+            </label>
+            {birthdayEnabled && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <input type="text" placeholder="誕生日クーポンタイトル" value={birthdayTitle} onChange={(e) => setBirthdayTitle(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                <textarea placeholder="お祝いメッセージ本文" value={birthdayMessage} onChange={(e) => setBirthdayMessage(e.target.value)} rows={2} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+              </div>
+            )}
+          </div>
+
+          {/* 休眠復活クーポン */}
+          <div style={{ background: '#faf5ff', padding: '16px', borderRadius: '8px', border: '1px solid #e9d5ff' }}>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#6b21a8' }}>💤 休眠復活クーポン設定</h3>
+            <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
+              <input type="checkbox" checked={dormantEnabled} onChange={(e) => setDormantEnabled(e.target.checked)} /> 有効にする
+            </label>
+            {dormantEnabled && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+                  <span>対象条件: 最終利用から</span>
+                  <input type="number" value={dormantTargetDays} onChange={(e) => setDormantTargetDays(Number(e.target.value))} style={{ width: '60px', padding: '4px' }} />
+                  <span>日経過した顧客</span>
+                </div>
+                <input type="text" placeholder="復帰クーポンタイトル" value={dormantTitle} onChange={(e) => setDormantTitle(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                <textarea placeholder="お久しぶりメッセージ本文" value={dormantMessage} onChange={(e) => setDormantMessage(e.target.value)} rows={2} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={handleSaveSettings}
+            disabled={saving}
+            style={{
+              padding: '14px 24px',
+              background: saveSuccess ? '#4CAF50' : saving ? '#cccccc' : '#16a34a',
+              color: '#fff', border: 'none', borderRadius: '6px',
+              fontWeight: 'bold', fontSize: '16px',
+              cursor: saving ? 'wait' : 'pointer',
+            }}
+          >
+            {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 PRO設定を保存'}
+          </button>
+        </div>
+      )}
+
+      {/* ━━━ 予約配信タブ ━━━ */}
+      {activeTab === 'reserve' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '30px' }}>
+          {/* 新規予約フォーム */}
+          <div style={{ background: '#fffbeb', border: '1px solid #fde68a', padding: '20px', borderRadius: '8px' }}>
+            <h3 style={{ margin: '0 0 15px 0', fontSize: '18px', color: '#b45309' }}>📅 新規配信予約をセット</h3>
+            <form onSubmit={handleAddSchedule} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div>
+                <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '6px' }}>① 配信の種別</label>
+                <div style={{ display: 'flex', gap: '15px' }}>
+                  <label style={{ cursor: 'pointer', fontSize: '14px' }}>
+                    <input type="radio" name="reserveType" value="notification" checked={reserveType === 'notification'} onChange={() => setReserveType('notification')} /> 📢 通常通知メッセージ
+                  </label>
+                  <label style={{ cursor: 'pointer', fontSize: '14px' }}>
+                    <input type="radio" name="reserveType" value="coupon" checked={reserveType === 'coupon'} onChange={() => setReserveType('coupon')} /> 🎫 クーポン付き通知
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '6px' }}>② 予約スケジュール形式</label>
+                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                  <label style={{ cursor: 'pointer', fontSize: '14px' }}>
+                    <input type="radio" name="scheduleType" value="once" checked={reserveScheduleType === 'once'} onChange={() => setReserveScheduleType('once')} /> 日付指定（1回のみ）
+                  </label>
+                  <label style={{ cursor: 'pointer', fontSize: '14px' }}>
+                    <input type="radio" name="scheduleType" value="monthly" checked={reserveScheduleType === 'monthly'} onChange={() => setReserveScheduleType('monthly')} /> 定期予約（毎月指定日）
+                  </label>
+                  <label style={{ cursor: 'pointer', fontSize: '14px' }}>
+                    <input type="radio" name="scheduleType" value="weekly" checked={reserveScheduleType === 'weekly'} onChange={() => setReserveScheduleType('weekly')} /> 定期予約（毎週指定曜日）
+                  </label>
+                </div>
+              </div>
+
+              <div style={{ background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                {reserveScheduleType === 'once' && (
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>配信指定日</label>
+                    <input type="date" value={reserveDate} onChange={(e) => setReserveDate(e.target.value)} style={{ padding: '8px', fontSize: '14px' }} />
+                  </div>
+                )}
+                {reserveScheduleType === 'monthly' && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '14px' }}>毎月</span>
+                    <input type="number" min="1" max="31" value={reserveDayOfMonth} onChange={(e) => setReserveDayOfMonth(e.target.value)} style={{ width: '60px', padding: '6px' }} />
+                    <span style={{ fontSize: '14px' }}>日に自動配信</span>
+                  </div>
+                )}
+                {reserveScheduleType === 'weekly' && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '14px' }}>毎週</span>
+                    <select value={reserveDayOfWeek} onChange={(e) => setReserveDayOfWeek(e.target.value)} style={{ padding: '6px' }}>
+                      <option value="mon">月曜日</option>
+                      <option value="tue">火曜日</option>
+                      <option value="wed">水曜日</option>
+                      <option value="thu">木曜日</option>
+                      <option value="fri">金曜日</option>
+                      <option value="sat">土曜日</option>
+                      <option value="sun">日曜日</option>
+                    </select>
+                    <span style={{ fontSize: '14px' }}>に自動配信</span>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>③ タイトル</label>
+                <input type="text" placeholder="予約通知のタイトル" value={reserveTitle} onChange={(e) => setReserveTitle(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>④ 本文</label>
+                <textarea placeholder="予約通知の本文" value={reserveBody} onChange={(e) => setReserveBody(e.target.value)} rows={3} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>リンク先URL（任意）</label>
+                <input type="url" placeholder="https://example.com" value={reserveLinkUrl} onChange={(e) => setReserveLinkUrl(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+              </div>
+
+              <button type="submit" style={{ padding: '12px', background: '#d97706', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' }}>
+                ➕ この内容で予約をセットする
+              </button>
+            </form>
+          </div>
+
+          {/* 予約リスト */}
+          <div style={{ padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <h3 style={{ margin: '0 0 15px 0', fontSize: '18px' }}>📋 現在設定されている予約配信一覧（{scheduledList.length} 件）</h3>
+            {scheduledList.length === 0 ? (
+              <p style={{ color: '#64748b', fontSize: '14px', textAlign: 'center', margin: '20px 0' }}>
+                現在セットされている予約配信はありません。
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {scheduledList.map((item) => (
+                  <div key={item.id} style={{ background: '#fff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                        <span style={{ fontSize: '11px', fontWeight: 'bold', background: item.type === 'coupon' ? '#7c3aed' : '#2563eb', color: '#fff', padding: '2px 8px', borderRadius: '12px' }}>
+                          {item.type === 'coupon' ? '🎫 クーポン予約' : '📢 通知予約'}
+                        </span>
+                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#d97706', background: '#fef3c7', padding: '2px 8px', borderRadius: '4px' }}>
+                          {item.scheduleValue}
+                        </span>
+                      </div>
+                      <strong style={{ fontSize: '15px', display: 'block', color: '#1e293b' }}>{item.title}</strong>
+                      <p style={{ fontSize: '13px', color: '#475569', margin: '4px 0 0 0' }}>{item.body}</p>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteSchedule(item.id)}
+                      style={{ padding: '8px 14px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+                    >
+                      🗑️ 予約を取り消す
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* QRスキャンモーダル */}
+      {scanOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
+          <div style={{ background: '#fff', padding: '20px', borderRadius: '12px', maxWidth: '500px', width: '100%', textAlign: 'center' }}>
+            <h3 style={{ margin: '0 0 15px 0' }}>📱 顧客のQRコードをスキャン</h3>
+            {scanResult ? (
+              <div>
+                <div style={{ padding: '20px', background: '#f0fdf4', border: '2px solid #22c55e', borderRadius: '8px', color: '#15803d', fontWeight: 'bold', fontSize: '18px', whiteSpace: 'pre-line', marginBottom: '20px' }}>
+                  {scanResult}
+                </div>
+                <button
+                  onClick={async () => { await stopCamera(); setScanResult(null); setScanOpen(false); }}
+                  style={{ width: '100%', padding: '12px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}
+                >
+                  閉じる
+                </button>
+              </div>
+            ) : (
+              <div>
+                <div id="qr-reader" style={{ width: '100%', minHeight: '250px', background: '#1e293b', borderRadius: '8px', overflow: 'hidden', marginBottom: '15px' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <button
+                    onClick={startCamera}
+                    disabled={scanLoading}
+                    style={{ width: '100%', padding: '12px', background: scanLoading ? '#ccc' : '#16a34a', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '16px', cursor: scanLoading ? 'not-allowed' : 'pointer' }}
+                  >
+                    {scanLoading ? 'カメラ初期化中...' : '📷 カメラを起動する'}
+                  </button>
+                  <button
+                    onClick={async () => { await stopCamera(); setScanOpen(false); }}
+                    style={{ width: '100%', padding: '10px', background: '#64748b', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
+                  >
+                    キャンセル
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </main>
+  );
+}
