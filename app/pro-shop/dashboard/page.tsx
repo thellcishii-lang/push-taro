@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase-client';
+import PaymentFailuresSection from '@/components/PaymentFailuresSection';
 
 interface ReferralShop {
   id: string;
