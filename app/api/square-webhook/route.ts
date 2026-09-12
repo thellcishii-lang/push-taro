@@ -1,9 +1,6 @@
 // app/api/square-webhook/route.ts
 /**
  * Square Webhook のメインエントリ
- * 
- * 受信したイベントを各ハンドラに振り分けるだけのシンプルな構造。
- * 実処理は lib/square-webhook/ 配下に分離。
  */
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
@@ -30,12 +27,12 @@ export async function POST(request: Request) {
     // ============================================================
     // 1. 引き落とし失敗
     // ============================================================
-　　　　　　　　 if (eventType === 'invoice.payment_failed') {
-      // 🆕 代理店の月額失敗チェック
+    if (eventType === 'invoice.payment_failed') {
       const invoice = dataObject?.invoice;
       const failedEmail = invoice?.primary_recipient?.email_address;
       const failedAmount = invoice?.amount_money?.amount;
-      
+
+      // 🆕 代理店の月額失敗チェック
       if (failedEmail && failedAmount) {
         const agencyResult = await handleAgencyPaymentFailed(failedEmail, failedAmount);
         if (agencyResult) {
@@ -43,34 +40,14 @@ export async function POST(request: Request) {
         }
       }
 
-      // 既存の店舗の決済失敗処理
-      return await handlePaymentFailed(body);
-    }
-    
-    if (eventType === 'invoice.payment_failed') {
+      // 店舗の決済失敗処理
       return await handlePaymentFailed(body);
     }
 
     // ============================================================
-    // 2. 決済成功（新規 / アップグレード / 継続 の3分岐）
+    // 2. 決済成功（代理店 / 新規 / アップグレード / 継続 の4分岐）
     // ============================================================
     if (eventType === 'payment.updated' || eventType === 'invoice.payment_made') {
-      const payment = dataObject?.payment || dataObject?.invoice;
-      const paymentStatus = payment?.status;
-
-      // payment.updated の場合は COMPLETED のみ処理
-      if (eventType === 'payment.updated' && paymentStatus !== 'COMPLETED') {
-        return NextResponse.json({ received: true }, { status: 200 });
-      }
-
-      const customerEmail = payment?.buyer_email_address || payment?.primary_recipient?.email_address;
-      const customerId = payment?.customer_id || null;
-      const paymentId = payment?.id || null;
-
-      if (!customerEmail) {
-        return NextResponse.json({ error: '顧客のメールアドレスが見つかりません' }, { status: 400 });
-      }
-　　　　　　　　　　　if (eventType === 'payment.updated' || eventType === 'invoice.payment_made') {
       const payment = dataObject?.payment || dataObject?.invoice;
       const paymentStatus = payment?.status;
 
@@ -92,8 +69,9 @@ export async function POST(request: Request) {
       if (agencyResult) {
         return NextResponse.json(agencyResult, { status: 200 });
       }
+
       // ============================================================
-      // 冪等性チェック（同じ paymentId を2回処理しない）
+      // 冪等性チェック（店舗用）
       // ============================================================
       if (paymentId) {
         const alreadyProcessed = await db.collection('shops')
@@ -108,7 +86,7 @@ export async function POST(request: Request) {
       }
 
       // ============================================================
-      // ① 新規登録（pending_payment の店舗が存在するか）
+      // ① 新規登録
       // ============================================================
       const pendingShopSnap = await db.collection('shops')
         .where('email', '==', customerEmail)
@@ -126,7 +104,7 @@ export async function POST(request: Request) {
       }
 
       // ============================================================
-      // ② アップグレード（upgradeStatus pending_payment の店舗が存在するか）
+      // ② アップグレード
       // ============================================================
       const upgradeShopSnap = await db.collection('shops')
         .where('email', '==', customerEmail)
@@ -143,7 +121,7 @@ export async function POST(request: Request) {
       }
 
       // ============================================================
-      // ③ 継続課金（上記いずれにも該当しない既存店舗）
+      // ③ 継続課金
       // ============================================================
       const existingShopSnap = await db.collection('shops')
         .where('email', '==', customerEmail)
@@ -160,15 +138,13 @@ export async function POST(request: Request) {
       }
 
       // ============================================================
-      // 該当なし → 何もしない
+      // 該当なし
       // ============================================================
       console.log(`[Webhook] 該当なし: ${customerEmail}`);
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
-    // ============================================================
     // その他のイベントタイプは無視
-    // ============================================================
     return NextResponse.json({ received: true }, { status: 200 });
 
   } catch (error: any) {
