@@ -74,7 +74,10 @@ export async function GET(request: Request) {
       });
     }
 
-    const shops = Array.from(shopsMap.values());
+    const shops: any[] = [];
+shopsMap.forEach((value) => {
+  shops.push(value);
+});
 
     // 状態の優先順位で並び替え（対応が必要な順）
     const statusOrder: Record<string, number> = {
