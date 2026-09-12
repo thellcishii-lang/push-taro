@@ -1,6 +1,6 @@
 // app/api/admin/dashboard/route.ts
 import { NextResponse } from 'next/server';
-import { db } from '../../../../lib/firebase-admin';
+import { db } from '../../../lib/firebase-admin';
 import { authAdmin } from '@/lib/firebase-admin';
 
 export const dynamic = 'force-dynamic';
