@@ -155,13 +155,10 @@ export async function POST(request: Request) {
       `,
     });
 
-    // sessionStorage 用にメールアドレスを保存
-    sessionStorage.setItem('agency_sent_email', email);
-
     return NextResponse.json({
       success: true,
       message: '代理店申し込みを受け付けました',
-      agencyId: docRef.id,
+      agencyId: userRecord.uid,
       referralCode,
       email,
     });
