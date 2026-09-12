@@ -906,6 +906,115 @@ function AgenciesTab() {
     </div>
   );
 }
+// ============================================================
+// 代理店月額決済状況タブ
+// ============================================================
+function AgencyMonthlyTab() {
+  const [loading, setLoading] = useState(true);
+  const [agencies, setAgencies] = useState<any[]>([]);
+
+  const fetchData = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/admin/agency-monthly-payments', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAgencies(data.agencies || []);
+      }
+    } catch (err) {
+      console.error('代理店月額決済データ取得エラー:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const getStatusBadge = (monthlyStatus: string, failedCount: number) => {
+    if (monthlyStatus === 'failed') {
+      const isHigh = failedCount >= 3;
+      return (
+        <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: isHigh ? '#fecaca' : '#fef3c7', color: isHigh ? '#991b1b' : '#92400e' }}>
+          決済失敗 {failedCount}回
+        </span>
+      );
+    }
+    if (monthlyStatus === 'suspended') {
+      return (
+        <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: '#e2e8f0', color: '#475569' }}>
+          停止中
+        </span>
+      );
+    }
+    return (
+      <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: '#f1f5f9', color: '#64748b' }}>
+        未設定
+      </span>
+    );
+  };
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>読み込み中...</div>;
+
+  return (
+    <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+        <div>
+          <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>代理店 月額決済状況</h2>
+          <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>
+            月額決済が失敗・未完了の代理店一覧。人為的にご連絡ください。
+          </p>
+        </div>
+        <span style={{ fontSize: '13px', color: '#64748b' }}>全 {agencies.length} 件</span>
+      </div>
+
+      {agencies.length === 0 ? (
+        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>現在、月額決済に問題のある代理店はありません</p>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                <th style={{ padding: '12px', textAlign: 'left' }}>会社名</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>担当者</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>メール</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>電話</th>
+                <th style={{ padding: '12px', textAlign: 'center' }}>月額決済状況</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>最終失敗日時</th>
+              </tr>
+            </thead>
+            <tbody>
+              {agencies.map((a) => (
+                <tr key={a.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                  <td style={{ padding: '12px', fontWeight: 'bold' }}>{a.companyName || a.ownerName || '未設定'}</td>
+                  <td style={{ padding: '12px' }}>{a.ownerName || '-'}</td>
+                  <td style={{ padding: '12px', fontSize: '12px' }}>{a.email || '-'}</td>
+                  <td style={{ padding: '12px', fontSize: '12px' }}>{a.phone || '-'}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{getStatusBadge(a.monthlyStatus, a.failedCount)}</td>
+                  <td style={{ padding: '12px', fontSize: '12px', color: '#64748b' }}>
+                    {a.lastFailedAt ? new Date(a.lastFailedAt).toLocaleString('ja-JP') : '-'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <p style={{ margin: '16px 0 0 0', fontSize: '11px', color: '#94a3b8', textAlign: 'right' }}>
+        ※ 自動停止はしません。代理店へ個別にご連絡ください。
+      </p>
+    </div>
+  );
+}
 
 // ============================================================
 // メインコンポーネント
@@ -920,7 +1029,7 @@ export default function SystemAdminPage() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'all' | 'pro' | 'agencies' | 'affiliates' | 'pending-payouts' | 'payment-failures'>('all');
+ const [activeTab, setActiveTab] = useState<'all' | 'pro' | 'agencies' | 'affiliates' | 'pending-payouts' | 'payment-failures' | 'agency-monthly'>('all');
   const [filterType, setFilterType] = useState<'all' | 'direct' | 'referral' | 'agency'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [errorCount, setErrorCount] = useState(0);
@@ -1213,6 +1322,7 @@ export default function SystemAdminPage() {
           <button onClick={() => setActiveTab('affiliates')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'affiliates' ? '3px solid #16a34a' : 'none', fontWeight: 'bold', color: activeTab === 'affiliates' ? '#16a34a' : '#718096', cursor: 'pointer' }}>📢 アフィリエイト一覧</button>
           <button onClick={() => setActiveTab('pending-payouts')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'pending-payouts' ? '3px solid #f59e0b' : 'none', fontWeight: 'bold', color: activeTab === 'pending-payouts' ? '#f59e0b' : '#718096', cursor: 'pointer' }}>💰 報酬振込管理</button>
           <button onClick={() => setActiveTab('payment-failures')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'payment-failures' ? '3px solid #ef4444' : 'none', fontWeight: 'bold', color: activeTab === 'payment-failures' ? '#ef4444' : '#718096', cursor: 'pointer' }}>⚠️ 決済不履行一覧</button>
+          <button onClick={() => setActiveTab('agency-monthly')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'agency-monthly' ? '3px solid #f97316' : 'none', fontWeight: 'bold', color: activeTab === 'agency-monthly' ? '#f97316' : '#718096', cursor: 'pointer' }}>💳 代理店月額決済</button>
         </div>
 
         {activeTab !== 'agencies' && activeTab !== 'payment-failures' && activeTab !== 'affiliates' && activeTab !== 'pending-payouts' && (
@@ -1298,6 +1408,7 @@ export default function SystemAdminPage() {
 
         
 　　　　　　　　　　　　　　　　{activeTab === 'agencies' && <AgenciesTab />}
+        {activeTab === 'agency-monthly' && <AgencyMonthlyTab />}
         {activeTab === 'affiliates' && <AffiliatesTab />}
         {activeTab === 'pending-payouts' && <PendingPayoutsTab />}
         {activeTab === 'payment-failures' && <PaymentFailuresTab />}
