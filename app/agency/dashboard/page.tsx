@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { auth } from '@/lib/firebase-client';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import PaymentFailuresSection from '@/components/PaymentFailuresSection';
 
 interface DetailedShop {
   id: string;
@@ -237,6 +238,10 @@ export default function AgencyDashboardPage() {
             </div>
           </div>
         </div>
+
+         {user?.uid && (
+        <PaymentFailuresSection referrerId={user.uid} referrerType="agency" />
+      )}
 
         {/* 検索バー & プランタブ */}
         <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
