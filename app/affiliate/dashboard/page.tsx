@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase-client';
 import Link from 'next/link';
+import PaymentFailuresSection from '@/components/PaymentFailuresSection';
 
 export default function AffiliateDashboardPage() {
   const router = useRouter();
@@ -191,6 +192,10 @@ export default function AffiliateDashboardPage() {
             </div>
           </div>
         </div>
+
+         {data?.affiliate?.id && (
+        <PaymentFailuresSection referrerId={data.affiliate.id} referrerType="affiliate" />
+      )}
 
         {/* 報酬タイプ */}
         <div style={{ background: '#ffffff', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
