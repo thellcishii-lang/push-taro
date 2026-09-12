@@ -130,7 +130,7 @@ export async function POST(request: Request) {
       updatedAt: FieldValue.serverTimestamp(),
     };
 
-    const docRef = await db.collection('agencies').add(agencyData);
+    await db.collection('agencies').doc(userRecord.uid).set(agencyData);
 
     // 登録完了メール（パスワード含む）
     await sendEmail({
