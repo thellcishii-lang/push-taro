@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     });
 
     // 🔥 3. agencies コレクションから代理店データを取得（変更点）
-    const agenciesSnapshot = await db.collection('agencies').get();
+       const agenciesSnapshot = await db.collection('agencies').get();
     const agencies = agenciesSnapshot.docs.map((doc) => {
       const data = doc.data();
       return {
@@ -46,8 +46,14 @@ export async function GET(request: Request) {
         companyName: data.companyName || '',
         ownerName: data.ownerName || '',
         email: data.email || '',
+        phone: data.phone || '',
+        address: data.address || '',
+        businessType: data.businessType || 'corporation',
+        invoiceNumber: data.invoiceNumber || null,
         status: data.status || 'pending_approval',
-        approvedAt: data.approvedAt || null,
+        approvedAt: data.approvedAt?.toDate?.()?.toISOString() || null,
+        rejectedAt: data.rejectedAt?.toDate?.()?.toISOString() || null,
+        rejectReason: data.rejectReason || null,
         referralCode: data.referralCode || '',
         createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
       };
