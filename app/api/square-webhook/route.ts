@@ -13,6 +13,7 @@ import { handlePaymentFailed } from '@/lib/square-webhook/handle-payment-failed'
 import { handleNewSignup } from '@/lib/square-webhook/handle-new-signup';
 import { handleUpgrade } from '@/lib/square-webhook/handle-upgrade';
 import { handleRecurring } from '@/lib/square-webhook/handle-recurring';
+import { handleAgencyPaymentSuccess, handleAgencyPaymentFailed } from '@/lib/square-webhook/handle-agency-payment';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +30,23 @@ export async function POST(request: Request) {
     // ============================================================
     // 1. 引き落とし失敗
     // ============================================================
+　　　　　　　　 if (eventType === 'invoice.payment_failed') {
+      // 🆕 代理店の月額失敗チェック
+      const invoice = dataObject?.invoice;
+      const failedEmail = invoice?.primary_recipient?.email_address;
+      const failedAmount = invoice?.amount_money?.amount;
+      
+      if (failedEmail && failedAmount) {
+        const agencyResult = await handleAgencyPaymentFailed(failedEmail, failedAmount);
+        if (agencyResult) {
+          return NextResponse.json(agencyResult, { status: 200 });
+        }
+      }
+
+      // 既存の店舗の決済失敗処理
+      return await handlePaymentFailed(body);
+    }
+    
     if (eventType === 'invoice.payment_failed') {
       return await handlePaymentFailed(body);
     }
@@ -52,7 +70,28 @@ export async function POST(request: Request) {
       if (!customerEmail) {
         return NextResponse.json({ error: '顧客のメールアドレスが見つかりません' }, { status: 400 });
       }
+　　　　　　　　　　　if (eventType === 'payment.updated' || eventType === 'invoice.payment_made') {
+      const payment = dataObject?.payment || dataObject?.invoice;
+      const paymentStatus = payment?.status;
 
+      if (eventType === 'payment.updated' && paymentStatus !== 'COMPLETED') {
+        return NextResponse.json({ received: true }, { status: 200 });
+      }
+
+      const customerEmail = payment?.buyer_email_address || payment?.primary_recipient?.email_address;
+      const customerId = payment?.customer_id || null;
+      const paymentId = payment?.id || null;
+      const amount = payment?.amount_money?.amount || 0;
+
+      if (!customerEmail) {
+        return NextResponse.json({ error: '顧客のメールアドレスが見つかりません' }, { status: 400 });
+      }
+
+      // 🆕 代理店の決済チェック（加盟金 or 月額）
+      const agencyResult = await handleAgencyPaymentSuccess(customerEmail, amount, paymentId);
+      if (agencyResult) {
+        return NextResponse.json(agencyResult, { status: 200 });
+      }
       // ============================================================
       // 冪等性チェック（同じ paymentId を2回処理しない）
       // ============================================================
