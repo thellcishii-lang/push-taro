@@ -130,19 +130,28 @@ function AffiliatesTab() {
 }
 
 // ============================================================
-// 決済不履行一覧タブ
+// 決済不履行一覧タブ（改修版）
 // ============================================================
 function PaymentFailuresTab() {
   const [loading, setLoading] = useState(true);
   const [shops, setShops] = useState<any[]>([]);
-
-  useEffect(() => {
-    fetchPaymentFailures();
-  }, []);
+  const [selectedShopId, setSelectedShopId] = useState<string | null>(null);
+  const [shopDetail, setShopDetail] = useState<any>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [sendingInvoice, setSendingInvoice] = useState<string | null>(null);
 
   const fetchPaymentFailures = async () => {
     try {
-      const res = await fetch('/api/admin/payment-failures');
+      const user = auth.currentUser;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/admin/payment-failures', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
       if (res.ok) {
         const data = await res.json();
         setShops(data.shops || []);
@@ -154,12 +163,77 @@ function PaymentFailuresTab() {
     }
   };
 
+  const fetchShopDetail = async (shopId: string) => {
+    setSelectedShopId(shopId);
+    setDetailLoading(true);
+    setShopDetail(null);
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const idToken = await user.getIdToken();
+      const res = await fetch(`/api/admin/payment-history/${shopId}`, {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setShopDetail(data);
+      } else {
+        alert('詳細の取得に失敗しました');
+      }
+    } catch (err: any) {
+      alert('通信エラー: ' + err.message);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  const handleManualAction = async (shopId: string, action: string, done: boolean) => {
+    const label = done ? '記録' : '取り消し';
+    if (!confirm(`${action} を${label}しますか？`)) return;
+
+    setActionLoading(`${shopId}-${action}`);
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/admin/manual-action', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ shopId, action, done }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        // 詳細とリストを更新
+        if (selectedShopId === shopId) {
+          await fetchShopDetail(shopId);
+        }
+        fetchPaymentFailures();
+      } else {
+        alert('エラー: ' + data.error);
+      }
+    } catch (err: any) {
+      alert('通信エラー: ' + err.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const handleSendInvoice = async (shopId: string, months: number) => {
     if (!confirm(`${months}ヶ月分の決済リンクを送信しますか？`)) return;
+    setSendingInvoice(`${shopId}-${months}`);
     try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const idToken = await user.getIdToken();
       const res = await fetch('/api/admin/send-invoice', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
         body: JSON.stringify({ shopId, months }),
       });
       if (res.ok) {
@@ -171,19 +245,29 @@ function PaymentFailuresTab() {
       }
     } catch (err: any) {
       alert('通信エラー: ' + err.message);
+    } finally {
+      setSendingInvoice(null);
     }
   };
 
   const handleDelete = async (shopId: string) => {
     if (!confirm(`店舗を完全に削除しますか？（復元できません）`)) return;
     try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const idToken = await user.getIdToken();
       const res = await fetch('/api/admin/delete-shop', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
         body: JSON.stringify({ shopId }),
       });
       if (res.ok) {
         alert('削除しました');
+        setSelectedShopId(null);
+        setShopDetail(null);
         fetchPaymentFailures();
       } else {
         const data = await res.json();
@@ -194,13 +278,36 @@ function PaymentFailuresTab() {
     }
   };
 
+  // 状態の日本語ラベルと色
+  const getStatusBadge = (status: string) => {
+    const map: Record<string, { label: string; bg: string; color: string }> = {
+      normal:            { label: '正常',        bg: '#c6f6d5', color: '#22543d' },
+      failure_1:         { label: '不履行1',     bg: '#fef3c7', color: '#92400e' },
+      failure_2:         { label: '不履行2',     bg: '#fed7aa', color: '#9a3412' },
+      failure_3_stopped: { label: '停止中',      bg: '#fecaca', color: '#991b1b' },
+      recovering:        { label: '復活中',      bg: '#dbeafe', color: '#1e40af' },
+      canceled:          { label: '退会処理',    bg: '#e2e8f0', color: '#475569' },
+    };
+    const s = map[status] || { label: status, bg: '#f1f5f9', color: '#475569' };
+    return (
+      <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: s.bg, color: s.color }}>
+        {s.label}
+      </span>
+    );
+  };
+
   if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>読み込み中...</div>;
 
   return (
     <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>決済不履行店舗一覧</h2>
-        <span style={{ fontSize: '13px', color: '#64748b' }}>3回目の決済失敗で送信停止中の店舗</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+        <div>
+          <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>決済不履行店舗一覧</h2>
+          <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>
+            paymentStatus が failure_* / recovering / canceled の店舗
+          </p>
+        </div>
+        <span style={{ fontSize: '13px', color: '#64748b' }}>全 {shops.length} 件</span>
       </div>
 
       {shops.length === 0 ? (
@@ -211,44 +318,190 @@ function PaymentFailuresTab() {
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                 <th style={{ padding: '12px', textAlign: 'left' }}>店舗名</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>店舗ID</th>
                 <th style={{ padding: '12px', textAlign: 'left' }}>プラン</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>不履行開始日</th>
-                <th style={{ padding: '12px', textAlign: 'center' }}>失敗回数</th>
-                <th style={{ padding: '12px', textAlign: 'center' }}>アクション</th>
-                <th style={{ padding: '12px', textAlign: 'center' }}>削除</th>
+                <th style={{ padding: '12px', textAlign: 'center' }}>状態</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>最終更新</th>
+                <th style={{ padding: '12px', textAlign: 'center' }}>詳細</th>
               </tr>
             </thead>
             <tbody>
               {shops.map((shop) => (
                 <tr key={shop.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                  <td style={{ padding: '12px', fontWeight: 'bold' }}>{shop.name || '未設定'}</td>
-                  <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '11px' }}>{shop.id.slice(0, 12)}...</td>
+                  <td style={{ padding: '12px', fontWeight: 'bold' }}>{shop.name}</td>
                   <td style={{ padding: '12px' }}>
-                    <span style={{ padding: '2px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', background: shop.plan === 'pro' ? '#fef3c7' : shop.plan === 'standard' ? '#dbeafe' : '#f1f5f9', color: shop.plan === 'pro' ? '#b45309' : shop.plan === 'standard' ? '#1d4ed8' : '#475569' }}>
+                    <span style={{
+                      padding: '2px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold',
+                      background: shop.plan === 'pro' ? '#fef3c7' : shop.plan === 'standard' ? '#dbeafe' : '#f1f5f9',
+                      color: shop.plan === 'pro' ? '#b45309' : shop.plan === 'standard' ? '#1d4ed8' : '#475569',
+                    }}>
                       {shop.plan?.toUpperCase() || 'LIGHT'}
                     </span>
                   </td>
-                  <td style={{ padding: '12px' }}>{shop.failedAt ? new Date(shop.failedAt).toLocaleDateString() : '不明'}</td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>
-                    <span style={{ padding: '2px 12px', borderRadius: '12px', background: shop.failedCount >= 3 ? '#fecaca' : '#fef3c7', color: shop.failedCount >= 3 ? '#dc2626' : '#d97706', fontWeight: 'bold', fontSize: '13px' }}>
-                      {shop.failedCount || 0}回
-                    </span>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{getStatusBadge(shop.paymentStatus)}</td>
+                  <td style={{ padding: '12px', fontSize: '12px', color: '#64748b' }}>
+                    {shop.lastUpdatedAt ? new Date(shop.lastUpdatedAt).toLocaleString('ja-JP') : '-'}
                   </td>
                   <td style={{ padding: '12px', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                      <button onClick={() => handleSendInvoice(shop.id, 1)} style={{ padding: '4px 10px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>1ヶ月分</button>
-                      <button onClick={() => handleSendInvoice(shop.id, 2)} style={{ padding: '4px 10px', background: '#8b5cf6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>2ヶ月分</button>
-                      <button onClick={() => handleSendInvoice(shop.id, 3)} style={{ padding: '4px 10px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>3ヶ月分</button>
-                    </div>
-                  </td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>
-                    <button onClick={() => handleDelete(shop.id)} style={{ padding: '4px 12px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}>削除</button>
+                    <button
+                      onClick={() => fetchShopDetail(shop.id)}
+                      style={{ padding: '6px 14px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                    >
+                      🔍 開く
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* 詳細モーダル */}
+      {selectedShopId && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '20px', overflowY: 'auto' }}>
+          <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', maxWidth: '900px', width: '100%', marginTop: '40px' }}>
+            {detailLoading ? (
+              <p style={{ textAlign: 'center', padding: '40px' }}>読み込み中...</p>
+            ) : shopDetail ? (
+              <>
+                {/* ヘッダー */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '2px solid #eee', paddingBottom: '12px' }}>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '20px' }}>{shopDetail.shopName}</h3>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748b' }}>
+                      店舗ID: <code>{shopDetail.shopId}</code>
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => { setSelectedShopId(null); setShopDetail(null); }}
+                    style={{ padding: '8px 16px', background: '#e2e8f0', color: '#475569', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+                  >
+                    ✕ 閉じる
+                  </button>
+                </div>
+
+                {/* 現在の状態 */}
+                <div style={{ marginBottom: '20px', padding: '12px 16px', background: '#f8fafc', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#475569' }}>現在の状態</span>
+                  {getStatusBadge(shopDetail.paymentStatus)}
+                </div>
+
+                {/* 手動アクション */}
+                <div style={{ marginBottom: '24px', padding: '16px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px' }}>
+                  <h4 style={{ margin: '0 0 12px 0', fontSize: '15px', color: '#92400e' }}>🔧 手動アクション</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {[
+                      { key: 'squareStopped', label: 'Square サブスク停止' },
+                      { key: 'invoice2MonthsSent', label: '2ヶ月分請求書送信' },
+                      { key: 'invoice3MonthsSent', label: '3ヶ月分請求書送信' },
+                      { key: 'paymentConfirmed', label: '決済確認（復活）' },
+                      { key: 'squareResumed', label: 'Square 再開' },
+                      { key: 'canceled', label: '退会処理' },
+                    ].map(({ key, label }) => {
+                      const action = shopDetail.manualActions?.[key] || { done: false, doneAt: null, doneBy: null };
+                      const isLoading = actionLoading === `${shopDetail.shopId}-${key}`;
+                      return (
+                        <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', background: '#fff', borderRadius: '6px', border: '1px solid #e2e8f0', flexWrap: 'wrap' }}>
+                          <input
+                            type="checkbox"
+                            checked={!!action.done}
+                            disabled={isLoading}
+                            onChange={(e) => handleManualAction(shopDetail.shopId, key, e.target.checked)}
+                            style={{ width: '18px', height: '18px', cursor: isLoading ? 'wait' : 'pointer' }}
+                          />
+                          <span style={{ flex: 1, fontWeight: 'bold', fontSize: '13px' }}>{label}</span>
+                          {action.done && action.doneAt && (
+                            <span style={{ fontSize: '11px', color: '#64748b' }}>
+                              {new Date(action.doneAt).toLocaleString('ja-JP')} に実施
+                            </span>
+                          )}
+                          {isLoading && <span style={{ fontSize: '11px', color: '#0284c7' }}>処理中...</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 請求書送信 */}
+                <div style={{ marginBottom: '24px', padding: '16px', background: '#f0f9ff', border: '1px solid #7dd3fc', borderRadius: '8px' }}>
+                  <h4 style={{ margin: '0 0 12px 0', fontSize: '15px', color: '#0369a1' }}>📧 請求書送信</h4>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {[1, 2, 3].map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => handleSendInvoice(shopDetail.shopId, m)}
+                        disabled={sendingInvoice === `${shopDetail.shopId}-${m}`}
+                        style={{
+                          padding: '8px 16px', background: sendingInvoice === `${shopDetail.shopId}-${m}` ? '#ccc' : m === 3 ? '#ef4444' : m === 2 ? '#8b5cf6' : '#3b82f6',
+                          color: '#fff', border: 'none', borderRadius: '6px', cursor: sendingInvoice === `${shopDetail.shopId}-${m}` ? 'wait' : 'pointer', fontWeight: 'bold', fontSize: '13px',
+                        }}
+                      >
+                        {sendingInvoice === `${shopDetail.shopId}-${m}` ? '送信中...' : `${m}ヶ月分を送信`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 決済履歴 */}
+                <div style={{ marginBottom: '24px' }}>
+                  <h4 style={{ margin: '0 0 12px 0', fontSize: '15px' }}>📊 決済履歴</h4>
+                  {(!shopDetail.history || shopDetail.history.length === 0) ? (
+                    <p style={{ fontSize: '13px', color: '#94a3b8', textAlign: 'center', padding: '20px' }}>履歴がありません</p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {Object.entries(shopDetail.groupedByMonth || {}).map(([month, records]: [string, any]) => {
+                        // その月のサマリーを計算
+                        const successCount = records.filter((r: any) => r.result === 'success').length;
+                        const failedCount = records.filter((r: any) => r.result === 'failed').length;
+                        const totalAmount = records[0]?.amount || 0;
+
+                        return (
+                          <div key={month} style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px', background: '#fff' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
+                              <strong style={{ fontSize: '15px', color: '#1a202c' }}>{month}</strong>
+                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#475569' }}>¥{totalAmount.toLocaleString()}</span>
+                                {successCount > 0 && (
+                                  <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '10px', background: '#c6f6d5', color: '#22543d', fontWeight: 'bold' }}>
+                                    成功 {successCount}
+                                  </span>
+                                )}
+                                {failedCount > 0 && (
+                                  <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '10px', background: '#fecaca', color: '#991b1b', fontWeight: 'bold' }}>
+                                    失敗 {failedCount}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            {records.map((r: any) => (
+                              <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', padding: '6px 0', color: '#475569' }}>
+                                <span>
+                                  {new Date(r.attemptedAt).toLocaleString('ja-JP')}
+                                </span>
+                                <span style={{ fontWeight: 'bold', color: r.result === 'success' ? '#15803d' : '#dc2626' }}>
+                                  {r.result === 'success' ? '✅ 成功' : `❌ 失敗（${r.failureAttempt}回目）`}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* 店舗削除 */}
+                <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e2e8f0', textAlign: 'right' }}>
+                  <button
+                    onClick={() => handleDelete(shopDetail.shopId)}
+                    style={{ padding: '8px 16px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                  >
+                    🗑️ 店舗を完全削除
+                  </button>
+                </div>
+              </>
+            ) : null}
+          </div>
         </div>
       )}
     </div>
