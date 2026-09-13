@@ -83,6 +83,7 @@ export async function GET(request: Request) {
     // DBバッチ処理用の操作を溜める配列
     const batchOperations: Array<
       | { type: 'set_reward'; ref: any; data: any }
+      | { type: 'set_statement'; ref: any; data: any }
       | { type: 'update_history'; ref: any }
       | { type: 'update_referrer'; ref: any; data: any }
     > = [];
@@ -115,7 +116,7 @@ export async function GET(request: Request) {
         let totalReward = 0;
         let totalBaseReward = 0;
         let totalPayment = 0;
-        const shopBreakdown: Array<{ shopName: string; plan: string; payment: number; baseReward: number; reward: number }> = [];
+        const shopBreakdown: Array<{ shopId: string; shopName: string; plan: string; rate: number; payment: number; baseReward: number; reward: number }> = [];
 
         for (const rel of targetRelations) {
           const { referredTenantId } = rel;
@@ -158,6 +159,7 @@ export async function GET(request: Request) {
                     sourceShopName: shopName,
                     amount: rewardAmount,
                     baseAmount: baseRewardAmount,
+                    paymentAmount: amount,
                     billingMonth: histData.billingMonth,
                     scheduledPayoutMonth,
                     status: 'unpaid',
@@ -180,7 +182,7 @@ export async function GET(request: Request) {
             totalPayment += shopPayment;
             totalBaseReward += shopBaseReward;
             totalReward += shopReward;
-            shopBreakdown.push({ shopName, plan, payment: shopPayment, baseReward: shopBaseReward, reward: shopReward });
+            shopBreakdown.push({ shopId: referredTenantId, shopName, plan, rate: effectiveRate, payment: shopPayment, baseReward: shopBaseReward, reward: shopReward });
           }
         }
 
@@ -205,6 +207,27 @@ export async function GET(request: Request) {
             type: 'update_referrer',
             ref: referrerDoc.ref,
             data: referrerUpdateData
+          });
+
+          const statementRef = db.collection('monthly_statements').doc();
+          const withholding = hasInvoice ? 0 : totalBaseReward - totalReward;
+          batchOperations.push({
+            type: 'set_statement',
+            ref: statementRef,
+            data: {
+              userId: referrerId,
+              referrerType,
+              scheduledPayoutMonth,
+              hasInvoice,
+              totalPayment,
+              totalBaseReward,
+              withholding,
+              totalReward,
+              shops: shopBreakdown,
+              status: 'unpaid',
+              paidAt: null,
+              createdAt: FieldValue.serverTimestamp(),
+            }
           });
 
           if (referrerData?.email) {
@@ -251,7 +274,9 @@ export async function GET(request: Request) {
       const batch = db.batch();
 
       chunk.forEach((op) => {
-        if (op.type === 'set_reward') {
+         if (op.type === 'set_reward') {
+          batch.set(op.ref, op.data);
+        } else if (op.type === 'set_statement') {
           batch.set(op.ref, op.data);
         } else if (op.type === 'update_history') {
           batch.update(op.ref, { rewardProcessed: true });
