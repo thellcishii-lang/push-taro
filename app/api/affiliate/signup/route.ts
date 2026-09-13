@@ -77,17 +77,6 @@ export async function POST(request: Request) {
     }
 
     // メールアドレス重複チェック
-    try {
-      await authAdmin.getUserByEmail(email);
-      return NextResponse.json(
-        { error: 'このメールアドレスは既に登録されています' },
-        { status: 409 }
-      );
-    } catch (e: any) {
-      if (e.code !== 'auth/user-not-found') {
-        throw e;
-      }
-    }
 
     const existing = await db.collection('affiliates').where('email', '==', email).get();
     if (!existing.empty) {
@@ -101,12 +90,21 @@ export async function POST(request: Request) {
     const generatedPassword = generatePassword();
 
     // Firebase Auth ユーザー作成
-    const userRecord = await authAdmin.createUser({
-      email,
-      password: generatedPassword,
-      emailVerified: true,
-    });
-
+    let userRecord;
+try {
+  userRecord = await authAdmin.createUser({
+    email,
+    password: generatedPassword,
+    emailVerified: true,
+  });
+} catch (e: any) {
+  if (e.code === 'auth/email-already-exists') {
+    userRecord = await authAdmin.getUserByEmail(email);
+    await authAdmin.updateUser(userRecord.uid, { password: generatedPassword });
+  } else {
+    throw e;
+  }
+}
     // 紹介コード生成（重複防止）
     let referralCode = generateReferralCode();
     let codeExists = true;
