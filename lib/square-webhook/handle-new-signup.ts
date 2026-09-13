@@ -1,11 +1,12 @@
 // lib/square-webhook/handle-new-signup.ts
 /**
  * 新規登録（pending_payment → active）の処理
- * 
+ *
  * 1. Auth ユーザー作成
  * 2. shops を active に更新
  * 3. 本登録完了メール送信
  * 4. 紹介報酬の初回計算
+ * 5. 代理店への「新規店舗申し込み完了」通知メール
  */
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
@@ -190,6 +191,74 @@ export async function handleNewSignup(
               referrerType: referrerType,
               createdAt: FieldValue.serverTimestamp(),
             });
+
+            // ============================================================
+            // 5. 代理店への「新規店舗申し込み完了」通知メール
+            // ============================================================
+            if (referrerType === 'agency' && referrerData.email) {
+              const hasInvoice = !!(
+                referrerData?.invoiceNumber &&
+                String(referrerData.invoiceNumber).trim() !== ''
+              );
+              const baseRate = hasInvoice ? effectiveRate : effectiveRate / 0.9;
+              const baseReward = Math.floor(planAmount * baseRate);
+              const withholding = hasInvoice ? 0 : Math.floor(baseReward * 0.1);
+              const netReward = baseReward - withholding;
+              const netUnpaid = (referrerData?.[unpaidField] || 0) + netReward;
+
+              await sendEmail({
+                to: referrerData.email,
+                subject: `【Push-taro】御社の紹介コードで新規店舗申し込みが完了しました`,
+                html: `
+                  <h2>${referrerData.companyName || referrerData.ownerName || '代理店'} 様</h2>
+                  <p>御社の紹介コード（${referrerData.referralCode || '---'}）を経由して、</p>
+                  <p>新規店舗の申し込みおよび決済が完了いたしました。</p>
+                  <hr />
+                  <table style="font-size: 14px;">
+                    <tr>
+                      <td style="padding: 6px; font-weight: bold;">店舗名</td>
+                      <td style="padding: 6px;">${pendingShopData.name || '未設定'}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 6px; font-weight: bold;">プラン</td>
+                      <td style="padding: 6px;">${plan.toUpperCase()}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 6px; font-weight: bold;">報酬率</td>
+                      <td style="padding: 6px;">${(baseRate * 100).toFixed(1)}%</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 6px; font-weight: bold;">今回の紹介報酬</td>
+                      <td style="padding: 6px;">¥${baseReward.toLocaleString()}</td>
+                    </tr>
+                    ${!hasInvoice ? `
+                    <tr>
+                      <td style="padding: 6px; font-weight: bold; color: #dc2626;">源泉徴収（インボイス未登録 -10%）</td>
+                      <td style="padding: 6px; color: #dc2626;">-¥${withholding.toLocaleString()}</td>
+                    </tr>
+                    ` : ''}
+                    <tr style="border-top: 1px solid #e2e8f0;">
+                      <td style="padding: 6px; font-weight: bold;">お支払い額</td>
+                      <td style="padding: 6px; color: #ff4500; font-weight: bold; font-size: 16px;">¥${netReward.toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 6px; font-weight: bold;">未払い累計</td>
+                      <td style="padding: 6px;">¥${netUnpaid.toLocaleString()}</td>
+                    </tr>
+                  </table>
+                  <hr />
+                  <p>
+                    <a href="${process.env.NEXT_PUBLIC_APP_URL}/agency/dashboard" style="display:inline-block;padding:12px 24px;background:#3182ce;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
+                      代理店コンソールで確認する
+                    </a>
+                  </p>
+                  <hr />
+                  <p><strong>Push-taro.com</strong></p>
+                  <p>運営会社：the合同会社</p>
+                  <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
+                `,
+              });
+            }
 
             console.log(`[新規登録] ✅ 紹介報酬加算: ${referrerType} / ${rewardAmount}円 / 累計 ${currentUnpaid}円`);
           }
