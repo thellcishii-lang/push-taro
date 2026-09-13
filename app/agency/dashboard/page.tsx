@@ -51,7 +51,10 @@ export default function AgencyDashboardPage() {
 
   // 🆕 紹介情報・報酬
   const [dashboardData, setDashboardData] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'shops' | 'rewards'>('shops');
+  const [statements, setStatements] = useState<any[]>([]);
+  const [salesFrom, setSalesFrom] = useState('');
+  const [salesTo, setSalesTo] = useState('');
+  const [activeTab, setActiveTab] = useState<'shops' | 'sales' | 'details'>('shops');
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -115,6 +118,28 @@ export default function AgencyDashboardPage() {
       }
     };
     fetchDashboard();
+  }, [user]);
+
+  
+  // 月次明細（statements）取得
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const fetchStatements = async () => {
+      try {
+        const idToken = await user.getIdToken();
+        const res = await fetch(`/api/agency/statements?agencyId=${user.uid}`, {
+          headers: { Authorization: `Bearer ${idToken}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setStatements(data.statements || []);
+        }
+      } catch (err) {
+        console.error('statements取得エラー:', err);
+      }
+    };
+    fetchStatements();
   }, [user]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -182,6 +207,61 @@ export default function AgencyDashboardPage() {
       navigator.clipboard.writeText(`${window.location.origin}/signup?ref=${code}`);
       alert('紹介URLをコピーしました！');
     }
+  };
+
+  // 期間フィルタ用ヘルパー
+  const filterStatementsByPeriod = (list: any[], from: string, to: string) => {
+    return list.filter((s) => {
+      if (from && s.scheduledPayoutMonth < from) return false;
+      if (to && s.scheduledPayoutMonth > to) return false;
+      return true;
+    });
+  };
+
+  
+  // 売上一覧CSVダウンロード
+  const handleDownloadSalesCsv = () => {
+    const filtered = filterStatementsByPeriod(statements, salesFrom, salesTo);
+    if (filtered.length === 0) {
+      alert('対象データがありません');
+      return;
+    }
+
+    let csv = '\uFEFF支払い予定月,紹介報酬(税込),源泉徴収,支払総額,ステータス\n';
+    filtered.forEach((s) => {
+      const statusLabel = s.status === 'paid' ? '振込済' : '未払い';
+      csv += `${s.scheduledPayoutMonth},${s.totalBaseReward},${s.withholding},${s.totalReward},${statusLabel}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sales_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // 月別明細CSVダウンロード
+  const handleDownloadDetailCsv = (statement: any) => {
+    if (!statement) return;
+
+    let csv = `\uFEFF支払い予定月,${statement.scheduledPayoutMonth}\n`;
+    csv += `紹介報酬(税込),${statement.totalBaseReward}\n`;
+    csv += `源泉徴収,${statement.withholding}\n`;
+    csv += `支払総額,${statement.totalReward}\n\n`;
+    csv += '店舗名,プラン,報酬率,決済額,基本報酬,報酬額\n';
+    (statement.shops || []).forEach((s: any) => {
+      csv += `"${s.shopName}",${s.plan.toUpperCase()},${(s.rate * 100).toFixed(0)}%,${s.payment},${s.baseReward},${s.reward}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `statement_${statement.scheduledPayoutMonth}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const filteredShops = useMemo(() => {
@@ -432,70 +512,216 @@ export default function AgencyDashboardPage() {
             🏪 傘下店舗一覧
           </button>
           <button
-            onClick={() => setActiveTab('rewards')}
+            onClick={() => setActiveTab('sales')}
             style={{
               padding: '10px 16px', border: 'none',
-              borderBottom: activeTab === 'rewards' ? '3px solid #16a34a' : '3px solid transparent',
+              borderBottom: activeTab === 'sales' ? '3px solid #16a34a' : '3px solid transparent',
               background: 'none', fontWeight: 'bold',
-              color: activeTab === 'rewards' ? '#16a34a' : '#64748b',
+              color: activeTab === 'sales' ? '#16a34a' : '#64748b',
               cursor: 'pointer', fontSize: '15px', whiteSpace: 'nowrap'
             }}
           >
-            💰 報酬明細
+            📊 売上一覧
+          </button>
+          <button
+            onClick={() => setActiveTab('details')}
+            style={{
+              padding: '10px 16px', border: 'none',
+              borderBottom: activeTab === 'details' ? '3px solid #d97706' : '3px solid transparent',
+              background: 'none', fontWeight: 'bold',
+              color: activeTab === 'details' ? '#d97706' : '#64748b',
+              cursor: 'pointer', fontSize: '15px', whiteSpace: 'nowrap'
+            }}
+          >
+            📋 月別明細
           </button>
         </div>
 
-        {/* 🆕 報酬明細タブ */}
-        {activeTab === 'rewards' && dashboardData && (
-          <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '20px' }}>
-              <div style={{ background: '#f0fdf4', padding: '14px 18px', borderRadius: '10px', border: '1px solid #86efac' }}>
-                <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#166534', marginBottom: '4px' }}>累計報酬</div>
-                <div style={{ fontSize: '22px', fontWeight: '800', color: '#166534' }}>¥{(dashboardData.summary?.totalEarnings || 0).toLocaleString()}</div>
-              </div>
-              <div style={{ background: '#fffbeb', padding: '14px 18px', borderRadius: '10px', border: '1px solid #fde68a' }}>
-                <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#92400e', marginBottom: '4px' }}>未払い報酬</div>
-                <div style={{ fontSize: '22px', fontWeight: '800', color: '#92400e' }}>¥{(dashboardData.summary?.unpaidReward || 0).toLocaleString()}</div>
-              </div>
-              <div style={{ background: '#eff6ff', padding: '14px 18px', borderRadius: '10px', border: '1px solid #bfdbfe' }}>
-                <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#1e40af', marginBottom: '4px' }}>稼働中の傘下店舗</div>
-                <div style={{ fontSize: '22px', fontWeight: '800', color: '#1e40af' }}>{dashboardData.summary?.referralCount || 0} 店舗</div>
-              </div>
+                {/* 📊 売上一覧タブ */}
+        {activeTab === 'sales' && (
+          <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800' }}>月別 売上一覧</h3>
+              <button
+                onClick={handleDownloadSalesCsv}
+                style={{ padding: '8px 16px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}
+              >
+                CSVダウンロード
+              </button>
             </div>
 
-            <h4 style={{ margin: '0 0 12px 0', fontSize: '14px' }}>📊 報酬明細（全期間）</h4>
-            {(!dashboardData.rewards || dashboardData.rewards.length === 0) ? (
-              <p style={{ fontSize: '13px', color: '#94a3b8', textAlign: 'center', padding: '20px' }}>報酬明細はまだありません</p>
-            ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                  <thead>
-                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                      <th style={{ padding: '10px', textAlign: 'left' }}>対象月</th>
-                      <th style={{ padding: '10px', textAlign: 'left' }}>支払い予定</th>
-                      <th style={{ padding: '10px', textAlign: 'left' }}>紹介店舗</th>
-                      <th style={{ padding: '10px', textAlign: 'right' }}>金額</th>
-                      <th style={{ padding: '10px', textAlign: 'center' }}>ステータス</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dashboardData.rewards.map((r: any) => (
-                      <tr key={r.id} style={{ borderBottom: '1px solid #edf2f7' }}>
-                        <td style={{ padding: '10px', fontFamily: 'monospace' }}>{r.billingMonth}</td>
-                        <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '11px', color: '#64748b' }}>{r.scheduledPayoutMonth}</td>
-                        <td style={{ padding: '10px', fontWeight: 'bold' }}>{r.sourceShopName}</td>
-                        <td style={{ padding: '10px', textAlign: 'right', fontWeight: 'bold', color: '#c2410c' }}>¥{r.amount.toLocaleString()}</td>
-                        <td style={{ padding: '10px', textAlign: 'center' }}>
-                          {r.status === 'paid' ? (
-                            <span style={{ padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 'bold', background: '#c6f6d5', color: '#22543d' }}>振込済み</span>
-                          ) : (
-                            <span style={{ padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 'bold', background: '#fef3c7', color: '#92400e' }}>未払い</span>
-                          )}
-                        </td>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#475569' }}>
+                期間:
+              </label>
+              <input
+                type="month"
+                value={salesFrom}
+                onChange={(e) => setSalesFrom(e.target.value)}
+                style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '13px' }}
+              />
+              <span style={{ fontSize: '13px', color: '#94a3b8' }}>〜</span>
+              <input
+                type="month"
+                value={salesTo}
+                onChange={(e) => setSalesTo(e.target.value)}
+                style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '13px' }}
+              />
+              {(salesFrom || salesTo) && (
+                <button
+                  onClick={() => { setSalesFrom(''); setSalesTo(''); }}
+                  style={{ padding: '6px 12px', background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e0', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}
+                >
+                  クリア
+                </button>
+              )}
+            </div>
+
+            {(() => {
+              const filtered = filterStatementsByPeriod(statements, salesFrom, salesTo);
+              if (filtered.length === 0) {
+                return <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0', fontSize: '14px' }}>データがありません</p>;
+              }
+              const grandTotalBase = filtered.reduce((sum, s) => sum + s.totalBaseReward, 0);
+              const grandTotalWithholding = filtered.reduce((sum, s) => sum + s.withholding, 0);
+              const grandTotalReward = filtered.reduce((sum, s) => sum + s.totalReward, 0);
+
+              return (
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                    <thead>
+                      <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                        <th style={{ padding: '10px', textAlign: 'left' }}>支払い予定月</th>
+                        <th style={{ padding: '10px', textAlign: 'right' }}>紹介報酬（税込）</th>
+                        <th style={{ padding: '10px', textAlign: 'right' }}>源泉徴収</th>
+                        <th style={{ padding: '10px', textAlign: 'right' }}>支払総額</th>
+                        <th style={{ padding: '10px', textAlign: 'center' }}>ステータス</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {filtered.map((s) => (
+                        <tr key={s.id} style={{ borderBottom: '1px solid #edf2f7' }}>
+                          <td style={{ padding: '10px', fontFamily: 'monospace', fontWeight: 'bold' }}>{s.scheduledPayoutMonth}</td>
+                          <td style={{ padding: '10px', textAlign: 'right' }}>¥{s.totalBaseReward.toLocaleString()}</td>
+                          <td style={{ padding: '10px', textAlign: 'right', color: s.withholding > 0 ? '#dc2626' : '#94a3b8' }}>
+                            {s.withholding > 0 ? `-¥${s.withholding.toLocaleString()}` : '—'}
+                          </td>
+                          <td style={{ padding: '10px', textAlign: 'right', fontWeight: 'bold', color: '#c2410c' }}>¥{s.totalReward.toLocaleString()}</td>
+                          <td style={{ padding: '10px', textAlign: 'center' }}>
+                            <span style={{
+                              padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold',
+                              background: s.status === 'paid' ? '#c6f6d5' : '#fef3c7',
+                              color: s.status === 'paid' ? '#22543d' : '#92400e',
+                            }}>
+                              {s.status === 'paid' ? '振込済' : '未払い'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                      <tr style={{ background: '#f0f9ff', fontWeight: 'bold', borderTop: '2px solid #3182ce' }}>
+                        <td style={{ padding: '12px' }}>合計</td>
+                        <td style={{ padding: '12px', textAlign: 'right' }}>¥{grandTotalBase.toLocaleString()}</td>
+                        <td style={{ padding: '12px', textAlign: 'right', color: '#dc2626' }}>
+                          {grandTotalWithholding > 0 ? `-¥${grandTotalWithholding.toLocaleString()}` : '—'}
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'right', color: '#c2410c', fontSize: '15px' }}>¥{grandTotalReward.toLocaleString()}</td>
+                        <td style={{ padding: '12px' }}></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
+        {/* 📋 月別明細タブ */}
+        {activeTab === 'details' && (
+          <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '800' }}>月別 明細</h3>
+
+            {statements.length === 0 ? (
+              <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0', fontSize: '14px' }}>明細がありません</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {statements.map((statement) => (
+                  <div key={statement.id} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px', background: '#fafafa' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '16px', fontWeight: '800', color: '#1a202c' }}>
+                          {statement.scheduledPayoutMonth} 支払い分
+                        </span>
+                        <span style={{
+                          padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold',
+                          background: statement.status === 'paid' ? '#c6f6d5' : '#fef3c7',
+                          color: statement.status === 'paid' ? '#22543d' : '#92400e',
+                        }}>
+                          {statement.status === 'paid' ? '振込済' : '未払い'}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => handleDownloadDetailCsv(statement)}
+                        style={{ padding: '6px 14px', background: '#d97706', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}
+                      >
+                        CSVダウンロード
+                      </button>
+                    </div>
+
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', background: '#fff', borderRadius: '8px', overflow: 'hidden' }}>
+                        <thead>
+                          <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #e2e8f0' }}>
+                            <th style={{ padding: '8px 10px', textAlign: 'left' }}>店舗名</th>
+                            <th style={{ padding: '8px 10px', textAlign: 'center' }}>プラン</th>
+                            <th style={{ padding: '8px 10px', textAlign: 'center' }}>報酬率</th>
+                            <th style={{ padding: '8px 10px', textAlign: 'right' }}>決済額</th>
+                            <th style={{ padding: '8px 10px', textAlign: 'right' }}>基本報酬</th>
+                            <th style={{ padding: '8px 10px', textAlign: 'right' }}>報酬額</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(statement.shops || []).map((s: any, idx: number) => (
+                            <tr key={idx} style={{ borderBottom: '1px solid #edf2f7' }}>
+                              <td style={{ padding: '8px 10px', fontWeight: 'bold' }}>{s.shopName}</td>
+                              <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                                <span style={{
+                                  padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold',
+                                  background: s.plan === 'pro' ? '#fef3c7' : s.plan === 'standard' ? '#dbeafe' : '#f1f5f9',
+                                  color: s.plan === 'pro' ? '#b45309' : s.plan === 'standard' ? '#1d4ed8' : '#475569',
+                                }}>
+                                  {s.plan.toUpperCase()}
+                                </span>
+                              </td>
+                              <td style={{ padding: '8px 10px', textAlign: 'center', color: '#16a34a', fontWeight: 'bold' }}>
+                                {(s.rate * 100).toFixed(0)}%
+                              </td>
+                              <td style={{ padding: '8px 10px', textAlign: 'right' }}>¥{s.payment.toLocaleString()}</td>
+                              <td style={{ padding: '8px 10px', textAlign: 'right' }}>¥{s.baseReward.toLocaleString()}</td>
+                              <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 'bold', color: '#c2410c' }}>¥{s.reward.toLocaleString()}</td>
+                            </tr>
+                          ))}
+                          <tr style={{ background: '#f0f9ff', fontWeight: 'bold', borderTop: '2px solid #3182ce' }}>
+                            <td style={{ padding: '10px' }} colSpan={3}>合計</td>
+                            <td style={{ padding: '10px', textAlign: 'right' }}>¥{statement.totalPayment.toLocaleString()}</td>
+                            <td style={{ padding: '10px', textAlign: 'right' }}>¥{statement.totalBaseReward.toLocaleString()}</td>
+                            <td style={{ padding: '10px', textAlign: 'right', color: '#c2410c' }}>¥{statement.totalReward.toLocaleString()}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {statement.withholding > 0 && (
+                      <div style={{ marginTop: '12px', padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '13px' }}>
+                        <span style={{ color: '#dc2626', fontWeight: 'bold' }}>
+                          源泉徴収（インボイス未登録 -10%）: -¥{statement.withholding.toLocaleString()}
+                        </span>
+                        <span style={{ marginLeft: '16px', color: '#c2410c', fontWeight: 'bold' }}>
+                          支払総額: ¥{statement.totalReward.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
