@@ -128,9 +128,8 @@ export async function GET(request: Request) {
           const shopName = shopData?.name || '不明';
 
           // 元の報酬率を算出
-          const baseRate = await calculateRewardRate(referrerData, referrerType, plan, referrerId);
-          // インボイス未登録の場合は 10% 引き（源泉徴収）
-          const effectiveRate = hasInvoice ? baseRate : baseRate * 0.9;
+          const effectiveRate = await calculateRewardRate(referrerData, referrerType, plan, referrerId);
+　　　　　　　　　　　　　　　　　　　　const baseRate = hasInvoice ? effectiveRate : effectiveRate / 0.9;
 
           let shopPayment = 0;
           let shopBaseReward = 0;
