@@ -9,7 +9,7 @@
  * 両方完了で agencies.status = 'active'
  */
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase-admin';
+import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
 
@@ -148,34 +148,41 @@ export async function handleAgencyPaymentFailed(
 async function checkAndActivate(
   agencyDoc: FirebaseFirestore.QueryDocumentSnapshot
 ) {
-  const data = agencyDoc.data();
+  // 🔥 更新後の最新データを再取得（これが B-1 の修正）
+  const fresh = await agencyDoc.ref.get();
+  const data = fresh.data();
 
   const initialPaid = data?.initialPayment?.paid === true;
   const monthlyActive = data?.monthlyPayment?.status === 'active';
 
   if (initialPaid && monthlyActive && data?.status !== 'active') {
+    // ============================================================
+    // 1. status を active に更新
+    // ============================================================
     await agencyDoc.ref.update({
       status: 'active',
       activatedAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });
 
-    // 新パスワード生成
-const newPassword = 'Pass-' + Math.random().toString(36).slice(-8) + 'A1!';
-await authAdmin.updateUser(data.uid, { password: newPassword });
+    // ============================================================
+    // 2. パスワードを再生成して Auth に反映
+    //    （申し込み時に作った PW は使わせない）
+    // ============================================================
+    let newPassword = '';
+    if (data?.uid) {
+      try {
+        newPassword = 'Pass-' + Math.random().toString(36).slice(-8) + 'A1!';
+        await authAdmin.updateUser(data.uid, { password: newPassword });
+      } catch (authErr) {
+        console.error('[代理店決済] パスワード再生成失敗:', authErr);
+        newPassword = ''; // メールには載せない
+      }
+    }
 
-await sendEmail({
-  to: data.email,
-  subject: '【Push-taro】代理店アカウントが有効化されました',
-  html: `
-    ...
-    <p><strong>ログインID:</strong> ${data.email}</p>
-    <p><strong>パスワード:</strong> <code>${newPassword}</code></p>
-    ...
-  `,
-});
-    
-    // 完了メール送信
+    // ============================================================
+    // 3. 本登録完了メール送信
+    // ============================================================
     if (data?.email) {
       await sendEmail({
         to: data.email,
@@ -185,11 +192,13 @@ await sendEmail({
           <p>加盟金および月額費用のお支払いが確認されました。</p>
           <p>代理店アカウントが正式に有効化されましたので、ご報告いたします。</p>
           <hr />
-          <p><strong>代理店ログイン:</strong> ${data.email}</p>
+          <p><strong>ログインID（メールアドレス）:</strong> ${data.email}</p>
+          ${newPassword ? `<p><strong>パスワード:</strong> <code style="background:#f1f5f9;padding:4px 12px;border-radius:4px;font-weight:bold;font-size:16px;">${newPassword}</code></p>` : ''}
           <p><strong>紹介コード:</strong> <code>${data.referralCode || '未設定'}</code></p>
+          <hr />
           <p>
             <a href="${process.env.NEXT_PUBLIC_APP_URL}/agency/dashboard" style="display:inline-block;padding:12px 24px;background:#3182ce;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
-              代理店ダッシュボードへ
+              代理店コンソールへログイン
             </a>
           </p>
           <hr />
