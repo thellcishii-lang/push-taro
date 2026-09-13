@@ -1,3 +1,4 @@
+// app/api/admin/pending-payouts/route.ts
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 
@@ -14,6 +15,8 @@ async function verifyAdmin(request: Request) {
   }
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   const uid = await verifyAdmin(request);
   if (!uid) {
@@ -21,44 +24,68 @@ export async function GET(request: Request) {
   }
 
   try {
-    // 未払い報酬があるユーザーを取得（shops + affiliates）
-    const shopsSnap = await db.collection('shops')
+    const pendingUsers: any[] = [];
+
+    // ============================================================
+    // ① 代理店（agencies）
+    // ============================================================
+    const agenciesSnap = await db.collection('agencies')
       .where('unpaidRewardTotal', '>', 0)
       .get();
 
+    agenciesSnap.docs.forEach((doc) => {
+      const data = doc.data();
+      pendingUsers.push({
+        id: doc.id,                       // ← Auth UID
+        collection: 'agencies',           // ← 修正
+        referrerType: 'agency',
+        name: data.companyName || data.ownerName || '未設定',
+        email: data.email || '',
+        type: '代理店',
+        unpaidReward: data.unpaidRewardTotal || 0,
+        payoutStatus: data.payoutStatus || 'none',
+        bankAccount: data.bankAccount || null,
+        lastPaidAt: data.lastPaidAt?.toDate?.()?.toISOString() || null,
+      });
+    });
+
+    // ============================================================
+    // ② PRO（shops で plan='pro'）
+    // ============================================================
+    const proShopsSnap = await db.collection('shops')
+      .where('unpaidRewardTotal', '>', 0)
+      .where('plan', '==', 'pro')
+      .get();
+
+    proShopsSnap.docs.forEach((doc) => {
+      const data = doc.data();
+      pendingUsers.push({
+        id: doc.id,                       // ← shopId
+        collection: 'shops',
+        referrerType: 'pro',
+        name: data.name || '未設定',
+        email: data.email || '',
+        type: 'PRO紹介者',
+        unpaidReward: data.unpaidRewardTotal || 0,
+        payoutStatus: data.payoutStatus || 'none',
+        bankAccount: data.bankAccount || null,
+        lastPaidAt: data.lastPaidAt?.toDate?.()?.toISOString() || null,
+      });
+    });
+
+    // ============================================================
+    // ③ アフィリエイト（affiliates）
+    // ============================================================
     const affiliatesSnap = await db.collection('affiliates')
       .where('unpaidReward', '>', 0)
       .get();
 
-    const pendingUsers: any[] = [];
-
-    // 🔥 店舗・代理店・PRO の場合
-    shopsSnap.docs.forEach((doc) => {
-      const data = doc.data();
-      const isAgency = data.role === 'agency';
-      const isPro = data.plan === 'pro' || data.role === 'pro';
-
-      if (isAgency || isPro) {
-        pendingUsers.push({
-          id: doc.id,
-          collection: 'shops',
-          name: data.name || '未設定',
-          email: data.email || '',
-          type: isAgency ? '代理店' : 'PRO紹介者',
-          unpaidReward: data.unpaidRewardTotal || 0,
-          payoutStatus: data.payoutStatus || 'none',
-          bankAccount: data.bankAccount || null,
-          lastPaidAt: data.lastPaidAt?.toDate?.()?.toISOString() || null,
-        });
-      }
-    });
-
-    // 🔥 アフィリエイトの場合
     affiliatesSnap.docs.forEach((doc) => {
       const data = doc.data();
       pendingUsers.push({
-        id: doc.id,
+        id: doc.id,                       // ← docId
         collection: 'affiliates',
+        referrerType: 'affiliate',
         name: data.name || '未設定',
         email: data.email || '',
         type: 'アフィリエイト',
@@ -69,7 +96,7 @@ export async function GET(request: Request) {
       });
     });
 
-    // 未払い額の降順でソート
+    // 未払い額の降順
     pendingUsers.sort((a, b) => b.unpaidReward - a.unpaidReward);
 
     return NextResponse.json({ success: true, users: pendingUsers });
