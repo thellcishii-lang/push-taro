@@ -312,7 +312,7 @@ export async function GET(request: Request) {
 
 async function sendAgencyPayoutEmail(
   referrerData: any,
-  shopBreakdown: Array<{ shopName: string; plan: string; payment: number; baseReward: number; reward: number }>,
+  shopBreakdown: Array<{ shopId: string; shopName: string; plan: string; rate: number; payment: number; baseReward: number; reward: number }>,
   totalPayment: number,
   totalBaseReward: number,
   totalReward: number,
@@ -325,16 +325,6 @@ async function sendAgencyPayoutEmail(
   const withholding = hasInvoice ? 0 : totalBaseReward - totalReward;
   const netReward = totalReward;
 
-  let breakdownRows = '';
-  for (const s of shopBreakdown) {
-    breakdownRows += '<tr>';
-    breakdownRows += '<td style="padding: 6px; border-bottom: 1px solid #e2e8f0;">' + s.shopName + '</td>';
-    breakdownRows += '<td style="padding: 6px; border-bottom: 1px solid #e2e8f0; text-align: right;">' + s.plan.toUpperCase() + '</td>';
-    breakdownRows += '<td style="padding: 6px; border-bottom: 1px solid #e2e8f0; text-align: right;">' + s.payment.toLocaleString() + '円</td>';
-    breakdownRows += '<td style="padding: 6px; border-bottom: 1px solid #e2e8f0; text-align: right;">' + s.reward.toLocaleString() + '円</td>';
-    breakdownRows += '</tr>';
-  }
-
   const withholdingRowHtml = hasInvoice
     ? ''
     : '<tr><td style="padding: 6px; font-weight: bold; color: #dc2626;">源泉徴収（インボイス未登録 -10%）</td><td style="padding: 6px; color: #dc2626;">-' + withholding.toLocaleString() + '円</td></tr>';
@@ -344,24 +334,6 @@ async function sendAgencyPayoutEmail(
     '<h2>' + (referrerData.companyName || referrerData.ownerName || '代理店') + ' 様</h2>',
     '<p>いつもPush-taroをご利用いただき、ありがとうございます。</p>',
     '<p>今月分の紹介報酬が確定いたしましたので、ご案内申し上げます。</p>',
-    '<hr />',
-    '<h3 style="font-size: 15px;">配下店舗の月合計決済額</h3>',
-    '<table style="font-size: 13px; border-collapse: collapse; width: 100%;">',
-    '<thead><tr style="background: #f8fafc;">',
-    '<th style="padding: 6px; text-align: left; border-bottom: 2px solid #e2e8f0;">店舗名</th>',
-    '<th style="padding: 6px; text-align: right; border-bottom: 2px solid #e2e8f0;">プラン</th>',
-    '<th style="padding: 6px; text-align: right; border-bottom: 2px solid #e2e8f0;">決済額</th>',
-    '<th style="padding: 6px; text-align: right; border-bottom: 2px solid #e2e8f0;">報酬</th>',
-    '</tr></thead>',
-    '<tbody>',
-    breakdownRows,
-    '<tr style="font-weight: bold; background: #f0f9ff;">',
-    '<td style="padding: 8px;" colspan="2">合計</td>',
-    '<td style="padding: 8px; text-align: right;">' + totalPayment.toLocaleString() + '円</td>',
-    '<td style="padding: 8px; text-align: right;">' + totalReward.toLocaleString() + '円</td>',
-    '</tr>',
-    '</tbody>',
-    '</table>',
     '<hr />',
     '<h3 style="font-size: 15px;">お支払い内訳</h3>',
     '<table style="font-size: 14px;">',
@@ -374,7 +346,7 @@ async function sendAgencyPayoutEmail(
     '<tr><td style="padding: 6px; font-weight: bold;">お振込予定</td><td style="padding: 6px;">' + payoutMonthLabel + '末</td></tr>',
     '</table>',
     '<hr />',
-    '<p style="font-size: 13px; color: #64748b;">※ 実際の振込日は前後する場合がございます。<br />※ 詳細な明細は、代理店コンソールよりご確認いただけます。</p>',
+    '<p style="font-size: 13px; color: #64748b;">※ 詳細な明細（配下店舗の内訳）は、代理店コンソールよりご確認いただけます。<br />※ 実際の振込日は前後する場合がございます。</p>',
     '<p><a href="' + process.env.NEXT_PUBLIC_APP_URL + '/agency/dashboard" style="display:inline-block; padding:12px 24px; background:#3182ce; color:#fff; border-radius:6px; text-decoration:none; font-weight:bold;">代理店コンソールで確認する</a></p>',
     '<hr />',
     '<p><strong>Push-taro.com</strong></p>',
