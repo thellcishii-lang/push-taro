@@ -111,8 +111,11 @@ export async function handleNewSignup(
     `,
   });
 
-  // ============================================================
-  // 4. 紹介報酬の初回計算
+   // ============================================================
+  // 4. 紹介報酬の初回計算（月末バッチへ委譲）
+  //    - referral_relations を active に
+  //    - payment_history に記録（rewardProcessed: false）
+  //    - 代理店へ通知メール（金額は参考値）
   // ============================================================
   const referrerId = pendingShopData.referrerId;
   const referrerType = pendingShopData.referrerType || null;
@@ -124,74 +127,122 @@ export async function handleNewSignup(
 
       if (referrerDoc.exists) {
         const referrerData = referrerDoc.data()!;
-        const effectiveRate = await calculateRewardRate(referrerData, referrerType, plan, referrerId);
 
-        if (effectiveRate > 0) {
-          const planAmount = PLAN_PRICES[plan] || 1980;
-          const rewardAmount = Math.floor(planAmount * effectiveRate);
+        // 1) referral_relations を active に（月末バッチの起点）
+        const relSnap = await db.collection('referral_relations')
+          .where('referredTenantId', '==', shopId)
+          .limit(1)
+          .get();
 
-          if (rewardAmount > 0) {
-            const unpaidField = getUnpaidField(referrerType);
-            const currentUnpaid = (referrerData?.[unpaidField] || 0) + rewardAmount;
-            const threshold = getPayoutThreshold(referrerType);
+        if (!relSnap.empty) {
+          await relSnap.docs[0].ref.update({
+            status: 'active',
+            updatedAt: FieldValue.serverTimestamp(),
+          });
+        } else {
+          const effectiveRate = await calculateRewardRate(referrerData, referrerType, plan, referrerId);
+          await db.collection('referral_relations').add({
+            referrerId: referrerId,
+            referredTenantId: shopId,
+            rewardRate: effectiveRate,
+            referrerType: referrerType,
+            status: 'active',
+            createdAt: FieldValue.serverTimestamp(),
+          });
+        }
 
-            if (currentUnpaid >= threshold) {
-              await referrerDoc.ref.update({
-                [unpaidField]: currentUnpaid,
-                ...(referrerType === 'affiliate' && {
-                  totalEarnings: (referrerData?.totalEarnings || 0) + rewardAmount,
-                }),
-                payoutStatus: 'pending',
-                updatedAt: FieldValue.serverTimestamp(),
-              });
-              await sendAdminPayoutNotification(referrerData, referrerId, currentUnpaid, referrerType);
-            } else {
-              await referrerDoc.ref.update({
-                [unpaidField]: currentUnpaid,
-                ...(referrerType === 'affiliate' && {
-                  totalEarnings: (referrerData?.totalEarnings || 0) + rewardAmount,
-                }),
-                updatedAt: FieldValue.serverTimestamp(),
-              });
-            }
+        // 2) payment_history に記録（月末バッチが拾って報酬化）
+        const now = new Date();
+        const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+        const planAmount = PLAN_PRICES[plan] || 1980;
 
-            const currentMonth = new Date().toISOString().slice(0, 7);
+        await db.collection('shops').doc(shopId).collection('payment_history').add({
+          billingMonth: currentMonth,
+          periodStart,
+          periodEnd,
+          amount: planAmount,
+          result: 'success',
+          failureAttempt: null,
+          attemptedAt: FieldValue.serverTimestamp(),
+          paymentId,
+          rewardProcessed: false,
+          createdAt: FieldValue.serverTimestamp(),
+        });
 
-            // referral_relations を active に
-            const relSnap = await db.collection('referral_relations')
-              .where('referredTenantId', '==', shopId)
-              .limit(1)
-              .get();
+        // 3) 代理店への通知メール（金額は参考値）
+        if (referrerType === 'agency' && referrerData.email) {
+          const effectiveRate = await calculateRewardRate(referrerData, referrerType, plan, referrerId);
+          const hasInvoice = !!(
+            referrerData?.invoiceNumber &&
+            String(referrerData.invoiceNumber).trim() !== ''
+          );
+          const baseRate = hasInvoice ? effectiveRate : effectiveRate / 0.9;
+          const baseReward = Math.floor(planAmount * baseRate);
+          const withholding = hasInvoice ? 0 : Math.floor(baseReward * 0.1);
+          const netReward = baseReward - withholding;
 
-            if (!relSnap.empty) {
-              await relSnap.docs[0].ref.update({
-                status: 'active',
-                rewardRate: effectiveRate,
-                referrerType: referrerType,
-                updatedAt: FieldValue.serverTimestamp(),
-              });
-            } else {
-              await db.collection('referral_relations').add({
-                referrerId: referrerId,
-                referredTenantId: shopId,
-                rewardRate: effectiveRate,
-                referrerType: referrerType,
-                status: 'active',
-                createdAt: FieldValue.serverTimestamp(),
-              });
-            }
+          await sendEmail({
+            to: referrerData.email,
+            subject: `【Push-taro】御社の紹介コードで新規店舗申し込みが完了しました`,
+            html: `
+              <h2>${referrerData.companyName || referrerData.ownerName || '代理店'} 様</h2>
+              <p>御社の紹介コード（${referrerData.referralCode || '---'}）を経由して、</p>
+              <p>新規店舗の申し込みおよび決済が完了いたしました。</p>
+              <hr />
+              <table style="font-size: 14px;">
+                <tr>
+                  <td style="padding: 6px; font-weight: bold;">店舗名</td>
+                  <td style="padding: 6px;">${pendingShopData.name || '未設定'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px; font-weight: bold;">プラン</td>
+                  <td style="padding: 6px;">${plan.toUpperCase()}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px; font-weight: bold;">報酬率</td>
+                  <td style="padding: 6px;">${(baseRate * 100).toFixed(1)}%</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px; font-weight: bold;">今回の紹介報酬（参考値）</td>
+                  <td style="padding: 6px;">¥${baseReward.toLocaleString()}</td>
+                </tr>
+                ${!hasInvoice ? `
+                <tr>
+                  <td style="padding: 6px; font-weight: bold; color: #dc2626;">源泉徴収（インボイス未登録 -10%）</td>
+                  <td style="padding: 6px; color: #dc2626;">-¥${withholding.toLocaleString()}</td>
+                </tr>
+                ` : ''}
+                <tr style="border-top: 1px solid #e2e8f0;">
+                  <td style="padding: 6px; font-weight: bold;">お支払い予定額</td>
+                  <td style="padding: 6px; color: #ff4500; font-weight: bold; font-size: 16px;">¥${netReward.toLocaleString()}</td>
+                </tr>
+              </table>
+              <hr />
+              <p style="font-size: 13px; color: #64748b;">
+                ※ 上記金額は参考値です。正式な確定額は月末締め後にご案内いたします。<br />
+                ※ 詳細な明細は、代理店コンソールよりご確認いただけます。
+              </p>
+              <p>
+                <a href="${process.env.NEXT_PUBLIC_APP_URL}/agency/dashboard" style="display:inline-block;padding:12px 24px;background:#3182ce;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
+                  代理店コンソールで確認する
+                </a>
+              </p>
+              <hr />
+              <p><strong>Push-taro.com</strong></p>
+              <p>運営会社：the合同会社</p>
+              <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
+            `,
+          });
+        }
 
-            // monthly_rewards に記録
-            await db.collection('monthly_rewards').add({
-              userId: referrerId,
-              sourceTenantId: shopId,
-              amount: rewardAmount,
-              billingMonth: currentMonth,
-              status: 'unpaid',
-              referrerType: referrerType,
-              createdAt: FieldValue.serverTimestamp(),
-            });
-
+        console.log(`[新規登録] ✅ 紹介関係を active に、payment_history に記録: ${referrerType}/${referrerId}`);
+      }
+    } catch (refError) {
+      console.error('[新規登録] 紹介報酬処理エラー:', refError);
+    }
+  }
             // ============================================================
             // 5. 代理店への「新規店舗申し込み完了」通知メール
             // ============================================================
