@@ -673,6 +673,300 @@ function PendingPayoutsTab() {
 // ============================================================
 // 代理店一覧タブ
 // ============================================================
+
+// ============================================================
+// 代理店支払い履歴タブ
+// ============================================================
+function AgencyStatementsTab() {
+  const [loading, setLoading] = useState(true);
+  const [agencies, setAgencies] = useState<any[]>([]);
+  const [selectedAgencyId, setSelectedAgencyId] = useState('');
+  const [statements, setStatements] = useState<any[]>([]);
+  const [statementsLoading, setStatementsLoading] = useState(false);
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // 代理店一覧取得
+  useEffect(() => {
+    const fetchAgencies = async () => {
+      try {
+        const res = await fetch('/api/system-admin/stats');
+        if (res.ok) {
+          const data = await res.json();
+          setAgencies(data.agencies || []);
+        }
+      } catch (err) {
+        console.error('代理店一覧取得エラー:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAgencies();
+  }, []);
+
+  // 選択した代理店の明細取得
+  useEffect(() => {
+    if (!selectedAgencyId) {
+      setStatements([]);
+      return;
+    }
+
+    const fetchStatements = async () => {
+      setStatementsLoading(true);
+      try {
+        const user = auth.currentUser;
+        if (!user) return;
+        const idToken = await user.getIdToken();
+        const res = await fetch(`/api/agency/statements?agencyId=${selectedAgencyId}`, {
+          headers: { Authorization: `Bearer ${idToken}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setStatements(data.statements || []);
+        }
+      } catch (err) {
+        console.error('明細取得エラー:', err);
+      } finally {
+        setStatementsLoading(false);
+      }
+    };
+    fetchStatements();
+  }, [selectedAgencyId]);
+
+  const filterStatements = (list: any[]) => {
+    return list.filter((s) => {
+      if (from && s.scheduledPayoutMonth < from) return false;
+      if (to && s.scheduledPayoutMonth > to) return false;
+      return true;
+    });
+  };
+
+  const handleDownloadSummaryCsv = () => {
+    const filtered = filterStatements(statements);
+    if (filtered.length === 0) {
+      alert('対象データがありません');
+      return;
+    }
+    const agency = agencies.find((a) => a.id === selectedAgencyId);
+    let csv = `\uFEFF代理店,${agency?.companyName || ''}\n\n`;
+    csv += '支払い予定月,紹介報酬(税込),源泉徴収,支払総額,ステータス\n';
+    filtered.forEach((s) => {
+      csv += `${s.scheduledPayoutMonth},${s.totalBaseReward},${s.withholding},${s.totalReward},${s.status === 'paid' ? '振込済' : '未払い'}\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `agency_${selectedAgencyId}_sales.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadDetailCsv = (statement: any) => {
+    let csv = `\uFEFF支払い予定月,${statement.scheduledPayoutMonth}\n`;
+    csv += `紹介報酬(税込),${statement.totalBaseReward}\n`;
+    csv += `源泉徴収,${statement.withholding}\n`;
+    csv += `支払総額,${statement.totalReward}\n\n`;
+    csv += '店舗名,プラン,報酬率,決済額,基本報酬,報酬額\n';
+    (statement.shops || []).forEach((s: any) => {
+      csv += `"${s.shopName}",${s.plan.toUpperCase()},${(s.rate * 100).toFixed(0)}%,${s.payment},${s.baseReward},${s.reward}\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `statement_${selectedAgencyId}_${statement.scheduledPayoutMonth}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>読み込み中...</div>;
+
+  const filtered = filterStatements(statements);
+
+  return (
+    <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+      <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 16px 0' }}>代理店 支払い履歴</h2>
+
+      {/* 代理店選択 */}
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#475569', marginBottom: '6px' }}>代理店を選択</label>
+        <select
+          value={selectedAgencyId}
+          onChange={(e) => { setSelectedAgencyId(e.target.value); setExpandedId(null); }}
+          style={{ width: '100%', maxWidth: '400px', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e0', fontSize: '14px', background: '#fff' }}
+        >
+          <option value="">-- 選択してください --</option>
+          {agencies.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.companyName || a.ownerName || '未設定'} ({a.email})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {!selectedAgencyId && (
+        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0', fontSize: '14px' }}>代理店を選択してください</p>
+      )}
+
+      {selectedAgencyId && statementsLoading && (
+        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>読み込み中...</p>
+      )}
+
+      {selectedAgencyId && !statementsLoading && (
+        <>
+          {/* サマリー一覧 */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+            <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800' }}>月別サマリー</h3>
+            <button
+              onClick={handleDownloadSummaryCsv}
+              style={{ padding: '6px 14px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}
+            >
+              CSVダウンロード
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#475569' }}>期間:</span>
+            <input type="month" value={from} onChange={(e) => setFrom(e.target.value)} style={{ padding: '5px 10px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '12px' }} />
+            <span style={{ fontSize: '12px', color: '#94a3b8' }}>〜</span>
+            <input type="month" value={to} onChange={(e) => setTo(e.target.value)} style={{ padding: '5px 10px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '12px' }} />
+            {(from || to) && (
+              <button onClick={() => { setFrom(''); setTo(''); }} style={{ padding: '5px 12px', background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e0', borderRadius: '6px', cursor: 'pointer', fontSize: '11px' }}>クリア</button>
+            )}
+          </div>
+
+          {filtered.length === 0 ? (
+            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0', fontSize: '13px' }}>明細がありません</p>
+          ) : (
+            <div style={{ overflowX: 'auto', marginBottom: '24px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                    <th style={{ padding: '10px', textAlign: 'left' }}>支払い予定月</th>
+                    <th style={{ padding: '10px', textAlign: 'right' }}>紹介報酬（税込）</th>
+                    <th style={{ padding: '10px', textAlign: 'right' }}>源泉徴収</th>
+                    <th style={{ padding: '10px', textAlign: 'right' }}>支払総額</th>
+                    <th style={{ padding: '10px', textAlign: 'center' }}>ステータス</th>
+                    <th style={{ padding: '10px', textAlign: 'center' }}>詳細</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((s) => (
+                    <tr key={s.id} style={{ borderBottom: '1px solid #edf2f7' }}>
+                      <td style={{ padding: '10px', fontFamily: 'monospace', fontWeight: 'bold' }}>{s.scheduledPayoutMonth}</td>
+                      <td style={{ padding: '10px', textAlign: 'right' }}>¥{s.totalBaseReward.toLocaleString()}</td>
+                      <td style={{ padding: '10px', textAlign: 'right', color: s.withholding > 0 ? '#dc2626' : '#94a3b8' }}>
+                        {s.withholding > 0 ? `-¥${s.withholding.toLocaleString()}` : '—'}
+                      </td>
+                      <td style={{ padding: '10px', textAlign: 'right', fontWeight: 'bold', color: '#c2410c' }}>¥{s.totalReward.toLocaleString()}</td>
+                      <td style={{ padding: '10px', textAlign: 'center' }}>
+                        <span style={{
+                          padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold',
+                          background: s.status === 'paid' ? '#c6f6d5' : '#fef3c7',
+                          color: s.status === 'paid' ? '#22543d' : '#92400e',
+                        }}>
+                          {s.status === 'paid' ? '振込済' : '未払い'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '10px', textAlign: 'center' }}>
+                        <button
+                          onClick={() => setExpandedId(expandedId === s.id ? null : s.id)}
+                          style={{ padding: '4px 12px', background: expandedId === s.id ? '#8b5cf6' : '#e2e8f0', color: expandedId === s.id ? '#fff' : '#475569', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}
+                        >
+                          {expandedId === s.id ? '閉じる' : '開く'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* 展開された月の明細 */}
+          {expandedId && (() => {
+            const st = filtered.find((s) => s.id === expandedId);
+            if (!st) return null;
+            return (
+              <div style={{ border: '2px solid #8b5cf6', borderRadius: '10px', padding: '16px', background: '#faf5ff' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+                  <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#6b21a8' }}>
+                    {st.scheduledPayoutMonth} 支払い分 の内訳
+                  </h4>
+                  <button
+                    onClick={() => handleDownloadDetailCsv(st)}
+                    style={{ padding: '6px 14px', background: '#8b5cf6', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}
+                  >
+                    CSVダウンロード
+                  </button>
+                </div>
+
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', background: '#fff', borderRadius: '8px', overflow: 'hidden' }}>
+                    <thead>
+                      <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #e2e8f0' }}>
+                        <th style={{ padding: '8px 10px', textAlign: 'left' }}>店舗名</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'center' }}>プラン</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'center' }}>報酬率</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'right' }}>決済額</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'right' }}>基本報酬</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'right' }}>報酬額</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(st.shops || []).map((s: any, idx: number) => (
+                        <tr key={idx} style={{ borderBottom: '1px solid #edf2f7' }}>
+                          <td style={{ padding: '8px 10px', fontWeight: 'bold' }}>{s.shopName}</td>
+                          <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                            <span style={{
+                              padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold',
+                              background: s.plan === 'pro' ? '#fef3c7' : s.plan === 'standard' ? '#dbeafe' : '#f1f5f9',
+                              color: s.plan === 'pro' ? '#b45309' : s.plan === 'standard' ? '#1d4ed8' : '#475569',
+                            }}>
+                              {s.plan.toUpperCase()}
+                            </span>
+                          </td>
+                          <td style={{ padding: '8px 10px', textAlign: 'center', color: '#16a34a', fontWeight: 'bold' }}>
+                            {(s.rate * 100).toFixed(0)}%
+                          </td>
+                          <td style={{ padding: '8px 10px', textAlign: 'right' }}>¥{s.payment.toLocaleString()}</td>
+                          <td style={{ padding: '8px 10px', textAlign: 'right' }}>¥{s.baseReward.toLocaleString()}</td>
+                          <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 'bold', color: '#c2410c' }}>¥{s.reward.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                      <tr style={{ background: '#f0f9ff', fontWeight: 'bold', borderTop: '2px solid #8b5cf6' }}>
+                        <td style={{ padding: '10px' }} colSpan={3}>合計</td>
+                        <td style={{ padding: '10px', textAlign: 'right' }}>¥{st.totalPayment.toLocaleString()}</td>
+                        <td style={{ padding: '10px', textAlign: 'right' }}>¥{st.totalBaseReward.toLocaleString()}</td>
+                        <td style={{ padding: '10px', textAlign: 'right', color: '#c2410c' }}>¥{st.totalReward.toLocaleString()}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                {st.withholding > 0 && (
+                  <div style={{ marginTop: '12px', padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '13px' }}>
+                    <span style={{ color: '#dc2626', fontWeight: 'bold' }}>
+                      源泉徴収（インボイス未登録 -10%）: -¥{st.withholding.toLocaleString()}
+                    </span>
+                    <span style={{ marginLeft: '16px', color: '#c2410c', fontWeight: 'bold' }}>
+                      支払総額: ¥{st.totalReward.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </>
+      )}
+    </div>
+  );
+}
+
+
+
 function AgenciesTab() {
   const [loading, setLoading] = useState(true);
   const [agencies, setAgencies] = useState<any[]>([]);
@@ -1127,7 +1421,7 @@ export default function SystemAdminPage() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   const [loading, setLoading] = useState(true);
- const [activeTab, setActiveTab] = useState<'all' | 'pro' | 'agencies' | 'affiliates' | 'pending-payouts' | 'payment-failures' | 'agency-monthly'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'pro' | 'agencies' | 'affiliates' | 'pending-payouts' | 'payment-failures' | 'agency-monthly' | 'agency-statements'>('all');
   const [filterType, setFilterType] = useState<'all' | 'direct' | 'referral' | 'agency'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [errorCount, setErrorCount] = useState(0);
@@ -1421,9 +1715,10 @@ export default function SystemAdminPage() {
           <button onClick={() => setActiveTab('pending-payouts')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'pending-payouts' ? '3px solid #f59e0b' : 'none', fontWeight: 'bold', color: activeTab === 'pending-payouts' ? '#f59e0b' : '#718096', cursor: 'pointer' }}>💰 報酬振込管理</button>
           <button onClick={() => setActiveTab('payment-failures')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'payment-failures' ? '3px solid #ef4444' : 'none', fontWeight: 'bold', color: activeTab === 'payment-failures' ? '#ef4444' : '#718096', cursor: 'pointer' }}>⚠️ 決済不履行一覧</button>
           <button onClick={() => setActiveTab('agency-monthly')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'agency-monthly' ? '3px solid #f97316' : 'none', fontWeight: 'bold', color: activeTab === 'agency-monthly' ? '#f97316' : '#718096', cursor: 'pointer' }}>💳 代理店月額決済</button>
+          <button onClick={() => setActiveTab('agency-statements')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'agency-statements' ? '3px solid #8b5cf6' : 'none', fontWeight: 'bold', color: activeTab === 'agency-statements' ? '#8b5cf6' : '#718096', cursor: 'pointer' }}>📊 代理店支払い履歴</button>
         </div>
 
-        {activeTab !== 'agencies' && activeTab !== 'payment-failures' && activeTab !== 'affiliates' && activeTab !== 'pending-payouts' && (
+        {activeTab !== 'agencies' && activeTab !== 'payment-failures' && activeTab !== 'affiliates' && activeTab !== 'pending-payouts' && activeTab !== 'agency-monthly' && activeTab !== 'agency-statements' && (
           <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -1510,6 +1805,7 @@ export default function SystemAdminPage() {
         {activeTab === 'affiliates' && <AffiliatesTab />}
         {activeTab === 'pending-payouts' && <PendingPayoutsTab />}
         {activeTab === 'payment-failures' && <PaymentFailuresTab />}
+        {activeTab === 'agency-statements' && <AgencyStatementsTab />}
       </main>
     </div>
   );
