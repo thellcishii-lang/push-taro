@@ -56,17 +56,7 @@ export async function POST(request: Request) {
     }
 
     // メールアドレス重複チェック（Auth）
-    try {
-      await authAdmin.getUserByEmail(email);
-      return NextResponse.json(
-        { error: 'このメールアドレスは既に登録されています' },
-        { status: 409 }
-      );
-    } catch (e: any) {
-      if (e.code !== 'auth/user-not-found') {
-        throw e;
-      }
-    }
+    
 
     // メールアドレス重複チェック（agencies）
     const existing = await db.collection('agencies').where('email', '==', email).get();
