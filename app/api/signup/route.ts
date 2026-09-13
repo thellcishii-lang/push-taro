@@ -42,20 +42,7 @@ export async function POST(request: Request) {
     // ============================================================
 
     // 🔥 2-1. Firebase Auth の重複チェック
-    try {
-      await authAdmin.getUserByEmail(normalizedEmail);
-      // ユーザーが見つかった → 既に登録済み
-      return NextResponse.json({
-        error: 'このメールアドレスはすでに登録されています。',
-        status: 'already_registered',
-      }, { status: 409 });
-    } catch (authErr: any) {
-      if (authErr.code !== 'auth/user-not-found') {
-        // 予期しないエラー
-        throw authErr;
-      }
-      // ユーザーが存在しない → 続行
-    }
+    
 
     // 🔥 2-2. Firestore (shops) の重複チェック（既存）
     const existingShops = await db.collection('shops')
