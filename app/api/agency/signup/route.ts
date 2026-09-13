@@ -138,15 +138,10 @@ try {
       html: `
         <h2>${ownerName} 様</h2>
         <p>この度はPush-taro代理店プログラムへのお申し込み、誠にありがとうございます。</p>
-        <p>以下の情報で管理画面にログインいただけます。</p>
-        <hr />
-        <p><strong>ログインID（メールアドレス）:</strong> ${email}</p>
-        <p><strong>パスワード:</strong> <code style="background:#f1f5f9;padding:4px 12px;border-radius:4px;font-weight:bold;font-size:16px;">${generatedPassword}</code></p>
-        <p><strong>ご自身の紹介コード:</strong> <code style="background:#f1f5f9;padding:4px 12px;border-radius:4px;font-weight:bold;">${referralCode}</code></p>
-        <hr />
-        <p>審査完了後、決済手続き用のご案内メールをお送りいたします。</p>
-        <p>初回ログイン後、パスワードの変更をお勧めします。</p>
-        <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/agency/dashboard" style="display:inline-block;padding:12px 24px;background:#3182ce;color:#fff;border-radius:6px;text-decoration:none;">代理店ダッシュボードへ</a></p>
+        
+        <p>審査完了後、ご案内メールをお送りいたします。</p>
+        <p>審査完了まで今暫くお待ちくださいますようお願い申し上げます。</p>
+        
         <hr />
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
