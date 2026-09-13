@@ -160,6 +160,21 @@ async function checkAndActivate(
       updatedAt: FieldValue.serverTimestamp(),
     });
 
+    // 新パスワード生成
+const newPassword = 'Pass-' + Math.random().toString(36).slice(-8) + 'A1!';
+await authAdmin.updateUser(data.uid, { password: newPassword });
+
+await sendEmail({
+  to: data.email,
+  subject: '【Push-taro】代理店アカウントが有効化されました',
+  html: `
+    ...
+    <p><strong>ログインID:</strong> ${data.email}</p>
+    <p><strong>パスワード:</strong> <code>${newPassword}</code></p>
+    ...
+  `,
+});
+    
     // 完了メール送信
     if (data?.email) {
       await sendEmail({
@@ -180,6 +195,7 @@ async function checkAndActivate(
           <hr />
           <p><strong>Push-taro.com</strong></p>
           <p>運営会社：the合同会社</p>
+          <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
           <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
         `,
       });
