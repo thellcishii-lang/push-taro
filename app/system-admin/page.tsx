@@ -678,6 +678,9 @@ function AgenciesTab() {
   const [agencies, setAgencies] = useState<any[]>([]);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedAgency, setSelectedAgency] = useState<any>(null);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending_approval' | 'approved_pending_payment' | 'active' | 'rejected'>('all');
+  const [editingReason, setEditingReason] = useState(false);
+  const [reasonDraft, setReasonDraft] = useState('');
 
   const fetchAgencies = async () => {
     try {
@@ -764,6 +767,37 @@ function AgenciesTab() {
     }
   };
 
+    const handleSaveReason = async () => {
+    if (!selectedAgency) return;
+    const user = auth.currentUser;
+    if (!user) return;
+    const idToken = await user.getIdToken();
+
+    const res = await fetch('/api/agency/update-reject-reason', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({ agencyId: selectedAgency.id, reason: reasonDraft }),
+    });
+
+    if (res.ok) {
+      await fetchAgencies();
+      setSelectedAgency({ ...selectedAgency, rejectReason: reasonDraft });
+      setEditingReason(false);
+      alert('却下理由を保存しました');
+    } else {
+      const data = await res.json();
+      alert('保存失敗: ' + data.error);
+    }
+  };
+
+  const filteredAgencies = statusFilter === 'all'
+    ? agencies
+    : agencies.filter((a) => a.status === statusFilter);
+
+  
   const getStatusBadge = (status: string) => {
     const map: Record<string, { label: string; bg: string; color: string }> = {
       pending_approval:         { label: '審査中',    bg: '#fef3c7', color: '#92400e' },
@@ -794,6 +828,33 @@ function AgenciesTab() {
         <span style={{ fontSize: '13px', color: '#64748b' }}>全 {agencies.length} 件</span>
       </div>
 
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+        {([
+          ['all', 'すべて'],
+          ['pending_approval', '審査中'],
+          ['approved_pending_payment', '決済待ち'],
+          ['active', '稼働中'],
+          ['rejected', '認証不可'],
+        ] as const).map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => setStatusFilter(key)}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '20px',
+              border: statusFilter === key ? '2px solid #3182ce' : '1px solid #cbd5e0',
+              background: statusFilter === key ? '#ebf8ff' : '#fff',
+              fontWeight: statusFilter === key ? 'bold' : 'normal',
+              color: statusFilter === key ? '#1d4ed8' : '#475569',
+              cursor: 'pointer',
+              fontSize: '13px',
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       {agencies.length === 0 ? (
         <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>代理店はまだありません</p>
       ) : (
@@ -810,7 +871,7 @@ function AgenciesTab() {
               </tr>
             </thead>
             <tbody>
-              {agencies.map((agency) => {
+              {filteredAgencies.map((agency) => {
                 const isPending = agency.status === 'pending_approval';
                 const isLoading = actionLoading === agency.id;
 
@@ -896,9 +957,46 @@ function AgenciesTab() {
               {selectedAgency.approvedAt && (
                 <div><strong>承認日時</strong><br />{new Date(selectedAgency.approvedAt).toLocaleString('ja-JP')}</div>
               )}
-              {selectedAgency.rejectReason && (
-                <div><strong>却下理由</strong><br />{selectedAgency.rejectReason}</div>
-              )}
+                            <div>
+                <strong>却下理由</strong>
+                {editingReason ? (
+                  <div style={{ marginTop: '6px' }}>
+                    <textarea
+                      value={reasonDraft}
+                      onChange={(e) => setReasonDraft(e.target.value)}
+                      rows={3}
+                      style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '13px', boxSizing: 'border-box' }}
+                    />
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                      <button
+                        onClick={handleSaveReason}
+                        style={{ padding: '6px 14px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                      >
+                        保存
+                      </button>
+                      <button
+                        onClick={() => setEditingReason(false)}
+                        style={{ padding: '6px 14px', background: '#e2e8f0', color: '#475569', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                      >
+                        キャンセル
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ marginTop: '2px' }}>
+                    {selectedAgency.rejectReason || '（理由未記入）'}
+                    <button
+                      onClick={() => {
+                        setReasonDraft(selectedAgency.rejectReason || '');
+                        setEditingReason(true);
+                      }}
+                      style={{ marginLeft: '8px', padding: '3px 10px', background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}
+                    >
+                      編集
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
