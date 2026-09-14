@@ -206,7 +206,7 @@ export async function GET(request: Request) {
             totalPayment += shopPayment;
             totalBaseReward += shopBaseReward;
             totalReward += shopReward;
-            shopBreakdown.push({ shopId: referredTenantId, shopName, plan, rate: effectiveRate, payment: shopPayment, baseReward: shopBaseReward, reward: shopReward });
+            shopBreakdown.push({ shopId: referredTenantId, shopName, plan, rate: baseRate, payment: shopPayment, baseReward: shopBaseReward, reward: shopReward });
           }
         }
 
