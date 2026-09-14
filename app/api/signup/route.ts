@@ -3,6 +3,11 @@ import { db, authAdmin } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../lib/mailer';
 import { notifyAdmins } from '@/lib/error-notifier';
+import {
+  AGENCY_RATE_OTHER,
+  PRO_REFERRAL_RATE,
+  AFFILIATE_RECURRING_RATE,
+} from '@/lib/constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -138,8 +143,7 @@ export async function POST(request: Request) {
     }
 
     // ストック型は 5%、単発型は rate 0（固定額なので使わない）
-    rewardRate = affiliateRewardType === 'recurring' ? 0.05 : 0;
-
+    rewardRate = affiliateRewardType === 'recurring' ? AFFILIATE_RECURRING_RATE : 0;
     // 後続で referral_relations に保存するために保持
     affiliateRewardTypeForRelation = affiliateRewardType;
   }
@@ -159,13 +163,8 @@ export async function POST(request: Request) {
           referrerType = 'agency';
           referrerEmail = data.email;
           referrerName = data.companyName || data.ownerName || '代理店';
-          // 代理店の報酬率はプランによって後で計算（ここでは仮）
-          rewardRate = (plan === 'pro') ? 0.30 : 0.18;
-          // インボイス番号がない場合は10%差引
-          const hasInvoice = !!(data.invoiceNumber && data.invoiceNumber.trim() !== '');
-          if (!hasInvoice) {
-            rewardRate = rewardRate * 0.9;
-          }
+          // 源泉前の率を保存（源泉徴収は月末バッチで適用）
+          rewardRate = (plan === 'pro') ? 0.30 : AGENCY_RATE_OTHER;
         }
       } else {
         // それ以外（shops コレクション）- PROユーザー or 一般店舗
@@ -184,18 +183,10 @@ export async function POST(request: Request) {
           // role で判定（agency はこの時点では shops に残っている可能性もあるが、AGENCY- プレフィックスで先に処理済み）
           if (data.role === 'agency') {
             referrerType = 'agency';
-            rewardRate = (plan === 'pro') ? 0.30 : 0.18;
-            const hasInvoice = !!(data.invoiceNumber && data.invoiceNumber.trim() !== '');
-            if (!hasInvoice) {
-              rewardRate = rewardRate * 0.9;
-            }
+            rewardRate = (plan === 'pro') ? 0.30 : AGENCY_RATE_OTHER;
           } else if (data.role === 'pro' || data.plan === 'pro') {
             referrerType = 'pro';
-            rewardRate = 0.10;
-            const hasInvoice = !!(data.invoiceNumber && data.invoiceNumber.trim() !== '');
-            if (!hasInvoice) {
-              rewardRate = 0.09;
-            }
+            rewardRate = PRO_REFERRAL_RATE;
           } else {
             // 一般店舗は紹介報酬対象外
             referrerType = 'shop';
