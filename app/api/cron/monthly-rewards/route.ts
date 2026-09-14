@@ -109,11 +109,13 @@ export async function GET(request: Request) {
         }
 
         const referrerData = referrerDoc.data()!;
-        const hasInvoice = !!(
-          referrerData?.invoiceNumber &&
-          String(referrerData.invoiceNumber).trim() !== ''
-        );
-
+        const hasInvoice = referrerType === 'affiliate'
+  ? referrerData?.hasInvoice === true
+  : !!(
+      referrerData?.invoiceNumber &&
+      String(referrerData.invoiceNumber).trim() !== ''
+    );
+        
         let totalReward = 0;
         let totalBaseReward = 0;
         let totalPayment = 0;
@@ -391,7 +393,11 @@ async function sendPayoutScheduledEmail(
   amount: number,
   scheduledPayoutMonth: string
 ) {
-  const typeLabel = referrerType === 'affiliate' ? 'アフィリエイト' : 'PRO紹介';
+    const typeLabel = referrerType === 'affiliate' ? 'アフィリエイト' : 'PRO紹介';
+
+  const dashboardPath = referrerType === 'affiliate'
+    ? '/affiliate/dashboard'
+    : '/admin';
 
   const [year, month] = scheduledPayoutMonth.split('-');
   const payoutMonthLabel = `${year}年${parseInt(month, 10)}月`;
@@ -409,10 +415,11 @@ async function sendPayoutScheduledEmail(
     '</table>',
     '<hr />',
     '<p style="font-size: 13px; color: #64748b;">※ 実際の振込日は前後する場合がございます。<br />※ 詳細な明細は、マイページよりご確認いただけます。</p>',
-    '<p><a href="' + process.env.NEXT_PUBLIC_APP_URL + '/admin" style="display:inline-block; padding:12px 24px; background:#ff4500; color:#fff; border-radius:6px; text-decoration:none; font-weight:bold;">マイページを確認する</a></p>',
+    '<p><a href="' + process.env.NEXT_PUBLIC_APP_URL + dashboardPath + '" style="display:inline-block; padding:12px 24px; background:#ff4500; color:#fff; border-radius:6px; text-decoration:none; font-weight:bold;">マイページを確認する</a></p>',
     '<hr />',
     '<p><strong>Push-taro.com</strong></p>',
     '<p>運営会社：the合同会社</p>',
+    '<p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>',
     '<p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>',
     '</div>',
   ].join('');
