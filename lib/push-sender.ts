@@ -1,0 +1,181 @@
+// lib/push-sender.ts
+/**
+ * Push送信の共通コアロジック
+ *
+ * 呼び出し元:
+ *   - app/api/send-push/route.ts        (店舗ダッシュボード)
+ *   - app/api/cron/birthday/route.ts    (誕生日Cron)
+ *   - app/api/cron/dormant/route.ts     (休眠Cron)
+ *   - app/api/cron/scheduled-push/route.ts (予約配信Cron)
+ *
+ * 役割:
+ *   1. subscriptions から対象トークンを取得
+ *   2. 450件ずつ FCM 送信
+ *   3. 失敗トークンを Firestore から削除
+ *   4. histories に送信ログを記録
+ */
+import { messaging, db } from './firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
+
+export interface SendPushOptions {
+  shopId: string;
+  title: string;
+  body: string;
+  url?: string;
+  imageUrl?: string;
+  /** 送信理由（ログ用） 'manual' | 'cron_birthday' | 'cron_dormant' | 'cron_scheduled' */
+  source?: string;
+}
+
+export interface SendPushResult {
+  success: boolean;
+  successCount: number;
+  failureCount: number;
+  totalTokens: number;
+  error?: string;
+}
+
+const CHUNK_SIZE = 450;
+
+export async function sendPushToShop(options: SendPushOptions): Promise<SendPushResult> {
+  const { shopId, title, body, url, imageUrl, source = 'manual' } = options;
+
+  // ─── 1. 店舗情報取得 ───
+  const shopDoc = await db.collection('shops').doc(shopId).get();
+  if (!shopDoc.exists) {
+    return { success: false, successCount: 0, failureCount: 0, totalTokens: 0, error: '店舗が見つかりません' };
+  }
+  const shopData = shopDoc.data()!;
+
+  // ─── 2. トークン取得 ───
+  const tokensSnapshot = await db.collection('subscriptions')
+    .where('shopIds', 'array-contains', shopId)
+    .get();
+
+  const tokens: string[] = [];
+  tokensSnapshot.forEach((doc) => {
+    const data = doc.data();
+    if (data.token) tokens.push(data.token);
+  });
+
+  // 重複除去
+  const uniqueTokens = Array.from(new Set(tokens));
+
+  if (uniqueTokens.length === 0) {
+    return { success: true, successCount: 0, failureCount: 0, totalTokens: 0 };
+  }
+
+  // ─── 3. メッセージ構築 ───
+  const displayTitle = title || shopData.name || 'Push-taro';
+  const displayIcon = shopData.iconUrl || '/icon-192x192.png';
+  const targetUrl = url || `/subscribe?s=${shopId}`;
+
+  const baseMessage = {
+    data: {
+      title: String(displayTitle),
+      body: String(body),
+      icon: String(displayIcon),
+      image: String(imageUrl || ''),
+      url: String(targetUrl),
+      shopId: String(shopId),
+    },
+    apns: {
+      payload: {
+        aps: {
+          alert: { title: displayTitle, body },
+          sound: 'default',
+          badge: 1,
+          'content-available': 1,
+        },
+      },
+      ...(imageUrl ? { fcmOptions: { imageUrl } } : {}),
+    },
+    android: {
+      priority: 'high' as const,
+      notification: {
+        title: displayTitle,
+        body,
+        icon: displayIcon,
+        sound: 'default',
+      },
+    },
+    webpush: {
+      headers: { Urgency: 'high' },
+      notification: {
+        title: displayTitle,
+        body,
+        icon: displayIcon,
+        badge: displayIcon,
+        ...(imageUrl ? { image: imageUrl } : {}),
+      },
+      fcmOptions: { link: targetUrl },
+    },
+  };
+
+  // ─── 4. 450件ずつ送信 ───
+  let totalSuccessCount = 0;
+  let totalFailureCount = 0;
+  const failedTokens: string[] = [];
+
+  for (let i = 0; i < uniqueTokens.length; i += CHUNK_SIZE) {
+    const chunkTokens = uniqueTokens.slice(i, i + CHUNK_SIZE);
+
+    try {
+      const response = await messaging.sendEachForMulticast({
+        ...baseMessage,
+        tokens: chunkTokens,
+      });
+
+      totalSuccessCount += response.successCount;
+      totalFailureCount += response.failureCount;
+
+      response.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+          failedTokens.push(chunkTokens[idx]);
+        }
+      });
+    } catch (chunkErr) {
+      console.error(`[push-sender] チャンク送信エラー (index ${i}):`, chunkErr);
+      totalFailureCount += chunkTokens.length;
+    }
+  }
+
+  // ─── 5. 失敗トークンを Firestore から削除 ───
+  if (failedTokens.length > 0) {
+    const IN_LIMIT = 30;
+    for (let i = 0; i < failedTokens.length; i += IN_LIMIT) {
+      const chunk = failedTokens.slice(i, i + IN_LIMIT);
+      const invalidDocs = await db.collection('subscriptions')
+        .where('token', 'in', chunk)
+        .get();
+
+      if (!invalidDocs.empty) {
+        const batch = db.batch();
+        invalidDocs.forEach((doc) => batch.delete(doc.ref));
+        await batch.commit();
+      }
+    }
+    console.log(`[push-sender] 🧹 ${failedTokens.length} 件の無効トークンを削除`);
+  }
+
+  // ─── 6. histories に送信ログ ───
+  await db.collection('histories').add({
+    shopId,
+    title,
+    body,
+    imageUrl: imageUrl || null,
+    linkUrl: targetUrl,
+    source,                     // ← 送信理由を記録
+    sentAt: FieldValue.serverTimestamp(),
+    status: totalSuccessCount > 0 ? 'success' : 'error',
+    successCount: totalSuccessCount,
+    failureCount: totalFailureCount,
+  });
+
+  return {
+    success: true,
+    successCount: totalSuccessCount,
+    failureCount: totalFailureCount,
+    totalTokens: uniqueTokens.length,
+  };
+}
