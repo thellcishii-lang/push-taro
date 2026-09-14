@@ -40,12 +40,26 @@ export async function GET(request: Request) {
   }
 
   try {
-    const { searchParams } = new URL(request.url);
-    const affiliateId = searchParams.get('affiliateId');
+        const { searchParams } = new URL(request.url);
+    let affiliateId = searchParams.get('affiliateId');
 
+    // affiliateId 未指定 → ログイン中の uid から自動解決
     if (!affiliateId) {
-      return NextResponse.json({ error: 'affiliateId が必要です' }, { status: 400 });
+      const snap = await db.collection('affiliates')
+        .where('uid', '==', uid)
+        .limit(1)
+        .get();
+
+      if (snap.empty) {
+        return NextResponse.json({ error: 'アフィリエイト情報が見つかりません' }, { status: 404 });
+      }
+      affiliateId = snap.docs[0].id;
     }
+
+    // ============================================================
+    // 1. アフィリエイト情報
+    // ============================================================
+    const affDoc = await db.collection('affiliates').doc(affiliateId).get();
 
     // ============================================================
     // 1. アフィリエイト情報
