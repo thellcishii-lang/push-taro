@@ -4,9 +4,47 @@ import { sendEmail } from '@/lib/mailer';
 import { FieldValue } from 'firebase-admin/firestore';
 
 async function sendUserPayoutEmail({ to, amount, bankHolder, typeLabel }: {
-  to: string; amount: number; bankHolder?: string; typeLabel: string;
-}) { /* 既存のまま */ }
-
+  to: string;
+  amount: number;
+  bankHolder?: string;
+  typeLabel: string;
+}) {
+  await sendEmail({
+    to,
+    subject: '【Push-taro】報酬のお振込み完了のお知らせ',
+    html: `
+      <div style="font-family: sans-serif; padding: 20px;">
+        <h2>報酬のお振込みが完了しました</h2>
+        <p>いつもPush-taroをご利用いただき、ありがとうございます。</p>
+        <p>下記の通り、${typeLabel}報酬のお振込みが完了いたしましたのでご報告いたします。</p>
+        <hr />
+        <table style="font-size: 14px;">
+          <tr>
+            <td style="padding: 6px; font-weight: bold;">お振込金額</td>
+            <td style="padding: 6px;">¥${amount.toLocaleString()}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px; font-weight: bold;">お振込先</td>
+            <td style="padding: 6px;">${bankHolder || 'ご登録口座'}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px; font-weight: bold;">お振込日</td>
+            <td style="padding: 6px;">${new Date().toLocaleDateString('ja-JP')}</td>
+          </tr>
+        </table>
+        <hr />
+        <p style="font-size: 13px; color: #64748b;">
+          ご不明な点がございましたら、お気軽にお問い合わせください。
+        </p>
+        <hr />
+        <p><strong>Push-taro.com</strong></p>
+        <p>運営会社：the合同会社</p>
+        <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
+        <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
+      </div>
+    `,
+  });
+}
 const VALID_COLLECTIONS = ['shops', 'agencies', 'affiliates'] as const;
 type Collection = typeof VALID_COLLECTIONS[number];
 
