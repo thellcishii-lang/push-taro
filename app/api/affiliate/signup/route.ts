@@ -87,23 +87,21 @@ export async function POST(request: Request) {
     }
 
     // パスワード自動生成
-    const generatedPassword = generatePassword();
+    const normalizedEmail = email.trim().toLowerCase();
 
-    // Firebase Auth ユーザー作成
-    let userRecord;
-try {
-  userRecord = await authAdmin.createUser({
-    email,
-    password: generatedPassword,
-    emailVerified: true,
-  });
-} catch (e: any) {
-  if (e.code === 'auth/email-already-exists') {
-    userRecord = await authAdmin.getUserByEmail(email);
-    await authAdmin.updateUser(userRecord.uid, { password: generatedPassword });
-  } else {
-    throw e;
-  }
+// ============================================================
+// 2. メールアドレス重複チェック（affiliates のみ）
+// ============================================================
+const existingAffiliate = await db
+  .collection('affiliates')
+  .where('email', '==', normalizedEmail)
+  .get();
+
+if (!existingAffiliate.empty) {
+  return NextResponse.json(
+    { error: 'このメールアドレスは既にアフィリエイト登録されています' },
+    { status: 409 }
+  );
 }
     // 紹介コード生成（重複防止）
     let referralCode = generateReferralCode();
