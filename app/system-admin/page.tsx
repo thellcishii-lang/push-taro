@@ -542,7 +542,7 @@ function PendingPayoutsTab() {
     fetchPendingPayouts();
   }, []);
 
-    cconst handlePayoutComplete = async (
+    const handlePayoutComplete = async (
     userId: string,
     amount: number,
     userName: string,
