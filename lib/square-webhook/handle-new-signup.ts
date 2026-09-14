@@ -36,55 +36,25 @@ export async function handleNewSignup(
   const normalizedEmail = customerEmail.trim().toLowerCase();
 
   // ============================================================
-  // 1. Auth ユーザー作成
-  //    - 3役割どれかで既に使われているメールなら弾く
-  //    - パスワード上書きは一切しない
-  // ============================================================
-  let existingAuthUser: any = null;
-  try {
-    existingAuthUser = await authAdmin.getUserByEmail(normalizedEmail);
-  } catch (e: any) {
-    if (e.code !== 'auth/user-not-found') throw e;
-  }
+// 1. Auth ユーザー作成
+// ============================================================
+const generatedPassword = 'Pass-' + Math.random().toString(36).slice(-8) + 'A1!';
 
-  if (existingAuthUser) {
-    const [shopSnap, agencySnap, affSnap] = await Promise.all([
-      db.collection('shops').where('email', '==', normalizedEmail).limit(1).get(),
-      db.collection('agencies').where('email', '==', normalizedEmail).limit(1).get(),
-      db.collection('affiliates').where('email', '==', normalizedEmail).limit(1).get(),
-    ]);
-
-    // 自分自身（pending 中の shop）以外で使われていたら弾く
-    const conflictShop = shopSnap.docs.find((d) => d.id !== shopId);
-    if (conflictShop || !agencySnap.empty || !affSnap.empty) {
-      console.error(
-        `[新規登録] メール重複: ${normalizedEmail} は既に別役割で使用されています`
-      );
-      return NextResponse.json(
-        { error: 'このメールアドレスは既に別の役割で登録されています' },
-        { status: 409 }
-      );
-    }
-
-    // 同じ shop の pending が Auth だけ先に作られていたケース
-    // → パスワードは上書きしない。そのまま使う。
-    console.warn(
-      `[新規登録] Auth 既存ユーザー（自 shop の pending）: ${existingAuthUser.uid}`
-    );
-  }
-
-  const generatedPassword = 'Pass-' + Math.random().toString(36).slice(-8) + 'A1!';
-
-  let userRecord: any;
-  if (existingAuthUser) {
-    userRecord = existingAuthUser;
+let userRecord;
+try {
+  userRecord = await authAdmin.createUser({
+    email: normalizedEmail,
+    password: generatedPassword,
+    emailVerified: true,
+  });
+} catch (e: any) {
+  if (e.code === 'auth/email-already-exists') {
+    userRecord = await authAdmin.getUserByEmail(normalizedEmail);
+    await authAdmin.updateUser(userRecord.uid, { password: generatedPassword });
   } else {
-    userRecord = await authAdmin.createUser({
-      email: normalizedEmail,
-      password: generatedPassword,
-      emailVerified: true,
-    });
+    throw e;
   }
+}
 
   // ============================================================
   // 2. shops を active に更新
