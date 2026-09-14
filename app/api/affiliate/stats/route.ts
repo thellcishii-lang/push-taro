@@ -60,11 +60,6 @@ export async function GET(request: Request) {
     // 1. アフィリエイト情報
     // ============================================================
     const affDoc = await db.collection('affiliates').doc(affiliateId).get();
-
-    // ============================================================
-    // 1. アフィリエイト情報
-    // ============================================================
-    const affDoc = await db.collection('affiliates').doc(affiliateId).get();
     if (!affDoc.exists) {
       return NextResponse.json({ error: 'アフィリエイト情報が見つかりません' }, { status: 404 });
     }
