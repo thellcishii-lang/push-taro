@@ -10,6 +10,14 @@
  */
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
+import {
+  PLAN_PRICES,
+} from '@/lib/constants';
+import {
+  calculateRewards,
+  getOneTimeRewardAmount,
+  calculateRewardRate,
+} from '@/lib/square-webhook/reward-calculator';
 
 export const dynamic = 'force-dynamic';
 
@@ -91,40 +99,37 @@ export async function GET(request: Request) {
       }
 
       // 報酬タイプ（affiliate は rewardType で判定）
+            // 報酬タイプ（affiliate は rewardType で判定）
       const rewardType = rel.relData.rewardType || affData.rewardType || 'recurring';
       const isRecurring = rewardType === 'recurring';
 
-      // 月額報酬（参考値）
-      const PLAN_PRICES: Record<string, number> = {
-        light: 1980,
-        standard: 3800,
-        pro: 10000,
-      };
       const plan = (shopData.plan || 'light').toLowerCase();
-      const planAmount = PLAN_PRICES[plan] || 1980;
+      const planAmount = PLAN_PRICES[plan] || PLAN_PRICES.light;
 
-      let monthlyReward = 0;
-      if (isRecurring) {
-        const effectiveRate = affData.hasInvoice ? 0.05 : 0.045;
-        monthlyReward = Math.floor(planAmount * effectiveRate);
-      } else {
-        // 単発型は初回のみ
-        const oneTime = plan === 'pro' ? 5000 : plan === 'standard' ? 2000 : 1000;
-        monthlyReward = affData.hasInvoice ? oneTime : Math.floor(oneTime * 0.9);
-      }
+      // 源泉前の率
+      const baseRate = isRecurring
+        ? await calculateRewardRate(affData, 'affiliate', plan, affiliateId)
+        : 0;
+
+      // 参考値の計算（月末バッチと同じロジック）
+      const result = calculateRewards({
+        baseRate,
+        paymentAmount: planAmount,
+        hasInvoice: affData.hasInvoice === true,
+        oneTimeAmount: isRecurring ? undefined : getOneTimeRewardAmount(plan),
+      });
 
       referrals.push({
         id: rel.shopId,
         shopName: shopData.name || '未設定',
         plan,
-        status: relStatus, // 'pending' | 'active' | 'canceled'
-        shopStatus, // 'active' | 'canceled' など
+        status: relStatus,
+        shopStatus,
         rewardType,
-        rewardRate: isRecurring ? (affData.hasInvoice ? 0.05 : 0.045) : 0,
-        monthlyReward, // 参考値
+        rewardRate: result.effectiveRate,
+        monthlyReward: result.reward,
         startedAt,
       });
-    }
 
     // ============================================================
     // 4. サマリー
