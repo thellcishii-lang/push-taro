@@ -73,17 +73,17 @@ if (!existing.empty) {
     // パスワード自動生成
     const generatedPassword = generatePassword();
 
-    // Firebase Auth ユーザー作成
-    let userRecord;
+// Firebase Auth ユーザー作成
+let userRecord;
 try {
   userRecord = await authAdmin.createUser({
-    email,
+    email: normalizedEmail,
     password: generatedPassword,
     emailVerified: true,
   });
 } catch (e: any) {
   if (e.code === 'auth/email-already-exists') {
-    userRecord = await authAdmin.getUserByEmail(email);
+    userRecord = await authAdmin.getUserByEmail(normalizedEmail);
     await authAdmin.updateUser(userRecord.uid, { password: generatedPassword });
   } else {
     throw e;
