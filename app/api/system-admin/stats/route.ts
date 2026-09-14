@@ -34,6 +34,7 @@ export async function GET(request: Request) {
         id: doc.id,
         ...shopData,
         subscriberCount,
+        pushCount: shopData.currentMonthSent || 0,
       };
     });
 
