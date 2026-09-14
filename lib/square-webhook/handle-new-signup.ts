@@ -2,22 +2,20 @@
 /**
  * 新規登録（pending_payment → active）の処理
  *
- * 1. Auth ユーザー作成
+ * 1. Auth ユーザー作成（3役割重複チェック済み）
  * 2. shops を active に更新
  * 3. 本登録完了メール送信
- * 4. 紹介報酬の初回計算
- * 5. 代理店への「新規店舗申し込み完了」通知メール
+ * 4. referral_relations を active に、payment_history に記録
+ * 5. アフィリエイター・管理者への通知メール
  */
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
 import {
-  calculateRewardRate,
   getReferrerCollection,
   getUnpaidField,
-  getPayoutThreshold,
-  sendAdminPayoutNotification,
+  calculateRewardRate,
 } from './reward-calculator';
 
 const PLAN_PRICES: Record<string, number> = {
@@ -35,26 +33,57 @@ export async function handleNewSignup(
   const pendingShopData = pendingShopDoc.data();
   const shopId = pendingShopDoc.id;
   const plan = pendingShopData.plan || 'light';
+  const normalizedEmail = customerEmail.trim().toLowerCase();
 
   // ============================================================
   // 1. Auth ユーザー作成
+  //    - 3役割どれかで既に使われているメールなら弾く
+  //    - パスワード上書きは一切しない
   // ============================================================
+  let existingAuthUser: any = null;
+  try {
+    existingAuthUser = await authAdmin.getUserByEmail(normalizedEmail);
+  } catch (e: any) {
+    if (e.code !== 'auth/user-not-found') throw e;
+  }
+
+  if (existingAuthUser) {
+    const [shopSnap, agencySnap, affSnap] = await Promise.all([
+      db.collection('shops').where('email', '==', normalizedEmail).limit(1).get(),
+      db.collection('agencies').where('email', '==', normalizedEmail).limit(1).get(),
+      db.collection('affiliates').where('email', '==', normalizedEmail).limit(1).get(),
+    ]);
+
+    // 自分自身（pending 中の shop）以外で使われていたら弾く
+    const conflictShop = shopSnap.docs.find((d) => d.id !== shopId);
+    if (conflictShop || !agencySnap.empty || !affSnap.empty) {
+      console.error(
+        `[新規登録] メール重複: ${normalizedEmail} は既に別役割で使用されています`
+      );
+      return NextResponse.json(
+        { error: 'このメールアドレスは既に別の役割で登録されています' },
+        { status: 409 }
+      );
+    }
+
+    // 同じ shop の pending が Auth だけ先に作られていたケース
+    // → パスワードは上書きしない。そのまま使う。
+    console.warn(
+      `[新規登録] Auth 既存ユーザー（自 shop の pending）: ${existingAuthUser.uid}`
+    );
+  }
+
   const generatedPassword = 'Pass-' + Math.random().toString(36).slice(-8) + 'A1!';
 
-  let userRecord;
-  try {
+  let userRecord: any;
+  if (existingAuthUser) {
+    userRecord = existingAuthUser;
+  } else {
     userRecord = await authAdmin.createUser({
-      email: customerEmail,
+      email: normalizedEmail,
       password: generatedPassword,
       emailVerified: true,
     });
-  } catch (err: any) {
-    if (err.code === 'auth/email-already-exists') {
-      userRecord = await authAdmin.getUserByEmail(customerEmail);
-      await authAdmin.updateUser(userRecord.uid, { password: generatedPassword });
-    } else {
-      throw err;
-    }
   }
 
   // ============================================================
@@ -88,34 +117,33 @@ export async function handleNewSignup(
   // 3. 本登録完了メール
   // ============================================================
   await sendEmail({
-    to: customerEmail,
+    to: normalizedEmail,
     subject: '【Push-taro】決済完了・本登録完了のお知らせ',
     html: `
-      <h2>${pendingShopData.name || '店舗'} 様</h2>
-      <p>決済処理が完了して、本登録が完了いたしました。</p>
-      <p>この度は、Push-taroにご登録頂き誠にありがとうございます。</p>
-      <p>下記のリンクより、お客様のメールアドレスとパスワードでログインしてください。</p>
-      <hr />
-      <p>選択プラン: ${plan.toUpperCase()}</p>
-      <p>
-        <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin" style="display:inline-block; padding:12px 24px; background:#ff4500; color:#fff; border-radius:6px; text-decoration:none; font-weight:bold;">
-          管理画面へログイン
-        </a>
-      </p>
-      <p>ログインID: ${customerEmail}</p>
-      <p>パスワード: <code>${generatedPassword}</code></p>
-      <hr />
-      <p><strong>Push-taro.com</strong></p>
-      <p>運営会社：the合同会社</p>
-      <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
+      <div style="font-family: sans-serif; padding: 20px;">
+        <h2>${pendingShopData.name || '店舗'} 様</h2>
+        <p>決済処理が完了して、本登録が完了いたしました。</p>
+        <p>この度は、Push-taroにご登録頂き誠にありがとうございます。</p>
+        <p>下記のリンクより、お客様のメールアドレスとパスワードでログインしてください。</p>
+        <hr />
+        <p>選択プラン: ${plan.toUpperCase()}</p>
+        <p>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin" style="display:inline-block;padding:12px 24px;background:#ff4500;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
+            管理画面へログイン
+          </a>
+        </p>
+        <p>ログインID: ${normalizedEmail}</p>
+        ${!existingAuthUser ? `<p>パスワード: <code>${generatedPassword}</code></p>` : ''}
+        <hr />
+        <p><strong>Push-taro.com</strong></p>
+        <p>運営会社：the合同会社</p>
+        <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
+      </div>
     `,
   });
 
-   // ============================================================
-  // 4. 紹介報酬の初回計算（月末バッチへ委譲）
-  //    - referral_relations を active に
-  //    - payment_history に記録（rewardProcessed: false）
-  //    - 代理店へ通知メール（金額は参考値）
+  // ============================================================
+  // 4. 紹介関係の処理
   // ============================================================
   const referrerId = pendingShopData.referrerId;
   const referrerType = pendingShopData.referrerType || null;
@@ -125,14 +153,20 @@ export async function handleNewSignup(
       const referrerCollection = getReferrerCollection(referrerType);
       const referrerDoc = await db.collection(referrerCollection).doc(referrerId).get();
 
-      if (referrerDoc.exists) {
+      if (!referrerDoc.exists) {
+        console.error(`[新規登録] 紹介者が見つかりません: ${referrerCollection}/${referrerId}`);
+      } else {
         const referrerData = referrerDoc.data()!;
 
-        // 1) referral_relations を active に（月末バッチの起点）
+        // 4-1. referral_relations を active に
         const relSnap = await db.collection('referral_relations')
           .where('referredTenantId', '==', shopId)
           .limit(1)
           .get();
+
+        // 紹介タイプ（affiliate は rewardType を持つ）
+        const affiliateRewardType =
+          referrerType === 'affiliate' ? (referrerData.rewardType || 'recurring') : null;
 
         if (!relSnap.empty) {
           await relSnap.docs[0].ref.update({
@@ -140,18 +174,25 @@ export async function handleNewSignup(
             updatedAt: FieldValue.serverTimestamp(),
           });
         } else {
-          const effectiveRate = await calculateRewardRate(referrerData, referrerType, plan, referrerId);
+          const effectiveRate = await calculateRewardRate(
+            referrerData,
+            referrerType,
+            plan,
+            referrerId
+          );
+
           await db.collection('referral_relations').add({
-            referrerId: referrerId,
+            referrerId,
             referredTenantId: shopId,
             rewardRate: effectiveRate,
-            referrerType: referrerType,
+            referrerType,
+            rewardType: affiliateRewardType,
             status: 'active',
             createdAt: FieldValue.serverTimestamp(),
           });
         }
 
-        // 2) payment_history に記録（月末バッチが拾って報酬化）
+        // 4-2. payment_history に記録（月末バッチが拾う）
         const now = new Date();
         const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -168,158 +209,174 @@ export async function handleNewSignup(
           attemptedAt: FieldValue.serverTimestamp(),
           paymentId,
           rewardProcessed: false,
+          isFirstPayment: true,
           createdAt: FieldValue.serverTimestamp(),
         });
 
-        // 3) 代理店への通知メール（金額は参考値）
-        if (referrerType === 'agency' && referrerData.email) {
-          const effectiveRate = await calculateRewardRate(referrerData, referrerType, plan, referrerId);
-          const hasInvoice = !!(
-            referrerData?.invoiceNumber &&
-            String(referrerData.invoiceNumber).trim() !== ''
+        // 4-3. 紹介者への通知メール
+        const effectiveRate = await calculateRewardRate(
+          referrerData,
+          referrerType,
+          plan,
+          referrerId
+        );
+        const hasInvoice = !!(
+          referrerData.invoiceNumber &&
+          String(referrerData.invoiceNumber).trim() !== ''
+        );
+
+        if (referrerType === 'affiliate' && referrerData.email) {
+          await sendAffiliateNotificationEmail(
+            referrerData,
+            pendingShopData,
+            plan,
+            affiliateRewardType,
+            planAmount,
+            hasInvoice,
+            effectiveRate
           );
-          const baseRate = hasInvoice ? effectiveRate : effectiveRate / 0.9;
-          const baseReward = Math.floor(planAmount * baseRate);
-          const withholding = hasInvoice ? 0 : Math.floor(baseReward * 0.1);
-          const netReward = baseReward - withholding;
-
-          await sendEmail({
-            to: referrerData.email,
-            subject: `【Push-taro】御社の紹介コードで新規店舗申し込みが完了しました`,
-            html: `
-              <h2>${referrerData.companyName || referrerData.ownerName || '代理店'} 様</h2>
-              <p>御社の紹介コード（${referrerData.referralCode || '---'}）を経由して、</p>
-              <p>新規店舗の申し込みおよび決済が完了いたしました。</p>
-              <hr />
-              <table style="font-size: 14px;">
-                <tr>
-                  <td style="padding: 6px; font-weight: bold;">店舗名</td>
-                  <td style="padding: 6px;">${pendingShopData.name || '未設定'}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 6px; font-weight: bold;">プラン</td>
-                  <td style="padding: 6px;">${plan.toUpperCase()}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 6px; font-weight: bold;">報酬率</td>
-                  <td style="padding: 6px;">${(baseRate * 100).toFixed(1)}%</td>
-                </tr>
-                <tr>
-                  <td style="padding: 6px; font-weight: bold;">今回の紹介報酬（参考値）</td>
-                  <td style="padding: 6px;">¥${baseReward.toLocaleString()}</td>
-                </tr>
-                ${!hasInvoice ? `
-                <tr>
-                  <td style="padding: 6px; font-weight: bold; color: #dc2626;">源泉徴収（インボイス未登録 -10%）</td>
-                  <td style="padding: 6px; color: #dc2626;">-¥${withholding.toLocaleString()}</td>
-                </tr>
-                ` : ''}
-                <tr style="border-top: 1px solid #e2e8f0;">
-                  <td style="padding: 6px; font-weight: bold;">お支払い予定額</td>
-                  <td style="padding: 6px; color: #ff4500; font-weight: bold; font-size: 16px;">¥${netReward.toLocaleString()}</td>
-                </tr>
-              </table>
-              <hr />
-              <p style="font-size: 13px; color: #64748b;">
-                ※ 上記金額は参考値です。正式な確定額は月末締め後にご案内いたします。<br />
-                ※ 詳細な明細は、代理店コンソールよりご確認いただけます。
-              </p>
-              <p>
-                <a href="${process.env.NEXT_PUBLIC_APP_URL}/agency/dashboard" style="display:inline-block;padding:12px 24px;background:#3182ce;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
-                  代理店コンソールで確認する
-                </a>
-              </p>
-              <hr />
-              <p><strong>Push-taro.com</strong></p>
-              <p>運営会社：the合同会社</p>
-              <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
-            `,
-          });
+        } else if (referrerType === 'agency' && referrerData.email) {
+          await sendAgencyNotificationEmail(
+            referrerData,
+            pendingShopData,
+            plan,
+            planAmount,
+            hasInvoice,
+            effectiveRate
+          );
         }
 
-        console.log(`[新規登録] ✅ 紹介関係を active に、payment_history に記録: ${referrerType}/${referrerId}`);
-      }
-    } catch (refError) {
-      console.error('[新規登録] 紹介報酬処理エラー:', refError);
-    }
-  }
-            // ============================================================
-            // 5. 代理店への「新規店舗申し込み完了」通知メール
-            // ============================================================
-            if (referrerType === 'agency' && referrerData.email) {
-              const hasInvoice = !!(
-                referrerData?.invoiceNumber &&
-                String(referrerData.invoiceNumber).trim() !== ''
-              );
-              const baseRate = hasInvoice ? effectiveRate : effectiveRate / 0.9;
-              const baseReward = Math.floor(planAmount * baseRate);
-              const withholding = hasInvoice ? 0 : Math.floor(baseReward * 0.1);
-              const netReward = baseReward - withholding;
-              const netUnpaid = (referrerData?.[unpaidField] || 0) + netReward;
-
-              await sendEmail({
-                to: referrerData.email,
-                subject: `【Push-taro】御社の紹介コードで新規店舗申し込みが完了しました`,
-                html: `
-                  <h2>${referrerData.companyName || referrerData.ownerName || '代理店'} 様</h2>
-                  <p>御社の紹介コード（${referrerData.referralCode || '---'}）を経由して、</p>
-                  <p>新規店舗の申し込みおよび決済が完了いたしました。</p>
-                  <hr />
-                  <table style="font-size: 14px;">
-                    <tr>
-                      <td style="padding: 6px; font-weight: bold;">店舗名</td>
-                      <td style="padding: 6px;">${pendingShopData.name || '未設定'}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 6px; font-weight: bold;">プラン</td>
-                      <td style="padding: 6px;">${plan.toUpperCase()}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 6px; font-weight: bold;">報酬率</td>
-                      <td style="padding: 6px;">${(baseRate * 100).toFixed(1)}%</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 6px; font-weight: bold;">今回の紹介報酬</td>
-                      <td style="padding: 6px;">¥${baseReward.toLocaleString()}</td>
-                    </tr>
-                    ${!hasInvoice ? `
-                    <tr>
-                      <td style="padding: 6px; font-weight: bold; color: #dc2626;">源泉徴収（インボイス未登録 -10%）</td>
-                      <td style="padding: 6px; color: #dc2626;">-¥${withholding.toLocaleString()}</td>
-                    </tr>
-                    ` : ''}
-                    <tr style="border-top: 1px solid #e2e8f0;">
-                      <td style="padding: 6px; font-weight: bold;">お支払い額</td>
-                      <td style="padding: 6px; color: #ff4500; font-weight: bold; font-size: 16px;">¥${netReward.toLocaleString()}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 6px; font-weight: bold;">未払い累計</td>
-                      <td style="padding: 6px;">¥${netUnpaid.toLocaleString()}</td>
-                    </tr>
-                  </table>
-                  <hr />
-                  <p>
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL}/agency/dashboard" style="display:inline-block;padding:12px 24px;background:#3182ce;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
-                      代理店コンソールで確認する
-                    </a>
-                  </p>
-                  <hr />
-                  <p><strong>Push-taro.com</strong></p>
-                  <p>運営会社：the合同会社</p>
-                  <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
-                `,
-              });
-            }
-
-            console.log(`[新規登録] ✅ 紹介報酬加算: ${referrerType} / ${rewardAmount}円 / 累計 ${currentUnpaid}円`);
-          }
-        }
+        console.log(
+          `[新規登録] ✅ 紹介関係 active: ${referrerType}/${referrerId} / 店舗: ${shopId}`
+        );
       }
     } catch (refError) {
       console.error('[新規登録] 紹介報酬処理エラー:', refError);
     }
   }
 
-  console.log(`[新規登録完了] 店舗ID: ${shopId}, メール: ${customerEmail}`);
-  return NextResponse.json({ success: true, message: '本登録完了しました' }, { status: 200 });
+  console.log(`[新規登録完了] 店舗ID: ${shopId}, メール: ${normalizedEmail}`);
+  return NextResponse.json(
+    { success: true, message: '本登録完了しました' },
+    { status: 200 }
+  );
+}
+
+// ============================================================
+// アフィリエイターへの通知メール
+// ============================================================
+async function sendAffiliateNotificationEmail(
+  referrerData: any,
+  pendingShopData: any,
+  plan: string,
+  rewardType: string | null,
+  planAmount: number,
+  hasInvoice: boolean,
+  effectiveRate: number
+) {
+  const isRecurring = rewardType === 'recurring';
+
+  const rewardLabel = isRecurring
+    ? `毎月 ${(effectiveRate * 100).toFixed(1)}%（継続）`
+    : `初回のみ（プラン別固定額）`;
+
+  const rewardPreview = isRecurring
+    ? Math.floor(planAmount * effectiveRate)
+    : plan === 'pro' ? 5000 : plan === 'standard' ? 2000 : 1000;
+
+  const withholding = hasInvoice ? 0 : Math.floor(rewardPreview * 0.1);
+  const netReward = rewardPreview - withholding;
+
+  await sendEmail({
+    to: referrerData.email,
+    subject: '【Push-taro】あなたの紹介コードから新規店舗が登録されました',
+    html: `
+      <div style="font-family: sans-serif; padding: 20px;">
+        <h2>${referrerData.name || 'アフィリエイター'} 様</h2>
+        <p>あなたの紹介コード（${referrerData.referralCode || '---'}）を経由して、</p>
+        <p>新しい店舗が登録され、決済が完了しました。</p>
+        <hr />
+        <table style="font-size: 14px;">
+          <tr><td style="padding: 6px; font-weight: bold;">店舗名</td><td style="padding: 6px;">${pendingShopData.name || '未設定'}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">プラン</td><td style="padding: 6px;">${plan.toUpperCase()}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">報酬タイプ</td><td style="padding: 6px;">${isRecurring ? 'ストック型' : '単発型'}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">報酬</td><td style="padding: 6px;">${rewardLabel}</td></tr>
+          ${!hasInvoice ? `<tr><td style="padding: 6px; font-weight: bold; color: #dc2626;">源泉徴収（インボイス未登録 -10%）</td><td style="padding: 6px; color: #dc2626;">-¥${withholding.toLocaleString()}</td></tr>` : ''}
+          <tr style="border-top: 1px solid #e2e8f0;">
+            <td style="padding: 6px; font-weight: bold;">お支払い予定額</td>
+            <td style="padding: 6px; color: #ff4500; font-weight: bold; font-size: 16px;">¥${netReward.toLocaleString()}</td>
+          </tr>
+        </table>
+        <hr />
+        <p style="font-size: 13px; color: #64748b;">
+          ※ 報酬は月末締め・翌月払いです。<br />
+          ※ 詳細はアフィリエイトダッシュボードよりご確認ください。
+        </p>
+        <p>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/affiliate/dashboard" style="display:inline-block;padding:12px 24px;background:#ff4500;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
+            ダッシュボードで確認する
+          </a>
+        </p>
+        <hr />
+        <p><strong>Push-taro.com</strong></p>
+        <p>運営会社：the合同会社</p>
+        <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
+      </div>
+    `,
+  });
+}
+
+// ============================================================
+// 代理店への通知メール
+// ============================================================
+async function sendAgencyNotificationEmail(
+  referrerData: any,
+  pendingShopData: any,
+  plan: string,
+  planAmount: number,
+  hasInvoice: boolean,
+  effectiveRate: number
+) {
+  const baseRate = hasInvoice ? effectiveRate : effectiveRate / 0.9;
+  const baseReward = Math.floor(planAmount * baseRate);
+  const withholding = hasInvoice ? 0 : Math.floor(baseReward * 0.1);
+  const netReward = baseReward - withholding;
+
+  await sendEmail({
+    to: referrerData.email,
+    subject: '【Push-taro】御社の紹介コードで新規店舗申し込みが完了しました',
+    html: `
+      <div style="font-family: sans-serif; padding: 20px;">
+        <h2>${referrerData.companyName || referrerData.ownerName || '代理店'} 様</h2>
+        <p>御社の紹介コード（${referrerData.referralCode || '---'}）を経由して、</p>
+        <p>新規店舗の申し込みおよび決済が完了いたしました。</p>
+        <hr />
+        <table style="font-size: 14px;">
+          <tr><td style="padding: 6px; font-weight: bold;">店舗名</td><td style="padding: 6px;">${pendingShopData.name || '未設定'}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">プラン</td><td style="padding: 6px;">${plan.toUpperCase()}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">報酬率</td><td style="padding: 6px;">${(baseRate * 100).toFixed(1)}%</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">今回の紹介報酬（参考値）</td><td style="padding: 6px;">¥${baseReward.toLocaleString()}</td></tr>
+          ${!hasInvoice ? `<tr><td style="padding: 6px; font-weight: bold; color: #dc2626;">源泉徴収（インボイス未登録 -10%）</td><td style="padding: 6px; color: #dc2626;">-¥${withholding.toLocaleString()}</td></tr>` : ''}
+          <tr style="border-top: 1px solid #e2e8f0;">
+            <td style="padding: 6px; font-weight: bold;">お支払い予定額</td>
+            <td style="padding: 6px; color: #ff4500; font-weight: bold; font-size: 16px;">¥${netReward.toLocaleString()}</td>
+          </tr>
+        </table>
+        <hr />
+        <p style="font-size: 13px; color: #64748b;">
+          ※ 上記金額は参考値です。正式な確定額は月末締め後にご案内いたします。<br />
+          ※ 報酬は月末締め・翌月払いです。
+        </p>
+        <p>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/agency/dashboard" style="display:inline-block;padding:12px 24px;background:#3182ce;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
+            代理店コンソールで確認する
+          </a>
+        </p>
+        <hr />
+        <p><strong>Push-taro.com</strong></p>
+        <p>運営会社：the合同会社</p>
+        <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
+      </div>
+    `,
+  });
 }
