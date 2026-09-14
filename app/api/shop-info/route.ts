@@ -1,3 +1,4 @@
+// app/api/shop-info/route.ts
 import { NextResponse } from 'next/server';
 import { db } from '../../../lib/firebase-admin';
 
@@ -34,11 +35,19 @@ export async function GET(request: Request) {
       shopId: doc.id,
       name: data?.name || '登録店舗',
       status: data?.status || 'pending_payment',
-      coupon: data?.coupon || null,
+
+      // ── クーポン情報（全種別）──
+      coupon: data?.coupon || null,                    // 初回クーポン
+      normalCoupon: data?.normalCoupon || null,        // 🆕 通常クーポン（STANDARD/PRO）
+      loyaltyCoupon: data?.loyaltyCoupon || null,      // 🆕 特別達成クーポン（STANDARD/PRO）
+      proCoupons: data?.proCoupons || null,            // 🆕 PRO専用クーポン群
+
+      // ── アップグレード状態 ──
       upgradeStatus: data?.upgradeStatus || null,
-      // 🔑 DB内の名前に合わせて追加（upgradeTargetPlan と targetPlan の両方で渡す）
       upgradeTargetPlan: data?.upgradeTargetPlan || data?.targetPlan || null,
       targetPlan: data?.upgradeTargetPlan || data?.targetPlan || null,
+
+      // ── その他 ──
       linkUrl: data?.linkUrl || '',
       iconUrl: data?.iconUrl || '',
       plan: data?.plan || 'free',
