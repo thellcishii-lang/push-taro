@@ -59,13 +59,16 @@ export async function POST(request: Request) {
     
 
     // メールアドレス重複チェック（agencies）
-    const existing = await db.collection('agencies').where('email', '==', email).get();
-    if (!existing.empty) {
-      return NextResponse.json(
-        { error: 'このメールアドレスは既に代理店登録されています' },
-        { status: 409 }
-      );
-    }
+    const normalizedEmail = email.trim().toLowerCase();
+
+// メールアドレス重複チェック（agencies のみ）
+const existing = await db.collection('agencies').where('email', '==', normalizedEmail).get();
+if (!existing.empty) {
+  return NextResponse.json(
+    { error: 'このメールアドレスは既に代理店登録されています' },
+    { status: 409 }
+  );
+}
 
     // パスワード自動生成
     const generatedPassword = generatePassword();
