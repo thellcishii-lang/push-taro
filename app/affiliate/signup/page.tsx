@@ -29,6 +29,7 @@ export default function AffiliateSignupPage() {
   const [sentEmail, setSentEmail] = useState('');
 
   // 初回ロード時に success パラメータをチェック
+    // 初回ロード時に success パラメータをチェック
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'true') {
@@ -36,6 +37,32 @@ export default function AffiliateSignupPage() {
       setSentEmail(storedEmail);
       setShowSuccess(true);
       sessionStorage.removeItem('affiliate_sent_email');
+    }
+
+    // 確認画面から戻ってきた場合の復元
+    if (sessionStorage.getItem('affiliate_went_to_confirm') === 'true') {
+      const stored = sessionStorage.getItem('affiliate_signup_data');
+      if (stored) {
+        try {
+          const data = JSON.parse(stored);
+          setName(data.name || '');
+          setEmail(data.email || '');
+          setPhone(data.phone || '');
+          setAddress(data.address || '');
+          setBusinessType(data.businessType || 'individual');
+          setCompanyName(data.companyName || '');
+          setInvoiceNumber(data.invoiceNumber || '');
+          setRewardType(data.rewardType || 'recurring');
+          if (data.bankAccount) {
+            setBankName(data.bankAccount.bankName || '');
+            setBranchName(data.bankAccount.branchName || '');
+            setAccountType(data.bankAccount.accountType || 'savings');
+            setAccountNumber(data.bankAccount.accountNumber || '');
+            setAccountHolder(data.bankAccount.accountHolder || '');
+          }
+        } catch {}
+      }
+      sessionStorage.removeItem('affiliate_went_to_confirm');
     }
   }, []);
 
@@ -82,9 +109,10 @@ export default function AffiliateSignupPage() {
       bankAccount: { bankName, branchName, accountType, accountNumber, accountHolder },
     }));
 
-    router.push('/affiliate/confirm');
-  };
+    sessionStorage.setItem('affiliate_went_to_confirm', 'true');
 
+    router.push('/affiliate/confirm');
+    
   // ============================================================
   // 登録完了画面（successパラメータで表示）
   // ============================================================
@@ -258,7 +286,7 @@ export default function AffiliateSignupPage() {
               <p>1. アフィリエイトプログラムはPush-taroの収益化プログラムの一部です。</p>
               <p>2. 報酬は紹介した店舗のプランに応じて計算されます。</p>
               <p>3. 不正な紹介行為が発覚した場合、報酬は無効となりアカウントは停止されます。</p>
-              <p>4. 報酬の換金は累計5,000円以上で可能です。</p>
+              <p>4. 報酬は月末締め・翌月払いです。</p>
               <p>5. 報酬タイプの変更はできません。</p>
               <p>6. 本規約は予告なく変更されることがあります。</p>
               <p style={{ marginTop: '4px', fontSize: '11px', color: '#94a3b8' }}>詳細は <Link href="/terms" style={{ color: '#2563eb' }}>利用規約</Link> をご確認ください。</p>
