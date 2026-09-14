@@ -1,3 +1,13 @@
+// app/api/affiliate/stats/route.ts
+/**
+ * アフィリエイトダッシュボード用データ取得
+ *
+ * - アフィリエイト情報（紹介コード・口座）
+ * - 紹介店舗一覧（referral_relations + shops）
+ * - サマリー（累計報酬・未払い・紹介店舗数）
+ *
+ * 月次明細は /api/affiliate/statements で取得
+ */
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 
@@ -9,77 +19,138 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
   }
 
+  let uid: string;
+  let isAdmin = false;
   try {
     const idToken = authHeader.split('Bearer ')[1];
     const decoded = await authAdmin.verifyIdToken(idToken);
-    const uid = decoded.uid;
+    uid = decoded.uid;
+    const userRecord = await authAdmin.getUser(uid);
+    isAdmin = userRecord.customClaims?.admin === true;
+  } catch {
+    return NextResponse.json({ error: '無効なトークンです' }, { status: 401 });
+  }
 
-    const affiliateQuery = await db.collection('affiliates')
-      .where('uid', '==', uid)
-      .limit(1)
-      .get();
+  try {
+    const { searchParams } = new URL(request.url);
+    const affiliateId = searchParams.get('affiliateId');
 
-    if (affiliateQuery.empty) {
+    if (!affiliateId) {
+      return NextResponse.json({ error: 'affiliateId が必要です' }, { status: 400 });
+    }
+
+    // ============================================================
+    // 1. アフィリエイト情報
+    // ============================================================
+    const affDoc = await db.collection('affiliates').doc(affiliateId).get();
+    if (!affDoc.exists) {
       return NextResponse.json({ error: 'アフィリエイト情報が見つかりません' }, { status: 404 });
     }
 
-    const affiliateDoc = affiliateQuery.docs[0];
-    const affiliateData = affiliateDoc.data();
-    const affiliateId = affiliateDoc.id;
+    const affData = affDoc.data()!;
+    if (affData.uid !== uid && !isAdmin) {
+      return NextResponse.json({ error: '権限がありません' }, { status: 403 });
+    }
 
-    // 紹介店舗一覧
-    const referralsSnapshot = await db.collection('affiliate_referrals')
-      .where('affiliateId', '==', affiliateId)
+    // ============================================================
+    // 2. referral_relations から紹介店舗IDを取得
+    // ============================================================
+    const relSnap = await db.collection('referral_relations')
+      .where('referrerId', '==', affiliateId)
+      .where('referrerType', '==', 'affiliate')
       .get();
 
-    const referrals = referralsSnapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        shopName: data.shopName || '不明な店舗',
-        plan: data.plan || 'light',
-        status: data.status || 'active',
-      };
-    });
+    const relations: Array<{ relId: string; relData: any; shopId: string }> = [];
+    for (const relDoc of relSnap.docs) {
+      const relData = relDoc.data();
+      const shopId = relData.referredTenantId;
+      if (!shopId) continue;
+      relations.push({ relId: relDoc.id, relData, shopId });
+    }
 
-    // 報酬履歴
-    const rewardsSnapshot = await db.collection('affiliate_rewards')
-      .where('affiliateId', '==', affiliateId)
-      .orderBy('createdAt', 'desc')
-      .get();
+    // ============================================================
+    // 3. 各店舗の shops を取得
+    // ============================================================
+    const referrals: any[] = [];
+    let activeCount = 0;
 
-    const rewards = rewardsSnapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        amount: data.amount || 0,
-        billingMonth: data.billingMonth || '',
-        status: data.status || 'unpaid',
-        sourceShopName: data.sourceShopName || '',
+    for (const rel of relations) {
+      const shopDoc = await db.collection('shops').doc(rel.shopId).get();
+      if (!shopDoc.exists) continue;
+
+      const shopData = shopDoc.data()!;
+      const shopStatus = shopData.status || 'active';
+      const relStatus = rel.relData.status || 'pending';
+
+      if (relStatus === 'active') activeCount++;
+
+      // 店舗の利用開始日
+      let startedAt = '不明';
+      if (rel.relData.createdAt?.toDate) {
+        startedAt = rel.relData.createdAt.toDate().toISOString().slice(0, 10);
+      }
+
+      // 報酬タイプ（affiliate は rewardType で判定）
+      const rewardType = rel.relData.rewardType || affData.rewardType || 'recurring';
+      const isRecurring = rewardType === 'recurring';
+
+      // 月額報酬（参考値）
+      const PLAN_PRICES: Record<string, number> = {
+        light: 1980,
+        standard: 3800,
+        pro: 10000,
       };
-    });
+      const plan = (shopData.plan || 'light').toLowerCase();
+      const planAmount = PLAN_PRICES[plan] || 1980;
+
+      let monthlyReward = 0;
+      if (isRecurring) {
+        const effectiveRate = affData.hasInvoice ? 0.05 : 0.045;
+        monthlyReward = Math.floor(planAmount * effectiveRate);
+      } else {
+        // 単発型は初回のみ
+        const oneTime = plan === 'pro' ? 5000 : plan === 'standard' ? 2000 : 1000;
+        monthlyReward = affData.hasInvoice ? oneTime : Math.floor(oneTime * 0.9);
+      }
+
+      referrals.push({
+        id: rel.shopId,
+        shopName: shopData.name || '未設定',
+        plan,
+        status: relStatus, // 'pending' | 'active' | 'canceled'
+        shopStatus, // 'active' | 'canceled' など
+        rewardType,
+        rewardRate: isRecurring ? (affData.hasInvoice ? 0.05 : 0.045) : 0,
+        monthlyReward, // 参考値
+        startedAt,
+      });
+    }
+
+    // ============================================================
+    // 4. サマリー
+    // ============================================================
+    const totalEarnings = affData.totalEarnings || 0;
+    const unpaidReward = affData.unpaidReward || 0;
 
     return NextResponse.json({
       success: true,
       affiliate: {
         id: affiliateId,
-        name: affiliateData.name,
-        email: affiliateData.email,
-        referralCode: affiliateData.referralCode,
-        rewardType: affiliateData.rewardType || 'recurring',
-        status: affiliateData.status,
+        name: affData.name || '',
+        email: affData.email || '',
+        referralCode: affData.referralCode || '',
+        rewardType: affData.rewardType || 'recurring',
+        hasInvoice: affData.hasInvoice === true,
+        status: affData.status || 'active',
+        bankAccount: affData.bankAccount || null,
       },
       summary: {
-        totalEarnings: affiliateData.totalEarnings || 0,
-        unpaidReward: affiliateData.unpaidReward || 0,
-        referralCount: referrals.filter(r => r.status === 'active').length,
-        payoutThreshold: 5000,
-        canPayout: (affiliateData.unpaidReward || 0) >= 5000,
+        totalEarnings,
+        unpaidReward,
+        referralCount: activeCount,
       },
       referrals,
-      rewards,
     });
-
   } catch (error: any) {
     console.error('[affiliate/stats] エラー:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
