@@ -21,9 +21,9 @@ export async function GET(request: Request) {
 
     if (!doc.exists) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: `店舗ID [${cleanId}] はFirestoreに存在しません。admin画面で店舗作成を完了させてください。` 
+        {
+          success: false,
+          error: `店舗ID [${cleanId}] はFirestoreに存在しません。admin画面で店舗作成を完了させてください。`,
         },
         { status: 404, headers: { 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' } }
       );
@@ -37,10 +37,10 @@ export async function GET(request: Request) {
       status: data?.status || 'pending_payment',
 
       // ── クーポン情報（全種別）──
-      coupon: data?.coupon || null,                    // 初回クーポン
-      normalCoupon: data?.normalCoupon || null,        // 🆕 通常クーポン（STANDARD/PRO）
-      loyaltyCoupon: data?.loyaltyCoupon || null,      // 🆕 特別達成クーポン（STANDARD/PRO）
-      proCoupons: data?.proCoupons || null,            // 🆕 PRO専用クーポン群
+      coupon: data?.coupon || null,                 // 初回クーポン
+      normalCoupon: data?.normalCoupon || null,     // 通常クーポン（STANDARD/PRO）
+      loyaltyCoupon: data?.loyaltyCoupon || null,   // 特別達成クーポン（STANDARD/PRO）
+      proCoupons: data?.proCoupons || null,         // PRO専用クーポン群
 
       // ── アップグレード状態 ──
       upgradeStatus: data?.upgradeStatus || null,
