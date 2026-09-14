@@ -7,8 +7,9 @@ import {
   calculateRewardRate,
   getReferrerCollection,
   getUnpaidField,
-  getPayoutThreshold,
   sendAdminPayoutNotification,
+  calculateRewards,
+  getOneTimeRewardAmount,
 } from '@/lib/square-webhook/reward-calculator';
 
 export const dynamic = 'force-dynamic';
@@ -123,32 +124,52 @@ export async function GET(request: Request) {
           const historyDocs = paymentsByShop.get(referredTenantId) || [];
           if (historyDocs.length === 0) continue;
 
-          const shopDoc = await db.collection('shops').doc(referredTenantId).get();
+                    const shopDoc = await db.collection('shops').doc(referredTenantId).get();
           const shopData = shopDoc.data();
           const plan = shopData?.plan || 'light';
           const shopName = shopData?.name || '不明';
 
-          // 元の報酬率を算出
-          const effectiveRate = await calculateRewardRate(referrerData, referrerType, plan, referrerId);
-　　　　　　　　　　　　　　　　　　　　const baseRate = hasInvoice ? effectiveRate : effectiveRate / 0.9;
+          // 単発型アフィリエイトかどうか
+          const isOneTimeAffiliate =
+            referrerType === 'affiliate' && referrerData?.rewardType === 'one-time';
+
+          // 源泉前の率（単発型は 0）
+          const baseRate = isOneTimeAffiliate
+            ? 0
+            : await calculateRewardRate(referrerData, referrerType, plan, referrerId);
+
+          // 単発型の固定額（源泉前）
+          const oneTimeAmount = isOneTimeAffiliate
+            ? getOneTimeRewardAmount(plan)
+            : undefined;
 
           let shopPayment = 0;
           let shopBaseReward = 0;
           let shopReward = 0;
+          let oneTimeUsed = false;
 
           for (const histDoc of historyDocs) {
             const histData = histDoc.data();
             const amount = histData.amount || 0;
             shopPayment += amount;
 
-            if (baseRate > 0) {
-              const baseRewardAmount = Math.floor(amount * baseRate);
-              const rewardAmount = Math.floor(amount * effectiveRate);
+            // 単発型：初回の決済1件のみ報酬を発生させる
+            const shouldReward = isOneTimeAffiliate
+              ? (!oneTimeUsed && histData.isFirstPayment === true)
+              : (baseRate > 0);
 
-              shopBaseReward += baseRewardAmount;
-              shopReward += rewardAmount;
+            if (shouldReward) {
+              const result = calculateRewards({
+                baseRate,
+                paymentAmount: amount,
+                hasInvoice,
+                oneTimeAmount,
+              });
 
-              if (rewardAmount > 0) {
+              shopBaseReward += result.baseReward;
+              shopReward += result.reward;
+
+              if (result.reward > 0) {
                 const newRewardRef = db.collection('monthly_rewards').doc();
                 batchOperations.push({
                   type: 'set_reward',
@@ -157,8 +178,9 @@ export async function GET(request: Request) {
                     userId: referrerId,
                     sourceTenantId: referredTenantId,
                     sourceShopName: shopName,
-                    amount: rewardAmount,
-                    baseAmount: baseRewardAmount,
+                    amount: result.reward,
+                    baseAmount: result.baseReward,
+                    withholding: result.withholding,
                     paymentAmount: amount,
                     billingMonth: histData.billingMonth,
                     scheduledPayoutMonth,
@@ -169,6 +191,8 @@ export async function GET(request: Request) {
                     paidBy: null,
                   }
                 });
+
+                if (isOneTimeAffiliate) oneTimeUsed = true;
               }
             }
 
@@ -186,22 +210,18 @@ export async function GET(request: Request) {
           }
         }
 
-        if (totalReward > 0) {
+               if (totalReward > 0) {
           const unpaidField = getUnpaidField(referrerType);
           const currentUnpaid = (referrerData?.[unpaidField] || 0) + totalReward;
-          const threshold = getPayoutThreshold(referrerType);
 
           const referrerUpdateData: any = {
             [unpaidField]: currentUnpaid,
+            payoutStatus: 'pending',  // 閾値撤廃。常に振込対象
             ...(referrerType === 'affiliate' && {
               totalEarnings: (referrerData?.totalEarnings || 0) + totalReward,
             }),
             updatedAt: FieldValue.serverTimestamp(),
           };
-
-          if (currentUnpaid >= threshold) {
-            referrerUpdateData.payoutStatus = 'pending';
-          }
 
           batchOperations.push({
             type: 'update_referrer',
@@ -210,7 +230,7 @@ export async function GET(request: Request) {
           });
 
           const statementRef = db.collection('monthly_statements').doc();
-          const withholding = hasInvoice ? 0 : totalBaseReward - totalReward;
+          const withholding = totalBaseReward - totalReward;
           batchOperations.push({
             type: 'set_statement',
             ref: statementRef,
@@ -230,11 +250,9 @@ export async function GET(request: Request) {
             }
           });
 
-          if (referrerData?.email) {
+                    if (referrerData?.email) {
             pendingEmails.push(async () => {
-              if (currentUnpaid >= threshold) {
-                await sendAdminPayoutNotification(referrerData, referrerId, currentUnpaid, referrerType);
-              }
+              await sendAdminPayoutNotification(referrerData, referrerId, currentUnpaid, referrerType);
               if (referrerType === 'agency') {
                 await sendAgencyPayoutEmail(
                   referrerData,
