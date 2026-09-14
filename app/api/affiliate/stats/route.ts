@@ -130,6 +130,7 @@ export async function GET(request: Request) {
         monthlyReward: result.reward,
         startedAt,
       });
+    }   
 
     // ============================================================
     // 4. サマリー
