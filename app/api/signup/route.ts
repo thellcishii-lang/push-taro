@@ -111,23 +111,40 @@ export async function POST(request: Request) {
 
     if (refCode) {
       // プレフィックスで検索先を振り分け
-      if (refCode.startsWith('AF-')) {
-        // アフィリエイト（affiliates コレクション）
-        const affiliateSnapshot = await db.collection('affiliates')
-          .where('referralCode', '==', refCode)
-          .limit(1)
-          .get();
+      if (refCode.startsWith('AF-S-') || refCode.startsWith('AF-O-') || refCode.startsWith('AF-')) {
+  const affiliateSnapshot = await db.collection('affiliates')
+    .where('referralCode', '==', refCode)
+    .limit(1)
+    .get();
 
-        if (!affiliateSnapshot.empty) {
-          const doc = affiliateSnapshot.docs[0];
-          const data = doc.data();
-          referrerId = doc.id;
-          referrerType = 'affiliate';
-          referrerEmail = data.email;
-          referrerName = data.name || 'アフィリエイト';
-          rewardRate = 0.05; // アフィリエイトは一律5%（継続課金型）
-        }
-      } else if (refCode.startsWith('AGENCY-')) {
+  if (!affiliateSnapshot.empty) {
+    const doc = affiliateSnapshot.docs[0];
+    const data = doc.data();
+    referrerId = doc.id;
+    referrerType = 'affiliate';
+    referrerEmail = data.email;
+    referrerName = data.name || 'アフィリエイト';
+
+    // rewardType を判定
+    // 優先順位: affiliates.rewardType > プレフィックス > デフォルト
+    let affiliateRewardType: 'recurring' | 'one-time';
+    if (data.rewardType === 'one-time' || data.rewardType === 'recurring') {
+      affiliateRewardType = data.rewardType;
+    } else if (refCode.startsWith('AF-O-')) {
+      affiliateRewardType = 'one-time';
+    } else {
+      affiliateRewardType = 'recurring';
+    }
+
+    // ストック型は 5%、単発型は rate 0（固定額なので使わない）
+    rewardRate = affiliateRewardType === 'recurring' ? 0.05 : 0;
+
+    // 後続で referral_relations に保存するために保持
+    var affiliateRewardTypeForRelation: string | null = affiliateRewardType;
+  }
+}
+      
+      else if (refCode.startsWith('AGENCY-')) {
         // 代理店（agencies コレクション）
         const agencySnapshot = await db.collection('agencies')
           .where('referralCode', '==', refCode)
@@ -217,39 +234,54 @@ export async function POST(request: Request) {
     // ============================================================
     // 7. 紹介者が見つかった場合の追加処理
     // ============================================================
-    if (referrerId && referrerType && rewardRate > 0) {
-      // 紹介リレーションを保存
-      await db.collection('referral_relations').add({
-        referrerId: referrerId,
-        referredTenantId: shopId,
-        rewardRate: rewardRate,
-        status: 'pending', // 決済完了で active になる
-        referrerType: referrerType, // 追加：紹介者の種別
-        createdAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp(),
-      });
+    if (referrerId && referrerType) {
+  // affiliate の場合のみ rewardType を持つ
+  const relationRewardType =
+    referrerType === 'affiliate'
+      ? (typeof affiliateRewardTypeForRelation !== 'undefined' && affiliateRewardTypeForRelation
+          ? affiliateRewardTypeForRelation
+          : 'recurring')
+      : null;
 
-      // 紹介者にメール通知
-      if (referrerEmail) {
-        const ratePercent = (rewardRate * 100).toFixed(1);
-        await sendEmail({
-          to: referrerEmail,
-          subject: `【Push-taro】紹介コード [${refCode}] から新規登録がありました`,
-          html: `
-            <h2>${referrerName} 様</h2>
-            <p>あなたの紹介コード（${refCode}）を使用して、新しい店舗が登録されました。</p>
-            <p><strong>店舗名:</strong> ${companyName || '未設定'}</p>
-            <p><strong>紹介報酬率:</strong> ${ratePercent}%</p>
-            <p>この店舗が決済を完了すると、紹介報酬が確定します。</p>
-            <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin">ダッシュボードで確認する</a></p>
-            <hr />
-            <p><strong>Push-taro.com</strong></p>
-          `,
-        });
-      }
+  // 単発型（affiliate かつ rewardRate 0）も通すため、条件を「referrerId があれば保存」に変更
+  await db.collection('referral_relations').add({
+    referrerId: referrerId,
+    referredTenantId: shopId,
+    rewardRate: rewardRate,
+    rewardType: relationRewardType,
+    status: 'pending',
+    referrerType: referrerType,
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+  });
 
-      console.log(`[紹介コード] 紹介者: ${referrerId} (${referrerType}), 新規店舗: ${shopId}, レート: ${rewardRate * 100}%`);
-    }
+  // 紹介者への通知メール（ratePercent の表示を調整）
+  if (referrerEmail) {
+    const ratePercent = rewardRate > 0
+      ? `${(rewardRate * 100).toFixed(1)}%`
+      : '初回のみ固定報酬';
+
+    await sendEmail({
+      to: referrerEmail,
+      subject: `【Push-taro】紹介コード [${refCode}] から新規登録がありました`,
+      html: `
+        <h2>${referrerName} 様</h2>
+        <p>あなたの紹介コード（${refCode}）を使用して、新しい店舗が登録されました。</p>
+        <p><strong>店舗名:</strong> ${companyName || '未設定'}</p>
+        <p><strong>紹介報酬:</strong> ${ratePercent}</p>
+        <p>この店舗が決済を完了すると、紹介報酬が確定します。</p>
+        <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/affiliate/dashboard">ダッシュボードで確認する</a></p>
+        <hr />
+        <p><strong>Push-taro.com</strong></p>
+        <p>運営会社：the合同会社</p>
+        <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
+        <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
+      `,
+    });
+  }
+
+  console.log(`[紹介コード] 紹介者: ${referrerId} (${referrerType}), 新規店舗: ${shopId}, レート: ${rewardRate}, type: ${relationRewardType}`);
+}
 
     // ============================================================
     // 8. Square決済リンク生成
