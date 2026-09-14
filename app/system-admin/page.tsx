@@ -542,11 +542,11 @@ function PendingPayoutsTab() {
     fetchPendingPayouts();
   }, []);
 
-    const handlePayoutComplete = async (
+    cconst handlePayoutComplete = async (
     userId: string,
     amount: number,
     userName: string,
-    referrerType: string
+    collection: string
   ) => {
     if (!confirm(`${userName} への振込 ¥${amount.toLocaleString()} を「完了」として処理しますか？\n\n※実際の銀行振込が完了していることを確認してください。`)) {
       return;
@@ -558,13 +558,13 @@ function PendingPayoutsTab() {
       if (!user) return;
       const idToken = await user.getIdToken();
 
-      const res = await fetch('/api/admin/payouts/complete', {
+      const res = await fetch('/api/admin/complete-payout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${idToken}`,
         },
-        body: JSON.stringify({ userId, amount, referrerType }),
+        body: JSON.stringify({ userId, amount, collection }),
       });
 
       const data = await res.json();
@@ -653,7 +653,7 @@ function PendingPayoutsTab() {
                   </td>
                   <td style={{ padding: '12px', textAlign: 'center' }}>
                     <button
-                      onClick={() => handlePayoutComplete(u.id, u.unpaidReward, u.name, u.referrerType)}
+                      onClick={() => handlePayoutComplete(u.id, u.unpaidReward, u.name, u.collection)}
                               disabled={processing === u.id}
                       style={{ padding: '6px 14px', background: processing === u.id ? '#94a3b8' : '#16a34a', color: '#fff', border: 'none', borderRadius: '4px', cursor: processing === u.id ? 'wait' : 'pointer', fontSize: '12px', fontWeight: 'bold' }}
                     >
