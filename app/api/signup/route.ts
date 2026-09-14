@@ -108,6 +108,7 @@ export async function POST(request: Request) {
     let referrerEmail: string | null = null;
     let referrerName: string | null = null;
     let rewardRate: number = 0;
+    let affiliateRewardTypeForRelation: string | null = null;
 
     if (refCode) {
       // プレフィックスで検索先を振り分け
@@ -140,7 +141,7 @@ export async function POST(request: Request) {
     rewardRate = affiliateRewardType === 'recurring' ? 0.05 : 0;
 
     // 後続で referral_relations に保存するために保持
-    var affiliateRewardTypeForRelation: string | null = affiliateRewardType;
+    affiliateRewardTypeForRelation = affiliateRewardType;
   }
 }
       
@@ -238,9 +239,7 @@ export async function POST(request: Request) {
   // affiliate の場合のみ rewardType を持つ
   const relationRewardType =
     referrerType === 'affiliate'
-      ? (typeof affiliateRewardTypeForRelation !== 'undefined' && affiliateRewardTypeForRelation
-          ? affiliateRewardTypeForRelation
-          : 'recurring')
+      ? (affiliateRewardTypeForRelation || 'recurring')
       : null;
 
   // 単発型（affiliate かつ rewardRate 0）も通すため、条件を「referrerId があれば保存」に変更
