@@ -24,6 +24,7 @@ export default function AffiliateConfirmPage() {
   }, [router]);
 
   const handleBack = () => {
+    sessionStorage.setItem('affiliate_went_to_confirm', 'true');
     router.push('/affiliate/signup');
   };
 
