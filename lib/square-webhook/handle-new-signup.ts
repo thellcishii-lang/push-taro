@@ -103,7 +103,7 @@ try {
           </a>
         </p>
         <p>ログインID: ${normalizedEmail}</p>
-        ${!existingAuthUser ? `<p>パスワード: <code>${generatedPassword}</code></p>` : ''}
+        <p>パスワード: <code>${generatedPassword}</code></p>
         <hr />
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
