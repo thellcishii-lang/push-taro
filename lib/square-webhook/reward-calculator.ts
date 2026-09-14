@@ -66,7 +66,13 @@ export async function calculateRewardRate(
     baseRate = hasInvoice ? 0.10 : 0.09;
 
   } else if (referrerType === 'affiliate') {
-    baseRate = 0.05;
+    // 単発型はレートではなく固定額で計算するため、rate は 0 を返す
+    // （固定額は getOneTimeRewardAmount() で取得）
+    if (referrerData?.rewardType === 'one-time') {
+      baseRate = 0;
+    } else {
+      baseRate = 0.05;
+    }
   }
 
   return baseRate;
@@ -94,7 +100,23 @@ export function getUnpaidField(referrerType: string): string {
 export function getPayoutThreshold(referrerType: string): number {
   return referrerType === 'affiliate' ? 5000 : 10000;
 }
+// ============================================================
+// 単発型の固定報酬額を取得
+//   - PRO:      ¥5,000
+//   - STANDARD: ¥2,000
+//   - LIGHT:    ¥1,000
+//   - インボイス未登録は 10% 源泉徴収した額を返す
+// ============================================================
+export function getOneTimeRewardAmount(plan: string, hasInvoice: boolean): number {
+  const normalizedPlan = (plan || 'light').toLowerCase();
+  const baseAmount =
+    normalizedPlan === 'pro' ? 5000 :
+    normalizedPlan === 'standard' ? 2000 :
+    1000;
 
+  return hasInvoice ? baseAmount : Math.floor(baseAmount * 0.9);
+}
+変更点まとめz
 // ============================================================
 // 管理者宛の振込リクエストメール送信
 // ============================================================
