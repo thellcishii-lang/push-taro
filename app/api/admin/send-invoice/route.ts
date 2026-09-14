@@ -1,12 +1,8 @@
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { sendEmail } from '@/lib/mailer';
+import { PLAN_PRICES } from '@/lib/constants';
 
-const PLAN_PRICES: Record<string, number> = {
-  light: 1980,
-  standard: 3800,
-  pro: 10000,
-};
 
 export async function POST(request: Request) {
   // ① 認証ヘッダーの確認
