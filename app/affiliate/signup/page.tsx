@@ -112,7 +112,8 @@ export default function AffiliateSignupPage() {
     sessionStorage.setItem('affiliate_went_to_confirm', 'true');
 
     router.push('/affiliate/confirm');
-    
+  };
+
   // ============================================================
   // 登録完了画面（successパラメータで表示）
   // ============================================================
