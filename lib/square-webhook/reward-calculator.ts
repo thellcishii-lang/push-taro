@@ -66,14 +66,17 @@ export async function calculateRewardRate(
     baseRate = hasInvoice ? 0.10 : 0.09;
 
   } else if (referrerType === 'affiliate') {
-    // 単発型はレートではなく固定額で計算するため、rate は 0 を返す
-    // （固定額は getOneTimeRewardAmount() で取得）
-    if (referrerData?.rewardType === 'one-time') {
-      baseRate = 0;
-    } else {
-      baseRate = 0.05;
-    }
+  if (referrerData?.rewardType === 'one-time') {
+    baseRate = 0;
+  } else {
+    baseRate = 0.05;
+    const hasInvoice = !!(
+      referrerData?.invoiceNumber &&
+      String(referrerData.invoiceNumber).trim() !== ''
+    );
+    if (!hasInvoice) baseRate = baseRate * 0.9;
   }
+}
 
   return baseRate;
 }
@@ -94,12 +97,6 @@ export function getUnpaidField(referrerType: string): string {
   return referrerType === 'affiliate' ? 'unpaidReward' : 'unpaidRewardTotal';
 }
 
-// ============================================================
-// 閾値を取得（代理店・PRO=10000円 / アフィリ=5000円）
-// ============================================================
-export function getPayoutThreshold(referrerType: string): number {
-  return referrerType === 'affiliate' ? 5000 : 10000;
-}
 // ============================================================
 // 単発型の固定報酬額を取得
 //   - PRO:      ¥5,000
