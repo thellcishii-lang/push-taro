@@ -98,6 +98,27 @@ export async function POST(req: Request) {
       updatedAt: FieldValue.serverTimestamp(),
     });
 
+    
+    // ─── 2-2. monthly_statements の未払い分を paid に更新 ───
+    const statementsSnap = await db.collection('monthly_statements')
+      .where('userId', '==', userId)
+      .where('referrerType', '==', referrerType)
+      .where('status', '==', 'unpaid')
+      .get();
+
+    if (!statementsSnap.empty) {
+      const stBatch = db.batch();
+      statementsSnap.docs.forEach((doc) => {
+        stBatch.update(doc.ref, {
+          status: 'paid',
+          paidAt: FieldValue.serverTimestamp(),
+          paidBy: adminUid,
+        });
+      });
+      await stBatch.commit();
+      console.log(`[complete-payout] monthly_statements 更新: ${statementsSnap.size}件`);
+    }
+
     // ─── 3. メール ───
     if (userData.email) {
       await sendUserPayoutEmail({
