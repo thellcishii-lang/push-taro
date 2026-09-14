@@ -1,9 +1,14 @@
 // lib/square-webhook/reward-calculator.ts
-/**
- * 報酬計算の共通ロジック（代理店 / PRO / アフィリエイト）
- */
 import { db } from '@/lib/firebase-admin';
 import { sendEmail } from '@/lib/mailer';
+import {
+  AGENCY_RATE_PRO_TIERS,
+  AGENCY_RATE_OTHER,
+  PRO_REFERRAL_RATE,
+  AFFILIATE_RECURRING_RATE,
+  AFFILIATE_ONE_TIME_REWARDS,
+  WITHHOLDING_RATE,
+} from '@/lib/constants';
 
 // ============================================================
 // 代理店が紹介しているアクティブなPRO店舗数をカウント
@@ -36,7 +41,7 @@ export async function countActiveProReferrals(referrerId: string): Promise<numbe
 }
 
 // ============================================================
-// 報酬率を計算（代理店 / PRO会員 / アフィリエイト 対応）
+// 源泉前の報酬率を取得（単発型アフィリは 0 を返す）
 // ============================================================
 export async function calculateRewardRate(
   referrerData: any,
@@ -46,39 +51,75 @@ export async function calculateRewardRate(
 ): Promise<number> {
   if (!referrerType || referrerType === 'shop') return 0;
 
-  let baseRate = 0;
-
   if (referrerType === 'agency') {
     if (plan === 'pro') {
       const activeProCount = await countActiveProReferrals(referrerId);
-      if (activeProCount <= 100)      baseRate = 0.30;
-      else if (activeProCount <= 200) baseRate = 0.36;
-      else                            baseRate = 0.45;
-    } else {
-      baseRate = 0.18;
+      for (const tier of AGENCY_RATE_PRO_TIERS) {
+        if (activeProCount <= tier.maxActivePro) return tier.rate;
+      }
+      return AGENCY_RATE_PRO_TIERS[AGENCY_RATE_PRO_TIERS.length - 1].rate;
     }
-
-    const hasInvoice = !!(referrerData?.invoiceNumber && String(referrerData.invoiceNumber).trim() !== '');
-    if (!hasInvoice) baseRate = baseRate * 0.9;
-
-  } else if (referrerType === 'pro') {
-    const hasInvoice = !!(referrerData?.invoiceNumber && String(referrerData.invoiceNumber).trim() !== '');
-    baseRate = hasInvoice ? 0.10 : 0.09;
-
-  } else if (referrerType === 'affiliate') {
-  if (referrerData?.rewardType === 'one-time') {
-    baseRate = 0;
-  } else {
-    baseRate = 0.05;
-    const hasInvoice = !!(
-      referrerData?.invoiceNumber &&
-      String(referrerData.invoiceNumber).trim() !== ''
-    );
-    if (!hasInvoice) baseRate = baseRate * 0.9;
+    return AGENCY_RATE_OTHER;
   }
+
+  if (referrerType === 'pro') {
+    return PRO_REFERRAL_RATE;
+  }
+
+  if (referrerType === 'affiliate') {
+    if (referrerData?.rewardType === 'one-time') return 0;
+    return AFFILIATE_RECURRING_RATE;
+  }
+
+  return 0;
 }
 
-  return baseRate;
+// ============================================================
+// 単発型の固定報酬額（源泉前）
+// ============================================================
+export function getOneTimeRewardAmount(plan: string): number {
+  const normalized = (plan || 'light').toLowerCase();
+  return AFFILIATE_ONE_TIME_REWARDS[normalized] ?? AFFILIATE_ONE_TIME_REWARDS.light;
+}
+
+// ============================================================
+// 報酬を計算（源泉徴収の適用はここだけ）
+// ============================================================
+export function calculateRewards(params: {
+  baseRate: number;
+  paymentAmount: number;
+  hasInvoice: boolean;
+  oneTimeAmount?: number;  // 単発型の場合のみ指定
+}): {
+  baseRate: number;
+  effectiveRate: number;
+  baseReward: number;
+  reward: number;
+  withholding: number;
+} {
+  const { baseRate, paymentAmount, hasInvoice, oneTimeAmount } = params;
+
+  // 単発型（固定額）
+  if (typeof oneTimeAmount === 'number' && oneTimeAmount > 0) {
+    const baseReward = oneTimeAmount;
+    const reward = hasInvoice ? baseReward : Math.floor(baseReward * (1 - WITHHOLDING_RATE));
+    const withholding = baseReward - reward;
+    return {
+      baseRate: 0,
+      effectiveRate: 0,
+      baseReward,
+      reward,
+      withholding,
+    };
+  }
+
+  // ストック型（率計算）
+  const effectiveRate = hasInvoice ? baseRate : baseRate * (1 - WITHHOLDING_RATE);
+  const baseReward = Math.floor(paymentAmount * baseRate);
+  const reward = Math.floor(paymentAmount * effectiveRate);
+  const withholding = baseReward - reward;
+
+  return { baseRate, effectiveRate, baseReward, reward, withholding };
 }
 
 // ============================================================
@@ -97,23 +138,6 @@ export function getUnpaidField(referrerType: string): string {
   return referrerType === 'affiliate' ? 'unpaidReward' : 'unpaidRewardTotal';
 }
 
-// ============================================================
-// 単発型の固定報酬額を取得
-//   - PRO:      ¥5,000
-//   - STANDARD: ¥2,000
-//   - LIGHT:    ¥1,000
-//   - インボイス未登録は 10% 源泉徴収した額を返す
-// ============================================================
-export function getOneTimeRewardAmount(plan: string, hasInvoice: boolean): number {
-  const normalizedPlan = (plan || 'light').toLowerCase();
-  const baseAmount =
-    normalizedPlan === 'pro' ? 5000 :
-    normalizedPlan === 'standard' ? 2000 :
-    1000;
-
-  return hasInvoice ? baseAmount : Math.floor(baseAmount * 0.9);
-}
-変更点まとめz
 // ============================================================
 // 管理者宛の振込リクエストメール送信
 // ============================================================
@@ -136,8 +160,8 @@ export async function sendAdminPayoutNotification(
       subject: `【要対応】${typeLabel}報酬の振込リクエスト（${referrerData.email}）`,
       html: `
         <div style="font-family: sans-serif; padding: 20px; background: #fff5f5; border: 2px solid #dc2626; border-radius: 8px;">
-          <h2 style="color: #dc2626; margin: 0 0 16px 0;">【要対応】${typeLabel} 報酬 閾値到達</h2>
-          <p>${typeLabel}の報酬累計額が閾値に達しました。</p>
+          <h2 style="color: #dc2626; margin: 0 0 16px 0;">【要対応】${typeLabel} 報酬 振込対象</h2>
+          <p>${typeLabel}の未払い報酬が発生しています。</p>
           <p>口座情報をご確認の上、手動でお振り込み（PayPay銀行等）をお願いいたします。</p>
           <hr />
           <h3>■ ユーザー情報</h3>
@@ -159,6 +183,11 @@ export async function sendAdminPayoutNotification(
           <p style="font-size: 12px; color: #64748b;">
             振込完了後、管理画面から「振込完了処理」を実行してください。
           </p>
+          <hr />
+          <p><strong>Push-taro.com</strong></p>
+          <p>運営会社：the合同会社</p>
+          <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
+          <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
         </div>
       `,
     });
