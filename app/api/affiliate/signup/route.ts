@@ -4,9 +4,12 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
 
 // 紹介コード生成
-function generateReferralCode(): string {
+//   recurring（ストック型）: AF-S-XXXXXX
+//   one-time（単発型）:      AF-O-XXXXXX
+function generateReferralCode(rewardType: 'recurring' | 'one-time'): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let code = 'AF-';
+  const prefix = rewardType === 'recurring' ? 'AF-S-' : 'AF-O-';
+  let code = prefix;
   for (let i = 0; i < 6; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
@@ -26,8 +29,11 @@ function generatePassword(): string {
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  let createdAffiliateId: string | null = null;
+  let createdAuthUid: string | null = null;
+  let isNewAuthUser = false;
+
   try {
-    // 🔥 すべてのフィールドを受け取る
     const {
       name,
       email,
@@ -42,121 +48,126 @@ export async function POST(request: Request) {
 
     // === バリデーション ===
     if (!name || !email) {
-      return NextResponse.json(
-        { error: '氏名とメールアドレスは必須です' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '氏名とメールアドレスは必須です' }, { status: 400 });
     }
-
     if (!address) {
-      return NextResponse.json(
-        { error: '住所は必須です' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '住所は必須です' }, { status: 400 });
     }
-
     if (businessType === 'corporation' && !companyName) {
-      return NextResponse.json(
-        { error: '法人の場合は会社名が必須です' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '法人の場合は会社名が必須です' }, { status: 400 });
     }
-
     if (!rewardType || !['recurring', 'one-time'].includes(rewardType)) {
-      return NextResponse.json(
-        { error: '報酬タイプを選択してください' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '報酬タイプを選択してください' }, { status: 400 });
     }
-
     if (!bankAccount || !bankAccount.bankName || !bankAccount.branchName || !bankAccount.accountNumber || !bankAccount.accountHolder) {
-      return NextResponse.json(
-        { error: '振込先口座情報はすべて必須です' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '振込先口座情報はすべて必須です' }, { status: 400 });
     }
 
-    // メールアドレス重複チェック
+    const normalizedEmail = email.trim().toLowerCase();
 
-    const existing = await db.collection('affiliates').where('email', '==', email).get();
-    if (!existing.empty) {
+    // ============================================================
+    // 1. メール重複チェック（affiliates のみ）
+    // ============================================================
+    const existingAffiliate = await db
+      .collection('affiliates')
+      .where('email', '==', normalizedEmail)
+      .get();
+
+    if (!existingAffiliate.empty) {
       return NextResponse.json(
         { error: 'このメールアドレスは既にアフィリエイト登録されています' },
         { status: 409 }
       );
     }
 
-    // パスワード自動生成
-    const normalizedEmail = email.trim().toLowerCase();
+    // ============================================================
+    // 2. Auth ユーザー作成（既存ならパスワード上書き）
+    // ============================================================
+    const generatedPassword = generatePassword();
 
-// ============================================================
-// 2. メールアドレス重複チェック（affiliates のみ）
-// ============================================================
-const existingAffiliate = await db
-  .collection('affiliates')
-  .where('email', '==', normalizedEmail)
-  .get();
-
-if (!existingAffiliate.empty) {
-  return NextResponse.json(
-    { error: 'このメールアドレスは既にアフィリエイト登録されています' },
-    { status: 409 }
-  );
-}
-    // 紹介コード生成（重複防止）
-    let referralCode = generateReferralCode();
-    let codeExists = true;
-    let attempts = 0;
-    while (codeExists && attempts < 10) {
-      const existingCode = await db.collection('affiliates')
-        .where('referralCode', '==', referralCode)
-        .get();
-      if (existingCode.empty) {
-        codeExists = false;
+    let userRecord;
+    try {
+      userRecord = await authAdmin.createUser({
+        email: normalizedEmail,
+        password: generatedPassword,
+        emailVerified: true,
+      });
+      isNewAuthUser = true;
+    } catch (e: any) {
+      if (e.code === 'auth/email-already-exists') {
+        userRecord = await authAdmin.getUserByEmail(normalizedEmail);
+        await authAdmin.updateUser(userRecord.uid, { password: generatedPassword });
+        isNewAuthUser = false;
       } else {
-        referralCode = generateReferralCode();
-        attempts++;
+        throw e;
       }
     }
+    createdAuthUid = userRecord.uid;
 
-    // 🔥 インボイス番号の有無を判定
+    // ============================================================
+    // 3. 紹介コード生成（重複防止）
+    // ============================================================
+    let referralCode = generateReferralCode(rewardType);
+    let attempts = 0;
+    while (attempts < 10) {
+      const existingCode = await db
+        .collection('affiliates')
+        .where('referralCode', '==', referralCode)
+        .get();
+      if (existingCode.empty) break;
+      referralCode = generateReferralCode(rewardType);
+      attempts++;
+    }
+
+    // ============================================================
+    // 4. Firestore 保存
+    // ============================================================
     const hasInvoice = !!(invoiceNumber && invoiceNumber.trim() !== '');
 
-    // 🔥 Firestore 保存（全フィールドを保存）
     const affiliateData = {
       uid: userRecord.uid,
       name: name.trim(),
-      email: email.trim(),
+      email: normalizedEmail,
       phone: phone || '',
       address: address.trim(),
       businessType: businessType || 'individual',
       companyName: businessType === 'corporation' ? companyName.trim() : null,
       invoiceNumber: invoiceNumber || null,
-      hasInvoice, // インボイス有無フラグ（報酬計算用）
+      hasInvoice,
       referralCode,
       rewardType,
       status: 'active',
       totalEarnings: 0,
       unpaidReward: 0,
+      payoutStatus: 'none',
+      lastPaidAt: null,
       bankAccount: bankAccount,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     };
 
     const docRef = await db.collection('affiliates').add(affiliateData);
+    createdAffiliateId = docRef.id;
 
-    // 🔥 登録完了メール（インボイス注意書き付き）
-    await sendEmail({
-      to: email,
+    // ============================================================
+    // 5. 申込者へのメール
+    // ============================================================
+    const rewardTypeLabel = rewardType === 'recurring'
+      ? 'ストック型（毎月5%還元）'
+      : '単発型（初回のみ固定報酬）';
+
+    const applicantMailResult = await sendEmail({
+      to: normalizedEmail,
       subject: '【Push-taro】アフィリエイト登録完了のお知らせ',
       html: `
         <h2>${name} 様</h2>
         <p>この度はPush-taroアフィリエイトプログラムへのご登録、誠にありがとうございます。</p>
         <p>以下の情報で管理画面にログインいただけます。</p>
         <hr />
-        <p><strong>ログインID（メールアドレス）:</strong> ${email}</p>
+        <p><strong>ログインID（メールアドレス）:</strong> ${normalizedEmail}</p>
         <p><strong>パスワード:</strong> <code style="background:#f1f5f9;padding:4px 12px;border-radius:4px;font-weight:bold;font-size:16px;">${generatedPassword}</code></p>
         <p><strong>ご自身の紹介コード:</strong> <code style="background:#f1f5f9;padding:4px 12px;border-radius:4px;font-weight:bold;">${referralCode}</code></p>
+        <p><strong>報酬タイプ:</strong> ${rewardTypeLabel}</p>
         <hr />
         <p><strong>インボイス登録番号:</strong> ${invoiceNumber || '未登録'}</p>
         ${!hasInvoice ? `
@@ -173,20 +184,79 @@ if (!existingAffiliate.empty) {
         <hr />
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
+        <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
         <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
       `,
     });
 
+    // メール送信失敗 → ロールバック
+    if (!applicantMailResult.success) {
+      console.error('[affiliate/signup] 申込者メール送信失敗 → ロールバック');
+      if (createdAffiliateId) {
+        await db.collection('affiliates').doc(createdAffiliateId).delete();
+      }
+      if (isNewAuthUser && createdAuthUid) {
+        await authAdmin.deleteUser(createdAuthUid);
+      }
+      return NextResponse.json(
+        { error: 'メール送信に失敗しました。しばらく経ってから再度お試しください。' },
+        { status: 500 }
+      );
+    }
+
+    // ============================================================
+    // 6. 管理者への通知メール（失敗しても登録は維持）
+    // ============================================================
+    const adminEmail = process.env.ADMIN_EMAILS?.split(',')[0]?.trim() || 'pushtaro-info@gmail.com';
+    await sendEmail({
+      to: adminEmail,
+      subject: `【新規アフィリエイト登録】${name}（${rewardTypeLabel}）`,
+      html: `
+        <h2>新規アフィリエイト登録</h2>
+        <table style="font-size: 14px;">
+          <tr><td style="padding: 6px; font-weight: bold;">氏名</td><td style="padding: 6px;">${name}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">メール</td><td style="padding: 6px;">${normalizedEmail}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">紹介コード</td><td style="padding: 6px;">${referralCode}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">報酬タイプ</td><td style="padding: 6px;">${rewardTypeLabel}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">事業形態</td><td style="padding: 6px;">${businessType === 'corporation' ? '法人' : '個人'}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">インボイス</td><td style="padding: 6px;">${hasInvoice ? 'あり' : 'なし'}</td></tr>
+        </table>
+        <hr />
+        <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/system-admin">全体管理画面で確認</a></p>
+        <hr />
+        <p><strong>Push-taro.com</strong></p>
+        <p>運営会社：the合同会社</p>
+        <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
+        <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
+      `,
+    });
+
+    // ============================================================
+    // 7. レスポンス
+    // ============================================================
     return NextResponse.json({
       success: true,
       message: 'アフィリエイト登録が完了しました',
-      affiliateId: docRef.id,
+      affiliateId: createdAffiliateId,
       referralCode,
-      email,
+      rewardType,
+      email: normalizedEmail,
     });
 
   } catch (error: any) {
     console.error('[affiliate/signup] エラー:', error);
+
+    if (createdAffiliateId) {
+      try {
+        await db.collection('affiliates').doc(createdAffiliateId).delete();
+      } catch {}
+    }
+    if (isNewAuthUser && createdAuthUid) {
+      try {
+        await authAdmin.deleteUser(createdAuthUid);
+      } catch {}
+    }
+
     return NextResponse.json(
       { error: error.message || '登録処理に失敗しました' },
       { status: 500 }
