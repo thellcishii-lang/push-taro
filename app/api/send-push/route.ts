@@ -4,6 +4,7 @@ import { messaging, db } from '../../../lib/firebase-admin';
 import { getAuth } from 'firebase-admin/auth';
 import { FieldValue } from 'firebase-admin/firestore';
 import { notifyAdmins } from '@/lib/error-notifier';
+import { PLAN_LIMITS, PLAN_LIMIT_LABELS } from '@/lib/constants';
 
 // 🔍 トークンからプラットフォームを推測する簡易関数
 function guessPlatform(token: string): string {
@@ -17,12 +18,7 @@ function guessPlatform(token: string): string {
   return 'unknown';
 }
 
-// 📦 プランごとの月間送信上限
-const PLAN_LIMITS: Record<string, { name: string; limit: number }> = {
-  light: { name: 'ライトプラン', limit: 5000 },
-  standard: { name: 'スタンダードプラン', limit: 15000 },
-  pro: { name: 'プロプラン', limit: 5000000 },
-};
+
 
 export const dynamic = 'force-dynamic';
 
@@ -98,8 +94,8 @@ export async function POST(request: Request) {
 
     // 🛡️ プランと月間送信上限のチェック
     const planKey = shopData.plan || 'standard';
-    const planInfo = PLAN_LIMITS[planKey] || PLAN_LIMITS['standard'];
-    const monthlyLimit = shopData.monthlyLimit || planInfo.limit;
+    const monthlyLimit = shopData.monthlyLimit || PLAN_LIMITS[planKey] || PLAN_LIMITS['standard'];
+    const planName = PLAN_LIMIT_LABELS[planKey] || PLAN_LIMIT_LABELS['standard'];
 
     const now = new Date();
     const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -112,10 +108,10 @@ export async function POST(request: Request) {
     }
 
     const targetCount = registrationTokens.length;
-    if (planKey !== 'pro' && (currentMonthSent + targetCount > monthlyLimit)) {
+        if (planKey !== 'pro' && (currentMonthSent + targetCount > monthlyLimit)) {
       return NextResponse.json({ 
         success: false, 
-        error: `今月の送信上限（${planInfo.name}: ${monthlyLimit.toLocaleString()}件）に達するため送信できません。今月の送信済み数: ${currentMonthSent.toLocaleString()}件` 
+        error: `今月の送信上限（${planName}: ${monthlyLimit.toLocaleString()}件）に達するため送信できません。今月の送信済み数: ${currentMonthSent.toLocaleString()}件` 
       }, { status: 400 });
     }
 
