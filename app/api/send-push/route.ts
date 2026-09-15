@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     const shopData = shopDoc.data();
     console.log(`[send-push] 🏪 店舗ID: ${shopId}`);
 
-    const { title, body, imageUrl, linkUrl } = await request.json();
+    const { title, body, imageUrl, url } = await request.json();
     if (!title || !body) {
       return NextResponse.json({ error: 'タイトルと本文は必須です' }, { status: 400 });
     }
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
 
     const displayTitle = title || shopData.name || 'Push-taro';
     const displayIcon = shopData.iconUrl || '/icon-192x192.png';
-    const targetUrl = linkUrl || `/subscribe?s=${shopId}`;
+    const targetUrl = url || `/subscribe?s=${shopId}`;
 
     // ✅ 各OSに特化した全端末対応メッセージ構造
     const baseMessage = {
@@ -244,7 +244,7 @@ export async function POST(request: Request) {
       title,
       body,
       imageUrl: imageUrl || null,
-      linkUrl: linkUrl || null,
+      linkUrl: url || null,
       sentAt: FieldValue.serverTimestamp(),
       status: 'success',
       successCount: totalSuccessCount,
