@@ -1465,9 +1465,15 @@ export default function SystemAdminPage() {
     return () => unsub();
   }, []);
 
-  const fetchSystemStats = async () => {
+    const fetchSystemStats = async () => {
     try {
-      const res = await fetch('/api/system-admin/stats');
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/system-admin/stats', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
       if (res.ok) {
         const data = await res.json();
         setSummary(data.summary || summary);
