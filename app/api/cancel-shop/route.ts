@@ -40,18 +40,23 @@ export async function POST(request: Request) {
     let validUntilDate = new Date();
 
     // Square解約
-    if (shopData?.subscriptionId) {
-      try {
-        const response = await squareClient.subscriptionsApi.cancelSubscription(shopData.subscriptionId);
-        const subscription = response.result.subscription;
-        if (subscription?.chargedThroughDate) {
-          validUntilDate = new Date(subscription.chargedThroughDate);
-        }
-      } catch (sqErr: any) {
-        console.error('Square解約処理エラー:', sqErr);
-        // Square解約に失敗しても、Firestore の status は更新する
-      }
+    // Square解約
+if (shopData?.subscriptionId) {
+  try {
+    const response = await squareClient.subscriptionsApi.cancelSubscription(shopData.subscriptionId);
+    const subscription = response.result.subscription;
+    if (subscription?.chargedThroughDate) {
+      validUntilDate = new Date(subscription.chargedThroughDate);
     }
+  } catch (sqErr: any) {
+    console.error('Square解約処理エラー:', sqErr);
+    // 🆕 Square解約に失敗したら、Firestore を更新せず 500 を返す
+    return NextResponse.json(
+      { error: 'Square での解約処理に失敗しました。時間をおいて再度お試しください。' },
+      { status: 500 }
+    );
+  }
+}
 
     // ============================================================
     // Firestore 更新（Authユーザーは削除しない）
