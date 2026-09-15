@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
 
 // firebase-client への依存を排除し、直接初期化
@@ -20,6 +21,10 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 export default function TestConsolePage() {
+  const router = useRouter();
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -199,6 +204,35 @@ export default function TestConsolePage() {
     }
   };
 
+　　　　  // 🆕 管理者チェック
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      if (!u) {
+        setAuthChecked(true);
+        router.replace('/system-admin');
+        return;
+      }
+      try {
+        const tokenResult = await u.getIdTokenResult(true);
+        if (tokenResult.claims.admin === true) {
+          setIsAdmin(true);
+        } else {
+          router.replace('/system-admin');
+        }
+      } catch {
+        router.replace('/system-admin');
+      } finally {
+        setAuthChecked(true);
+      }
+    });
+    return () => unsub();
+  }, [router]);
+
+  // 既存（そのまま）
+  useEffect(() => {
+    fetchSubscriptions();
+  }, []);
+  
   useEffect(() => {
     fetchSubscriptions();
   }, []);
@@ -344,6 +378,20 @@ export default function TestConsolePage() {
     }
   };
 
+    };
+
+  // 🆕 認証チェック中
+  if (!authChecked) {
+    return <main style={{ padding: 60, textAlign: 'center' }}>認証確認中...</main>;
+  }
+  // 🆕 非管理者
+  if (!isAdmin) {
+    return <main style={{ padding: 60, textAlign: 'center' }}>管理者権限が必要です。リダイレクト中...</main>;
+  }
+
+  return (
+    <main style={{ padding: 24, maxWidth: 950, ... }}>
+  
   return (
     <main style={{ padding: 24, maxWidth: 950, margin: '0 auto', fontFamily: 'sans-serif', background: '#f8fafc', minHeight: '100vh' }}>
       <h1 style={{ fontSize: 22, color: '#0f172a' }}>🛠️ Webプッシュ通知 診断・点検コンソール</h1>
