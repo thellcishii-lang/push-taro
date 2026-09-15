@@ -473,52 +473,72 @@ export default function ProShopPage() {
     };
 
     const updatedList = [...scheduledList, newItem];
-    setScheduledList(updatedList);
+setScheduledList(updatedList);
 
-    if (user && shopId) {
-      try {
-        const idToken = await user.getIdToken();
-        await fetch('/api/update-shop', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${idToken}`,
-          },
-          body: JSON.stringify({ shopId, scheduledList: updatedList }),
-        });
-      } catch (err) {
-        console.error('予約リスト保存エラー:', err);
-      }
+if (user && shopId) {
+  try {
+    const idToken = await user.getIdToken();
+    const res = await fetch('/api/update-shop', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({ shopId, scheduledList: updatedList }),
+    });
+
+    // 🔥 エラーレスポンスをチェック
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert('❌ 予約の保存に失敗しました: ' + (data.error || `HTTP ${res.status}`));
+      // UI上の予約リストも元に戻す
+      setScheduledList(scheduledList);
+      return;
     }
+  } catch (err: any) {
+    console.error('予約リスト保存エラー:', err);
+    alert('❌ 予約の保存に失敗しました: ' + err.message);
+    setScheduledList(scheduledList);
+    return;
+  }
+}
 
-    setReserveTitle('');
-    setReserveBody('');
-    setReserveLinkUrl('');
-    alert('✅ 予約を送信リストにセットし、保存しました！');
+setReserveTitle('');
+setReserveBody('');
+setReserveLinkUrl('');
+alert('✅ 予約を送信リストにセットし、保存しました！');
   };
 
   const handleDeleteSchedule = async (id: string) => {
-    if (confirm('この予約配信を取り消して削除しますか？')) {
-      const updatedList = scheduledList.filter((item) => item.id !== id);
-      setScheduledList(updatedList);
+  if (!confirm('この予約配信を取り消して削除しますか？')) return;
 
-      if (user && shopId) {
-        try {
-          const idToken = await user.getIdToken();
-          await fetch('/api/update-shop', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${idToken}`,
-            },
-            body: JSON.stringify({ shopId, scheduledList: updatedList }),
-          });
-        } catch (err) {
-          console.error('予約削除エラー:', err);
-        }
+  const updatedList = scheduledList.filter((item) => item.id !== id);
+  setScheduledList(updatedList);
+
+  if (user && shopId) {
+    try {
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/update-shop', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ shopId, scheduledList: updatedList }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert('❌ 予約の削除に失敗しました: ' + (data.error || `HTTP ${res.status}`));
+        setScheduledList(scheduledList); // ロールバック
       }
+    } catch (err: any) {
+      console.error('予約削除エラー:', err);
+      alert('❌ 予約の削除に失敗しました: ' + err.message);
+      setScheduledList(scheduledList);
     }
-  };
+  }
+};
 
   const handleExport = async () => {
     const json = await exportHistoryToJSON();
