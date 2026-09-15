@@ -24,7 +24,7 @@ export default function TestConsolePage() {
   const router = useRouter();
   const [authChecked, setAuthChecked] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  
+
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -71,7 +71,7 @@ export default function TestConsolePage() {
   const [activating, setActivating] = useState(false);
   const [activationResult, setActivationResult] = useState<any>(null);
 
-   // 🆕 代理店用
+  // 🆕 代理店用
   const [targetAgencyId, setTargetAgencyId] = useState('');
   const [activatingAgency, setActivatingAgency] = useState(false);
   const [agencyActivationResult, setAgencyActivationResult] = useState<any>(null);
@@ -81,11 +81,49 @@ export default function TestConsolePage() {
   const [activatingAffiliate, setActivatingAffiliate] = useState(false);
   const [affiliateActivationResult, setAffiliateActivationResult] = useState<any>(null);
 
+  // 🆕 管理者トークン付き fetch ヘルパー
+  const authFetch = async (url: string, options: RequestInit = {}) => {
+    const user = auth.currentUser;
+    if (!user) throw new Error('ログインが必要です');
+    const idToken = await user.getIdToken();
+    return fetch(url, {
+      ...options,
+      headers: {
+        ...(options.headers || {}),
+        Authorization: `Bearer ${idToken}`,
+      },
+    });
+  };
+
+  // 🆕 管理者チェック
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      if (!u) {
+        setAuthChecked(true);
+        router.replace('/system-admin');
+        return;
+      }
+      try {
+        const tokenResult = await u.getIdTokenResult(true);
+        if (tokenResult.claims.admin === true) {
+          setIsAdmin(true);
+        } else {
+          router.replace('/system-admin');
+        }
+      } catch {
+        router.replace('/system-admin');
+      } finally {
+        setAuthChecked(true);
+      }
+    });
+    return () => unsub();
+  }, [router]);
+
   // ⚡️ テスト用店舗発行処理
   const handleCreateTestShop = async () => {
     setCreatingShop(true);
     try {
-      const res = await fetch('/api/test/create-shop', {
+      const res = await authFetch('/api/test/create-shop', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: dummyEmail }),
@@ -112,7 +150,7 @@ export default function TestConsolePage() {
   const handleCreateTestAgency = async () => {
     setCreatingAgency(true);
     try {
-      const res = await fetch('/api/test/create-agency', {
+      const res = await authFetch('/api/test/create-agency', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -143,7 +181,7 @@ export default function TestConsolePage() {
   const handleCreateTestAffiliate = async () => {
     setCreatingAffiliate(true);
     try {
-      const res = await fetch('/api/test/create-affiliate', {
+      const res = await authFetch('/api/test/create-affiliate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -204,35 +242,6 @@ export default function TestConsolePage() {
     }
   };
 
-　　　　  // 🆕 管理者チェック
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (u) => {
-      if (!u) {
-        setAuthChecked(true);
-        router.replace('/system-admin');
-        return;
-      }
-      try {
-        const tokenResult = await u.getIdTokenResult(true);
-        if (tokenResult.claims.admin === true) {
-          setIsAdmin(true);
-        } else {
-          router.replace('/system-admin');
-        }
-      } catch {
-        router.replace('/system-admin');
-      } finally {
-        setAuthChecked(true);
-      }
-    });
-    return () => unsub();
-  }, [router]);
-
-  // 既存（そのまま）
-  useEffect(() => {
-    fetchSubscriptions();
-  }, []);
-  
   useEffect(() => {
     fetchSubscriptions();
   }, []);
@@ -315,7 +324,7 @@ export default function TestConsolePage() {
     setActivating(true);
     setActivationResult(null);
     try {
-      const res = await fetch('/api/test/force-activate', {
+      const res = await authFetch('/api/test/force-activate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ shopId: targetShopId }),
@@ -330,7 +339,7 @@ export default function TestConsolePage() {
     }
   };
 
-    // 🆕 代理店 強制アクティベート
+  // 🆕 代理店 強制アクティベート
   const handleForceActivateAgency = async () => {
     if (!targetAgencyId) {
       alert('代理店IDを入力してください');
@@ -339,7 +348,7 @@ export default function TestConsolePage() {
     setActivatingAgency(true);
     setAgencyActivationResult(null);
     try {
-      const res = await fetch('/api/test/force-activate', {
+      const res = await authFetch('/api/test/force-activate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ agencyId: targetAgencyId }),
@@ -363,7 +372,7 @@ export default function TestConsolePage() {
     setActivatingAffiliate(true);
     setAffiliateActivationResult(null);
     try {
-      const res = await fetch('/api/test/force-activate', {
+      const res = await authFetch('/api/test/force-activate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ affiliateId: targetAffiliateId }),
@@ -378,20 +387,24 @@ export default function TestConsolePage() {
     }
   };
 
-    };
-
   // 🆕 認証チェック中
   if (!authChecked) {
-    return <main style={{ padding: 60, textAlign: 'center' }}>認証確認中...</main>;
-  }
-  // 🆕 非管理者
-  if (!isAdmin) {
-    return <main style={{ padding: 60, textAlign: 'center' }}>管理者権限が必要です。リダイレクト中...</main>;
+    return (
+      <main style={{ padding: 60, textAlign: 'center', fontFamily: 'sans-serif' }}>
+        認証確認中...
+      </main>
+    );
   }
 
-  return (
-    <main style={{ padding: 24, maxWidth: 950, ... }}>
-  
+  // 🆕 非管理者（リダイレクト中）
+  if (!isAdmin) {
+    return (
+      <main style={{ padding: 60, textAlign: 'center', fontFamily: 'sans-serif' }}>
+        管理者権限が必要です。リダイレクト中...
+      </main>
+    );
+  }
+
   return (
     <main style={{ padding: 24, maxWidth: 950, margin: '0 auto', fontFamily: 'sans-serif', background: '#f8fafc', minHeight: '100vh' }}>
       <h1 style={{ fontSize: 22, color: '#0f172a' }}>🛠️ Webプッシュ通知 診断・点検コンソール</h1>
@@ -813,7 +826,7 @@ export default function TestConsolePage() {
                 const code = (document.getElementById('test-verify-code') as HTMLInputElement)?.value;
                 if (!code) { alert('紹介コードを入力してください'); return; }
                 try {
-                  const res = await fetch(`/api/test/verify-referral?code=${code}`);
+                  const res = await authFetch(`/api/test/verify-referral?code=${code}`);
                   const data = await res.json();
                   alert(`✅ 検証結果:\n${JSON.stringify(data, null, 2)}`);
                 } catch (err: any) {
@@ -857,7 +870,7 @@ export default function TestConsolePage() {
         )}
       </section>
 
-            {/* 🏢 代理店 強制アクティベーション */}
+      {/* 🏢 代理店 強制アクティベーション */}
       <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24 }}>
         <h2 style={{ marginTop: 0, fontSize: 18, color: '#1e293b' }}>🏢 代理店 強制アクティベーション</h2>
         <p style={{ fontSize: 12, color: '#64748b' }}>
@@ -936,7 +949,7 @@ export default function TestConsolePage() {
               const shopId = (document.getElementById('test-force-upgrade-shopid') as HTMLInputElement)?.value;
               if (!shopId) { alert('店舗IDを入力してください'); return; }
               try {
-                const res = await fetch('/api/test/force-activate', {
+                const res = await authFetch('/api/test/force-activate', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ shopId }),
