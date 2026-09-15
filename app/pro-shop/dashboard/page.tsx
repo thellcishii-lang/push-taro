@@ -184,9 +184,31 @@ export default function ProShopDashboardPage() {
     }
   };
 
-  const handleDownloadCSV = () => {
+    const handleDownloadCSV = async () => {
+    if (!user || !shopId) return;
     const currentMonth = new Date().toISOString().slice(0, 7);
-    window.open(`/api/referrals/export-csv?referrer_id=${shopId}&month=${currentMonth}`, '_blank');
+    try {
+      const idToken = await user.getIdToken();
+      const res = await fetch(
+        `/api/referrals/export-csv?referrer_id=${shopId}&referrer_type=pro&month=${currentMonth}`,
+        { headers: { Authorization: `Bearer ${idToken}` } }
+      );
+
+      if (!res.ok) {
+        alert('CSVの取得に失敗しました');
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `referral_statement_pro_${currentMonth}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert('エラー: ' + err.message);
+    }
   };
 
   const filteredReferrals = referrals.filter((r) => {
