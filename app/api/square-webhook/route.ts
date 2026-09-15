@@ -36,19 +36,29 @@ async function verifySquareSignature(request: Request, rawBody: string): Promise
 
 export async function POST(request: Request) {
   const rawBody = await request.text();
+
+  // 内部呼び出し（force-activate等）は別シークレットでスキップ
   const internalSecret = request.headers.get('x-internal-secret');
-  const isInternal = ...;
+  const isInternal =
+    !!internalSecret &&
+    !!process.env.CRON_SECRET &&
+    internalSecret === process.env.CRON_SECRET;
+
   if (!isInternal) {
     const valid = await verifySquareSignature(request, rawBody);
-    if (!valid) return 401;
+    if (!valid) {
+      console.warn('[square-webhook] 署名検証失敗');
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+    }
   }
+
   let body: any = {};
   try {
     body = JSON.parse(rawBody);
   } catch {
-    return 400;
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
-  
+
   try {
     const eventType = body?.type;
     const dataObject = body?.data?.object;
