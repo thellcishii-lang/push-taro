@@ -3,10 +3,17 @@ import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { POST as webhookPOST } from '../../square-webhook/route';
+import { verifyAdmin } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+
+  const adminUid = await verifyAdmin(request);
+  if (!adminUid) {
+    return NextResponse.json({ error: '管理者権限が必要です' }, { status: 403 });
+  }
+  
   try {
     const body = await request.json();
 
