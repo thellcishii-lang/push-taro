@@ -2,31 +2,48 @@
 /**
  * 紹介報酬の月次CSVダウンロード
  *
- * 参照元: app/pro-shop/dashboard/page.tsx の handleDownloadCSV
- * 用途: PRO店舗が自分の紹介報酬をCSVで保存
+ * クエリパラメータ:
+ *   referrer_id:   紹介者ID（PRO店舗 / 代理店 / アフィリ）
+ *   referrer_type: 'pro' | 'agency' | 'affiliate'（デフォルト: pro）
+ *   month:         '2026-08'（省略時は全期間）
  */
 import { NextResponse } from 'next/server';
-import { db, authAdmin } from '@/lib/firebase-admin';
+import { db } from '@/lib/firebase-admin';
+import { verifyAdmin } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 
+const VALID_TYPES = ['pro', 'agency', 'affiliate'] as const;
+type ReferrerType = typeof VALID_TYPES[number];
+
 export async function GET(request: Request) {
-  // ─── 認証（クエリ or ヘッダー）───
-  // window.open で叩かれるため、クエリパラメータ経由でトークンを受け取る想定
+  // 🆕 管理者認証
+  const adminUid = await verifyAdmin(request);
+  if (!adminUid) {
+    return NextResponse.json({ error: '管理者権限が必要です' }, { status: 403 });
+  }
+
   const { searchParams } = new URL(request.url);
   const referrerId = searchParams.get('referrer_id');
-  const targetMonth = searchParams.get('month'); // '2026-08'
+  const referrerType = (searchParams.get('referrer_type') || 'pro') as ReferrerType;
+  const targetMonth = searchParams.get('month');
 
   if (!referrerId) {
     return NextResponse.json({ error: 'referrer_id が必要です' }, { status: 400 });
   }
 
-  // ─── データ取得 ───
+  if (!VALID_TYPES.includes(referrerType)) {
+    return NextResponse.json(
+      { error: `referrer_type は ${VALID_TYPES.join(' / ')} のいずれかです` },
+      { status: 400 }
+    );
+  }
+
   try {
-    // monthly_rewards から referrerType='pro' の該当月を取得
+    // monthly_rewards から該当する報酬を取得
     let query: any = db.collection('monthly_rewards')
       .where('userId', '==', referrerId)
-      .where('referrerType', '==', 'pro');
+      .where('referrerType', '==', referrerType);
 
     if (targetMonth) {
       query = query.where('billingMonth', '==', targetMonth);
@@ -34,7 +51,7 @@ export async function GET(request: Request) {
 
     const rewardsSnap = await query.get();
 
-    // ─── CSV生成 ───
+    // CSV生成
     let csv = '\uFEFF対象月,紹介先店舗名,報酬率,決済額,基本報酬,源泉徴収,報酬額,ステータス\n';
 
     rewardsSnap.docs.forEach((doc: any) => {
@@ -53,8 +70,7 @@ export async function GET(request: Request) {
       ].join(',') + '\n';
     });
 
-    // ─── レスポンス ───
-    const filename = `referral_statement_${targetMonth || 'all'}.csv`;
+    const filename = `referral_statement_${referrerType}_${targetMonth || 'all'}.csv`;
 
     return new NextResponse(csv, {
       status: 200,
