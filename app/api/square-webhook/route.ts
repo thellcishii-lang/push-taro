@@ -5,6 +5,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
 import { notifyAdmins } from '@/lib/error-notifier';
+import crypto from 'crypto';
 
 import { handlePaymentFailed } from '@/lib/square-webhook/handle-payment-failed';
 import { handleNewSignup } from '@/lib/square-webhook/handle-new-signup';
@@ -14,11 +15,41 @@ import { handleAgencyPaymentSuccess, handleAgencyPaymentFailed } from '@/lib/squ
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: Request) {
-  let body: any = {};
+async function verifySquareSignature(request: Request, rawBody: string): Promise<boolean> {
+  const signature = request.headers.get('x-square-hmacsha256-signature');
+  if (!signature) return false;
 
+  const signatureKey = process.env.SQUARE_WEBHOOK_SIGNATURE_KEY;
+  const notificationUrl = process.env.SQUARE_WEBHOOK_NOTIFICATION_URL;
+  if (!signatureKey || !notificationUrl) return false;
+
+  const expected = crypto
+    .createHmac('sha256', signatureKey)
+    .update(notificationUrl + rawBody)
+    .digest('base64');
+
+  const a = Buffer.from(expected);
+  const b = Buffer.from(signature);
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}
+
+export async function POST(request: Request) {
+  const rawBody = await request.text();
+  const internalSecret = request.headers.get('x-internal-secret');
+  const isInternal = ...;
+  if (!isInternal) {
+    const valid = await verifySquareSignature(request, rawBody);
+    if (!valid) return 401;
+  }
+  let body: any = {};
   try {
-    body = await request.json();
+    body = JSON.parse(rawBody);
+  } catch {
+    return 400;
+  }
+  
+  try {
     const eventType = body?.type;
     const dataObject = body?.data?.object;
 
