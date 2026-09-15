@@ -70,7 +70,10 @@ async function handleShop(shopId: string) {
     `${process.env.NEXT_PUBLIC_APP_URL}/api/square-webhook`,
     {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+  'Content-Type': 'application/json',
+  'x-internal-secret': process.env.CRON_SECRET || '',
+},
       body: JSON.stringify({
         type: 'payment.updated',
         data: {
