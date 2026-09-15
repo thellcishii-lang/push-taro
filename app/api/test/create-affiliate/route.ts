@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import '@/lib/firebase-admin';
+import { verifyAdmin } from '@/lib/admin-auth';
 
 
 // 紹介コード生成
@@ -27,6 +28,12 @@ function generatePassword(): string {
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+
+  const adminUid = await verifyAdmin(request);
+  if (!adminUid) {
+    return NextResponse.json({ error: '管理者権限が必要です' }, { status: 403 });
+  }
+  
   try {
     const { email, name, rewardType } = await request.json();
 
