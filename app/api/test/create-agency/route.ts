@@ -2,10 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import '@/lib/firebase-admin';
+import { verifyAdmin } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
+
+  const adminUid = await verifyAdmin(req);
+  if (!adminUid) {
+    return NextResponse.json({ error: '管理者権限が必要です' }, { status: 403 });
+  }
+  
   try {
     const { email, companyName } = await req.json();
 
