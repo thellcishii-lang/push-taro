@@ -76,7 +76,6 @@ export async function GET(request: Request) {
           // 2-4. 送信済みフラグを立てる
           await subDoc.ref.update({
             [`couponUsage.${shopId}.birthdayNotifiedYear`]: currentYear,
-            [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
           });
 
           sentCount++;
