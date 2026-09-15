@@ -5,6 +5,7 @@ import { messaging, db, authAdmin } from '../../../lib/firebase-admin';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  let cleanupScope: string[] | null = null;
   const authHeader = request.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
     return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
@@ -12,7 +13,22 @@ export async function POST(request: Request) {
 
   try {
     const idToken = authHeader.split('Bearer ')[1];
-    await authAdmin.verifyIdToken(idToken);
+    const decoded = await authAdmin.verifyIdToken(idToken);
+    const userRecord = await authAdmin.getUser(decoded.uid);
+    const isAdmin = userRecord.customClaims?.admin === true;
+
+    let ownedShopIds: string[] | null = null;
+    if (!isAdmin) {
+      const shopsSnapshot = await db.collection('shops')
+        .where('ownerUid', '==', decoded.uid)
+        .get();
+      ownedShopIds = shopsSnapshot.docs.map((doc) => doc.id);
+      if (ownedShopIds.length === 0) {
+        return NextResponse.json({ success: true, removed: 0 }, { status: 200 });
+      }
+    }
+
+    cleanupScope = ownedShopIds;
   } catch {
     return NextResponse.json({ error: '無効な認証トークンです' }, { status: 401 });
   }
@@ -26,14 +42,21 @@ export async function POST(request: Request) {
       .where('lastActive', '<', thirtyDaysAgo)
       .get();
 
-    if (snapshot.empty) {
+    const scopedDocs = cleanupScope
+      ? snapshot.docs.filter((doc) => {
+          const shopIds = doc.data().shopIds;
+          return Array.isArray(shopIds) && shopIds.some((shopId: string) => cleanupScope.includes(shopId));
+        })
+      : snapshot.docs;
+
+    if (scopedDocs.length === 0) {
       return NextResponse.json({ success: true, removed: 0 }, { status: 200 });
     }
 
     const tokensToRemove: string[] = [];
     const topicMap = new Map<string, string[]>(); // token → topics[]
 
-    snapshot.forEach((doc) => {
+    scopedDocs.forEach((doc) => {
       const data = doc.data();
       const token = data.token || doc.id;
       const topics: string[] = data.topics || [];
@@ -58,7 +81,7 @@ export async function POST(request: Request) {
 
     // ─── Firestoreから削除 ───
     const batch = db.batch();
-    snapshot.docs.forEach((doc) => {
+    scopedDocs.forEach((doc) => {
       batch.delete(doc.ref);
     });
     await batch.commit();
@@ -67,7 +90,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      removed: tokensToRemove.length,
+      removed: scopedDocs.length,
     }, { status: 200 });
   } catch (error: any) {
     console.error('[cleanup] エラー:', error);

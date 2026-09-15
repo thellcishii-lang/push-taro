@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server';
 import { db as adminDb } from '../../../../lib/firebase-admin';
+import { verifyAdmin } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
+  const adminUid = await verifyAdmin(request);
+  if (!adminUid) {
+    return NextResponse.json({ error: '管理者権限が必要です' }, { status: 403 });
+  }
+
   try {
     // 1. 全店舗データの取得
     const shopsSnapshot = await adminDb.collection('shops').get();

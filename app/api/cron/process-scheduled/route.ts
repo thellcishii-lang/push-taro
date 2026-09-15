@@ -80,6 +80,7 @@ export async function GET(req: Request) {
 } else {
   remainingSchedules.push(item);
 }
+  }
 
       // リストの差分がある場合のみ更新（無駄な書き込みを回避）
       if (remainingSchedules.length !== scheduledList.length) {

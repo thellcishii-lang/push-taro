@@ -691,7 +691,12 @@ function AgencyStatementsTab() {
   useEffect(() => {
     const fetchAgencies = async () => {
       try {
-        const res = await fetch('/api/system-admin/stats');
+        const user = auth.currentUser;
+        if (!user) return;
+        const idToken = await user.getIdToken();
+        const res = await fetch('/api/system-admin/stats', {
+          headers: { Authorization: `Bearer ${idToken}` },
+        });
         if (res.ok) {
           const data = await res.json();
           setAgencies(data.agencies || []);
@@ -978,7 +983,12 @@ function AgenciesTab() {
 
   const fetchAgencies = async () => {
     try {
-      const res = await fetch('/api/system-admin/stats');
+      const user = auth.currentUser;
+      if (!user) return;
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/system-admin/stats', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
       if (res.ok) {
         const data = await res.json();
         setAgencies(data.agencies || []);
@@ -1489,7 +1499,12 @@ export default function SystemAdminPage() {
 
   const fetchSystemStatus = async () => {
     try {
-      const res = await fetch('/api/admin/system-status');
+      const user = auth.currentUser;
+      if (!user) return;
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/admin/system-status', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
       if (res.ok) {
         const data = await res.json();
         setIsCircuitBreakerOpen(data.isCircuitBreakerOpen || false);
@@ -1570,9 +1585,9 @@ export default function SystemAdminPage() {
   const filteredShops = shops.filter((shop) => {
     if (activeTab === 'pro' && shop.plan?.toLowerCase() !== 'pro') return false;
 
-    if (filterType === 'agency') return !!shop.agencyId;
-    if (filterType === 'referral') return !!shop.referrerId && !shop.agencyId;
-    if (filterType === 'direct') return !shop.agencyId && !shop.referrerId;
+    if (filterType === 'agency' && !shop.agencyId) return false;
+    if (filterType === 'referral' && (!shop.referrerId || shop.agencyId)) return false;
+    if (filterType === 'direct' && (shop.agencyId || shop.referrerId)) return false;
 
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
