@@ -66,6 +66,16 @@ export default function TestConsolePage() {
   const [activating, setActivating] = useState(false);
   const [activationResult, setActivationResult] = useState<any>(null);
 
+   // 🆕 代理店用
+  const [targetAgencyId, setTargetAgencyId] = useState('');
+  const [activatingAgency, setActivatingAgency] = useState(false);
+  const [agencyActivationResult, setAgencyActivationResult] = useState<any>(null);
+
+  // 🆕 アフィリエイト用
+  const [targetAffiliateId, setTargetAffiliateId] = useState('');
+  const [activatingAffiliate, setActivatingAffiliate] = useState(false);
+  const [affiliateActivationResult, setAffiliateActivationResult] = useState<any>(null);
+
   // ⚡️ テスト用店舗発行処理
   const handleCreateTestShop = async () => {
     setCreatingShop(true);
@@ -283,6 +293,54 @@ export default function TestConsolePage() {
       alert('❌ エラー: ' + err.message);
     } finally {
       setActivating(false);
+    }
+  };
+
+    // 🆕 代理店 強制アクティベート
+  const handleForceActivateAgency = async () => {
+    if (!targetAgencyId) {
+      alert('代理店IDを入力してください');
+      return;
+    }
+    setActivatingAgency(true);
+    setAgencyActivationResult(null);
+    try {
+      const res = await fetch('/api/test/force-activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agencyId: targetAgencyId }),
+      });
+      const data = await res.json();
+      setAgencyActivationResult(data);
+      alert(`✅ ${data.message || JSON.stringify(data)}`);
+    } catch (err: any) {
+      alert('❌ エラー: ' + err.message);
+    } finally {
+      setActivatingAgency(false);
+    }
+  };
+
+  // 🆕 アフィリエイト 強制アクティベート
+  const handleForceActivateAffiliate = async () => {
+    if (!targetAffiliateId) {
+      alert('アフィリエイトIDを入力してください');
+      return;
+    }
+    setActivatingAffiliate(true);
+    setAffiliateActivationResult(null);
+    try {
+      const res = await fetch('/api/test/force-activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ affiliateId: targetAffiliateId }),
+      });
+      const data = await res.json();
+      setAffiliateActivationResult(data);
+      alert(`✅ ${data.message || JSON.stringify(data)}`);
+    } catch (err: any) {
+      alert('❌ エラー: ' + err.message);
+    } finally {
+      setActivatingAffiliate(false);
     }
   };
 
@@ -747,6 +805,64 @@ export default function TestConsolePage() {
         {activationResult && (
           <pre style={{ marginTop: 12, background: '#f1f5f9', padding: 12, borderRadius: 4, fontSize: 12 }}>
             {JSON.stringify(activationResult, null, 2)}
+          </pre>
+        )}
+      </section>
+
+            {/* 🏢 代理店 強制アクティベーション */}
+      <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24 }}>
+        <h2 style={{ marginTop: 0, fontSize: 18, color: '#1e293b' }}>🏢 代理店 強制アクティベーション</h2>
+        <p style={{ fontSize: 12, color: '#64748b' }}>
+          加盟金＋月額を両方履行済みにして、代理店を active にします。
+        </p>
+        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+          <input
+            type="text"
+            placeholder="代理店ID"
+            value={targetAgencyId}
+            onChange={(e) => setTargetAgencyId(e.target.value)}
+            style={{ flex: 1, padding: 8, border: '1px solid #cbd5e1', borderRadius: 4 }}
+          />
+          <button
+            onClick={handleForceActivateAgency}
+            disabled={activatingAgency}
+            style={{ padding: '8px 16px', background: '#3182ce', color: '#fff', border: 'none', borderRadius: 4, cursor: activatingAgency ? 'wait' : 'pointer' }}
+          >
+            {activatingAgency ? '実行中...' : '🚀 代理店をアクティベート'}
+          </button>
+        </div>
+        {agencyActivationResult && (
+          <pre style={{ marginTop: 12, background: '#f1f5f9', padding: 12, borderRadius: 4, fontSize: 12 }}>
+            {JSON.stringify(agencyActivationResult, null, 2)}
+          </pre>
+        )}
+      </section>
+
+      {/* 📢 アフィリエイト 強制アクティベーション */}
+      <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: 20, marginBottom: 24 }}>
+        <h2 style={{ marginTop: 0, fontSize: 18, color: '#1e293b' }}>📢 アフィリエイト 強制アクティベーション</h2>
+        <p style={{ fontSize: 12, color: '#64748b' }}>
+          アフィリエイトを active にします（決済は不要）。
+        </p>
+        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+          <input
+            type="text"
+            placeholder="アフィリエイトID"
+            value={targetAffiliateId}
+            onChange={(e) => setTargetAffiliateId(e.target.value)}
+            style={{ flex: 1, padding: 8, border: '1px solid #cbd5e1', borderRadius: 4 }}
+          />
+          <button
+            onClick={handleForceActivateAffiliate}
+            disabled={activatingAffiliate}
+            style={{ padding: '8px 16px', background: '#16a34a', color: '#fff', border: 'none', borderRadius: 4, cursor: activatingAffiliate ? 'wait' : 'pointer' }}
+          >
+            {activatingAffiliate ? '実行中...' : '🚀 アフィリをアクティベート'}
+          </button>
+        </div>
+        {affiliateActivationResult && (
+          <pre style={{ marginTop: 12, background: '#f1f5f9', padding: 12, borderRadius: 4, fontSize: 12 }}>
+            {JSON.stringify(affiliateActivationResult, null, 2)}
           </pre>
         )}
       </section>
