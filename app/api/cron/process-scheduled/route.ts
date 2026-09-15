@@ -54,28 +54,32 @@ export async function GET(req: Request) {
         }
 
         if (shouldSend) {
-          try {
-            await sendPushToShop({
-              shopId: doc.id,
-              title: item.title,
-              body: item.body,
-              url: item.linkUrl,
-              source: 'cron_scheduled',
-            });
-            totalSent++;
-          } catch (err: any) {
-            console.error(`[process-scheduled] 送信エラー shop=${doc.id}:`, err);
-            errors.push(`${doc.id}: ${err.message}`);
-          }
+  let sendOk = false;
+  try {
+    await sendPushToShop({
+      shopId: doc.id,
+      title: item.title,
+      body: item.body,
+      url: item.linkUrl,
+      source: 'cron_scheduled',
+    });
+    totalSent++;
+    sendOk = true;
+  } catch (err: any) {
+    console.error(`[process-scheduled] 送信エラー shop=${doc.id}:`, err);
+    errors.push(`${doc.id}: ${err.message}`);
+  }
 
-          // 1回限りの予約は送信後にリストから削除（定期配信は残す）
-          if (item.scheduleType !== 'once') {
-            remainingSchedules.push(item);
-          }
-        } else {
-          remainingSchedules.push(item);
-        }
-      }
+  // 🆕 送信成功時のみ once を削除。失敗時は残して翌日リトライ
+  if (item.scheduleType !== 'once') {
+    remainingSchedules.push(item);       // 定期は常に残す
+  } else if (!sendOk) {
+    remainingSchedules.push(item);       // 🆕 once かつ失敗 → 残す
+  }
+  // once かつ成功 → push しない → 削除される
+} else {
+  remainingSchedules.push(item);
+}
 
       // リストの差分がある場合のみ更新（無駄な書き込みを回避）
       if (remainingSchedules.length !== scheduledList.length) {
