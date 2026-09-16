@@ -102,13 +102,7 @@ export async function sendPushToShop(options: SendPushOptions): Promise<SendPush
     },
     webpush: {
       headers: { Urgency: 'high' },
-      notification: {
-        title: displayTitle,
-        body,
-        icon: displayIcon,
-        badge: displayIcon,
-        ...(imageUrl ? { image: imageUrl } : {}),
-      },
+        // Service WorkerのonBackgroundMessageで表示するため自動表示を使わない。
       fcmOptions: { link: targetUrl },
     },
   };

@@ -161,13 +161,8 @@ export async function POST(request: Request) {
         headers: {
           Urgency: 'high',
         },
-        notification: {
-          title: displayTitle,
-          body: body,
-          icon: displayIcon,
-          badge: displayIcon,
-          ...(imageUrl ? { image: imageUrl } : {}),
-        },
+        // Service WorkerのonBackgroundMessageで表示するため、
+        // Webの自動通知ペイロードは送らず二重表示を防ぐ。
         fcmOptions: {
           link: targetUrl,
         },
