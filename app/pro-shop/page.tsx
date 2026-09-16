@@ -233,6 +233,36 @@ export default function ProShopPage() {
     return () => unsub();
   }, []);
 
+  useEffect(() => {
+    if (!shopId) return;
+    let manifest = document.querySelector('link[rel="manifest"]') as HTMLLinkElement | null;
+    if (!manifest) {
+      manifest = document.createElement('link');
+      manifest.rel = 'manifest';
+      document.head.appendChild(manifest);
+    }
+    manifest.href = `/manifest/${shopId}?mode=pro`;
+    document.title = shopName || 'Push-taro';
+
+    if (shopIconUrl) {
+      let icon = document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement | null;
+      if (!icon) {
+        icon = document.createElement('link');
+        icon.rel = 'apple-touch-icon';
+        document.head.appendChild(icon);
+      }
+      icon.href = shopIconUrl;
+    }
+
+    let appleTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]') as HTMLMetaElement | null;
+    if (!appleTitle) {
+      appleTitle = document.createElement('meta');
+      appleTitle.name = 'apple-mobile-web-app-title';
+      document.head.appendChild(appleTitle);
+    }
+    appleTitle.content = shopName || 'Push-taro';
+  }, [shopId, shopName, shopIconUrl]);
+
   const loadHistory = async () => {
     const all = await localDb.history.orderBy('sentAt').reverse().toArray();
     setHistory(all);

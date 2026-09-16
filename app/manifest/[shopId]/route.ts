@@ -6,6 +6,7 @@ export async function GET(
   { params }: { params: { shopId: string } }
 ) {
   const shopId = params.shopId;
+  const mode = new URL(request.url).searchParams.get('mode');
   
   let shopName = 'プッシュ通知';
   let iconUrl = '/icon-192x192.png';
@@ -25,7 +26,7 @@ export async function GET(
     name: shopName,
     short_name: shopName,
     description: `${shopName} の公式通知アプリ`,
-    start_url: `/subscribe?s=${shopId}`, // PWA起動時に店舗ID付きで開く
+    start_url: mode === 'pro' ? '/pro-shop' : mode === 'shop' ? '/shop' : `/subscribe?s=${shopId}`,
     display: 'standalone',
     background_color: '#ffffff',
     theme_color: '#ff4500',
