@@ -101,6 +101,7 @@ export default function ShopPage() {
           if (data.success) {
             const currentShopId = data.shopId;
             setShopId(currentShopId);
+            let shop = data.shop;
 
             const dashRes = await fetch(`/api/dashboard?shopId=${currentShopId}`, {
               headers: { 'Authorization': `Bearer ${idToken}` },
@@ -108,57 +109,49 @@ export default function ShopPage() {
 
             if (dashRes.ok) {
               const dashData = await dashRes.json();
-              const shop = dashData.shop || data.shop;
-
-              setShopName(shop?.name || '');
-
-              if (shop?.plan) {
-                const planLower = String(shop.plan).toLowerCase();
-                // PROユーザーが来た場合はpro-shopにリダイレクト案内
-                if (planLower === 'pro') {
-                  setPlan('pro');
-                } else {
-                  setPlan(planLower);
-                }
-              }
-
-              if (shop?.status) setShopStatus(shop.status);
-              if (shop?.validUntil) {
-                const vDate = shop.validUntil._seconds
-                  ? new Date(shop.validUntil._seconds * 1000)
-                  : new Date(shop.validUntil);
-                setValidUntilDate(vDate.toISOString().slice(0, 10));
-              }
-
-              if (shop?.normalCoupon) {
-                setNormalCouponEnabled(shop.normalCoupon.enabled || false);
-                setNormalCouponTitle(shop.normalCoupon.title || '');
-                setNormalCouponDesc(shop.normalCoupon.description || '');
-              }
-
-              if (shop?.loyaltyCoupon) {
-                setLoyaltyEnabled(shop.loyaltyCoupon.enabled || false);
-                setLoyaltyTargetCount(shop.loyaltyCoupon.targetCount || 3);
-                setLoyaltyTitle(shop.loyaltyCoupon.title || '');
-                setLoyaltyExpireType(shop.loyaltyCoupon.expireType || 'none');
-                if (shop.loyaltyCoupon.expireDays) setLoyaltyExpireDays(shop.loyaltyCoupon.expireDays);
-                if (shop.loyaltyCoupon.expireDate) setLoyaltyExpireDate(shop.loyaltyCoupon.expireDate);
-                setLoyaltyCombinable(shop.loyaltyCoupon.combinable || false);
-              }
-
-              if (shop?.coupon) {
-                setCouponEnabled(shop.coupon.enabled);
-                setCouponTitle(shop.coupon.title || '');
-                setCouponDesc(shop.coupon.description || '');
-                setCouponRate(shop.coupon.discountRate || 0);
-              }
-              if (shop?.linkUrl) setClientLinkUrl(shop.linkUrl);
-              if (shop?.iconUrl) setShopIconUrl(shop.iconUrl);
+              shop = dashData.shop || shop;
 
               if (dashData.stats && typeof dashData.stats.subscriberCount === 'number') {
                 setSubscriberCount(dashData.stats.subscriberCount);
               }
             }
+
+            setShopName(shop?.name || '');
+            const planLower = String(shop?.plan || 'light').toLowerCase().trim();
+            setPlan(planLower || 'light');
+
+            if (shop?.status) setShopStatus(shop.status);
+            if (shop?.validUntil) {
+              const vDate = shop.validUntil._seconds
+                ? new Date(shop.validUntil._seconds * 1000)
+                : new Date(shop.validUntil);
+              setValidUntilDate(vDate.toISOString().slice(0, 10));
+            }
+
+            if (shop?.normalCoupon) {
+              setNormalCouponEnabled(shop.normalCoupon.enabled || false);
+              setNormalCouponTitle(shop.normalCoupon.title || '');
+              setNormalCouponDesc(shop.normalCoupon.description || '');
+            }
+
+            if (shop?.loyaltyCoupon) {
+              setLoyaltyEnabled(shop.loyaltyCoupon.enabled || false);
+              setLoyaltyTargetCount(shop.loyaltyCoupon.targetCount || 3);
+              setLoyaltyTitle(shop.loyaltyCoupon.title || '');
+              setLoyaltyExpireType(shop.loyaltyCoupon.expireType || 'none');
+              if (shop.loyaltyCoupon.expireDays) setLoyaltyExpireDays(shop.loyaltyCoupon.expireDays);
+              if (shop.loyaltyCoupon.expireDate) setLoyaltyExpireDate(shop.loyaltyCoupon.expireDate);
+              setLoyaltyCombinable(shop.loyaltyCoupon.combinable || false);
+            }
+
+            if (shop?.coupon) {
+              setCouponEnabled(shop.coupon.enabled);
+              setCouponTitle(shop.coupon.title || '');
+              setCouponDesc(shop.coupon.description || '');
+              setCouponRate(shop.coupon.discountRate || 0);
+            }
+            if (shop?.linkUrl) setClientLinkUrl(shop.linkUrl);
+            if (shop?.iconUrl) setShopIconUrl(shop.iconUrl);
           }
         } catch (err) {
           console.error('店舗情報取得エラー:', err);

@@ -66,9 +66,10 @@ export async function sendPushToShop(options: SendPushOptions): Promise<SendPush
   }
 
   // ─── 3. メッセージ構築 ───
+  const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const targetUrl = new URL(url || `/subscribe?s=${shopId}`, appBaseUrl).toString();
   const displayTitle = title || shopData.name || 'Push-taro';
-  const displayIcon = shopData.iconUrl || '/icon-192x192.png';
-  const targetUrl = url || `/subscribe?s=${shopId}`;
+  const displayIcon = new URL(shopData.iconUrl || '/icon-192x192.png', appBaseUrl).toString();
 
   const baseMessage = {
     data: {

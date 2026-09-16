@@ -115,9 +115,10 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
+    const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+    const targetUrl = new URL(url || `/subscribe?s=${shopId}`, appBaseUrl).toString();
     const displayTitle = title || shopData.name || 'Push-taro';
-    const displayIcon = shopData.iconUrl || '/icon-192x192.png';
-    const targetUrl = url || `/subscribe?s=${shopId}`;
+    const displayIcon = new URL(shopData.iconUrl || '/icon-192x192.png', appBaseUrl).toString();
 
     // ✅ 各OSに特化した全端末対応メッセージ構造
     const baseMessage = {
