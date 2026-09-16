@@ -74,8 +74,8 @@ export async function POST(request: Request) {
         const previousData = previousDoc.data();
         if (
           previousDoc.id !== normalizedToken &&
-          Array.isArray(previousData.shopIds) &&
-          previousData.shopIds.includes(shopId)
+          ((Array.isArray(previousData.shopIds) && previousData.shopIds.includes(shopId)) ||
+            (Array.isArray(previousData.unsubscribedShopIds) && previousData.unsubscribedShopIds.includes(shopId)))
         ) {
           previousDocRef = previousDoc.ref;
           break;
@@ -96,6 +96,7 @@ export async function POST(request: Request) {
         ...baseData,
         shopIds: FieldValue.arrayUnion(shopId),
         topics: FieldValue.arrayUnion(topic),
+        unsubscribedShopIds: FieldValue.arrayRemove(shopId),
       }, { merge: true });
 
       if (previousDocRef) {
@@ -121,11 +122,14 @@ export async function POST(request: Request) {
       }
 
       console.log('[API] 新規登録:', { shopId, birthDate });
+      const previousShopIds = Array.isArray(previousData?.shopIds) ? previousData.shopIds : [];
+      const previousTopics = Array.isArray(previousData?.topics) ? previousData.topics : [];
       await docRef.set({
         ...(previousData || {}),
         ...baseData,
-        shopIds: previousData?.shopIds || [shopId],
-        topics: previousData?.topics || [topic],
+        shopIds: Array.from(new Set([...previousShopIds, shopId])),
+        topics: Array.from(new Set([...previousTopics, topic])),
+        unsubscribedShopIds: FieldValue.arrayRemove(shopId),
         createdAt: previousData?.createdAt || FieldValue.serverTimestamp(),
       }, { merge: true });
 

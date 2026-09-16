@@ -28,11 +28,19 @@ export async function POST(request: Request) {
 
     const remainingShopIds = shopIds.filter((id: string) => id !== shopId);
     if (remainingShopIds.length === 0) {
-      await subscriptionRef.delete();
+      // 顧客情報・クーポン利用履歴は保持し、店舗との紐付けだけ解除する。
+      // ドキュメントを削除すると、再登録時に初回クーポンが再利用できてしまう。
+      await subscriptionRef.update({
+        shopIds: [],
+        topics: [],
+        unsubscribedShopIds: FieldValue.arrayUnion(shopId),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
     } else {
       await subscriptionRef.update({
         shopIds: FieldValue.arrayRemove(shopId),
         topics: FieldValue.arrayRemove(topic),
+        unsubscribedShopIds: FieldValue.arrayUnion(shopId),
         updatedAt: FieldValue.serverTimestamp(),
       });
     }
