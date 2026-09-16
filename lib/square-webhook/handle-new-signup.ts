@@ -98,7 +98,7 @@ try {
         <hr />
         <p>選択プラン: ${plan.toUpperCase()}</p>
         <p>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin" style="display:inline-block;padding:12px 24px;background:#ff4500;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/${plan === 'pro' ? 'pro-shop' : 'shop'}" style="display:inline-block;padding:12px 24px;background:#ff4500;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
             管理画面へログイン
           </a>
         </p>
