@@ -176,7 +176,7 @@ export async function POST(request: Request) {
 
     console.log(`[send-push] 🚀 送信開始 (総件数: ${targetCount} 件)`);
 
-    const CHUNK_SIZE = 450;
+    const CHUNK_SIZE = 100;
     let totalSuccessCount = 0;
     let totalFailureCount = 0;
     const invalidTokens: string[] = [];
@@ -185,58 +185,36 @@ export async function POST(request: Request) {
       const chunkTokens = registrationTokens.slice(i, i + CHUNK_SIZE);
       console.log(`[send-push] 📦 バッチ送信中: ${i + 1} 〜 ${i + chunkTokens.length} 件目`);
 
-      const message = {
-        ...baseMessage,
-        tokens: chunkTokens,
-      };
-
-      try {
-        const response = await messaging.sendEachForMulticast(message);
-        totalSuccessCount += response.successCount;
-        totalFailureCount += response.failureCount;
-
-        for (let idx = 0; idx < response.responses.length; idx++) {
-          const resp = response.responses[idx];
-          if (!resp.success) {
-            const token = chunkTokens[idx];
-            const platform = guessPlatform(token);
-            console.error(`[send-push] ❌ 失敗: ${token.slice(0, 20)}... (${platform})`, resp.error);
-
-            const errorCode = resp.error?.code;
-            const isInvalidToken =
-              errorCode === 'messaging/registration-token-not-registered' ||
-              errorCode === 'messaging/invalid-registration-token';
-
-            if (isInvalidToken) {
-              invalidTokens.push(token);
-              continue;
-            }
-
-            // FCMの一括送信エンドポイントが一時的にHTMLエラーを返す場合は、
-            // 失敗したトークンだけを単体送信経路で再試行する。
-            try {
-              await messaging.send({
-                ...baseMessage,
-                token,
-              });
-              totalSuccessCount++;
-              totalFailureCount--;
-              console.log(`[send-push] 🔁 単体再送成功: ${token.slice(0, 20)}...`);
-            } catch (retryError: any) {
-              console.error(`[send-push] ❌ 単体再送も失敗: ${token.slice(0, 20)}...`, retryError);
-              const retryCode = retryError?.code;
-              if (
-                retryCode === 'messaging/registration-token-not-registered' ||
-                retryCode === 'messaging/invalid-registration-token'
-              ) {
-                invalidTokens.push(token);
-              }
-            }
-          }
+      // sendEachForMulticast はFCMの廃止された一括エンドポイントへ
+      // 接続してHTMLの404を返すことがあるため、HTTP v1単体送信を使う。
+      const results = await Promise.all(chunkTokens.map(async (token) => {
+        try {
+          await messaging.send({
+            ...baseMessage,
+            token,
+          });
+          return { token, success: true };
+        } catch (sendError: any) {
+          const platform = guessPlatform(token);
+          console.error(`[send-push] ❌ 失敗: ${token.slice(0, 20)}... (${platform})`, sendError);
+          return { token, success: false, error: sendError };
         }
-      } catch (chunkError) {
-        console.error(`[send-push] ❌ バッチ送信エラー (index ${i}):`, chunkError);
-        totalFailureCount += chunkTokens.length;
+      }));
+
+      for (const result of results) {
+        if (result.success) {
+          totalSuccessCount++;
+          continue;
+        }
+
+        totalFailureCount++;
+        const errorCode = result.error?.code;
+        if (
+          errorCode === 'messaging/registration-token-not-registered' ||
+          errorCode === 'messaging/invalid-registration-token'
+        ) {
+          invalidTokens.push(result.token);
+        }
       }
     }
 
