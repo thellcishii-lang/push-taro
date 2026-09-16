@@ -3,7 +3,7 @@ import { db } from './firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 
 // 管理者のメールアドレス（環境変数から取得、カンマ区切りで複数指定可）
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'pushtaro-info@gmail.com')
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'pushtaro.info@gmail.com')
   .split(',')
   .map((e) => e.trim())
   .filter((e) => e);
