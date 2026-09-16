@@ -2,7 +2,96 @@
 // Push-taro ランディングページ
 'use client'; 
 
+'use client';
+
+import { useEffect } from 'react';
+
+/* ============================================================
+   スクロール出現フック
+   ============================================================ */
+function useScrollReveal() {
+  useEffect(() => {
+    // 対象セレクタを全部集める
+    const selectors = [
+      '.reveal',
+      '.reveal-left',
+      '.reveal-right',
+      '.tilt-in',
+      '.tilt-in-left',
+      '.tilt-in-right',
+    ];
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            // 一度発火したら監視解除（パフォーマンス向上）
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.15,
+        rootMargin: '0px 0px -60px 0px',
+      }
+    );
+
+    selectors.forEach((sel) => {
+      document.querySelectorAll(sel).forEach((el) => observer.observe(el));
+    });
+
+    return () => observer.disconnect();
+  }, []);
+}
+
+/* ============================================================
+   カウントアップフック
+   ============================================================ */
+function useCountUp() {
+  useEffect(() => {
+    const animate = (el: HTMLElement) => {
+      const target = Number(el.dataset.count || 0);
+      const suffix = el.dataset.suffix || '';
+      const duration = 1600;
+      const startTime = performance.now();
+
+      const tick = (now: number) => {
+        const progress = Math.min((now - startTime) / duration, 1);
+        // easeOutExpo
+        const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+        const current = Math.floor(target * eased);
+        el.textContent = current.toLocaleString() + suffix;
+        if (progress < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          el.textContent = target.toLocaleString() + suffix;
+        }
+      };
+      requestAnimationFrame(tick);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            animate(entry.target as HTMLElement);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    document.querySelectorAll('[data-count]').forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+}
+
 export default function Home() {
+  useScrollReveal();
+  useCountUp();
+
   return (
     <>
       {/* ============================================================
@@ -101,23 +190,29 @@ export default function Home() {
           </div>
 
           <div className="hero-stats">
-            <div className="hero-stat">
-              <div className="hero-stat-number">最大6<small>倍</small></div>
-              <div className="hero-stat-label">メルマガ比 開封率</div>
-            </div>
-            <div className="hero-stat">
-              <div className="hero-stat-number">7<small>種類</small></div>
-              <div className="hero-stat-label">クーポン自動配信</div>
-            </div>
-            <div className="hero-stat">
-              <div className="hero-stat-number">無制限</div>
-              <div className="hero-stat-label">PROプラン配信数</div>
-            </div>
-            <div className="hero-stat">
-              <div className="hero-stat-number">3<small>種</small></div>
-              <div className="hero-stat-label">収益化プログラム</div>
-            </div>
-          </div>
+  <div className="hero-stat float tilt-in">
+    <div className="hero-stat-number">
+      最大<span className="count-up" data-count="6">0</span><small>倍</small>
+    </div>
+    <div className="hero-stat-label">メルマガ比 開封率</div>
+  </div>
+  <div className="hero-stat float tilt-in" style={{ transitionDelay: '0.1s' }}>
+    <div className="hero-stat-number">
+      <span className="count-up" data-count="7">0</span><small>種類</small>
+    </div>
+    <div className="hero-stat-label">クーポン自動配信</div>
+  </div>
+  <div className="hero-stat float tilt-in" style={{ transitionDelay: '0.2s' }}>
+    <div className="hero-stat-number">無制限</div>
+    <div className="hero-stat-label">PROプラン配信数</div>
+  </div>
+  <div className="hero-stat float tilt-in" style={{ transitionDelay: '0.3s' }}>
+    <div className="hero-stat-number">
+      <span className="count-up" data-count="3">0</span><small>種</small>
+    </div>
+    <div className="hero-stat-label">収益化プログラム</div>
+  </div>
+</div>
         </div>
       </section>
 
@@ -126,14 +221,14 @@ export default function Home() {
       ============================================================ */}
       <section className="section section-alt">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header reveal">
             <span className="section-tag">Problem</span>
             <h2>こんな「店舗経営の悩み」を抱えていませんか？</h2>
             <p>多くの店舗オーナー様が、集客の不安定さとリピート施策のコストに直面しています。</p>
           </div>
 
           <div className="problem-grid">
-            <div className="problem-card">
+            <div className="problem-card tilt-in" style={{ transitionDelay: '0s' }}>
               <div className="problem-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <path d="M3 17l6-6 4 4 8-8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -143,7 +238,7 @@ export default function Home() {
               <h3>リピート率の頭打ち</h3>
               <p>一度来店されたお客様の再来店につながる有効な導線がなく、一見客頼みの集客から抜け出せない。</p>
             </div>
-            <div className="problem-card">
+            <div className="problem-card tilt-in" style={{ transitionDelay: '0.1s' }}>
               <div className="problem-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <path d="M6 16a4 4 0 010-8 5 5 0 019.9-1.5A4.5 4.5 0 0118 16H6z" stroke="#dc2626" strokeWidth="2" strokeLinejoin="round" />
@@ -153,7 +248,7 @@ export default function Home() {
               <h3>集客のコントロール不足</h3>
               <p>雨天や平日の閑散期など、「今すぐお客様を呼びたい」タイミングでピンポイントにアプローチできない。</p>
             </div>
-            <div className="problem-card">
+            <div className="problem-card tilt-in" style={{ transitionDelay: '0.2s' }}>
               <div className="problem-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <circle cx="10" cy="10" r="6" stroke="#dc2626" strokeWidth="2" />
@@ -164,7 +259,7 @@ export default function Home() {
               <h3>従量課金のコスト肥大化</h3>
               <p>既存のツールは配信数が増えるほど料金が跳ね上がり、積極的なコミュニケーションが打てない。</p>
             </div>
-            <div className="problem-card">
+            <div className="problem-card tilt-in" style={{ transitionDelay: '0.3s' }}>
               <div className="problem-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <rect x="3" y="5" width="8" height="10" rx="1.5" stroke="#dc2626" strokeWidth="2" />
@@ -184,7 +279,7 @@ export default function Home() {
       ============================================================ */}
       <section className="section" id="features">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header reveal">
             <span className="section-tag">Features</span>
             <h2>Push-taroが提供する8つのコア機能</h2>
             <p>実店舗のリピート施策に必要な機能を、一つ残らず詰め込みました。<br />すべてのプランで基本機能は使えます。</p>
@@ -192,7 +287,7 @@ export default function Home() {
 
           <div className="feature-grid">
 
-            <div className="feature-card">
+            <div className="feature-card tilt-in" style={{ transitionDelay: '0s' }}>
               <div className="feature-icon">
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
                   <path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8z" fill="#ff4500" stroke="#e03e00" strokeWidth="1.5" strokeLinejoin="round" />
@@ -218,7 +313,7 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="feature-card">
+            <div className="feature-card tilt-in" style={{ transitionDelay: '0.08s' }}>
               <div className="feature-icon">
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
                   <path d="M3 10a2 2 0 010-4V4a1 1 0 011-1h16a1 1 0 011 1v2a2 2 0 010 4v2a2 2 0 010 4v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2a2 2 0 010-4v-2z" fill="#ff4500" stroke="#e03e00" strokeWidth="1.2" strokeLinejoin="round" />
@@ -243,7 +338,7 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="feature-card">
+            <div className="feature-card tilt-in" style={{ transitionDelay: '0.16s' }}>
               <div className="feature-icon">
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
                   <rect x="3" y="5" width="18" height="16" rx="2" fill="#ff4500" stroke="#e03e00" strokeWidth="1.5" />
@@ -270,7 +365,7 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="feature-card">
+            <div className="feature-card tilt-in" style={{ transitionDelay: '0.24s' }}>
               <div className="feature-icon">
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
                   <rect x="3" y="3" width="7" height="7" rx="1" fill="#ff4500" />
@@ -303,7 +398,7 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="feature-card">
+            <div className="feature-card tilt-in" style={{ transitionDelay: '0.08s' }}>
               <div className="feature-icon">
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
                   <path d="M4 21h16v-4H4z" fill="#ff4500" />
@@ -330,7 +425,7 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="feature-card">
+            <div className="feature-card tilt-in" style={{ transitionDelay: '0.16s' }}>
               <div className="feature-icon">
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
                   <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" fill="#ff4500" stroke="#e03e00" strokeWidth="1.5" strokeLinejoin="round" />
@@ -356,7 +451,7 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="feature-card">
+            <div className="feature-card tilt-in" style={{ transitionDelay: '0.24s' }}>
               <div className="feature-icon">
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
                   <rect x="3" y="12" width="4" height="9" fill="#ff4500" />
@@ -383,7 +478,7 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="feature-card">
+            <div className="feature-card tilt-in" style={{ transitionDelay: '0.32s' }}>
               <div className="feature-icon">
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
                   <rect x="3" y="5" width="18" height="14" rx="2" fill="#ff4500" stroke="#e03e00" strokeWidth="1.5" />
@@ -419,7 +514,7 @@ export default function Home() {
       ============================================================ */}
       <section className="section screen-section" id="interface">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header reveal">
             <span className="section-tag">Interface</span>
             <h2>シンプルで使いやすい、2つの画面</h2>
             <p>お客様が使うのは、たった1つのボタン。<br />店舗オーナーは、見やすい管理画面で全ての施策をコントロールできます。</p>
@@ -604,7 +699,7 @@ export default function Home() {
       ============================================================ */}
       <section className="section section-alt" id="coupons">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header reveal">
             <span className="section-tag">Coupon System</span>
             <h2>7種類のクーポンで、来店サイクルを完全に設計</h2>
             <p>「初回来店 → 習慣化 → ファン化 → 休眠復活」まで、すべてのフェーズに最適化されたクーポンを自動配信できます。</p>
@@ -612,7 +707,7 @@ export default function Home() {
 
           <div className="coupon-grid">
 
-            <div className="coupon-card" data-type="first">
+            <div className="coupon-card tilt-in-left" data-type="first" style={{ transitionDelay: '0s' }}>
               <span className="coupon-badge">全プラン</span>
               <div className="coupon-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
@@ -627,7 +722,7 @@ export default function Home() {
               <span className="coupon-plan-tag">LIGHT / STANDARD / PRO</span>
             </div>
 
-            <div className="coupon-card" data-type="normal">
+            <div className="coupon-card tilt-in-right" data-type="normal" style={{ transitionDelay: '0.08s' }}>
               <span className="coupon-badge">STANDARD+</span>
               <div className="coupon-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
@@ -640,7 +735,7 @@ export default function Home() {
               <span className="coupon-plan-tag">STANDARD / PRO</span>
             </div>
 
-            <div className="coupon-card" data-type="loyalty">
+            <div className="coupon-card tilt-in-left" data-type="loyalty" style={{ transitionDelay: '0.16s' }}>
               <span className="coupon-badge">STANDARD+</span>
               <div className="coupon-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
@@ -655,7 +750,7 @@ export default function Home() {
               <span className="coupon-plan-tag">STANDARD / PRO</span>
             </div>
 
-            <div className="coupon-card" data-type="stepup">
+            <div className="coupon-card tilt-in-right" data-type="stepup" style={{ transitionDelay: '0.24s' }}>
               <span className="coupon-badge">PRO限定</span>
               <div className="coupon-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
@@ -671,7 +766,7 @@ export default function Home() {
               <span className="coupon-plan-tag">PRO ONLY</span>
             </div>
 
-            <div className="coupon-card" data-type="repeat">
+            <div className="coupon-card tilt-in-left" data-type="repeat" style={{ transitionDelay: '0.08s' }}>
               <span className="coupon-badge">PRO限定</span>
               <div className="coupon-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
@@ -684,7 +779,7 @@ export default function Home() {
               <span className="coupon-plan-tag">PRO ONLY</span>
             </div>
 
-            <div className="coupon-card" data-type="birthday">
+            <div className="coupon-card tilt-in-right" data-type="birthday" style={{ transitionDelay: '0.16s' }}>
               <span className="coupon-badge">PRO限定</span>
               <div className="coupon-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
@@ -701,7 +796,7 @@ export default function Home() {
               <span className="coupon-plan-tag">PRO ONLY</span>
             </div>
 
-            <div className="coupon-card" data-type="dormant">
+            <div className="coupon-card tilt-in-left" data-type="dormant" style={{ transitionDelay: '0.24s' }}>
               <span className="coupon-badge">PRO限定</span>
               <div className="coupon-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
@@ -725,7 +820,7 @@ export default function Home() {
       ============================================================ */}
       <section className="section">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header reveal">
             <span className="section-tag">How it works</span>
             <h2>導入はたったの4ステップ</h2>
             <p>専門知識ゼロ。ITが苦手な店舗オーナー様でも、最短10分で運用を開始できます。</p>
@@ -791,7 +886,7 @@ export default function Home() {
       ============================================================ */}
       <section className="section section-alt">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header reveal">
             <span className="section-tag">Comparison</span>
             <h2>他社サービスとの圧倒的な違い</h2>
             <p>Push-taroは「実店舗のリピート施策」に特化。汎用ツールにはない機能が満載です。</p>
@@ -867,7 +962,7 @@ export default function Home() {
       ============================================================ */}
       <section className="section">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header reveal">
             <span className="section-tag">Before / After</span>
             <h2>Push-taro導入前後の変化</h2>
             <p>施策の自動化と一元管理で、店舗運営はここまで変わります。</p>
@@ -982,7 +1077,7 @@ export default function Home() {
       ============================================================ */}
       <section className="section section-alt" id="pricing">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header reveal">
             <span className="section-tag">Pricing</span>
             <h2>明快でリーズナブルな料金プラン</h2>
             <p>店舗規模やマーケティング目的に合わせて選べる3つのプラン。<br />追加の従量課金は一切ありません。</p>
@@ -1045,7 +1140,7 @@ export default function Home() {
       ============================================================ */}
       <section className="section section-dark" id="programs">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header reveal">
             <span className="section-tag">Revenue Programs</span>
             <h2>3つの収益化プログラムを標準搭載</h2>
             <p>Push-taroは、店舗自身が「稼ぐ側」にもなれるプラットフォーム。<br />あなたのネットワークが、毎月の安定収益に変わります。</p>
@@ -1129,7 +1224,7 @@ export default function Home() {
       ============================================================ */}
       <section className="section">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header reveal">
             <span className="section-tag">Use Cases</span>
             <h2>導入シーン別の活用イメージ</h2>
             <p>業種を問わず、あらゆる実店舗でご活用いただけます。</p>
@@ -1219,7 +1314,7 @@ export default function Home() {
       ============================================================ */}
       <section className="section section-alt">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header reveal">
             <span className="section-tag">Security & Reliability</span>
             <h2>安心して運用いただくための仕組み</h2>
             <p>大切な顧客情報と店舗の売上を守るため、堅牢なセキュリティと運用体制を整えています。</p>
@@ -1297,7 +1392,7 @@ export default function Home() {
       ============================================================ */}
       <section className="section">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header reveal">
             <span className="section-tag">Voice</span>
             <h2>導入店舗様のリアルな声</h2>
             <p>先行モニターでご利用いただいた店舗オーナー様から、続々と成果の声が届いています。</p>
@@ -1406,7 +1501,7 @@ export default function Home() {
       ============================================================ */}
       <section className="section section-alt" id="faq">
         <div className="container">
-          <div className="section-header">
+          <div className="section-header reveal">
             <span className="section-tag">FAQ</span>
             <h2>よくあるご質問</h2>
             <p>その他ご不明な点は、お気軽にお問い合わせください。</p>
@@ -3289,6 +3384,198 @@ export default function Home() {
           .dash-coupons { grid-template-columns: 1fr; }
           .phone-mock { width: 240px; height: 500px; }
         }
+
+        /* ============================================================
+   ANIMATION PACK（選抜版）
+   ============================================================ */
+
+/* ─────────────────────────────────────
+   ① スクロール出現
+   ───────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  will-change: auto;
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.reveal-left.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+  will-change: auto;
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(50px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.reveal-right.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+  will-change: auto;
+}
+
+/* ─────────────────────────────────────
+   ② カウントアップ
+   ───────────────────────────────────── */
+.count-up {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  min-width: 1ch;
+}
+
+/* ─────────────────────────────────────
+   ③ ヒーロー浮遊
+   ───────────────────────────────────── */
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+
+.float {
+  animation: floatY 4s ease-in-out infinite;
+}
+.float:nth-child(1) { animation-delay: 0s; }
+.float:nth-child(2) { animation-delay: 0.5s; }
+.float:nth-child(3) { animation-delay: 1s; }
+.float:nth-child(4) { animation-delay: 1.5s; }
+
+/* ─────────────────────────────────────
+   ⑤ カード傾き
+   ───────────────────────────────────── */
+/* 
+ * リビール時に僅かに傾いて、真っ直ぐになる演出
+ * iPhone（タッチ）でも確実に動く
+ */
+.tilt-in {
+  opacity: 0;
+  transform: translateY(30px) rotate(-3deg) scale(0.96);
+  transition: opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+              transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: opacity, transform;
+}
+.tilt-in.is-visible {
+  opacity: 1;
+  transform: translateY(0) rotate(0) scale(1);
+  will-change: auto;
+}
+
+/* 左右交互に傾ける（偶数/奇数で方向を変える） */
+.tilt-in-left {
+  opacity: 0;
+  transform: translateY(30px) rotate(-4deg) scale(0.96);
+  transition: opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+              transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.tilt-in-left.is-visible {
+  opacity: 1;
+  transform: translateY(0) rotate(0) scale(1);
+}
+
+.tilt-in-right {
+  opacity: 0;
+  transform: translateY(30px) rotate(4deg) scale(0.96);
+  transition: opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+              transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.tilt-in-right.is-visible {
+  opacity: 1;
+  transform: translateY(0) rotate(0) scale(1);
+}
+
+/* タッチ時のフィードバック（iPhone用） */
+.feature-card:active,
+.usecase-card:active,
+.coupon-card:active,
+.voice-card:active,
+.price-card:active {
+  transform: scale(0.98);
+  transition: transform 0.15s ease;
+}
+
+/* ─────────────────────────────────────
+   ⑥ SVG線描画
+   ───────────────────────────────────── */
+@keyframes drawStroke {
+  from {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+  }
+  to {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* リビール時：線のあるSVGを順番に描画 */
+.is-visible svg path[stroke]:not([stroke="none"]) {
+  animation: drawStroke 1.2s ease-out forwards;
+}
+.is-visible svg line[stroke]:not([stroke="none"]) {
+  animation: drawStroke 1.2s ease-out forwards;
+  animation-delay: 0.2s;
+}
+.is-visible svg circle[stroke]:not([stroke="none"]) {
+  animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.3s;
+}
+.is-visible svg rect[stroke]:not([stroke="none"]) {
+  animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.2s;
+}
+
+/* 複数パスがある時、時間差で描画 */
+.is-visible svg path[stroke]:nth-child(2) { animation-delay: 0.15s; }
+.is-visible svg path[stroke]:nth-child(3) { animation-delay: 0.3s; }
+.is-visible svg path[stroke]:nth-child(4) { animation-delay: 0.45s; }
+
+/* ─────────────────────────────────────
+   アクセシビリティ配慮
+   ───────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal, .reveal-left, .reveal-right, .tilt-in, .tilt-in-left, .tilt-in-right {
+    opacity: 1;
+    transform: none;
+  }
+}
+
       `}</style>
     </>
   );
