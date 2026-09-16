@@ -195,21 +195,45 @@ export async function POST(request: Request) {
         totalSuccessCount += response.successCount;
         totalFailureCount += response.failureCount;
 
-        response.responses.forEach((resp, idx) => {
+        for (let idx = 0; idx < response.responses.length; idx++) {
+          const resp = response.responses[idx];
           if (!resp.success) {
             const token = chunkTokens[idx];
             const platform = guessPlatform(token);
             console.error(`[send-push] ❌ 失敗: ${token.slice(0, 20)}... (${platform})`, resp.error);
 
             const errorCode = resp.error?.code;
-            if (
+            const isInvalidToken =
               errorCode === 'messaging/registration-token-not-registered' ||
-              errorCode === 'messaging/invalid-registration-token'
-            ) {
+              errorCode === 'messaging/invalid-registration-token';
+
+            if (isInvalidToken) {
               invalidTokens.push(token);
+              continue;
+            }
+
+            // FCMの一括送信エンドポイントが一時的にHTMLエラーを返す場合は、
+            // 失敗したトークンだけを単体送信経路で再試行する。
+            try {
+              await messaging.send({
+                ...baseMessage,
+                token,
+              });
+              totalSuccessCount++;
+              totalFailureCount--;
+              console.log(`[send-push] 🔁 単体再送成功: ${token.slice(0, 20)}...`);
+            } catch (retryError: any) {
+              console.error(`[send-push] ❌ 単体再送も失敗: ${token.slice(0, 20)}...`, retryError);
+              const retryCode = retryError?.code;
+              if (
+                retryCode === 'messaging/registration-token-not-registered' ||
+                retryCode === 'messaging/invalid-registration-token'
+              ) {
+                invalidTokens.push(token);
+              }
             }
           }
-        });
+        }
       } catch (chunkError) {
         console.error(`[send-push] ❌ バッチ送信エラー (index ${i}):`, chunkError);
         totalFailureCount += chunkTokens.length;
