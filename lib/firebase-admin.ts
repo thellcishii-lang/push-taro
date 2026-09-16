@@ -39,7 +39,8 @@ export const messaging = new Proxy({} as admin.messaging.Messaging, {
   get: (_, prop) => {
     const app = getAdminApp();
     const instance = admin.messaging(app);
-    return (instance as any)[prop];
+    const value = (instance as any)[prop];
+    return typeof value === 'function' ? value.bind(instance) : value;
   },
 });
 
@@ -47,7 +48,8 @@ export const db = new Proxy({} as admin.firestore.Firestore, {
   get: (_, prop) => {
     const app = getAdminApp();
     const instance = admin.firestore(app);
-    return (instance as any)[prop];
+    const value = (instance as any)[prop];
+    return typeof value === 'function' ? value.bind(instance) : value;
   },
 });
 
@@ -55,6 +57,7 @@ export const authAdmin = new Proxy({} as admin.auth.Auth, {
   get: (_, prop) => {
     const app = getAdminApp();
     const instance = admin.auth(app);
-    return (instance as any)[prop];
+    const value = (instance as any)[prop];
+    return typeof value === 'function' ? value.bind(instance) : value;
   },
 });
