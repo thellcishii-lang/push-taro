@@ -12,6 +12,17 @@ import {
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  // ★★★ 追加ここから ★★★
+  console.log('[ENV-CHECK] GMAIL_USER:', process.env.GMAIL_USER ? 'SET' : 'MISSING');
+  console.log('[ENV-CHECK] GMAIL_PASS:', process.env.GMAIL_PASS ? `SET (len=${process.env.GMAIL_PASS.length})` : 'MISSING');
+  console.log('[ENV-CHECK] GMAIL_USER value:', process.env.GMAIL_USER);
+  console.log('[ENV-CHECK] GMAIL_PASS first4/last4:', 
+    process.env.GMAIL_PASS 
+      ? `${process.env.GMAIL_PASS.slice(0,4)}...${process.env.GMAIL_PASS.slice(-4)}` 
+      : 'N/A'
+  );
+  // ★★★ 追加ここまで ★★★
+
   let body: any = {};  // 🔥 try の外で宣言
 
   try {
