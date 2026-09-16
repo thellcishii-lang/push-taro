@@ -7,6 +7,7 @@ export default function PaymentCheckContent() {
   const searchParams = useSearchParams();
   const shopId = searchParams.get('shopId') || searchParams.get('s');
   const [isActive, setIsActive] = useState(false);
+  const [redirectPath, setRedirectPath] = useState('/shop');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -34,6 +35,7 @@ export default function PaymentCheckContent() {
         // ============================================================
         if (data.upgradeStatus === 'completed' ) {
           setIsActive(true);
+          setRedirectPath(data.plan === 'pro' ? '/pro-shop' : '/shop');
           setLoading(false);
           return;
         }
@@ -60,6 +62,7 @@ export default function PaymentCheckContent() {
         // ============================================================
         if (data.status === 'active' ) {
           setIsActive(true);
+          setRedirectPath(data.plan === 'pro' ? '/pro-shop' : '/shop');
           setLoading(false);
           return;
         }
@@ -87,6 +90,7 @@ export default function PaymentCheckContent() {
         // 🔑 【フォールバック】完了扱いにする
         // ============================================================
         setIsActive(true);
+        setRedirectPath(data.plan === 'pro' ? '/pro-shop' : '/shop');
         setLoading(false);
       })
       .catch((err) => {
@@ -124,8 +128,8 @@ export default function PaymentCheckContent() {
           この度はご登録ありがとうございます。<br />
           すでに本登録・決済手続きが完了しておりますので、追加の決済は不要です。
         </p>
-        <a
-          href="/admin"
+         <a
+          href={redirectPath}
           style={{
             display: 'inline-block',
             marginTop: 24,
