@@ -143,7 +143,7 @@ export default function ProShopPage() {
             const currentShopId = data.shopId;
             setShopId(currentShopId);
 
-            const dashRes = await fetch(`/api/admin/dashboard?shopId=${currentShopId}`, {
+            const dashRes = await fetch(`/api/dashboard?shopId=${currentShopId}`, {
               headers: { 'Authorization': `Bearer ${idToken}` },
             });
 
