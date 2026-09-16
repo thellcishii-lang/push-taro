@@ -111,6 +111,33 @@ useEffect(() => {
   }
 }, [shopId]);
 
+  // 店舗側でクーポンが消し込まれた状態を、顧客画面へ自動反映する。
+  useEffect(() => {
+    if (!shopId || !fcmToken || !isRegistered) return;
+
+    const refreshCouponStatus = async () => {
+      try {
+        const res = await fetch(
+          `/api/subscribe-status?shopId=${encodeURIComponent(shopId)}&token=${encodeURIComponent(fcmToken)}`
+        );
+        const data = await res.json();
+        if (data.success && (data.firstCouponUsed || data.couponUsed)) {
+          setCouponUsed(true);
+        }
+      } catch (err) {
+        console.error('クーポン状態の自動更新エラー:', err);
+      }
+    };
+
+    const intervalId = window.setInterval(refreshCouponStatus, 3000);
+    document.addEventListener('visibilitychange', refreshCouponStatus);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', refreshCouponStatus);
+    };
+  }, [shopId, fcmToken, isRegistered]);
+
   // 4. 動的 PWA Manifest & iPhone用メタタグの適用
   useEffect(() => {
     if (typeof window === 'undefined' || !shopId) return;
