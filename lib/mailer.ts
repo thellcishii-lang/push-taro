@@ -7,8 +7,8 @@ const gmailPass = process.env.GMAIL_PASS?.trim();
 const transporter = gmailUser && gmailPass
   ? nodemailer.createTransport({
       host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
+      port: 587,
+      secure: false,
       auth: {
         user: gmailUser,
         pass: gmailPass,
