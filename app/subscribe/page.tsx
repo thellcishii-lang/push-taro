@@ -186,6 +186,15 @@ useEffect(() => {
     setMessage('');
 
     try {
+      const deviceIdKey = `push_taro_device_id_${effectiveShopId}`;
+      let deviceId = localStorage.getItem(deviceIdKey);
+      if (!deviceId) {
+        deviceId = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        localStorage.setItem(deviceIdKey, deviceId);
+      }
+
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
         setStatus('error');
@@ -215,6 +224,7 @@ useEffect(() => {
         body: JSON.stringify({
           token,
           shopId: effectiveShopId,
+          deviceId,
           birthDate: shopData?.plan === 'pro' ? birthDate : null,
         }),
       });

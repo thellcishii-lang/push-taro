@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { token, shopId, birthDate } = body;
+    const { token, shopId, deviceId, birthDate } = body;
 
     // パラメータチェック
     if (!token || !shopId || shopId === 'undefined' || shopId === 'null') {
@@ -35,6 +35,7 @@ export async function POST(request: Request) {
     }
 
     const normalizedToken = token.trim();
+    const normalizedDeviceId = typeof deviceId === 'string' ? deviceId.trim() : '';
     const topic = `shop_${shopId}_users`;
 
     // 1. 生年月日の数値化処理（日付が送られてきた場合）
@@ -56,24 +57,35 @@ export async function POST(request: Request) {
       console.warn('[API WARN] FCMトピック登録スキップ（個別配信は可能）:', fcmErr.message);
     }
 
-    // 3. チャンク保存 (配列直接追加による競合防止策)
-    try {
-      const chunksRef = db.collection('shops').doc(shopId).collection('token_chunks');
-      const chunkDoc = chunksRef.doc('chunk_1');
-      await chunkDoc.set({
-        tokens: FieldValue.arrayUnion(normalizedToken),
-        updatedAt: FieldValue.serverTimestamp(),
-      }, { merge: true });
-    } catch (chunkErr: any) {
-      console.warn('[API WARN] チャンク保存スキップ:', chunkErr.message);
-    }
-
-    // 4. 個別顧客プロファイル（subscriptions）の保存/更新
+    // 3. 個別顧客プロファイル（subscriptions）の保存/更新
     const docRef = db.collection('subscriptions').doc(normalizedToken);
     const doc = await docRef.get();
 
+    // 同じ端末のFCMトークンが更新された場合は、店舗単位で旧レコードを移行する。
+    let previousDocRef: FirebaseFirestore.DocumentReference | null = null;
+    let previousToken = '';
+    if (normalizedDeviceId) {
+      const previousSnapshot = await db.collection('subscriptions')
+        .where('deviceId', '==', normalizedDeviceId)
+        .limit(10)
+        .get();
+
+      for (const previousDoc of previousSnapshot.docs) {
+        const previousData = previousDoc.data();
+        if (
+          previousDoc.id !== normalizedToken &&
+          Array.isArray(previousData.shopIds) &&
+          previousData.shopIds.includes(shopId)
+        ) {
+          previousDocRef = previousDoc.ref;
+          break;
+        }
+      }
+    }
+
     const baseData = {
       token: normalizedToken,
+      ...(normalizedDeviceId ? { deviceId: normalizedDeviceId } : {}),
       lastActive: FieldValue.serverTimestamp(),
       ...(birthDate ? { birthDate, birthMonth, birthDay } : {}),
     };
@@ -86,27 +98,73 @@ export async function POST(request: Request) {
         topics: FieldValue.arrayUnion(topic),
       }, { merge: true });
 
-      return NextResponse.json({
-        success: true,
-        topic,
-        message: '登録を更新しました',
-      }, { status: 200 });
-
+      if (previousDocRef) {
+        const previousData = (await previousDocRef.get()).data() || {};
+        previousToken = typeof previousData.token === 'string' ? previousData.token : '';
+        const remainingShopIds = Array.isArray(previousData.shopIds)
+          ? previousData.shopIds.filter((id: string) => id !== shopId)
+          : [];
+        if (remainingShopIds.length === 0) {
+          await previousDocRef.delete();
+        } else {
+          await previousDocRef.update({
+            shopIds: FieldValue.arrayRemove(shopId),
+            topics: FieldValue.arrayRemove(topic),
+          });
+        }
+      }
     } else {
+      let previousData: FirebaseFirestore.DocumentData | null = null;
+      if (previousDocRef) {
+        const previousDoc = await previousDocRef.get();
+        if (previousDoc.exists) previousData = previousDoc.data() || null;
+      }
+
       console.log('[API] 新規登録:', { shopId, birthDate });
       await docRef.set({
+        ...(previousData || {}),
         ...baseData,
-        shopIds: [shopId],
-        topics: [topic],
-        createdAt: FieldValue.serverTimestamp(),
+        shopIds: previousData?.shopIds || [shopId],
+        topics: previousData?.topics || [topic],
+        createdAt: previousData?.createdAt || FieldValue.serverTimestamp(),
       }, { merge: true });
 
-      return NextResponse.json({
-        success: true,
-        topic,
-        message: '新規登録しました',
-      }, { status: 200 });
+      if (previousDocRef) {
+        const oldData = previousData || {};
+        previousToken = typeof oldData.token === 'string' ? oldData.token : '';
+        const remainingShopIds = Array.isArray(oldData.shopIds)
+          ? oldData.shopIds.filter((id: string) => id !== shopId)
+          : [];
+        if (remainingShopIds.length === 0) {
+          await previousDocRef.delete();
+        } else {
+          await previousDocRef.update({
+            shopIds: FieldValue.arrayRemove(shopId),
+            topics: FieldValue.arrayRemove(topic),
+          });
+        }
+      }
     }
+
+    // チャンクは補助データ。移行・再登録でも必ず旧トークンを除去してから追加する。
+    try {
+      const chunkDoc = db.collection('shops').doc(shopId).collection('token_chunks').doc('chunk_1');
+      await chunkDoc.set({
+        tokens: FieldValue.arrayUnion(normalizedToken),
+        updatedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+      if (previousToken) {
+        await chunkDoc.update({ tokens: FieldValue.arrayRemove(previousToken) });
+      }
+    } catch (chunkErr: any) {
+      console.warn('[API WARN] チャンク保存スキップ:', chunkErr.message);
+    }
+
+    return NextResponse.json({
+      success: true,
+      topic,
+      message: doc.exists ? '登録を更新しました' : '新規登録しました',
+    }, { status: 200 });
 
   } catch (error: any) {
     console.error('[API ERROR]', error.message, error.stack);

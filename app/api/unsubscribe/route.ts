@@ -37,6 +37,12 @@ export async function POST(request: Request) {
       });
     }
 
+    const chunkRef = db.collection('shops').doc(shopId).collection('token_chunks').doc('chunk_1');
+    await chunkRef.set({
+      tokens: FieldValue.arrayRemove(token),
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
+
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error: any) {
     console.error('[unsubscribe] エラー:', error);

@@ -118,6 +118,9 @@ export default function ShopPage() {
               if (typeof shop?.currentMonthSent === 'number') {
                 setCurrentMonthSent(shop.currentMonthSent);
               }
+              if (typeof dashData.stats?.currentMonthSent === 'number') {
+                setCurrentMonthSent(dashData.stats.currentMonthSent);
+              }
             }
 
             setShopName(shop?.name || '');

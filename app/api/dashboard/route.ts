@@ -56,7 +56,9 @@ export async function GET(request: Request) {
       },
       stats: {
         subscriberCount: subscribersSnapshot.size, // 正しく12件等が取得されます
-        pushCount: shopData?.pushCount || 0,
+        pushCount: shopData?.currentMonthSent || 0,
+        currentMonthSent: shopData?.currentMonthSent || 0,
+        lastSentMonth: shopData?.lastSentMonth || null,
         status: shopData?.status || 'active',
       },
     });
