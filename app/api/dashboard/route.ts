@@ -29,18 +29,19 @@ export async function GET(request: Request) {
     if (!shopId) {
       return NextResponse.json({ error: 'Shop ID is required' }, { status: 400 });
     }
-
-    // 1. 店舗基本情報の取得
+ 
+       // 1. 店舗基本情報の取得
     const shopDoc = await db.collection('shops').doc(shopId).get();
 
-    if (shopDoc.exists) {
-    const shopData = shopDoc.data();
-    if (shopData?.ownerUid !== requesterUid && !isAdmin) {
+    if (!shopDoc.exists) {
+      return NextResponse.json({ error: '店舗が見つかりません' }, { status: 404 });
+    }
+
+    const shopData = shopDoc.data()!;
+
+    if (shopData.ownerUid !== requesterUid && !isAdmin) {
       return NextResponse.json({ error: '権限がありません' }, { status: 403 });
     }
-  }
-    
-    const shopData = shopDoc.exists ? shopDoc.data() : {};
 
     // 2. subscriptions コレクションから shopIds 配列に shopId が含まれるドキュメントをカウント
     const subscribersSnapshot = await db
