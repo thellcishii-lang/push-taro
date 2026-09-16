@@ -71,6 +71,10 @@ messaging.onBackgroundMessage((payload) => {
   // 1. IndexedDB へ履歴保存
   saveNotificationToDB({ title, body, icon, url: linkUrl });
 
+  // notification payloadはブラウザが表示するため、ここで再表示しない。
+  // ブラウザ標準の通知音もこの自動表示側に任せる。
+  if (payload.notification) return;
+
   // 2. OS別ポップアップ表示オプションの構築
   const options = {
     body: body,
