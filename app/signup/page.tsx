@@ -515,8 +515,8 @@ export default function SignupPage() {
         </form>
 
         <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '13px' }}>
-          <Link href="/admin" style={{ color: '#0284c7', textDecoration: 'none' }}>すでにアカウントをお持ちの方（ログイン）</Link>
-        </div>
+  <Link href="/shop" style={{ color: '#0284c7', textDecoration: 'none' }}>すでにアカウントをお持ちの方（ログイン）</Link>
+</div>
 
       </main>
     </div>
