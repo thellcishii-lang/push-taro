@@ -53,6 +53,7 @@ export default function ShopPage() {
   // 履歴・購読者
   const [history, setHistory] = useState<PushHistory[]>([]);
   const [subscriberCount, setSubscriberCount] = useState<number | null>(null);
+  const [currentMonthSent, setCurrentMonthSent] = useState(0);
 
   // 退会
   const [shopStatus, setShopStatus] = useState<string>('active');
@@ -113,6 +114,9 @@ export default function ShopPage() {
 
               if (dashData.stats && typeof dashData.stats.subscriberCount === 'number') {
                 setSubscriberCount(dashData.stats.subscriberCount);
+              }
+              if (typeof shop?.currentMonthSent === 'number') {
+                setCurrentMonthSent(shop.currentMonthSent);
               }
             }
 
@@ -313,6 +317,9 @@ export default function ShopPage() {
         status: 'success',
         successCount: data.successCount || 0,
       });
+      if (typeof data.currentMonthSent === 'number') {
+        setCurrentMonthSent(data.currentMonthSent);
+      }
 
       await loadHistory();
 
@@ -731,7 +738,7 @@ export default function ShopPage() {
           {/* 送信数ゲージ */}
           {(() => {
             const limit = isStandard ? 15000 : 5000;
-            const currentSent = history.reduce((acc, cur) => acc + (cur.successCount || 0), 0);
+            const currentSent = currentMonthSent;
             const percentage = Math.min(Math.round((currentSent / limit) * 100), 100);
 
             return (

@@ -52,7 +52,12 @@ export async function POST(request: Request) {
   }
 
   try {
-    const shopQuery = await db.collection('shops').where('ownerUid', '==', uid).limit(1).get();
+    const requestBody = await request.json();
+    const { shopId: requestedShopId, title, body, imageUrl, url } = requestBody;
+
+    const shopQuery = requestedShopId
+      ? await db.collection('shops').where('ownerUid', '==', uid).where('__name__', '==', requestedShopId).limit(1).get()
+      : await db.collection('shops').where('ownerUid', '==', uid).limit(1).get();
     if (shopQuery.empty) {
       return NextResponse.json({ error: '店舗が見つかりません' }, { status: 403 });
     }
@@ -61,7 +66,6 @@ export async function POST(request: Request) {
     const shopData = shopDoc.data();
     console.log(`[send-push] 🏪 店舗ID: ${shopId}`);
 
-    const { title, body, imageUrl, url } = await request.json();
     if (!title || !body) {
       return NextResponse.json({ error: 'タイトルと本文は必須です' }, { status: 400 });
     }
@@ -175,7 +179,7 @@ export async function POST(request: Request) {
     const CHUNK_SIZE = 450;
     let totalSuccessCount = 0;
     let totalFailureCount = 0;
-    const failedTokens: string[] = [];
+    const invalidTokens: string[] = [];
 
     for (let i = 0; i < registrationTokens.length; i += CHUNK_SIZE) {
       const chunkTokens = registrationTokens.slice(i, i + CHUNK_SIZE);
@@ -194,9 +198,16 @@ export async function POST(request: Request) {
         response.responses.forEach((resp, idx) => {
           if (!resp.success) {
             const token = chunkTokens[idx];
-            failedTokens.push(token);
             const platform = guessPlatform(token);
             console.error(`[send-push] ❌ 失敗: ${token.slice(0, 20)}... (${platform})`, resp.error);
+
+            const errorCode = resp.error?.code;
+            if (
+              errorCode === 'messaging/registration-token-not-registered' ||
+              errorCode === 'messaging/invalid-registration-token'
+            ) {
+              invalidTokens.push(token);
+            }
           }
         });
       } catch (chunkError) {
@@ -207,13 +218,13 @@ export async function POST(request: Request) {
 
     console.log(`[send-push] ✅ 合計成功: ${totalSuccessCount}, ❌ 合計失敗: ${totalFailureCount}`);
 
-    // 🧹 失敗した全トークンを Firestore から削除
-    if (failedTokens.length > 0) {
+    // 🧹 FCMが無効と判定したトークンだけを削除する
+    if (invalidTokens.length > 0) {
       const IN_LIMIT = 30;
       let deletedCount = 0;
 
-      for (let i = 0; i < failedTokens.length; i += IN_LIMIT) {
-        const chunkFailedTokens = failedTokens.slice(i, i + IN_LIMIT);
+      for (let i = 0; i < invalidTokens.length; i += IN_LIMIT) {
+        const chunkFailedTokens = invalidTokens.slice(i, i + IN_LIMIT);
         
         const invalidDocsSnapshot = await db.collection('subscriptions')
           .where('token', 'in', chunkFailedTokens)
@@ -230,6 +241,27 @@ export async function POST(request: Request) {
       }
 
       console.log(`[send-push] 🧹 ${deletedCount} 件の無効トークンを完全に削除・整理しました`);
+    }
+
+    if (totalSuccessCount === 0) {
+      await db.collection('histories').add({
+        shopId,
+        title,
+        body,
+        imageUrl: imageUrl || null,
+        linkUrl: url || null,
+        sentAt: FieldValue.serverTimestamp(),
+        status: 'error',
+        successCount: 0,
+        failureCount: totalFailureCount,
+      });
+
+      return NextResponse.json({
+        success: false,
+        error: `送信に失敗しました（対象 ${targetCount} 件、成功 0 件）。サーバーログでFCMエラーの詳細を確認してください。`,
+        successCount: 0,
+        failureCount: totalFailureCount,
+      }, { status: 502 });
     }
 
     // 📈 今月の送信数を加算
@@ -256,6 +288,7 @@ export async function POST(request: Request) {
       success: true, 
       successCount: totalSuccessCount,
       failureCount: totalFailureCount,
+      currentMonthSent: newMonthSentCount,
     }, { status: 200 });
 
   } catch (error: any) {
