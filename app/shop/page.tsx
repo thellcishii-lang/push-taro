@@ -30,6 +30,7 @@ export default function ShopPage() {
   const [couponEnabled, setCouponEnabled] = useState(false);
   const [couponTitle, setCouponTitle] = useState('');
   const [couponDesc, setCouponDesc] = useState('');
+  const [couponExpiresAt, setCouponExpiresAt] = useState('');
   const [clientLinkUrl, setClientLinkUrl] = useState('');
   const [shopIconUrl, setShopIconUrl] = useState('');
 
@@ -154,6 +155,7 @@ export default function ShopPage() {
               setCouponEnabled(shop.coupon.enabled);
               setCouponTitle(shop.coupon.title || '');
               setCouponDesc(shop.coupon.description || '');
+              setCouponExpiresAt(shop.coupon.expiresAt || '');
             }
             if (shop?.linkUrl) setClientLinkUrl(shop.linkUrl);
             if (shop?.iconUrl) setShopIconUrl(shop.iconUrl);
@@ -401,6 +403,7 @@ export default function ShopPage() {
             enabled: couponEnabled,
             title: couponTitle,
             description: couponDesc,
+            expiresAt: couponExpiresAt,
           },
           linkUrl: clientLinkUrl,
           iconUrl: shopIconUrl,
@@ -833,6 +836,12 @@ export default function ShopPage() {
               <ImageUploader onImageUploaded={(url) => setShopIconUrl(url)} currentUrl={shopIconUrl} />
             </div>
 
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>店舗サイトURL</label>
+              <input type="url" value={clientLinkUrl} onChange={(e) => setClientLinkUrl(e.target.value)} placeholder="https://example.com" style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }} />
+              <p style={{ margin: '5px 0 0', fontSize: '12px', color: '#64748b' }}>顧客画面に店舗名と「サイトはこちらから」を表示します。</p>
+            </div>
+
             <p style={{ fontSize: '14px', color: '#666' }}>店舗ID: <code>{shopId}</code></p>
 
             {qrUrl && (
@@ -851,6 +860,9 @@ export default function ShopPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
                 <input type="text" placeholder="クーポンタイトル" value={couponTitle} onChange={(e) => setCouponTitle(e.target.value)} style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
                 <input type="text" placeholder="説明文" value={couponDesc} onChange={(e) => setCouponDesc(e.target.value)} style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                <label style={{ fontSize: '14px', fontWeight: 'bold' }}>有効期限
+                  <input type="date" value={couponExpiresAt} onChange={(e) => setCouponExpiresAt(e.target.value)} style={{ display: 'block', marginTop: '5px', padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                </label>
               </div>
             )}
 

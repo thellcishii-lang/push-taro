@@ -20,6 +20,14 @@ class PushTaroDB extends Dexie {
     this.version(1).stores({
       history: '++id, sentAt',
     });
+    this.version(2).stores({
+      history: '++id, sentAt',
+      notifications: '++id, timestamp',
+    });
+    this.version(3).stores({
+      history: '++id, sentAt',
+      notifications: '++id, timestamp',
+    });
   }
 }
 

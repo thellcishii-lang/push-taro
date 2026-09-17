@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { requestFCMToken } from '../../lib/firebase-client';
+import { firebaseApp } from '../../lib/firebase-client';
+import { getMessaging, onMessage } from 'firebase/messaging';
 import { QRCodeSVG } from 'qrcode.react';
 import { auth } from '../../lib/firebase-client';
 import { ConfirmationResult, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
@@ -19,6 +21,7 @@ export default function SubscribePage() {
   const [birthDate, setBirthDate] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
   const [couponUsed, setCouponUsed] = useState(false);
+  const [couponExpired, setCouponExpired] = useState(false);
   const [customerUid, setCustomerUid] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
@@ -46,7 +49,21 @@ export default function SubscribePage() {
   // 1. IndexedDB から通知履歴を取得する関数
   const loadNotificationHistory = () => {
     if (typeof window === 'undefined') return;
-    const request = indexedDB.open('PushTaroDB', 1);
+    const request = indexedDB.open('PushTaroDB', 3);
+    request.onupgradeneeded = (e: any) => {
+      const db = e.target.result;
+      const upgradeTransaction = e.target.transaction;
+      if (!db.objectStoreNames.contains('notifications')) {
+        const store = db.createObjectStore('notifications', { keyPath: 'id', autoIncrement: true });
+        store.createIndex('timestamp', 'timestamp', { unique: false });
+      }
+      if (!db.objectStoreNames.contains('history')) {
+        const history = db.createObjectStore('history', { keyPath: 'id', autoIncrement: true });
+        history.createIndex('sentAt', 'sentAt', { unique: false });
+      } else if (!upgradeTransaction.objectStore('history').indexNames.contains('sentAt')) {
+        upgradeTransaction.objectStore('history').createIndex('sentAt', 'sentAt', { unique: false });
+      }
+    };
 
     request.onsuccess = (e: any) => {
       const db = e.target.result;
@@ -132,9 +149,30 @@ useEffect(() => {
   }
 }, [shopId]);
 
+  useEffect(() => {
+    const expiresAt = shopData?.coupon?.expiresAt;
+    setCouponExpired(Boolean(expiresAt && new Date(`${expiresAt}T23:59:59`).getTime() < Date.now()));
+  }, [shopData]);
+
   // 店舗側でクーポンが消し込まれた状態を、顧客画面へ自動反映する。
   useEffect(() => {
     if (!shopId || !fcmToken || !isRegistered) return;
+
+    const messaging = getMessaging(firebaseApp);
+    const unsubscribeMessage = onMessage(messaging, async (payload) => {
+      const title = payload.data?.title || payload.notification?.title || '新着通知';
+      const body = payload.data?.body || payload.notification?.body || '';
+      const rawUrl = payload.data?.url || payload.data?.linkUrl || '/';
+      const url = new URL(rawUrl, window.location.origin).toString();
+      const request = indexedDB.open('PushTaroDB', 3);
+      request.onsuccess = (event: any) => {
+        const historyDb = event.target.result;
+        if (!historyDb.objectStoreNames.contains('notifications')) return;
+        const transaction = historyDb.transaction('notifications', 'readwrite');
+        transaction.objectStore('notifications').add({ title, body, url, timestamp: Date.now() });
+        transaction.oncomplete = () => historyDb.close();
+      };
+    });
 
     const refreshCouponStatus = async () => {
       try {
@@ -156,6 +194,7 @@ useEffect(() => {
     return () => {
       window.clearInterval(intervalId);
       document.removeEventListener('visibilitychange', refreshCouponStatus);
+      unsubscribeMessage();
     };
   }, [shopId, fcmToken, isRegistered]);
 
@@ -224,8 +263,7 @@ useEffect(() => {
     } catch (error: any) {
       setStatus('error');
       console.error('[phone-auth] SMS送信失敗:', error);
-      setMessage(`認証コードの送信に失敗しました（${error.code || 'unknown'}）。Firebaseの承認済みドメインと電話番号認証設定を確認してください。`);
-        setMessage(`認証コードの送信に失敗しました（${error.code || 'unknown'}）。入力値を「09012345678」または「+819012345678」にしてください。`);
+      setMessage(`認証コードの送信に失敗しました（${error.code || 'unknown'}）。Firebase Authenticationで電話番号ログインを有効にしてください。`);
     } finally {
       setPhoneAuthLoading(false);
     }
@@ -393,22 +431,30 @@ useEffect(() => {
 <h2 style={{ margin: '0 0 8px 0' }}>{shopData?.name}</h2>
           {shopData?.linkUrl && (
             <a href={shopData.linkUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#2196F3', fontSize: '14px', wordBreak: 'break-all' }}>
-              {shopData.linkUrl}
+              サイトはこちらから
             </a>
           )}
         </div>
 
         {/* 🎁 初回限定クーポンエリア */}
 {shopData?.coupon?.enabled && (
-  <div style={{ background: couponUsed ? '#f1f5f9' : '#fff3e0', border: couponUsed ? '1px solid #cbd5e1' : '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
-    <span style={{ fontSize: '11px', background: couponUsed ? '#64748b' : '#e65100', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>初回限定</span>
-    <h3 style={{ margin: '6px 0 8px 0', color: couponUsed ? '#64748b' : '#e65100' }}>
+  <div style={{ background: couponUsed || couponExpired ? '#f1f5f9' : '#fff3e0', border: couponUsed || couponExpired ? '1px solid #cbd5e1' : '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
+    <span style={{ fontSize: '11px', background: couponUsed || couponExpired ? '#64748b' : '#e65100', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>初回限定</span>
+    <h3 style={{ margin: '6px 0 8px 0', color: couponUsed || couponExpired ? '#64748b' : '#e65100' }}>
       🎁 {shopData.coupon.title || '初回限定クーポン'}
     </h3>
+
+    {shopData.coupon.expiresAt && (
+      <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {shopData.coupon.expiresAt}</p>
+    )}
 
     {couponUsed ? (
       <div style={{ padding: '12px', background: '#e2e8f0', borderRadius: '6px', color: '#475569', fontWeight: 'bold', fontSize: '14px', marginTop: '10px' }}>
         ✅ こちらのクーポンは使用済みです
+      </div>
+    ) : couponExpired ? (
+      <div style={{ padding: '12px', background: '#e2e8f0', borderRadius: '6px', color: '#475569', fontWeight: 'bold', fontSize: '14px', marginTop: '10px' }}>
+        ⚠️ こちらのクーポンは有効期限切れです
       </div>
     ) : (
       <>

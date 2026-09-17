@@ -125,7 +125,10 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+    const configuredBaseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+    const appBaseUrl = process.env.NODE_ENV === 'production'
+      ? configuredBaseUrl.replace(/^http:/, 'https:')
+      : configuredBaseUrl;
     const targetUrl = new URL(url || `/subscribe?s=${shopId}`, appBaseUrl).toString();
     const displayTitle = title || shopData.name || 'Push-taro';
     const displayIcon = new URL(shopData.iconUrl || '/icon-192x192.png', appBaseUrl).toString();

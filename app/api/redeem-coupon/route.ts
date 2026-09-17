@@ -78,6 +78,14 @@ export async function POST(request: Request) {
         );
       }
 
+      const expiresAt = shopData.coupon?.expiresAt;
+      if (expiresAt && new Date(`${expiresAt}T23:59:59`).getTime() < Date.now()) {
+        return NextResponse.json(
+          { error: '⚠️ この初回限定クーポンは有効期限切れです！' },
+          { status: 400 }
+        );
+      }
+
       await usageRef.update({
         [`couponUsage.${shopId}.firstCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),

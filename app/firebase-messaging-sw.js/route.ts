@@ -19,13 +19,20 @@ const messaging = firebase.messaging();
 // 💾 IndexedDB への履歴保存処理（最大30件管理）
 function saveNotificationToDB(data) {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('PushTaroDB', 1);
+    const request = indexedDB.open('PushTaroDB', 3);
 
     request.onupgradeneeded = (e) => {
       const db = e.target.result;
+      const upgradeTransaction = e.target.transaction;
       if (!db.objectStoreNames.contains('notifications')) {
         const store = db.createObjectStore('notifications', { keyPath: 'id', autoIncrement: true });
         store.createIndex('timestamp', 'timestamp', { unique: false });
+      }
+      if (!db.objectStoreNames.contains('history')) {
+        const history = db.createObjectStore('history', { keyPath: 'id', autoIncrement: true });
+        history.createIndex('sentAt', 'sentAt', { unique: false });
+      } else if (!upgradeTransaction.objectStore('history').indexNames.contains('sentAt')) {
+        upgradeTransaction.objectStore('history').createIndex('sentAt', 'sentAt', { unique: false });
       }
     };
 
@@ -67,7 +74,8 @@ messaging.onBackgroundMessage(async (payload) => {
   const title = payload.data?.title || payload.notification?.title || '新着通知';
   const body = payload.data?.body || payload.notification?.body || '';
   const icon = payload.data?.icon || payload.notification?.icon || '/icon-192x192.png';
-  const linkUrl = payload.data?.url || payload.data?.linkUrl || '/';
+  const rawLinkUrl = payload.data?.url || payload.data?.linkUrl || '/';
+  const linkUrl = new URL(rawLinkUrl, self.location.origin).toString();
   const image = payload.data?.image || payload.notification?.image || '';
   const shopId = payload.data?.shopId || 'default';
 
@@ -94,14 +102,22 @@ messaging.onBackgroundMessage(async (payload) => {
 // 📱 通知タップ時の画面遷移処理
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const urlToOpen = event.notification.data?.url || '/';
+  const urlToOpen = new URL(event.notification.data?.url || '/', self.location.origin).toString();
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      for (let client of windowClients) {
-        if (client.url === urlToOpen && 'focus' in client) {
-          return client.focus();
+      const sameOriginClient = windowClients.find((client) => {
+        try {
+          return new URL(client.url).origin === new URL(urlToOpen).origin;
+        } catch {
+          return false;
         }
+      });
+      if (sameOriginClient) {
+        if ('navigate' in sameOriginClient) {
+          return sameOriginClient.navigate(urlToOpen).then((client) => client?.focus());
+        }
+        return sameOriginClient.focus();
       }
       if (clients.openWindow) {
         return clients.openWindow(urlToOpen);
