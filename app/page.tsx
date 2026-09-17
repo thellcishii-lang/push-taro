@@ -1839,32 +1839,33 @@ export default function Home() {
         }
 
         .logo {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 22px;
-          font-weight: 900;
-          color: var(--slate-900);
-          letter-spacing: -0.5px;
-        }
+  display: flex;
+  align-items: center;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--slate-900);
+  letter-spacing: -0.5px;
+}
 
-        .logo span {
-          color: #ff4500;
-        }
+.logo span {
+  color: #ff4500;
+  margin-left: 1px;
+}
 
-        .logo-mark {
-          width: 34px;
-          height: 34px;
-          flex-shrink: 0;
-        }
+.logo-mark {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
 
-        .logo small {
-          font-size: 11px;
-          font-weight: 600;
-          color: var(--slate-500);
-          letter-spacing: 0;
-          margin-left: 4px;
-        }
+.logo small {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--slate-500);
+  letter-spacing: 0;
+  margin-left: 8px;
+}
 
         .nav-links {
           display: flex;
