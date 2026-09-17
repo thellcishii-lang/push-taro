@@ -1,9 +1,6 @@
-import Link from 'next/link';
+'use client';
 
-export const metadata = {
-  title: 'NG行為集 | Push-taro 使い方ガイド',
-  description: 'プッシュ通知運用で炎上・ブロック・離反を招くNG行為を徹底解説。',
-};
+import Link from 'next/link';
 
 export default function NgActionsPage() {
   return (
