@@ -2,341 +2,243 @@ import Link from 'next/link';
 
 export const metadata = {
   title: '美容室・サロン向け Push-taro活用ガイド',
-  description: '美容室の新規客獲得コストは1人あたり3万円。Push-taroで3回来店で定着する仕組みを自動化し、リピート率を劇的に改善する方法を解説します。',
+  description: '美容室の新規客獲得コストは1人あたり3万円。Push-taroで3回来店で定着する仕組みを自動化。',
 };
 
 export default function SalonGuidePage() {
   return (
     <>
-      {/* パンくず */}
-      <div className="guide-breadcrumb">
-        <Link href="/guide">ガイド</Link>
-        <span className="sep">/</span>
-        <span className="current">美容室・サロン</span>
-      </div>
+      {/* ヘッダー */}
+      <nav className="s-nav">
+        <div className="s-nav-inner">
+          <Link href="/" className="s-logo">🚀 Push-taro <small>/ 使い方ガイド</small></Link>
+          <Link href="/signup" className="s-nav-cta">今すぐ申し込む →</Link>
+        </div>
+      </nav>
 
-      {/* ページヘッダー */}
-      <div className="guide-hero">
-        <span className="badge">💇 美容室・サロン向け</span>
-        <h1>美容室・サロンのための<br />Push-taro活用ガイド</h1>
-        <p>
-          美容サロンの新規客獲得コストは、1人あたり<strong>平均30,000円</strong>。
-          新規獲得に頼り続ける経営から脱却し、既存客のリピートで安定した売上を作る方法を解説します。
-        </p>
-      </div>
-
-      <div className="guide-content">
-
-        {/* 業界の課題 */}
-        <h2><span className="num">1</span>美容サロン業界が抱える3つの課題</h2>
-
-        <div className="guide-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
-          <div className="guide-card" style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 32, marginBottom: 8 }}>💸</div>
-            <h4 style={{ marginTop: 0 }}>新規獲得コストが高い</h4>
-            <p style={{ fontSize: 13, color: '#64748b' }}>
-              ホットペッパー等の掲載費で、1人あたり<strong>3万円</strong>。これが毎月の重い負担に。
-            </p>
-          </div>
-          <div className="guide-card" style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 32, marginBottom: 8 }}>🔄</div>
-            <h4 style={{ marginTop: 0 }}>リピート率が低い</h4>
-            <p style={{ fontSize: 13, color: '#64748b' }}>
-              新規客の<strong>7割が1回で離反</strong>。「また来たい」と思わせる仕組みがない。
-            </p>
-          </div>
-          <div className="guide-card" style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 32, marginBottom: 8 }}>💤</div>
-            <h4 style={{ marginTop: 0 }}>休眠客の放置</h4>
-            <p style={{ fontSize: 13, color: '#64748b' }}>
-              3ヶ月来ていない顧客に、<strong>何もアプローチできていない</strong>。
-            </p>
-          </div>
+      <main className="s-main">
+        {/* パンくず */}
+        <div className="s-breadcrumb">
+          <Link href="/guide">ガイド</Link>
+          <span className="sep">/</span>
+          <span className="current">美容室・サロン</span>
         </div>
 
-        <div className="guide-callout info">
-          <span className="ico">💡</span>
-          <div>
-            <p><strong>美容サロンの成功は、リピート率で決まる</strong></p>
-            <p>新規獲得に頼る経営から、既存客のリピートで安定させる経営へ。これが美容サロンが生き残る唯一の道です。</p>
-          </div>
-        </div>
-
-        {/* 3回来店で定着する仕組み */}
-        <h2><span className="num">2</span>3回来店で、お客様は定着する</h2>
-
-        <p>
-          美容サロン業界では、<strong>「3回来店した顧客は、その後も継続して通い続ける」</strong>というデータがあります。
-          逆に言えば、<strong>3回まで来店させられれば、その顧客は離反しない</strong>ということです。
-        </p>
-
-        {/* 図解 */}
-        <div className="guide-diagram">
-          <svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="arrowGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#ff4500" />
-                <stop offset="100%" stopColor="#fbbf24" />
-              </linearGradient>
-            </defs>
-
-            {/* 1回目 */}
-            <circle cx="100" cy="120" r="60" fill="#fff7ed" stroke="#ff4500" strokeWidth="2" />
-            <text x="100" y="112" fontSize="14" fontWeight="800" textAnchor="middle" fill="#ff4500">1回目</text>
-            <text x="100" y="132" fontSize="11" textAnchor="middle" fill="#64748b">初回クーポン</text>
-            <text x="100" y="148" fontSize="11" textAnchor="middle" fill="#64748b">で来店</text>
-
-            {/* 矢印1 */}
-            <path d="M170 120 L230 120" stroke="url(#arrowGrad)" strokeWidth="3" fill="none" markerEnd="url(#arrowhead)" />
-            <defs>
-              <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-                <polygon points="0 0, 10 3, 0 6" fill="#ff4500" />
-              </marker>
-            </defs>
-
-            {/* 2回目 */}
-            <circle cx="290" cy="120" r="60" fill="#fff7ed" stroke="#ff4500" strokeWidth="2" />
-            <text x="290" y="112" fontSize="14" fontWeight="800" textAnchor="middle" fill="#ff4500">2回目</text>
-            <text x="290" y="132" fontSize="11" textAnchor="middle" fill="#64748b">連続クーポン</text>
-            <text x="290" y="148" fontSize="11" textAnchor="middle" fill="#64748b">で再来</text>
-
-            {/* 矢印2 */}
-            <path d="M360 120 L420 120" stroke="url(#arrowGrad)" strokeWidth="3" fill="none" markerEnd="url(#arrowhead)" />
-
-            {/* 3回目 */}
-            <circle cx="480" cy="120" r="60" fill="#ff4500" stroke="#e03e00" strokeWidth="2" />
-            <text x="480" y="112" fontSize="14" fontWeight="800" textAnchor="middle" fill="#fff">3回目</text>
-            <text x="480" y="132" fontSize="11" textAnchor="middle" fill="#ffe4d6">特別達成</text>
-            <text x="480" y="148" fontSize="11" textAnchor="middle" fill="#ffe4d6">クーポン</text>
-
-            {/* 矢印3 */}
-            <path d="M550 120 L610 120" stroke="url(#arrowGrad)" strokeWidth="3" fill="none" markerEnd="url(#arrowhead)" />
-
-            {/* 定着 */}
-            <text x="650" y="115" fontSize="22" textAnchor="middle">🎉</text>
-            <text x="650" y="140" fontSize="13" fontWeight="800" textAnchor="middle" fill="#16a34a">定着</text>
-          </svg>
-        </div>
-
-        <div className="guide-callout success">
-          <span className="ico">✅</span>
-          <div>
-            <p><strong>「あと1回行くと特別クーポンがもらえる」</strong>という仕組みが、来店のきっかけを作ります。</p>
-            <p>Push-taroなら、これを全自動で運用できます。</p>
-          </div>
-        </div>
-
-        {/* 具体的な運用フロー */}
-        <h2><span className="num">3</span>美容サロン向け 運用フロー</h2>
-
-        <div className="guide-steps">
-          <div className="guide-step">
-            <div className="guide-step-body">
-              <h4>STEP 1：QRコードを店頭に設置</h4>
-              <p>管理画面から生成した店舗専用QRコードを、POPに印刷してカウンター・鏡前に設置。お客様は待ち時間に読み取るだけ。</p>
-            </div>
-          </div>
-
-          <div className="guide-step">
-            <div className="guide-step-body">
-              <h4>STEP 2：初回クーポンで顧客獲得</h4>
-              <p>通知登録と同時に、初回限定クーポンを自動配布。「次回使える〇%OFF」が再来店の動機になります。</p>
-            </div>
-          </div>
-
-          <div className="guide-step">
-            <div className="guide-step-body">
-              <h4>STEP 3：連続クーポンで2回目来店</h4>
-              <p>初回来店の消込と同時に、次回クーポンを即時発行。有効期限を14日間に設定し、来店サイクルを短縮。</p>
-            </div>
-          </div>
-
-          <div className="guide-step">
-            <div className="guide-step-body">
-              <h4>STEP 4：3回目で特別達成クーポン</h4>
-              <p>累計3回来店で、特別な達成クーポンを解放。「あと1回で特別クーポン」の心理が、確実な来店を促します。</p>
-            </div>
-          </div>
-
-          <div className="guide-step">
-            <div className="guide-step-body">
-              <h4>STEP 5：誕生日・休眠復活で長期化</h4>
-              <p>誕生日クーポンで特別感を演出。60日来店が無い顧客には、休眠復活クーポンを自動配信して呼び戻します。</p>
-            </div>
-          </div>
-        </div>
-
-        {/* 推奨クーポン設計 */}
-        <h2><span className="num">4</span>美容サロンで推奨するクーポン設計</h2>
-
-        <div className="guide-table-wrap">
-          <table className="guide-table">
-            <thead>
-              <tr>
-                <th>クーポン種別</th>
-                <th>目的</th>
-                <th>推奨設定</th>
-                <th>必要プラン</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>🎫 初回限定</td>
-                <td>新規顧客の獲得</td>
-                <td>カット10%OFF など</td>
-                <td className="yes">LIGHT〜</td>
-              </tr>
-              <tr>
-                <td>🔄 連続</td>
-                <td>2回目来店の促進</td>
-                <td>14日間有効の次回割引</td>
-                <td className="yes">PRO</td>
-              </tr>
-              <tr>
-                <td>🏆 特別達成</td>
-                <td>3回来店で定着</td>
-                <td>3回で15%OFF</td>
-                <td className="yes">STANDARD〜</td>
-              </tr>
-              <tr>
-                <td>🐾 ステップアップ</td>
-                <td>段階的な特典</td>
-                <td>1回目→2回目→3回目で豪華に</td>
-                <td className="yes">PRO</td>
-              </tr>
-              <tr>
-                <td>🎂 誕生日</td>
-                <td>特別感の演出</td>
-                <td>誕生日月に20%OFF</td>
-                <td className="yes">PRO</td>
-              </tr>
-              <tr>
-                <td>💤 休眠復活</td>
-                <td>離反顧客の呼び戻し</td>
-                <td>60日未来店で30%OFF</td>
-                <td className="yes">PRO</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div className="guide-callout warn">
-          <span className="ico">⚠️</span>
-          <div>
-            <p><strong>POINT：割引率は「高すぎず、低すぎず」</strong></p>
-            <p>初回クーポンは10〜15%、休眠復活は20〜30%が効果的。<strong>50%OFFなどの過度な割引は、常連客の離反を招く</strong>ので避けましょう。</p>
-          </div>
-        </div>
-
-        {/* 活用アイデア */}
-        <h2><span className="num">5</span>美容サロン向け 活用アイデア</h2>
-
-        <div className="guide-grid">
-          <div className="guide-card">
-            <h4>☔ 雨の日限定クーポン</h4>
-            <p>「雨の日は空いている」という特性を活かし、雨の日限定の割引を配信。平日の稼働率を上げられます。</p>
-          </div>
-          <div className="guide-card">
-            <h4>💇 新メニュー告知</h4>
-            <p>新メニューや新商品の入荷を、画像付きで配信。興味を持った顧客が予約に繋がります。</p>
-          </div>
-          <div className="guide-card">
-            <h4>📅 予約リマインド</h4>
-            <p>「前回の来店から1ヶ月が経ちました」という通知で、自然な再来店を促します。</p>
-          </div>
-          <div className="guide-card">
-            <h4>🎉 季節キャンペーン</h4>
-            <p>春の新生活応援、夏の紫外線対策など、季節に合わせた施策で来店動機を作ります。</p>
-          </div>
-          <div className="guide-card">
-            <h4>👯 友達紹介キャンペーン</h4>
-            <p>「お友達と一緒なら2人とも10%OFF」など、紹介を促すキャンペーンも効果的。</p>
-          </div>
-          <div className="guide-card">
-            <h4>📸 スタイル写真の配信</h4>
-            <p>新作スタイルの写真を配信し、「これにしたい」という気持ちを刺激します。</p>
-          </div>
-        </div>
-
-        {/* 導入事例 */}
-        <h2><span className="num">6</span>導入事例</h2>
-
-        <div className="guide-card">
-          <h4>📍 都内 美容室 A様（3店舗展開）</h4>
-          <p style={{ marginBottom: 12 }}>
-            <strong>導入前：</strong>リピート率 45% / 月商 250万円<br />
-            <strong>導入後：</strong>リピート率 <strong style={{ color: '#16a34a' }}>72%</strong> / 月商 <strong style={{ color: '#16a34a' }}>380万円</strong>
-          </p>
+        {/* ヘッダー */}
+        <div className="s-hero">
+          <span className="s-badge">💇 美容室・サロン向け</span>
+          <h1>美容室・サロンのための<br />Push-taro活用ガイド</h1>
           <p>
-            連続クーポンと誕生日クーポンの自動配信で、来店サイクルが短縮。
-            「次にいつ来ればいいか」が自然に伝わる仕組みができました。
+            美容サロンの新規客獲得コストは、1人あたり<strong>平均30,000円</strong>。
+            新規獲得に頼り続ける経営から脱却し、既存客のリピートで安定した売上を作る方法を解説します。
           </p>
         </div>
 
-        <div className="guide-card">
-          <h4>📍 埼玉県 美容室 B様（個人経営）</h4>
-          <p style={{ marginBottom: 12 }}>
-            <strong>導入前：</strong>休眠顧客率 60%<br />
-            <strong>導入後：</strong>休眠顧客率 <strong style={{ color: '#16a34a' }}>32%</strong>
-          </p>
-          <p>
-            休眠復活クーポンで、3ヶ月来ていなかった顧客が戻ってくるように。
-            「気になっていたけど、きっかけが無かった」という声が多く、効果を実感しています。
-          </p>
-        </div>
+        <div className="s-content">
 
-        {/* 関連ページ */}
-        <div className="guide-related">
-          <h3>関連ガイド</h3>
-          <div className="guide-related-grid">
-            <Link href="/guide/salon/three-visits" className="guide-related-card">
-              <span className="ico">🎯</span>
-              <div className="text">
-                <div className="title">3回来店で定着する仕組み</div>
-                <div className="sub">美容サロン向け詳細ガイド</div>
-              </div>
-              <span className="arrow">→</span>
-            </Link>
-            <Link href="/guide/salon/birthday" className="guide-related-card">
-              <span className="ico">🎂</span>
-              <div className="text">
-                <div className="title">誕生日クーポンの活用法</div>
-                <div className="sub">特別感でファン化を加速</div>
-              </div>
-              <span className="arrow">→</span>
-            </Link>
-            <Link href="/guide/salon/winback" className="guide-related-card">
-              <span className="ico">💤</span>
-              <div className="text">
-                <div className="title">離反防止・休眠復活</div>
-                <div className="sub">失いかけた顧客を呼び戻す</div>
-              </div>
-              <span className="arrow">→</span>
-            </Link>
-            <Link href="/guide/ng-actions" className="guide-related-card">
-              <span className="ico">⚠️</span>
-              <div className="text">
-                <div className="title">NG行為集</div>
-                <div className="sub">炎上・離反を招く行為</div>
-              </div>
-              <span className="arrow">→</span>
-            </Link>
+          {/* 課題 */}
+          <h2><span className="num">1</span>美容サロン業界が抱える3つの課題</h2>
+          <div className="s-grid">
+            <div className="s-card-simple">
+              <div className="s-icon-big">💸</div>
+              <h4>新規獲得コストが高い</h4>
+              <p>ホットペッパー等で1人あたり<strong>3万円</strong>。毎月の重い負担に。</p>
+            </div>
+            <div className="s-card-simple">
+              <div className="s-icon-big">🔄</div>
+              <h4>リピート率が低い</h4>
+              <p>新規客の<strong>7割が1回で離反</strong>。「また来たい」仕組みがない。</p>
+            </div>
+            <div className="s-card-simple">
+              <div className="s-icon-big">💤</div>
+              <h4>休眠客の放置</h4>
+              <p>3ヶ月来ていない顧客に、<strong>何もできていない</strong>。</p>
+            </div>
           </div>
-        </div>
 
-        {/* CTA */}
-        <div className="guide-cta">
-          <h3>美容サロンのリピート施策を、仕組みに。</h3>
+          <div className="s-callout info">
+            <span className="ico">💡</span>
+            <div>
+              <p><strong>美容サロンの成功は、リピート率で決まる</strong></p>
+              <p>新規獲得に頼る経営から、既存客のリピートで安定させる経営へ。</p>
+            </div>
+          </div>
+
+          {/* 3回来店で定着 */}
+          <h2><span className="num">2</span>3回来店で、お客様は定着する</h2>
           <p>
-            Push-taroなら、3回来店で定着する仕組みを全自動で運用できます。<br />
-            まずは無料相談から、お気軽にどうぞ。
+            美容サロン業界では、<strong>「3回来店した顧客は、その後も継続して通い続ける」</strong>というデータがあります。
+            逆に言えば、<strong>3回まで来店させられれば、その顧客は離反しない</strong>ということです。
           </p>
-          <Link href="/signup" className="btn">
-            無料相談・資料請求 →
-          </Link>
-        </div>
 
-      </div>
+          <div className="s-diagram">
+            <div className="s-flow">
+              <div className="s-flow-item">
+                <div className="s-flow-circle">1回目</div>
+                <p>初回クーポンで来店</p>
+              </div>
+              <div className="s-flow-arrow">→</div>
+              <div className="s-flow-item">
+                <div className="s-flow-circle">2回目</div>
+                <p>連続クーポンで再来</p>
+              </div>
+              <div className="s-flow-arrow">→</div>
+              <div className="s-flow-item">
+                <div className="s-flow-circle highlight">3回目</div>
+                <p>特別達成クーポン</p>
+              </div>
+              <div className="s-flow-arrow">→</div>
+              <div className="s-flow-item">
+                <div className="s-flow-circle success">🎉 定着</div>
+                <p>ファン化</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="s-callout success">
+            <span className="ico">✅</span>
+            <div>
+              <p><strong>「あと1回行くと特別クーポンがもらえる」</strong>という仕組みが、来店のきっかけを作ります。</p>
+            </div>
+          </div>
+
+          {/* 運用フロー */}
+          <h2><span className="num">3</span>美容サロン向け 運用フロー</h2>
+          <div className="s-steps">
+            <div className="s-step">
+              <div className="s-step-body">
+                <h4>STEP 1：QRコードを店頭に設置</h4>
+                <p>管理画面から生成した店舗専用QRコードを、POPに印刷して設置。</p>
+              </div>
+            </div>
+            <div className="s-step">
+              <div className="s-step-body">
+                <h4>STEP 2：初回クーポンで顧客獲得</h4>
+                <p>通知登録と同時に、初回限定クーポンを自動配布。</p>
+              </div>
+            </div>
+            <div className="s-step">
+              <div className="s-step-body">
+                <h4>STEP 3：連続クーポンで2回目来店</h4>
+                <p>消込と同時に、次回クーポンを即時発行。14日間の有効期限で来店サイクルを短縮。</p>
+              </div>
+            </div>
+            <div className="s-step">
+              <div className="s-step-body">
+                <h4>STEP 4：3回目で特別達成クーポン</h4>
+                <p>累計3回来店で、特別な達成クーポンを解放。</p>
+              </div>
+            </div>
+            <div className="s-step">
+              <div className="s-step-body">
+                <h4>STEP 5：誕生日・休眠復活で長期化</h4>
+                <p>誕生日クーポンで特別感を演出。60日来店が無い顧客には休眠復活クーポン。</p>
+              </div>
+            </div>
+          </div>
+
+          {/* 関連ページ */}
+          <div className="s-related">
+            <h3>関連ガイド</h3>
+            <div className="s-related-grid">
+              <Link href="/guide/ng-actions" className="s-related-card">
+                <span className="ico">⚠️</span>
+                <div>
+                  <div className="title">NG行為集</div>
+                  <div className="sub">炎上・離反を招く行為</div>
+                </div>
+                <span className="arrow">→</span>
+              </Link>
+              <Link href="/guide/cafe" className="s-related-card">
+                <span className="ico">☕</span>
+                <div>
+                  <div className="title">飲食店・カフェ向け</div>
+                  <div className="sub">業種別ガイド</div>
+                </div>
+                <span className="arrow">→</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="s-cta">
+            <h3>美容サロンのリピート施策を、仕組みに。</h3>
+            <p>Push-taroなら、3回来店で定着する仕組みを全自動で運用できます。</p>
+            <Link href="/signup" className="s-cta-btn">無料相談・資料請求 →</Link>
+          </div>
+
+        </div>
+      </main>
+
+      {/* スタイル */}
+      <style jsx global>{`
+        .s-nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
+        .s-nav-inner { max-width: 1100px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+        .s-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 900; color: #0f172a; text-decoration: none; letter-spacing: -0.5px; }
+        .s-logo small { font-size: 11px; font-weight: 600; color: #64748b; }
+        .s-nav-cta { background: #ff4500; color: #fff; padding: 10px 22px; border-radius: 8px; font-weight: 700; font-size: 14px; text-decoration: none; box-shadow: 0 4px 12px rgba(255,69,0,0.25); }
+        .s-main { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans JP", sans-serif; }
+        .s-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #64748b; margin-bottom: 20px; flex-wrap: wrap; }
+        .s-breadcrumb a { color: #64748b; text-decoration: none; }
+        .s-breadcrumb a:hover { color: #ff4500; }
+        .s-breadcrumb .sep { color: #cbd5e1; }
+        .s-breadcrumb .current { color: #1e293b; font-weight: 700; }
+        .s-hero { padding: 32px 0 40px; border-bottom: 1px solid #e2e8f0; margin-bottom: 40px; }
+        .s-badge { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 0.8px; color: #ff4500; background: #fff7ed; padding: 5px 14px; border-radius: 20px; margin-bottom: 16px; }
+        .s-hero h1 { font-size: clamp(26px, 3.4vw, 38px); font-weight: 900; color: #0f172a; letter-spacing: -1px; line-height: 1.25; margin: 0 0 14px; }
+        .s-hero p { font-size: 15.5px; color: #64748b; line-height: 1.9; margin: 0; }
+        .s-content { max-width: 100%; line-height: 1.9; color: #334155; font-size: 15px; }
+        .s-content > h2 { font-size: 24px; font-weight: 900; color: #0f172a; margin: 56px 0 20px; letter-spacing: -0.6px; display: flex; align-items: center; gap: 12px; }
+        .s-content > h2:first-of-type { margin-top: 0; }
+        .s-content > h2 .num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: linear-gradient(135deg, #ff4500, #f97316); color: #fff; border-radius: 10px; font-size: 16px; font-weight: 900; flex-shrink: 0; }
+        .s-content p { margin-bottom: 16px; }
+        .s-content strong { color: #0f172a; font-weight: 800; }
+        .s-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin: 24px 0; }
+        .s-card-simple { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 24px; text-align: center; }
+        .s-icon-big { font-size: 32px; margin-bottom: 8px; }
+        .s-card-simple h4 { font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 8px; }
+        .s-card-simple p { font-size: 13px; color: #64748b; margin: 0; line-height: 1.7; }
+        .s-callout { display: flex; gap: 16px; padding: 20px 24px; border-radius: 14px; margin: 24px 0; align-items: flex-start; }
+        .s-callout .ico { flex-shrink: 0; font-size: 22px; line-height: 1; }
+        .s-callout p { margin: 0; font-size: 14.5px; line-height: 1.85; }
+        .s-callout p + p { margin-top: 8px; }
+        .s-callout.info { background: #ebf8ff; border: 1px solid #90cdf4; color: #2c5282; }
+        .s-callout.success { background: #f0fdf4; border: 1px solid #86efac; color: #14532d; }
+        .s-diagram { background: linear-gradient(135deg, #f8fafc, #eef2f7); border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px 24px; margin: 28px 0; overflow-x: auto; }
+        .s-flow { display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 600px; }
+        .s-flow-item { text-align: center; flex-shrink: 0; }
+        .s-flow-circle { width: 80px; height: 80px; border-radius: 50%; background: #fff7ed; border: 2px solid #ff4500; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #ff4500; margin: 0 auto 8px; }
+        .s-flow-circle.highlight { background: #ff4500; color: #fff; }
+        .s-flow-circle.success { background: #f0fdf4; border-color: #16a34a; color: #16a34a; }
+        .s-flow-item p { font-size: 12px; color: #64748b; margin: 0; }
+        .s-flow-arrow { font-size: 24px; color: #ff4500; font-weight: 900; flex-shrink: 0; }
+        .s-steps { display: flex; flex-direction: column; gap: 20px; margin: 28px 0; counter-reset: sstep; }
+        .s-step { display: flex; gap: 20px; align-items: flex-start; position: relative; }
+        .s-step::before { counter-increment: sstep; content: counter(sstep); flex-shrink: 0; width: 44px; height: 44px; background: linear-gradient(135deg, #ff4500, #f97316); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; }
+        .s-step-body { flex: 1; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; }
+        .s-step-body h4 { margin: 0 0 8px; font-size: 15px; font-weight: 800; color: #0f172a; }
+        .s-step-body p { margin: 0; font-size: 14px; color: #475569; }
+        .s-related { margin-top: 64px; padding-top: 32px; border-top: 2px solid #e2e8f0; }
+        .s-related > h3 { font-size: 14px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #64748b; margin: 0 0 20px; }
+        .s-related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+        .s-related-card { display: flex; align-items: center; gap: 12px; padding: 16px 18px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; text-decoration: none; color: inherit; transition: all 0.2s; }
+        .s-related-card:hover { border-color: #ff4500; transform: translateX(4px); }
+        .s-related-card .ico { font-size: 24px; flex-shrink: 0; }
+        .s-related-card .title { font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1.3; }
+        .s-related-card .sub { font-size: 11.5px; color: #64748b; margin-top: 2px; }
+        .s-related-card .arrow { color: #ff4500; font-size: 16px; font-weight: 900; margin-left: auto; }
+        .s-cta { margin-top: 56px; padding: 40px 32px; background: linear-gradient(160deg, #0f172a, #1e293b); color: #fff; border-radius: 20px; text-align: center; }
+        .s-cta h3 { font-size: 22px; font-weight: 900; margin: 0 0 12px; color: #fff; }
+        .s-cta p { font-size: 14.5px; color: #94a3b8; margin-bottom: 24px; line-height: 1.8; }
+        .s-cta-btn { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #ff4500, #f97316); color: #fff; padding: 14px 32px; border-radius: 10px; font-weight: 800; font-size: 15px; text-decoration: none; box-shadow: 0 8px 24px rgba(255,69,0,0.35); }
+        @media (max-width: 640px) {
+          .s-main { padding: 24px 16px 60px; }
+          .s-logo { font-size: 17px; }
+          .s-nav-cta { padding: 8px 14px; font-size: 12px; }
+          .s-flow { min-width: 0; flex-wrap: wrap; }
+          .s-flow-arrow { transform: rotate(90deg); }
+        }
+      `}</style>
     </>
   );
 }
