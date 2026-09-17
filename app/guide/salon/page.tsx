@@ -1,9 +1,6 @@
-import Link from 'next/link';
+'use client';
 
-export const metadata = {
-  title: '美容室・サロン向け Push-taro活用ガイド',
-  description: '美容室の新規客獲得コストは1人あたり3万円。Push-taroで3回来店で定着する仕組みを自動化。',
-};
+import Link from 'next/link';
 
 export default function SalonGuidePage() {
   return (
