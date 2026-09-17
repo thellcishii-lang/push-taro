@@ -29,7 +29,6 @@ export default function ProShopPage() {
   const [couponEnabled, setCouponEnabled] = useState(false);
   const [couponTitle, setCouponTitle] = useState('');
   const [couponDesc, setCouponDesc] = useState('');
-  const [couponRate, setCouponRate] = useState(0);
   const [clientLinkUrl, setClientLinkUrl] = useState('');
   const [shopIconUrl, setShopIconUrl] = useState('');
 
@@ -214,7 +213,6 @@ export default function ProShopPage() {
                 setCouponEnabled(shop.coupon.enabled);
                 setCouponTitle(shop.coupon.title || '');
                 setCouponDesc(shop.coupon.description || '');
-                setCouponRate(shop.coupon.discountRate || 0);
               }
               if (shop?.linkUrl) setClientLinkUrl(shop.linkUrl);
               if (shop?.iconUrl) setShopIconUrl(shop.iconUrl);
@@ -441,7 +439,6 @@ export default function ProShopPage() {
             enabled: couponEnabled,
             title: couponTitle,
             description: couponDesc,
-            discountRate: couponRate,
           },
           linkUrl: clientLinkUrl,
           iconUrl: shopIconUrl,
@@ -886,7 +883,6 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
                 <input type="text" placeholder="クーポンタイトル" value={couponTitle} onChange={(e) => setCouponTitle(e.target.value)} style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
                 <input type="text" placeholder="説明文" value={couponDesc} onChange={(e) => setCouponDesc(e.target.value)} style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
-                <input type="number" placeholder="割引率 (%)" value={couponRate} onChange={(e) => setCouponRate(Number(e.target.value))} style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
               </div>
             )}
 
