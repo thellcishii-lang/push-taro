@@ -713,3 +713,11 @@
     display: none;
   }
 }
+
+/* デフォルトでサイドバーを開いた状態に（PCでは常に開く） */
+@media (min-width: 961px) {
+  .guide-sidebar.collapsed nav,
+  .guide-sidebar.collapsed h3 {
+    display: block;
+  }
+}
