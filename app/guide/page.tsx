@@ -1,9 +1,6 @@
-import Link from 'next/link';
+'use client';
 
-export const metadata = {
-  title: '業種別 活用ガイド | Push-taro',
-  description: '業種別のPush-taro活用方法を徹底解説。',
-};
+import Link from 'next/link';
 
 export default function GuideTopPage() {
   return (
