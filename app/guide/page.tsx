@@ -51,6 +51,24 @@ export default function GuideTopPage() {
             <p>新商品入荷・セール告知を画像付きで配信。固定ファンの買い逃しを防ぎ、季節ごとの売上を最大化。</p>
             <span className="g-card-arrow">詳しく見る →</span>
           </Link>
+          <Link href="/guide/izakaya" className="g-card">
+             <span className="g-card-icon">🍺</span>
+             <h4>バー・居酒屋</h4>
+             <p>グループ利用と常連の習慣化。平日稼働率UPと宴会予約獲得の仕組み。</p>
+             <span className="g-card-arrow">詳しく見る →</span>
+　　　　　　　　　　　　　　　　　　　　　</Link>
+　　　　　　　　　　　　　　　　　　　　　<Link href="/guide/ramen" className="g-card">
+             <span className="g-card-icon">🍜</span>
+             <h4>ラーメン店</h4>
+             <p>限定ラーメンの定期配信とリピート施策。常連化と平日稼働UP。</p>
+             <span className="g-card-arrow">詳しく見る →</span>
+　　　　　　　　　　　　　　　　　　　　　</Link>
+　　　　　　　　　　　　　　　　　　　　<Link href="/guide/sushi" className="g-card">
+             <span className="g-card-icon">🍣</span>
+             <h4>寿司店</h4>
+             <p>記念日利用と旬のネタで来店動機を作る。特別感で差別化。</p>
+             <span className="g-card-arrow">詳しく見る →</span>
+          </Link>
           <Link href="/guide/snack" className="g-card">
             <span className="g-card-icon">🍸</span>
             <h4>スナック・パブ</h4>
