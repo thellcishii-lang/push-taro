@@ -1085,7 +1085,7 @@ export default function Home() {
 
           <div className="pricing-grid">
 
-            <div className="price-card light">
+            <div className="price-card light tilt-in" style={{ transitionDelay: '0s' }}>
               <div className="price-name">LIGHT</div>
               <div className="price-amount">¥1,980<small>/月（税別）</small></div>
               <div className="price-limit">月間配信上限: 5,000通</div>
@@ -1099,7 +1099,7 @@ export default function Home() {
               <a href="#cta" className="price-cta light-cta">LIGHTで始める</a>
             </div>
 
-            <div className="price-card featured">
+            <div className="price-card featured tilt-in" style={{ transitionDelay: '0.12s' }}>
               <span className="price-badge popular">人気</span>
               <div className="price-name">STANDARD</div>
               <div className="price-amount">¥3,800<small>/月（税別）</small></div>
@@ -1114,7 +1114,7 @@ export default function Home() {
               <a href="#cta" className="price-cta std-cta">STANDARDで始める</a>
             </div>
 
-            <div className="price-card pro">
+            <div className="price-card pro tilt-in" style={{ transitionDelay: '0.24s' }}>
               <span className="price-badge best">最高峰</span>
               <div className="price-name">PRO</div>
               <div className="price-amount">¥10,000<small>/月（税別）</small></div>
@@ -1148,7 +1148,7 @@ export default function Home() {
 
           <div className="program-grid">
 
-            <div className="program-card">
+            <div className="program-card tilt-in" style={{ transitionDelay: '0s' }}>
               <div className="program-icon">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                   <path d="M3 8l4 4 5-7 5 7 4-4v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" fill="#ff4500" stroke="#ffedd5" strokeWidth="1.5" strokeLinejoin="round" />
@@ -1171,7 +1171,7 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="program-card">
+            <div className="program-card tilt-in" style={{ transitionDelay: '0.12s' }}>
               <div className="program-icon">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                   <circle cx="9" cy="8" r="3.5" fill="#ff4500" stroke="#ffedd5" strokeWidth="1.5" />
@@ -1194,7 +1194,7 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="program-card">
+            <div className="program-card tilt-in" style={{ transitionDelay: '0.24s' }}>
               <div className="program-icon">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                   <path d="M3 11v2l4 1 1 4 3-2 3 2 1-4 4-1v-2l-4-1-1-4-3 2-3-2-1 4-4 1z" fill="#ff4500" stroke="#ffedd5" strokeWidth="1.5" strokeLinejoin="round" />
@@ -1232,7 +1232,7 @@ export default function Home() {
 
           <div className="usecase-grid">
 
-            <div className="usecase-card">
+            <div className="usecase-card tilt-in-left" style={{ transitionDelay: '0s' }}>
               <div className="usecase-header">
                 <span className="usecase-industry">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -1250,7 +1250,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="usecase-card">
+            <div className="usecase-card tilt-in-right" style={{ transitionDelay: '0.08s' }}>
               <div className="usecase-header">
                 <span className="usecase-industry">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -1269,7 +1269,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="usecase-card">
+            <div className="usecase-card tilt-in-left" style={{ transitionDelay: '0.16s' }}>
               <div className="usecase-header">
                 <span className="usecase-industry">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -1286,7 +1286,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="usecase-card">
+            <div className="usecase-card tilt-in-right" style={{ transitionDelay: '0.24s' }}>
               <div className="usecase-header">
                 <span className="usecase-industry">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -1321,7 +1321,7 @@ export default function Home() {
           </div>
 
           <div className="security-grid">
-            <div className="security-item">
+            <div className="security-item tilt-in" style={{ transitionDelay: '0s' }}>
               <div className="security-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <rect x="4" y="10" width="16" height="11" rx="2" fill="#16a34a" />
@@ -1333,7 +1333,7 @@ export default function Home() {
               <h4>Firebase Auth 認証</h4>
               <p>業界標準のIDトークン認証で、店舗・代理店・アフィリエイトすべてのアカウントを安全に保護。</p>
             </div>
-            <div className="security-item">
+            <div className="security-item tilt-in" style={{ transitionDelay: '0.06s' }}>
               <div className="security-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <path d="M3 18l4-8 6 4 8-9" stroke="#16a34a" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
@@ -1343,7 +1343,7 @@ export default function Home() {
               <h4>Webhook 署名検証</h4>
               <p>Squareからの決済通知は、HMAC-SHA256署名を検証。なりすまし・改ざんを完全に防止します。</p>
             </div>
-            <div className="security-item">
+            <div className="security-item tilt-in" style={{ transitionDelay: '0.12s' }}>
               <div className="security-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8z" fill="#16a34a" />
@@ -1353,7 +1353,7 @@ export default function Home() {
               <h4>エラー即時通知</h4>
               <p>システムエラー発生時は管理者へ即時メール通知。5分間のスロットル機能で通知爆発も防止。</p>
             </div>
-            <div className="security-item">
+            <div className="security-item tilt-in" style={{ transitionDelay: '0.06s' }}>
               <div className="security-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" fill="#16a34a" stroke="#16a34a" strokeWidth="1.5" strokeLinejoin="round" />
@@ -1362,7 +1362,7 @@ export default function Home() {
               <h4>サーキットブレーカー</h4>
               <p>異常検知時は管理画面から全配信をワンクリックで緊急停止。被害拡大を未然に防ぎます。</p>
             </div>
-            <div className="security-item">
+            <div className="security-item tilt-in" style={{ transitionDelay: '0.12s' }}>
               <div className="security-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <path d="M4 5h12l4 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z" stroke="#16a34a" strokeWidth="2" fill="none" strokeLinejoin="round" />
@@ -1373,7 +1373,7 @@ export default function Home() {
               <h4>自動クリーンアップ</h4>
               <p>30日以上応答のない端末トークンは自動削除。ストレージ肥大化と誤配信リスクを防止。</p>
             </div>
-            <div className="security-item">
+            <div className="security-item tilt-in" style={{ transitionDelay: '0.18s' }}>
               <div className="security-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <rect x="5" y="3" width="14" height="18" rx="2" stroke="#16a34a" strokeWidth="2" fill="none" />
@@ -1400,7 +1400,7 @@ export default function Home() {
 
           <div className="voice-grid">
 
-            <div className="voice-card">
+            <div className="voice-card tilt-in" style={{ transitionDelay: '0s' }}>
               <svg className="voice-quote-mark" width="48" height="48" viewBox="0 0 24 24" fill="#ff4500">
                 <path d="M6 17h3l2-4V6H5v7h3l-2 4zm9 0h3l2-4V6h-6v7h3l-2 4z" />
               </svg>
@@ -1423,7 +1423,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="voice-card">
+            <div className="voice-card tilt-in" style={{ transitionDelay: '0.08s' }}>
               <svg className="voice-quote-mark" width="48" height="48" viewBox="0 0 24 24" fill="#ff4500">
                 <path d="M6 17h3l2-4V6H5v7h3l-2 4zm9 0h3l2-4V6h-6v7h3l-2 4z" />
               </svg>
@@ -1446,7 +1446,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="voice-card">
+            <div className="voice-card tilt-in" style={{ transitionDelay: '0.16s' }}>
               <svg className="voice-quote-mark" width="48" height="48" viewBox="0 0 24 24" fill="#ff4500">
                 <path d="M6 17h3l2-4V6H5v7h3l-2 4zm9 0h3l2-4V6h-6v7h3l-2 4z" />
               </svg>
@@ -1469,7 +1469,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="voice-card">
+            <div className="voice-card tilt-in" style={{ transitionDelay: '0.24s' }}>
               <svg className="voice-quote-mark" width="48" height="48" viewBox="0 0 24 24" fill="#ff4500">
                 <path d="M6 17h3l2-4V6H5v7h3l-2 4zm9 0h3l2-4V6h-6v7h3l-2 4z" />
               </svg>
@@ -1509,7 +1509,7 @@ export default function Home() {
 
           <div className="faq-list">
 
-            <details className="faq-item">
+            <details className="faq-item reveal" style={{ transitionDelay: '0s' }}>
               <summary>
                 専門知識がなくても運用できますか？
                 <svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -1521,7 +1521,7 @@ export default function Home() {
               </div>
             </details>
 
-            <details className="faq-item">
+            <details className="faq-item reveal" style={{ transitionDelay: '0.05s' }}>
               <summary>
                 お客様側にアプリのインストールは必要ですか？
                 <svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -1533,7 +1533,7 @@ export default function Home() {
               </div>
             </details>
 
-            <details className="faq-item">
+            <details className="faq-item reveal" style={{ transitionDelay: '0.1s' }}>
               <summary>
                 配信数に応じた追加料金はかかりますか？
                 <svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -1545,7 +1545,7 @@ export default function Home() {
               </div>
             </details>
 
-            <details className="faq-item">
+            <details className="faq-item reveal" style={{ transitionDelay: '0.15s' }}>
               <summary>
                 無料トライアルはありますか？
                 <svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -1557,7 +1557,7 @@ export default function Home() {
               </div>
             </details>
 
-            <details className="faq-item">
+            <details className="faq-item reveal" style={{ transitionDelay: '0.2s' }}>
               <summary>
                 解約はいつでも可能ですか？
                 <svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -1569,7 +1569,7 @@ export default function Home() {
               </div>
             </details>
 
-            <details className="faq-item">
+            <details className="faq-item reveal" style={{ transitionDelay: '0.25s' }}>
               <summary>
                 紹介報酬はいつ・どうやって受け取れますか？
                 <svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -1581,7 +1581,7 @@ export default function Home() {
               </div>
             </details>
 
-            <details className="faq-item">
+            <details className="faq-item reveal" style={{ transitionDelay: '0.3s' }}>
               <summary>
                 複数店舗を運営していますが、アカウントは分けられますか？
                 <svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -1593,7 +1593,7 @@ export default function Home() {
               </div>
             </details>
 
-            <details className="faq-item">
+            <details className="faq-item reveal" style={{ transitionDelay: '0.35s' }}>
               <summary>
                 顧客の個人情報は安全に管理されますか？
                 <svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -1625,7 +1625,7 @@ export default function Home() {
           <path d="M0 430 Q 350 380 700 430 T 1400 430" stroke="#ff4500" strokeWidth="1" fill="none" opacity="0.08" />
         </svg>
 
-        <div className="cta-final-inner">
+        <div className="cta-final-inner reveal">
           <h2>
             既存客のリピートを、<br />
             仕組みに変えよう。
