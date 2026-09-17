@@ -275,6 +275,63 @@ export default function Home() {
       </section>
 
       {/* ============================================================
+     業種別 新規客獲得コスト
+============================================================ */}
+<section className="section section-dark" id="cac">
+  <div className="container">
+    <div className="section-header">
+      <span className="section-tag">Customer Acquisition Cost</span>
+      <h2>新規客1人を獲得するのに、<br />いくらかかっていますか？</h2>
+      <p>
+        ホットペッパー等の掲載サイトでは、業種ごとに「新規顧客1人あたりの平均獲得単価」が公表されています。<br />
+        これが、あなたの店舗の見えないコストになっていませんか？
+      </p>
+    </div>
+
+    <div className="cac-grid">
+      <div className="cac-card">
+        <div className="cac-icon">🍽️</div>
+        <div className="cac-industry">カフェ・飲食店・外食産業</div>
+        <div className="cac-value">¥数千円から１万円〜</div>
+        <div className="cac-unit">／ 新規客1人</div>
+      </div>
+      <div className="cac-card">
+        <div className="cac-icon">💇</div>
+        <div className="cac-industry">美容サロン</div>
+        <div className="cac-value">¥15,000〜</div>
+        <div className="cac-unit">／ 新規客1人</div>
+      </div>
+      <div className="cac-card">
+        <div className="cac-icon">💆</div>
+        <div className="cac-industry">マッサージ・エステ</div>
+        <div className="cac-value">¥20,000〜</div>
+        <div className="cac-unit">／ 新規客1人</div>
+      </div>
+      <div className="cac-card">
+        <div className="cac-icon">🚗</div>
+        <div className="cac-industry">フィットネススクール</div>
+        <div className="cac-value">¥50,000〜</div>
+        <div className="cac-unit">／ 新規客1人</div>
+      </div>
+    </div>
+
+    <div className="cac-message">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" fill="#fbbf24" />
+        <path d="M12 7v6M12 16v.01" stroke="#78350f" strokeWidth="2.5" strokeLinecap="round" />
+      </svg>
+      <p>
+        <strong>「新規獲得」だけに予算を使い続けるのは、もう終わりにしませんか？</strong><br />
+        既存客のリピート率を10%上げるだけで、新規獲得コストは劇的に下がります。<br />
+        Push-taroは、その仕組みを自動化します。
+      </p>
+    </div>
+  </div>
+</section>
+
+       
+
+      {/* ============================================================
           FEATURES
       ============================================================ */}
       <section className="section" id="features">
@@ -3576,6 +3633,91 @@ export default function Home() {
   }
 }
 
+/* ============================================================
+   CAC SECTION
+============================================================ */
+.cac-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto 40px;
+}
+
+.cac-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  padding: 28px 20px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.cac-card:hover {
+  background: rgba(255,69,0,0.1);
+  border-color: rgba(255,69,0,0.5);
+  transform: translateY(-4px);
+}
+
+.cac-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.cac-industry {
+  font-size: 13px;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+
+.cac-value {
+  font-size: 36px;
+  font-weight: 900;
+  color: #ff4500;
+  letter-spacing: -1.5px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.cac-unit {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.cac-message {
+  max-width: 700px;
+  margin: 0 auto;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.cac-message svg { flex-shrink: 0; margin-top: 2px; }
+
+.cac-message p {
+  color: #e2e8f0;
+  font-size: 14px;
+  line-height: 1.9;
+  margin: 0;
+}
+
+.cac-message strong {
+  color: #fbbf24;
+  display: block;
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 640px) {
+  .cac-message { flex-direction: column; }
+  .cac-value { font-size: 28px; }
+}
       `}</style>
     </>
   );
