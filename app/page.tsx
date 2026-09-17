@@ -292,7 +292,7 @@ export default function Home() {
       <div className="cac-card">
         <div className="cac-icon">🍽️</div>
         <div className="cac-industry">カフェ・飲食店・外食産業</div>
-        <div className="cac-value">¥数千円から１万円〜</div>
+        <div className="cac-value">¥5,000〜</div>
         <div className="cac-unit">／ 新規客1人</div>
       </div>
       <div className="cac-card">
@@ -309,8 +309,14 @@ export default function Home() {
       </div>
       <div className="cac-card">
         <div className="cac-icon">💪</div>
-        <div className="cac-industry">フィットネススクール</div>
-        <div className="cac-value">¥50,000〜</div>
+        <div className="cac-industry">フィットネス・ジム</div>
+        <div className="cac-value">¥10,000〜</div>
+        <div className="cac-unit">／ 新規客1人</div>
+      </div>
+        <div className="cac-card">
+        <div className="cac-icon">📚</div>
+        <div className="cac-industry">スクール・塾</div>
+        <div className="cac-value">¥10,000〜</div>
         <div className="cac-unit">／ 新規客1人</div>
       </div>
     </div>
