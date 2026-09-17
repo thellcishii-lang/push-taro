@@ -308,7 +308,7 @@ export default function Home() {
         <div className="cac-unit">／ 新規客1人</div>
       </div>
       <div className="cac-card">
-        <div className="cac-icon">🚗</div>
+        <div className="cac-icon">💪</div>
         <div className="cac-industry">フィットネススクール</div>
         <div className="cac-value">¥50,000〜</div>
         <div className="cac-unit">／ 新規客1人</div>
