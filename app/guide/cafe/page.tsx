@@ -1,9 +1,6 @@
-import Link from 'next/link';
+'use client';
 
-export const metadata = {
-  title: '飲食店・カフェ向け Push-taro活用ガイド',
-  description: '雨の日割引・新メニュー告知・常連客のファン化。飲食店のリピート施策を仕組み化する方法。',
-};
+import Link from 'next/link';
 
 export default function CafeGuidePage() {
   return (
