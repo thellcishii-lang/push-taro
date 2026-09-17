@@ -1,6 +1,7 @@
 // app/api/cleanup/route.ts
 import { NextResponse } from 'next/server';
 import { messaging, db, authAdmin } from '../../../lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 export const dynamic = 'force-dynamic';
 
@@ -79,12 +80,49 @@ export async function POST(request: Request) {
     }
     await Promise.all(unsubTasks);
 
-    // ─── Firestoreから削除 ───
+    // ─── 購読情報を解除（クーポン履歴と顧客IDは保持）───
     const batch = db.batch();
     scopedDocs.forEach((doc) => {
-      batch.delete(doc.ref);
+      const data = doc.data();
+      const shopIds = Array.isArray(data.shopIds) ? data.shopIds : [];
+      const remainingShopIds = cleanupScope
+        ? shopIds.filter((shopId: string) => !cleanupScope!.includes(shopId))
+        : [];
+      const remainingTopics = Array.isArray(data.topics)
+        ? data.topics.filter((topic: string) => {
+            if (!cleanupScope) return false;
+            return !cleanupScope.some((shopId) => topic === `shop_${shopId}_users`);
+          })
+        : [];
+
+      batch.update(doc.ref, {
+        shopIds: remainingShopIds,
+        topics: remainingTopics,
+        updatedAt: new Date(),
+      });
     });
     await batch.commit();
+
+    // チャンクは補助データのため、古いトークンを店舗単位で確実に除去する。
+    const chunkShopIds = cleanupScope || Array.from(new Set(
+      scopedDocs.flatMap((doc) => Array.isArray(doc.data().shopIds) ? doc.data().shopIds : [])
+    ));
+    const chunkRefs = chunkShopIds.map((shopId) => (
+      db.collection('shops').doc(shopId).collection('token_chunks').doc('chunk_1')
+    ));
+    const chunkSnapshots = await Promise.all(chunkRefs.map((chunkRef) => chunkRef.get()));
+    const chunkBatch = db.batch();
+    chunkSnapshots.forEach((snapshot, index) => {
+      if (snapshot.exists) {
+        chunkBatch.update(chunkRefs[index], {
+          tokens: FieldValue.arrayRemove(...tokensToRemove),
+          updatedAt: new Date(),
+        });
+      }
+    });
+    if (chunkShopIds.length > 0 && tokensToRemove.length > 0) {
+      await chunkBatch.commit();
+    }
 
     console.log(`[cleanup] ✅ ${tokensToRemove.length}件のトークンを削除`);
 

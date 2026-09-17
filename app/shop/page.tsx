@@ -9,7 +9,7 @@ import {
   signOut,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase-client';
-import { db as localDb, exportHistoryToJSON, importHistoryFromJSON, PushHistory } from '../../lib/db';
+import { db as localDb, exportHistoryToJSON, PushHistory } from '../../lib/db';
 import { QRCodeSVG } from 'qrcode.react';
 import ImageUploader from '../../components/ImageUploader';
 import { Html5Qrcode } from 'html5-qrcode';
@@ -437,19 +437,6 @@ export default function ShopPage() {
     URL.revokeObjectURL(url);
   };
 
-  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const text = await file.text();
-    try {
-      await importHistoryFromJSON(text);
-      await loadHistory();
-      alert('履歴フォルダを読み込みました！');
-    } catch (err) {
-      alert('インポート失敗: 不正なJSONファイルです');
-    }
-  };
-
   const handleCleanup = async () => {
     if (!user) return;
     try {
@@ -800,10 +787,6 @@ export default function ShopPage() {
               <h2 style={{ margin: 0, fontSize: '20px' }}>📁 送信履歴</h2>
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 <button onClick={handleExport} style={{ padding: '8px 16px', background: '#4CAF50', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}>📤 エクスポート</button>
-                <label style={{ padding: '8px 16px', background: '#2196F3', color: '#fff', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', display: 'inline-block' }}>
-                  📥 インポート
-                  <input type="file" accept=".json" onChange={handleImport} style={{ display: 'none' }} />
-                </label>
                 <button onClick={handleCleanup} style={{ padding: '8px 16px', background: '#ff5722', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}>🧹 古いトークン削除</button>
               </div>
             </div>

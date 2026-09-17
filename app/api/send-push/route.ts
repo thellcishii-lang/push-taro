@@ -164,13 +164,6 @@ export async function POST(request: Request) {
         headers: {
           Urgency: 'high',
         },
-        notification: {
-          title: displayTitle,
-          body,
-          icon: displayIcon,
-          badge: displayIcon,
-          ...(imageUrl ? { image: imageUrl } : {}),
-        },
         fcmOptions: {
           link: targetUrl,
         },

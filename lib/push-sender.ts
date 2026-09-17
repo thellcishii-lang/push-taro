@@ -107,13 +107,6 @@ export async function sendPushToShop(options: SendPushOptions): Promise<SendPush
     },
     webpush: {
       headers: { Urgency: 'high' },
-      notification: {
-        title: displayTitle,
-        body,
-        icon: displayIcon,
-        badge: displayIcon,
-        ...(imageUrl ? { image: imageUrl } : {}),
-      },
       fcmOptions: { link: targetUrl },
     },
   };

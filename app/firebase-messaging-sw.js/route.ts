@@ -66,20 +66,18 @@ messaging.onBackgroundMessage((payload) => {
   const body = payload.data?.body || payload.notification?.body || '';
   const icon = payload.data?.icon || payload.notification?.icon || '/icon-192x192.png';
   const linkUrl = payload.data?.url || payload.data?.linkUrl || '/';
+  const image = payload.data?.image || payload.notification?.image || '';
   const shopId = payload.data?.shopId || 'default';
 
   // 1. IndexedDB へ履歴保存
   saveNotificationToDB({ title, body, icon, url: linkUrl });
-
-  // notification payloadはブラウザが表示するため、ここで再表示しない。
-  // ブラウザ標準の通知音もこの自動表示側に任せる。
-  if (payload.notification) return;
 
   // 2. OS別ポップアップ表示オプションの構築
   const options = {
     body: body,
     icon: icon,
     badge: icon,
+    ...(image ? { image } : {}),
     tag: shopId,
     renotify: true,
     data: { url: linkUrl },
