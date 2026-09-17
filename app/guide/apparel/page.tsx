@@ -79,7 +79,7 @@ export default function ApparelGuidePage() {
                 <div className="g-flow-circle highlight">新作告知</div>
                 <p>買い逃し<br />防止</p>
               </div>
-              <div class="g-flow-arrow">→</div>
+              <div className="g-flow-arrow">→</div>
               <div className="g-flow-item">
                 <div className="g-flow-circle success">🎉 ファン化</div>
                 <p>リピート</p>
