@@ -39,6 +39,7 @@ export default function ProShopPage() {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -366,7 +367,7 @@ export default function ProShopPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${idToken}`,
         },
-        body: JSON.stringify({ shopId, title, body, url: linkUrl || undefined }),
+        body: JSON.stringify({ shopId, title, body, imageUrl: imageUrl || undefined, url: linkUrl || undefined }),
       });
 
       const data = await response.json();
@@ -390,6 +391,7 @@ export default function ProShopPage() {
       setTitle('');
       setBody('');
       setLinkUrl('');
+      setImageUrl('');
 
       setTimeout(() => setMessage(''), 3000);
     } catch (err: any) {
@@ -780,6 +782,7 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>リンク先URL（任意）</label>
               <input type="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="https://example.com/sale" style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }} />
             </div>
+            <ImageUploader onImageUploaded={setImageUrl} currentUrl={imageUrl} />
             <button type="submit" disabled={loading} style={{ padding: '14px', backgroundColor: loading ? '#ccc' : '#ff4500', color: '#fff', fontWeight: 'bold', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', fontSize: '18px', borderRadius: '6px', marginTop: '5px' }}>
               {loading ? '送信中...' : '🔥 Push 通知送信'}
             </button>

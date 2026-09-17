@@ -53,9 +53,13 @@ export async function sendPushToShop(options: SendPushOptions): Promise<SendPush
     .get();
 
   const tokens: string[] = [];
+  const customerIds = new Set<string>();
   tokensSnapshot.forEach((doc) => {
     const data = doc.data();
-    if (data.token) tokens.push(data.token);
+    if (data.token && (!data.customerId || !customerIds.has(data.customerId))) {
+      tokens.push(data.token);
+      if (data.customerId) customerIds.add(data.customerId);
+    }
   });
 
   // 重複除去
@@ -98,6 +102,7 @@ export async function sendPushToShop(options: SendPushOptions): Promise<SendPush
         body,
         icon: displayIcon,
         sound: 'default',
+        ...(imageUrl ? { imageUrl } : {}),
       },
     },
     webpush: {

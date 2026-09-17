@@ -78,10 +78,12 @@ export async function POST(request: Request) {
       .get();
 
     let registrationTokens: string[] = [];
+    const customerIds = new Set<string>();
     tokensSnapshot.forEach(doc => {
       const data = doc.data();
-      if (data.token) {
+      if (data.token && (!data.customerId || !customerIds.has(data.customerId))) {
         registrationTokens.push(data.token);
+        if (data.customerId) customerIds.add(data.customerId);
       }
     });
 
@@ -155,6 +157,7 @@ export async function POST(request: Request) {
           body: body,
           icon: displayIcon,
           sound: 'default',
+            ...(imageUrl ? { imageUrl } : {}),
         },
       },
       webpush: {
