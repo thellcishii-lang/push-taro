@@ -51,6 +51,12 @@ export default function GuideTopPage() {
             <p>新商品入荷・セール告知を画像付きで配信。固定ファンの買い逃しを防ぎ、季節ごとの売上を最大化。</p>
             <span className="g-card-arrow">詳しく見る →</span>
           </Link>
+          <Link href="/guide/snack" className="g-card">
+            <span className="g-card-icon">🍸</span>
+            <h4>スナック・パブ</h4>
+            <p>常連客と紹介で成り立つ業態。休眠常連の呼び戻しと、紹介キャンペーンの仕組み化。</p>
+            <span className="g-card-arrow">詳しく見る →</span>
+　　　　　　　　　　　　　　　　　　　　</Link>
         </div>
 
         {/* テーマ別 */}
