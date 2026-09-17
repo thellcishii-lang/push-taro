@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { messaging, db } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
+import { randomUUID } from 'crypto';
 
 const rateLimit = new Map();
 
@@ -14,6 +15,14 @@ function isRateLimited(ip: string): boolean {
   if (record.count >= 10) return true;
   record.count++;
   return false;
+}
+
+function getCustomerId(request: Request): string {
+  const cookieHeader = request.headers.get('cookie') || '';
+  const cookie = cookieHeader
+    .split(';')
+    .find((value) => value.trim().startsWith('push_taro_customer_id='));
+  return cookie?.split('=').slice(1).join('=').trim() || randomUUID();
 }
 
 export const dynamic = 'force-dynamic';
@@ -36,6 +45,7 @@ export async function POST(request: Request) {
 
     const normalizedToken = token.trim();
     const normalizedDeviceId = typeof deviceId === 'string' ? deviceId.trim() : '';
+    const customerId = getCustomerId(request);
     const topic = `shop_${shopId}_users`;
 
     // 1. 生年月日の数値化処理（日付が送られてきた場合）
@@ -64,13 +74,19 @@ export async function POST(request: Request) {
     // 同じ端末のFCMトークンが更新された場合は、店舗単位で旧レコードを移行する。
     let previousDocRef: FirebaseFirestore.DocumentReference | null = null;
     let previousToken = '';
-    if (normalizedDeviceId) {
-      const previousSnapshot = await db.collection('subscriptions')
-        .where('deviceId', '==', normalizedDeviceId)
-        .limit(10)
-        .get();
+    if (normalizedDeviceId || customerId) {
+      const previousSnapshots = await Promise.all([
+        normalizedDeviceId
+          ? db.collection('subscriptions').where('deviceId', '==', normalizedDeviceId).limit(10).get()
+          : Promise.resolve(null),
+        db.collection('subscriptions').where('customerId', '==', customerId).limit(10).get(),
+      ]);
+      const previousDocs = new Map<string, FirebaseFirestore.QueryDocumentSnapshot>();
+      previousSnapshots.forEach((snapshot) => {
+        snapshot?.docs.forEach((previousDoc) => previousDocs.set(previousDoc.id, previousDoc));
+      });
 
-      for (const previousDoc of previousSnapshot.docs) {
+      for (const previousDoc of Array.from(previousDocs.values())) {
         const previousData = previousDoc.data();
         if (
           previousDoc.id !== normalizedToken &&
@@ -85,6 +101,7 @@ export async function POST(request: Request) {
 
     const baseData = {
       token: normalizedToken,
+      customerId,
       ...(normalizedDeviceId ? { deviceId: normalizedDeviceId } : {}),
       lastActive: FieldValue.serverTimestamp(),
       ...(birthDate ? { birthDate, birthMonth, birthDay } : {}),
@@ -93,6 +110,8 @@ export async function POST(request: Request) {
     if (doc.exists) {
       console.log('[API] 既存登録の更新:', shopId);
       await docRef.set({
+        ...(previousDocRef ? ((await previousDocRef.get()).data() || {}) : {}),
+        ...doc.data(),
         ...baseData,
         shopIds: FieldValue.arrayUnion(shopId),
         topics: FieldValue.arrayUnion(topic),
@@ -164,11 +183,16 @@ export async function POST(request: Request) {
       console.warn('[API WARN] チャンク保存スキップ:', chunkErr.message);
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       topic,
       message: doc.exists ? '登録を更新しました' : '新規登録しました',
     }, { status: 200 });
+    response.headers.set(
+      'Set-Cookie',
+      `push_taro_customer_id=${customerId}; Path=/; Max-Age=31536000; SameSite=Lax; Secure`
+    );
+    return response;
 
   } catch (error: any) {
     console.error('[API ERROR]', error.message, error.stack);
