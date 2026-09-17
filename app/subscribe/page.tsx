@@ -33,6 +33,16 @@ export default function SubscribePage() {
     setCustomerUid(user?.uid || '');
   }), []);
 
+  const normalizePhoneNumber = (value: string): string => {
+    const compact = value
+      .replace(/[０-９]/g, (digit) => String.fromCharCode(digit.charCodeAt(0) - 0xfee0))
+      .replace(/[\s().-]/g, '');
+    if (compact.startsWith('00')) return `+${compact.slice(2)}`;
+    if (compact.startsWith('0')) return `+81${compact.slice(1)}`;
+    if (compact.startsWith('81')) return `+${compact}`;
+    return compact;
+  };
+
   // 1. IndexedDB から通知履歴を取得する関数
   const loadNotificationHistory = () => {
     if (typeof window === 'undefined') return;
@@ -193,20 +203,29 @@ useEffect(() => {
       return;
     }
 
+    const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
+    if (!/^\+[1-9]\d{7,14}$/.test(normalizedPhoneNumber)) {
+      setStatus('error');
+      setMessage('電話番号は09012345678、または+819012345678の形式で入力してください。');
+      return;
+    }
+
     setPhoneAuthLoading(true);
     setMessage('');
     try {
       const previousVerifier = (window as any).__phoneRecaptchaVerifier as RecaptchaVerifier | undefined;
       previousVerifier?.clear();
-      const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
+      const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'normal' });
       (window as any).__phoneRecaptchaVerifier = verifier;
-      const result = await signInWithPhoneNumber(auth, phoneNumber.trim(), verifier);
+      const result = await signInWithPhoneNumber(auth, normalizedPhoneNumber, verifier);
       setConfirmationResult(result);
       setStatus('idle');
       setMessage('SMSで届いた認証コードを入力してください。');
     } catch (error: any) {
       setStatus('error');
-      setMessage('認証コードの送信に失敗しました: ' + error.message);
+      console.error('[phone-auth] SMS送信失敗:', error);
+      setMessage(`認証コードの送信に失敗しました（${error.code || 'unknown'}）。Firebaseの承認済みドメインと電話番号認証設定を確認してください。`);
+        setMessage(`認証コードの送信に失敗しました（${error.code || 'unknown'}）。入力値を「09012345678」または「+819012345678」にしてください。`);
     } finally {
       setPhoneAuthLoading(false);
     }
@@ -223,7 +242,8 @@ useEffect(() => {
       setMessage('電話番号の認証が完了しました。通知登録を続けます。');
     } catch (error: any) {
       setStatus('error');
-      setMessage('認証コードが正しくありません: ' + error.message);
+      console.error('[phone-auth] コード確認失敗:', error);
+      setMessage(`認証コードが正しくありません（${error.code || 'unknown'}）。`);
     } finally {
       setPhoneAuthLoading(false);
     }

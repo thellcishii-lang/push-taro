@@ -53,7 +53,7 @@ export async function POST(request: Request) {
 
   try {
     const requestBody = await request.json();
-    const { shopId: requestedShopId, title, body, imageUrl, url } = requestBody;
+    const { shopId: requestedShopId, title, body, url } = requestBody;
 
     const shopQuery = requestedShopId
       ? await db.collection('shops').where('ownerUid', '==', uid).where('__name__', '==', requestedShopId).limit(1).get()
@@ -136,7 +136,6 @@ export async function POST(request: Request) {
         title: String(displayTitle),
         body: String(body),
         icon: String(displayIcon),
-        image: String(imageUrl || ''),
         url: String(targetUrl),
         shopId: String(shopId),
       },
@@ -152,7 +151,6 @@ export async function POST(request: Request) {
             'content-available': 1,
           },
         },
-        ...(imageUrl ? { fcmOptions: { imageUrl: imageUrl } } : {}),
       },
       android: {
         priority: 'high' as const,
@@ -161,19 +159,11 @@ export async function POST(request: Request) {
           body: body,
           icon: displayIcon,
           sound: 'default',
-          ...(imageUrl ? { imageUrl } : {}),
         },
       },
       webpush: {
         headers: {
           Urgency: 'high',
-        },
-        notification: {
-          title: displayTitle,
-          body,
-          icon: displayIcon,
-          badge: displayIcon,
-          ...(imageUrl ? { image: imageUrl } : {}),
         },
         fcmOptions: {
           link: targetUrl,
@@ -257,7 +247,6 @@ export async function POST(request: Request) {
         shopId,
         title,
         body,
-        imageUrl: imageUrl || null,
         linkUrl: url || null,
         sentAt: FieldValue.serverTimestamp(),
         status: 'error',
@@ -285,7 +274,6 @@ export async function POST(request: Request) {
       shopId,
       title,
       body,
-      imageUrl: imageUrl || null,
       linkUrl: url || null,
       sentAt: FieldValue.serverTimestamp(),
       status: 'success',

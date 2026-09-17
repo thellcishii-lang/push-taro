@@ -38,7 +38,7 @@ export interface SendPushResult {
 const CHUNK_SIZE = 450;
 
 export async function sendPushToShop(options: SendPushOptions): Promise<SendPushResult> {
-  const { shopId, title, body, url, imageUrl, source = 'manual' } = options;
+  const { shopId, title, body, url, source = 'manual' } = options;
 
   // ─── 1. 店舗情報取得 ───
   const shopDoc = await db.collection('shops').doc(shopId).get();
@@ -85,7 +85,6 @@ export async function sendPushToShop(options: SendPushOptions): Promise<SendPush
       title: String(displayTitle),
       body: String(body),
       icon: String(displayIcon),
-      image: String(imageUrl || ''),
       url: String(targetUrl),
       shopId: String(shopId),
     },
@@ -98,7 +97,6 @@ export async function sendPushToShop(options: SendPushOptions): Promise<SendPush
           'content-available': 1,
         },
       },
-      ...(imageUrl ? { fcmOptions: { imageUrl } } : {}),
     },
     android: {
       priority: 'high' as const,
@@ -107,18 +105,10 @@ export async function sendPushToShop(options: SendPushOptions): Promise<SendPush
         body,
         icon: displayIcon,
         sound: 'default',
-        ...(imageUrl ? { imageUrl } : {}),
       },
     },
     webpush: {
       headers: { Urgency: 'high' },
-      notification: {
-        title: displayTitle,
-        body,
-        icon: displayIcon,
-        badge: displayIcon,
-        ...(imageUrl ? { image: imageUrl } : {}),
-      },
       fcmOptions: { link: targetUrl },
     },
   };
@@ -174,7 +164,6 @@ export async function sendPushToShop(options: SendPushOptions): Promise<SendPush
     shopId,
     title,
     body,
-    imageUrl: imageUrl || null,
     linkUrl: targetUrl,
     source,                     // ← 送信理由を記録
     sentAt: FieldValue.serverTimestamp(),
