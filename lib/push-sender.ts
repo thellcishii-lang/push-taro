@@ -52,18 +52,23 @@ export async function sendPushToShop(options: SendPushOptions): Promise<SendPush
     .where('shopIds', 'array-contains', shopId)
     .get();
 
-  const tokens: string[] = [];
-  const customerIds = new Set<string>();
+  const tokenByCustomer = new Map<string, { token: string; lastActive: number }>();
   tokensSnapshot.forEach((doc) => {
     const data = doc.data();
-    if (data.token && (!data.customerId || !customerIds.has(data.customerId))) {
-      tokens.push(data.token);
-      if (data.customerId) customerIds.add(data.customerId);
+    if (data.token) {
+      const customerKey = data.customerId || data.deviceId || data.token;
+      const lastActive = data.lastActive?.toMillis?.() || data.lastActive?.seconds * 1000 || 0;
+      const current = tokenByCustomer.get(customerKey);
+      if (!current || lastActive >= current.lastActive) {
+        tokenByCustomer.set(customerKey, { token: data.token, lastActive });
+      }
     }
   });
 
   // 重複除去
-  const uniqueTokens = Array.from(new Set(tokens));
+  const uniqueTokens = Array.from(new Set(
+    Array.from(tokenByCustomer.values()).map(({ token }) => token)
+  ));
 
   if (uniqueTokens.length === 0) {
     return { success: true, successCount: 0, failureCount: 0, totalTokens: 0 };
@@ -107,6 +112,13 @@ export async function sendPushToShop(options: SendPushOptions): Promise<SendPush
     },
     webpush: {
       headers: { Urgency: 'high' },
+      notification: {
+        title: displayTitle,
+        body,
+        icon: displayIcon,
+        badge: displayIcon,
+        ...(imageUrl ? { image: imageUrl } : {}),
+      },
       fcmOptions: { link: targetUrl },
     },
   };

@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { requestFCMToken } from '../../lib/firebase-client';
 import { QRCodeSVG } from 'qrcode.react';
+import { auth } from '../../lib/firebase-client';
+import { ConfirmationResult, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 
 export default function SubscribePage() {
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
@@ -17,10 +19,19 @@ export default function SubscribePage() {
   const [birthDate, setBirthDate] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
   const [couponUsed, setCouponUsed] = useState(false);
+  const [customerUid, setCustomerUid] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [phoneAuthLoading, setPhoneAuthLoading] = useState(false);
 
   // 📜 通知履歴用ステート
   const [historyList, setHistoryList] = useState<any[]>([]);
   const [displayCount, setDisplayCount] = useState<number>(10);
+
+  useEffect(() => onAuthStateChanged(auth, (user) => {
+    setCustomerUid(user?.uid || '');
+  }), []);
 
   // 1. IndexedDB から通知履歴を取得する関数
   const loadNotificationHistory = () => {
@@ -175,8 +186,57 @@ useEffect(() => {
   }, [shopId, shopData]);
 
   // 🔔 登録ボタン押下処理
+  const handleSendVerificationCode = async () => {
+    if (!phoneNumber.trim()) {
+      setStatus('error');
+      setMessage('電話番号を入力してください。');
+      return;
+    }
+
+    setPhoneAuthLoading(true);
+    setMessage('');
+    try {
+      const previousVerifier = (window as any).__phoneRecaptchaVerifier as RecaptchaVerifier | undefined;
+      previousVerifier?.clear();
+      const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
+      (window as any).__phoneRecaptchaVerifier = verifier;
+      const result = await signInWithPhoneNumber(auth, phoneNumber.trim(), verifier);
+      setConfirmationResult(result);
+      setStatus('idle');
+      setMessage('SMSで届いた認証コードを入力してください。');
+    } catch (error: any) {
+      setStatus('error');
+      setMessage('認証コードの送信に失敗しました: ' + error.message);
+    } finally {
+      setPhoneAuthLoading(false);
+    }
+  };
+
+  const handleConfirmVerificationCode = async () => {
+    if (!confirmationResult || !verificationCode.trim()) return;
+
+    setPhoneAuthLoading(true);
+    try {
+      const result = await confirmationResult.confirm(verificationCode.trim());
+      setCustomerUid(result.user.uid);
+      setConfirmationResult(null);
+      setMessage('電話番号の認証が完了しました。通知登録を続けます。');
+    } catch (error: any) {
+      setStatus('error');
+      setMessage('認証コードが正しくありません: ' + error.message);
+    } finally {
+      setPhoneAuthLoading(false);
+    }
+  };
+
   const handleSubscribe = async () => {
     let effectiveShopId = shopId;
+
+    if (!customerUid) {
+      setStatus('error');
+      setMessage('電話番号の認証を完了してください。');
+      return;
+    }
 
     if (!effectiveShopId && typeof window !== 'undefined') {
       const searchParams = new URLSearchParams(window.location.search);
@@ -221,6 +281,14 @@ useEffect(() => {
           : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
         localStorage.setItem(deviceIdKey, deviceId);
       }
+      const customerIdKey = `push_taro_customer_id_${effectiveShopId}`;
+      let customerId = localStorage.getItem(customerIdKey);
+      if (!customerId) {
+        customerId = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        localStorage.setItem(customerIdKey, customerId);
+      }
 
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
@@ -247,11 +315,16 @@ useEffect(() => {
 
       const res = await fetch('/api/subscribe', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(auth.currentUser ? { Authorization: `Bearer ${await auth.currentUser.getIdToken()}` } : {}),
+        },
         body: JSON.stringify({
           token,
           shopId: effectiveShopId,
           deviceId,
+          customerId,
+          customerUid,
           birthDate: shopData?.plan === 'pro' ? birthDate : null,
         }),
       });
@@ -436,13 +509,49 @@ useEffect(() => {
           <p style={{ fontSize: '13px', color: '#666', marginTop: '5px' }}>まもなく専用画面に切り替わります...</p>
         </div>
       ) : (
-        <button
-          onClick={handleSubscribe}
-          disabled={status === 'requesting'}
-          style={{ width: '100%', padding: 16, fontSize: 16, background: status === 'requesting' ? '#ccc' : '#ff4500', color: '#fff', border: 'none', borderRadius: 8, cursor: status === 'requesting' ? 'wait' : 'pointer', fontWeight: 'bold' }}
-        >
-          {status === 'requesting' ? '登録中...' : '🔔 通知を受け取る'}
-        </button>
+        <>
+          {!customerUid && !confirmationResult && (
+            <div style={{ textAlign: 'left', marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', fontSize: '14px' }}>電話番号認証</label>
+              <input
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="+81 90 1234 5678"
+                style={{ width: '100%', padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+              />
+              <button type="button" onClick={handleSendVerificationCode} disabled={phoneAuthLoading} style={{ width: '100%', marginTop: '8px', padding: '12px', fontSize: '15px', background: phoneAuthLoading ? '#cbd5e1' : '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: phoneAuthLoading ? 'wait' : 'pointer', fontWeight: 'bold' }}>
+                {phoneAuthLoading ? '送信中...' : 'SMS認証コードを送る'}
+              </button>
+            </div>
+          )}
+          {confirmationResult && (
+            <div style={{ textAlign: 'left', marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', fontSize: '14px' }}>SMS認証コード</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                placeholder="6桁のコード"
+                style={{ width: '100%', padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+              />
+              <button type="button" onClick={handleConfirmVerificationCode} disabled={phoneAuthLoading} style={{ width: '100%', marginTop: '8px', padding: '12px', fontSize: '15px', background: phoneAuthLoading ? '#cbd5e1' : '#16a34a', color: '#fff', border: 'none', borderRadius: '6px', cursor: phoneAuthLoading ? 'wait' : 'pointer', fontWeight: 'bold' }}>
+                {phoneAuthLoading ? '確認中...' : '認証する'}
+              </button>
+            </div>
+          )}
+          {customerUid && (
+            <button
+              onClick={handleSubscribe}
+              disabled={status === 'requesting'}
+              style={{ width: '100%', padding: 16, fontSize: 16, background: status === 'requesting' ? '#ccc' : '#ff4500', color: '#fff', border: 'none', borderRadius: 8, cursor: status === 'requesting' ? 'wait' : 'pointer', fontWeight: 'bold' }}
+            >
+              {status === 'requesting' ? '登録中...' : '🔔 通知を受け取る'}
+            </button>
+          )}
+          <div id="recaptcha-container" />
+        </>
       )}
 
       {status === 'error' && (

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { messaging, db } from '../../../lib/firebase-admin';
+import { messaging, db, authAdmin } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { randomUUID } from 'crypto';
 
@@ -22,7 +22,7 @@ function getCustomerId(request: Request): string {
   const cookie = cookieHeader
     .split(';')
     .find((value) => value.trim().startsWith('push_taro_customer_id='));
-  return cookie?.split('=').slice(1).join('=').trim() || randomUUID();
+  return cookie?.split('=').slice(1).join('=').trim() || '';
 }
 
 export const dynamic = 'force-dynamic';
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { token, shopId, deviceId, birthDate } = body;
+    const { token, shopId, deviceId, customerId: requestedCustomerId, customerUid, birthDate } = body;
 
     // パラメータチェック
     if (!token || !shopId || shopId === 'undefined' || shopId === 'null') {
@@ -45,7 +45,17 @@ export async function POST(request: Request) {
 
     const normalizedToken = token.trim();
     const normalizedDeviceId = typeof deviceId === 'string' ? deviceId.trim() : '';
-    const customerId = getCustomerId(request);
+    let verifiedCustomerUid = '';
+    const authHeader = request.headers.get('Authorization');
+    if (customerUid && authHeader?.startsWith('Bearer ')) {
+      try {
+        const decoded = await authAdmin.verifyIdToken(authHeader.slice('Bearer '.length));
+        if (decoded.uid === customerUid) verifiedCustomerUid = decoded.uid;
+      } catch {
+        return NextResponse.json({ error: '電話番号認証の有効期限が切れています' }, { status: 401 });
+      }
+    }
+    const customerId = getCustomerId(request) || requestedCustomerId || randomUUID();
     const topic = `shop_${shopId}_users`;
 
     // 1. 生年月日の数値化処理（日付が送られてきた場合）
@@ -72,14 +82,18 @@ export async function POST(request: Request) {
     const doc = await docRef.get();
 
     // 同じ端末のFCMトークンが更新された場合は、店舗単位で旧レコードを移行する。
-    let previousDocRef: FirebaseFirestore.DocumentReference | null = null;
-    let previousToken = '';
-    if (normalizedDeviceId || customerId) {
+    const previousDocRefs: FirebaseFirestore.DocumentReference[] = [];
+    let previousData: FirebaseFirestore.DocumentData | null = null;
+    const previousTokens: string[] = [];
+    if (normalizedDeviceId || customerId || verifiedCustomerUid) {
       const previousSnapshots = await Promise.all([
         normalizedDeviceId
           ? db.collection('subscriptions').where('deviceId', '==', normalizedDeviceId).limit(10).get()
           : Promise.resolve(null),
         db.collection('subscriptions').where('customerId', '==', customerId).limit(10).get(),
+        verifiedCustomerUid
+          ? db.collection('subscriptions').where('customerUid', '==', verifiedCustomerUid).limit(10).get()
+          : Promise.resolve(null),
       ]);
       const previousDocs = new Map<string, FirebaseFirestore.QueryDocumentSnapshot>();
       previousSnapshots.forEach((snapshot) => {
@@ -87,20 +101,38 @@ export async function POST(request: Request) {
       });
 
       for (const previousDoc of Array.from(previousDocs.values())) {
-        const previousData = previousDoc.data();
+        const oldData = previousDoc.data();
         if (
           previousDoc.id !== normalizedToken &&
-          ((Array.isArray(previousData.shopIds) && previousData.shopIds.includes(shopId)) ||
-            (Array.isArray(previousData.unsubscribedShopIds) && previousData.unsubscribedShopIds.includes(shopId)))
+          ((Array.isArray(oldData.shopIds) && oldData.shopIds.includes(shopId)) ||
+            (Array.isArray(oldData.unsubscribedShopIds) && oldData.unsubscribedShopIds.includes(shopId)))
         ) {
-          previousDocRef = previousDoc.ref;
-          break;
+          previousDocRefs.push(previousDoc.ref);
+          if (typeof oldData.token === 'string') previousTokens.push(oldData.token);
+          const priorData = previousData as Record<string, any> | null;
+          previousData = {
+            ...(previousData || {}),
+            ...oldData,
+            shopIds: Array.from(new Set([
+              ...(Array.isArray(priorData?.shopIds) ? priorData.shopIds : []),
+              ...(Array.isArray(oldData.shopIds) ? oldData.shopIds : []),
+            ])),
+            topics: Array.from(new Set([
+              ...(Array.isArray(priorData?.topics) ? priorData.topics : []),
+              ...(Array.isArray(oldData.topics) ? oldData.topics : []),
+            ])),
+            couponUsage: {
+              ...(priorData?.couponUsage || {}),
+              ...(oldData.couponUsage || {}),
+            },
+          };
         }
       }
     }
 
     const baseData = {
       token: normalizedToken,
+      ...(verifiedCustomerUid ? { customerUid: verifiedCustomerUid } : {}),
       customerId,
       ...(normalizedDeviceId ? { deviceId: normalizedDeviceId } : {}),
       lastActive: FieldValue.serverTimestamp(),
@@ -110,7 +142,7 @@ export async function POST(request: Request) {
     if (doc.exists) {
       console.log('[API] 既存登録の更新:', shopId);
       await docRef.set({
-        ...(previousDocRef ? ((await previousDocRef.get()).data() || {}) : {}),
+        ...(previousData || {}),
         ...doc.data(),
         ...baseData,
         shopIds: FieldValue.arrayUnion(shopId),
@@ -118,28 +150,18 @@ export async function POST(request: Request) {
         unsubscribedShopIds: FieldValue.arrayRemove(shopId),
       }, { merge: true });
 
-      if (previousDocRef) {
-        const previousData = (await previousDocRef.get()).data() || {};
-        previousToken = typeof previousData.token === 'string' ? previousData.token : '';
-        const remainingShopIds = Array.isArray(previousData.shopIds)
-          ? previousData.shopIds.filter((id: string) => id !== shopId)
+      for (const previousDocRef of previousDocRefs) {
+        const oldData = (await previousDocRef.get()).data() || {};
+        const remainingShopIds = Array.isArray(oldData.shopIds)
+          ? oldData.shopIds.filter((id: string) => id !== shopId)
           : [];
-        if (remainingShopIds.length === 0) {
-          await previousDocRef.delete();
-        } else {
-          await previousDocRef.update({
-            shopIds: FieldValue.arrayRemove(shopId),
-            topics: FieldValue.arrayRemove(topic),
-          });
-        }
+        if (remainingShopIds.length === 0) await previousDocRef.delete();
+        else await previousDocRef.update({
+          shopIds: FieldValue.arrayRemove(shopId),
+          topics: FieldValue.arrayRemove(topic),
+        });
       }
     } else {
-      let previousData: FirebaseFirestore.DocumentData | null = null;
-      if (previousDocRef) {
-        const previousDoc = await previousDocRef.get();
-        if (previousDoc.exists) previousData = previousDoc.data() || null;
-      }
-
       console.log('[API] 新規登録:', { shopId, birthDate });
       const previousShopIds = Array.isArray(previousData?.shopIds) ? previousData.shopIds : [];
       const previousTopics = Array.isArray(previousData?.topics) ? previousData.topics : [];
@@ -152,9 +174,8 @@ export async function POST(request: Request) {
         createdAt: previousData?.createdAt || FieldValue.serverTimestamp(),
       }, { merge: true });
 
-      if (previousDocRef) {
-        const oldData = previousData || {};
-        previousToken = typeof oldData.token === 'string' ? oldData.token : '';
+      for (const previousDocRef of previousDocRefs) {
+        const oldData = (await previousDocRef.get()).data() || {};
         const remainingShopIds = Array.isArray(oldData.shopIds)
           ? oldData.shopIds.filter((id: string) => id !== shopId)
           : [];
@@ -176,8 +197,8 @@ export async function POST(request: Request) {
         tokens: FieldValue.arrayUnion(normalizedToken),
         updatedAt: FieldValue.serverTimestamp(),
       }, { merge: true });
-      if (previousToken) {
-        await chunkDoc.update({ tokens: FieldValue.arrayRemove(previousToken) });
+      if (previousTokens.length > 0) {
+        await chunkDoc.update({ tokens: FieldValue.arrayRemove(...previousTokens) });
       }
     } catch (chunkErr: any) {
       console.warn('[API WARN] チャンク保存スキップ:', chunkErr.message);

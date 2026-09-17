@@ -77,15 +77,19 @@ export async function POST(request: Request) {
       .where('shopIds', 'array-contains', shopId)
       .get();
 
-    let registrationTokens: string[] = [];
-    const customerIds = new Set<string>();
+    const tokenByCustomer = new Map<string, { token: string; lastActive: number }>();
     tokensSnapshot.forEach(doc => {
       const data = doc.data();
-      if (data.token && (!data.customerId || !customerIds.has(data.customerId))) {
-        registrationTokens.push(data.token);
-        if (data.customerId) customerIds.add(data.customerId);
+      if (data.token) {
+        const customerKey = data.customerId || data.deviceId || data.token;
+        const lastActive = data.lastActive?.toMillis?.() || data.lastActive?.seconds * 1000 || 0;
+        const current = tokenByCustomer.get(customerKey);
+        if (!current || lastActive >= current.lastActive) {
+          tokenByCustomer.set(customerKey, { token: data.token, lastActive });
+        }
       }
     });
+    let registrationTokens = Array.from(tokenByCustomer.values()).map(({ token }) => token);
 
     // 重複を完全に除去
     registrationTokens = Array.from(new Set(registrationTokens));
@@ -157,12 +161,19 @@ export async function POST(request: Request) {
           body: body,
           icon: displayIcon,
           sound: 'default',
-            ...(imageUrl ? { imageUrl } : {}),
+          ...(imageUrl ? { imageUrl } : {}),
         },
       },
       webpush: {
         headers: {
           Urgency: 'high',
+        },
+        notification: {
+          title: displayTitle,
+          body,
+          icon: displayIcon,
+          badge: displayIcon,
+          ...(imageUrl ? { image: imageUrl } : {}),
         },
         fcmOptions: {
           link: targetUrl,
