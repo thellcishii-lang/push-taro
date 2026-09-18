@@ -4,19 +4,32 @@ import Link from 'next/link';
 interface BrandLogoProps {
   tagline?: string;
   className?: string;
-  taglineStyle?: 'plain' | 'badge';   // ← 追加
+  taglineStyle?: 'plain' | 'badge';
 }
 
+// LP (app/page.tsx) のロゴと完全一致させる
 export default function BrandLogo({
-  tagline,
+  tagline = '実店舗のためのPush通知CRM',
   className,
-  taglineStyle = 'plain',   // デフォルトは今まで通り
+  taglineStyle = 'plain',
 }: BrandLogoProps) {
   return (
     <Link href="/" className={`brand-logo${className ? ` ${className}` : ''}`}>
-      <svg className="brand-logo-mark" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        className="brand-logo-mark"
+        viewBox="0 0 48 48"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <defs>
-          <linearGradient id="brandLogoGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+          <linearGradient
+            id="brandLogoGrad"
+            x1="0"
+            y1="0"
+            x2="48"
+            y2="48"
+            gradientUnits="userSpaceOnUse"
+          >
             <stop offset="0%" stopColor="#ff6b6b" />
             <stop offset="100%" stopColor="#ff4500" />
           </linearGradient>
@@ -61,7 +74,6 @@ export default function BrandLogo({
           letter-spacing: 0;
           margin-left: 8px;
         }
-        /* バッジスタイル */
         .brand-logo-tagline.is-badge {
           font-size: 12px;
           font-weight: 800;
@@ -76,7 +88,9 @@ export default function BrandLogo({
         @media (max-width: 640px) {
           .brand-logo { font-size: 18px; }
           .brand-logo-mark { width: 28px; height: 28px; margin-right: 6px; }
+          .brand-logo-tagline { display: none; }
           .brand-logo-tagline.is-badge {
+            display: inline-block;
             font-size: 10px;
             padding: 3px 8px;
             margin-left: 6px;
