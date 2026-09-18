@@ -63,6 +63,7 @@ export async function GET(request: Request) {
           // 2-3. 送信
           await sendPushToShop({
             shopId,
+            token: subData.token || subDoc.id,
             title: dormant.title || '👋 お久しぶりです',
             body: dormant.message || `${shopData.name} です。特別な復帰クーポンをご用意しました🎁`,
             url: `/subscribe?s=${shopId}`,

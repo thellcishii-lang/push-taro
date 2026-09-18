@@ -87,6 +87,8 @@ export async function GET(request: Request) {
       stepUpEnabled: proCoupons.stepUp?.enabled === true,
       repeatEnabled: proCoupons.repeat?.enabled === true,
       repeatCouponActiveUntil: repeatActiveUntil,
+      birthdayNotifiedYear: usage.birthdayNotifiedYear || null,
+      dormantNotifiedAt: usage.dormantNotifiedAt?.toDate?.()?.toISOString?.() || usage.dormantNotifiedAt || null,
     }, {
       headers: {
         'Access-Control-Allow-Origin': '*',

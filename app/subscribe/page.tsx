@@ -31,6 +31,8 @@ export default function SubscribePage() {
   const [loyaltyAchievedAt, setLoyaltyAchievedAt] = useState<string | null>(null);
   const [stepUpIndex, setStepUpIndex] = useState(0);
   const [repeatCouponActiveUntil, setRepeatCouponActiveUntil] = useState<string | null>(null);
+  const [birthdayCouponAvailable, setBirthdayCouponAvailable] = useState(false);
+  const [dormantCouponAvailable, setDormantCouponAvailable] = useState(false);
   const [hiddenCouponTypes, setHiddenCouponTypes] = useState<string[]>([]);
   const [customerUid, setCustomerUid] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -158,6 +160,8 @@ useEffect(() => {
             setLoyaltyAchievedAt(data.loyaltyAchievedAt || null);
             setStepUpIndex(data.stepUpIndex || 0);
             setRepeatCouponActiveUntil(data.repeatCouponActiveUntil || null);
+            setBirthdayCouponAvailable(String(data.birthdayNotifiedYear) === String(new Date().getFullYear()));
+            setDormantCouponAvailable(Boolean(data.dormantNotifiedAt));
           }
         })
         .catch(err => console.error('ステータス確認エラー:', err));
@@ -544,6 +548,28 @@ useEffect(() => {
         <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
       </>
     )}
+  </div>
+)}
+{shopData?.proCoupons?.birthday?.enabled && birthdayCouponAvailable && !hiddenCouponTypes.includes('birthday') && (
+  <div style={{ background: '#fff7ed', border: '1px dashed #fb923c', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
+    <span style={{ fontSize: '11px', background: '#ea580c', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>記念日、お誕生日クーポン</span>
+    <h3 style={{ margin: '6px 0 8px 0', color: '#c2410c' }}>🎂 {shopData.proCoupons.birthday.title || '記念日、お誕生日クーポン'}</h3>
+    <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>{shopData.proCoupons.birthday.message || '特別な日のクーポンです。'}</p>
+    <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
+      <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'birthday', token: fcmToken })} size={150} />
+    </div>
+    <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
+  </div>
+)}
+{shopData?.proCoupons?.dormant?.enabled && dormantCouponAvailable && !hiddenCouponTypes.includes('dormant') && (
+  <div style={{ background: '#f8fafc', border: '1px dashed #94a3b8', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
+    <span style={{ fontSize: '11px', background: '#64748b', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>休眠復活クーポン</span>
+    <h3 style={{ margin: '6px 0 8px 0', color: '#475569' }}>💤 {shopData.proCoupons.dormant.title || '復帰クーポン'}</h3>
+    <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>{shopData.proCoupons.dormant.message || 'お久しぶりの方限定クーポンです。'}</p>
+    <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
+      <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'dormant', token: fcmToken })} size={150} />
+    </div>
+    <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
   </div>
 )}
 {shopData?.proCoupons?.stepUp?.enabled && shopData.proCoupons.stepUp.steps?.[stepUpIndex] && !hiddenCouponTypes.includes('step-up') && (

@@ -19,6 +19,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 
 export interface SendPushOptions {
   shopId: string;
+  token?: string;
   title: string;
   body: string;
   url?: string;
@@ -48,22 +49,26 @@ export async function sendPushToShop(options: SendPushOptions): Promise<SendPush
   const shopData = shopDoc.data()!;
 
   // ─── 2. トークン取得 ───
-  const tokensSnapshot = await db.collection('subscriptions')
-    .where('shopIds', 'array-contains', shopId)
-    .get();
+  const tokensSnapshot = options.token
+    ? null
+    : await db.collection('subscriptions').where('shopIds', 'array-contains', shopId).get();
 
   const tokenByCustomer = new Map<string, { token: string; lastActive: number }>();
-  tokensSnapshot.forEach((doc) => {
-    const data = doc.data();
-    if (data.token) {
-      const customerKey = data.customerId || data.deviceId || data.token;
-      const lastActive = data.lastActive?.toMillis?.() || data.lastActive?.seconds * 1000 || 0;
-      const current = tokenByCustomer.get(customerKey);
-      if (!current || lastActive >= current.lastActive) {
-        tokenByCustomer.set(customerKey, { token: data.token, lastActive });
+  if (options.token) {
+    tokenByCustomer.set(options.token, { token: options.token, lastActive: Date.now() });
+  } else {
+    tokensSnapshot?.forEach((doc) => {
+      const data = doc.data();
+      if (data.token) {
+        const customerKey = data.customerId || data.deviceId || data.token;
+        const lastActive = data.lastActive?.toMillis?.() || data.lastActive?.seconds * 1000 || 0;
+        const current = tokenByCustomer.get(customerKey);
+        if (!current || lastActive >= current.lastActive) {
+          tokenByCustomer.set(customerKey, { token: data.token, lastActive });
+        }
       }
-    }
-  });
+    });
+  }
 
   // 重複除去
   const uniqueTokens = Array.from(new Set(

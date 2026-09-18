@@ -67,6 +67,7 @@ export async function GET(request: Request) {
           // 2-3. 送信
           await sendPushToShop({
             shopId,
+            token: subData.token || subDoc.id,
             title: birthday.title || '🎂 お誕生日おめでとうございます',
             body: birthday.message || `${shopData.name} より、記念日、お誕生日クーポンをお贈りします🎁`,
             url: `/subscribe?s=${shopId}`,
