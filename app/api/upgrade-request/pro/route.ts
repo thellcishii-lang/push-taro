@@ -27,9 +27,27 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { shopId, companyName, invoiceNumber, address, phone, bankAccount } = body;
+    const normalizedAccountNumber = String(bankAccount?.accountNumber || '')
+      .replace(/[０-９]/g, (digit) => String.fromCharCode(digit.charCodeAt(0) - 0xfee0))
+      .trim();
+    const accountHolder = String(bankAccount?.accountHolder || '').trim();
 
     if (!shopId) {
       return NextResponse.json({ error: '店舗IDが必要です' }, { status: 400 });
+    }
+
+    if (!/^\d{7}$/.test(normalizedAccountNumber)) {
+      return NextResponse.json(
+        { error: '口座番号は半角数字7桁で入力してください。数字以外の文字は使用できません。' },
+        { status: 400 }
+      );
+    }
+
+    if (!/^[ァ-ヶー]+$/.test(accountHolder)) {
+      return NextResponse.json(
+        { error: '口座名義は全角カナで入力してください。' },
+        { status: 400 }
+      );
     }
 
     // 店舗の所有権確認
@@ -58,7 +76,7 @@ export async function POST(request: Request) {
         invoiceNumber: invoiceNumber || '',
         address: address || '',
         phone: phone || '',
-        bankAccount: bankAccount || null,
+        bankAccount: bankAccount ? { ...bankAccount, accountNumber: normalizedAccountNumber, accountHolder } : null,
       },
       updatedAt: FieldValue.serverTimestamp(),
     });

@@ -33,6 +33,10 @@ function ProUpgradeContent() {
   const [submitted, setSubmitted] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
+  const normalizeDigits = (value: string) => value.replace(/[０-９]/g, (digit) =>
+    String.fromCharCode(digit.charCodeAt(0) - 0xfee0)
+  );
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       if (u) {
@@ -53,6 +57,19 @@ function ProUpgradeContent() {
       alert('利用規約への同意が必要です。');
       return;
     }
+
+    const normalizedAccountNumber = normalizeDigits(accountNumber).trim();
+    if (!/^\d{7}$/.test(normalizedAccountNumber)) {
+      alert('口座番号は半角数字7桁で入力してください。数字以外の文字は使用できません。');
+      return;
+    }
+
+    if (!/^[ァ-ヶー]+$/.test(accountHolder.trim())) {
+      alert('口座名義は全角カナで入力してください。');
+      return;
+    }
+
+    setAccountNumber(normalizedAccountNumber);
 
     setShowConfirmation(true);
   };
@@ -78,7 +95,7 @@ function ProUpgradeContent() {
             bankName,
             branchName,
             accountType,
-            accountNumber,
+            accountNumber: normalizeDigits(accountNumber).trim(),
             accountHolder,
           },
         }),
@@ -175,7 +192,7 @@ function ProUpgradeContent() {
               disabled={loading}
               style={{ flex: 1, padding: '14px', background: loading ? '#94a3b8' : '#ff4500', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '16px', cursor: loading ? 'not-allowed' : 'pointer' }}
             >
-              {loading ? '処理中...' : '決済画面へ進む'}
+              {loading ? '処理中...' : '申し込みする（決済画面へ）'}
             </button>
           </div>
         </main>
@@ -308,7 +325,7 @@ function ProUpgradeContent() {
                   required
                   placeholder="1234567"
                   value={accountNumber}
-                  onChange={(e) => setAccountNumber(e.target.value)}
+                  onChange={(e) => setAccountNumber(normalizeDigits(e.target.value))}
                   style={{ width: '100%', padding: '8px 10px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box', background: '#fff' }}
                 />
               </div>
@@ -418,7 +435,7 @@ function ProUpgradeContent() {
               boxShadow: '0 4px 12px rgba(255, 69, 0, 0.3)'
             }}
           >
-            {loading ? '処理中...' : 'PROプランにアップグレードを申し込む'}
+            {loading ? '処理中...' : 'PROプランへアップグレード申し込み確認画面へ'}
           </button>
         </form>
 

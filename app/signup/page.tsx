@@ -123,11 +123,19 @@ export default function SignupPage() {
         alert('PROプランでは銀行口座情報が必須です。すべて入力してください。');
         return;
       }
+      const normalizedAccountNumber = accountNumber.replace(/[０-９]/g, (digit) =>
+        String.fromCharCode(digit.charCodeAt(0) - 0xfee0)
+      ).trim();
+      if (!/^\d{7}$/.test(normalizedAccountNumber)) {
+        alert('口座番号は半角数字7桁で入力してください。数字以外の文字は使用できません。');
+        return;
+      }
       const kanaRegex = /^[ァ-ヶー]+$/;
       if (!kanaRegex.test(accountHolder)) {
         alert('口座名義は全角カナで入力してください。');
         return;
       }
+      setAccountNumber(normalizedAccountNumber);
     }
 
     // ============================================================
@@ -410,7 +418,7 @@ export default function SignupPage() {
                     required
                     placeholder="1234567"
                     value={accountNumber}
-                    onChange={(e) => setAccountNumber(e.target.value)}
+                    onChange={(e) => setAccountNumber(e.target.value.replace(/[０-９]/g, (digit) => String.fromCharCode(digit.charCodeAt(0) - 0xfee0)))}
                     style={{ width: '100%', padding: '8px 10px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box', background: '#fff' }}
                   />
                 </div>
