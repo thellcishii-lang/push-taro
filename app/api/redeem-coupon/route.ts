@@ -169,6 +169,9 @@ export async function POST(request: Request) {
     // ステップアップクーポン（PRO）
     // ============================================================
     else if (couponType === 'step-up') {
+      if (shopData.proCoupons?.stepUp?.enabled !== true) {
+        return NextResponse.json({ error: '⚠️ ステップアップクーポンは現在無効です' }, { status: 400 });
+      }
       const steps = shopData.proCoupons?.stepUp?.steps || [];
       const currentIndex = usage.stepUpIndex || 0;
 
@@ -207,10 +210,23 @@ export async function POST(request: Request) {
     // 連続クーポン（PRO）
     // ============================================================
     else if (couponType === 'repeat') {
+      if (shopData.proCoupons?.repeat?.enabled !== true) {
+        return NextResponse.json({ error: '⚠️ 連続クーポンは現在無効です' }, { status: 400 });
+      }
       couponTitle = shopData.proCoupons?.repeat?.title || '連続クーポン';
 
-      const expireDays = shopData.proCoupons?.repeat?.expireDays || 14;
-      const activeUntil = new Date(Date.now() + expireDays * 24 * 60 * 60 * 1000);
+      const repeat = shopData.proCoupons.repeat;
+      const expireType = repeat.expireType || 'days';
+      let activeUntil: Date | null = null;
+      if (expireType === 'days') {
+        const expireDays = Math.max(1, Number(repeat.expireDays) || 14);
+        activeUntil = new Date(Date.now() + expireDays * 24 * 60 * 60 * 1000);
+      } else if (expireType === 'date') {
+        if (!repeat.expireDate || new Date(`${repeat.expireDate}T23:59:59`).getTime() < Date.now()) {
+          return NextResponse.json({ error: '⚠️ 連続クーポンは有効期限切れです' }, { status: 400 });
+        }
+        activeUntil = new Date(`${repeat.expireDate}T23:59:59`);
+      }
 
       await usageRef.update({
         [`couponUsage.${shopId}.repeatCouponActiveUntil`]: activeUntil,
@@ -218,7 +234,7 @@ export async function POST(request: Request) {
         [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
       });
 
-      responseExtra.nextRepeatCouponUntil = activeUntil.toISOString();
+      responseExtra.nextRepeatCouponUntil = activeUntil?.toISOString() || null;
     }
 
     // ============================================================
@@ -226,7 +242,7 @@ export async function POST(request: Request) {
     // → Cron 側で送信済み。消込時は使用記録のみ
     // ============================================================
     else if (couponType === 'birthday') {
-      couponTitle = shopData.proCoupons?.birthday?.title || '誕生日クーポン';
+      couponTitle = shopData.proCoupons?.birthday?.title || '記念日、お誕生日クーポン';
       await usageRef.update({
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),

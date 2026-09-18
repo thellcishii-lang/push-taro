@@ -67,7 +67,7 @@ export default function ProShopPage() {
 
   // PRO機能：ステップアップ
   const [stepUpEnabled, setStepUpEnabled] = useState(false);
-  const [stepUpList, setStepUpList] = useState<Array<{ title: string; expireType: string; expireDays: number; combinable: boolean }>>([
+  const [stepUpList, setStepUpList] = useState<Array<{ title: string; expireType: string; expireDays: number; expireDate?: string; combinable: boolean }>>([
     { title: '', expireType: 'days', expireDays: 7, combinable: false },
     { title: '', expireType: 'days', expireDays: 14, combinable: false },
   ]);
@@ -77,6 +77,7 @@ export default function ProShopPage() {
   const [repeatTitle, setRepeatTitle] = useState('');
   const [repeatExpireType, setRepeatExpireType] = useState('days');
   const [repeatExpireDays, setRepeatExpireDays] = useState(14);
+  const [repeatExpireDate, setRepeatExpireDate] = useState('');
   const [repeatCombinable, setRepeatCombinable] = useState(false);
 
   // PRO機能：誕生日
@@ -193,6 +194,7 @@ export default function ProShopPage() {
                   setRepeatTitle(pro.repeat.title || '');
                   setRepeatExpireType(pro.repeat.expireType || 'days');
                   setRepeatExpireDays(pro.repeat.expireDays || 14);
+                  setRepeatExpireDate(pro.repeat.expireDate || '');
                   setRepeatCombinable(pro.repeat.combinable || false);
                 }
                 if (pro.birthday) {
@@ -434,7 +436,7 @@ export default function ProShopPage() {
           },
           proCoupons: {
             stepUp: { enabled: stepUpEnabled, steps: stepUpList },
-            repeat: { enabled: repeatEnabled, title: repeatTitle, expireType: repeatExpireType, expireDays: repeatExpireDays, combinable: repeatCombinable },
+            repeat: { enabled: repeatEnabled, title: repeatTitle, expireType: repeatExpireType, expireDays: repeatExpireDays, expireDate: repeatExpireDate, combinable: repeatCombinable },
             birthday: { enabled: birthdayEnabled, title: birthdayTitle, message: birthdayMessage, combinable: birthdayCombinable },
             dormant: { enabled: dormantEnabled, targetDays: dormantTargetDays, title: dormantTitle, message: dormantMessage, expireDays: dormantExpireDays, combinable: dormantCombinable },
           },
@@ -980,15 +982,42 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
                         有効日数:
                         <input
                           type="number"
+                          min="1"
                           value={step.expireDays}
                           onChange={(e) => {
                             const newList = [...stepUpList];
-                            newList[index].expireDays = Number(e.target.value);
+                            newList[index].expireDays = Math.max(1, Number(e.target.value.replace(/^0+(?=\d)/, '')) || 1);
                             setStepUpList(newList);
                           }}
                           style={{ width: '50px', marginLeft: '4px', padding: '2px 4px' }}
                         /> 日間
                       </label>
+                      <label>
+                        期限方式:
+                        <select
+                          value={step.expireType}
+                          onChange={(e) => {
+                            const newList = [...stepUpList];
+                            newList[index].expireType = e.target.value;
+                            setStepUpList(newList);
+                          }}
+                        >
+                          <option value="none">無期限</option>
+                          <option value="days">出現からN日間有効</option>
+                          <option value="date">日付固定指定</option>
+                        </select>
+                      </label>
+                      {step.expireType === 'date' && (
+                        <input
+                          type="date"
+                          value={step.expireDate || ''}
+                          onChange={(e) => {
+                            const newList = [...stepUpList];
+                            newList[index].expireDate = e.target.value;
+                            setStepUpList(newList);
+                          }}
+                        />
+                      )}
                       <label>
                         <input
                           type="checkbox"
@@ -1000,6 +1029,11 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
                           }}
                         /> 他クーポンと併用可能
                       </label>
+                      {stepUpList.length > 1 && (
+                        <button type="button" onClick={() => setStepUpList(stepUpList.filter((_, itemIndex) => itemIndex !== index))} style={{ padding: '4px 8px', background: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5', borderRadius: '4px', cursor: 'pointer' }}>
+                          このステップを削除
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -1025,10 +1059,21 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
             {repeatEnabled && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <input type="text" placeholder="次回使える特典タイトル" value={repeatTitle} onChange={(e) => setRepeatTitle(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
-                <div style={{ display: 'flex', gap: '12px', fontSize: '12px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '12px', fontSize: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <label>
+                    期限方式:
+                    <select value={repeatExpireType} onChange={(e) => setRepeatExpireType(e.target.value)} style={{ marginLeft: '4px', padding: '2px 4px' }}>
+                      <option value="none">無期限</option>
+                      <option value="days">出現からN日間有効</option>
+                      <option value="date">日付固定指定</option>
+                    </select>
+                  </label>
+                  {repeatExpireType === 'date' && (
+                    <input type="date" value={repeatExpireDate} onChange={(e) => setRepeatExpireDate(e.target.value)} />
+                  )}
                   <label>
                     有効日数:
-                    <input type="number" value={repeatExpireDays} onChange={(e) => setRepeatExpireDays(Number(e.target.value))} style={{ width: '50px', marginLeft: '4px', padding: '2px 4px' }} /> 日間
+                    <input type="number" min="1" value={repeatExpireDays} onChange={(e) => setRepeatExpireDays(Math.max(1, Number(e.target.value.replace(/^0+(?=\d)/, '')) || 1))} style={{ width: '50px', marginLeft: '4px', padding: '2px 4px' }} /> 日間
                   </label>
                   <label>
                     <input type="checkbox" checked={repeatCombinable} onChange={(e) => setRepeatCombinable(e.target.checked)} /> 他クーポンと併用可能
@@ -1040,13 +1085,13 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
 
           {/* 誕生日クーポン */}
           <div style={{ background: '#fff5f5', padding: '16px', borderRadius: '8px', border: '1px solid #feb2b2' }}>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#9b2c2c' }}>🎂 誕生日クーポン設定</h3>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#9b2c2c' }}>🎂 記念日、お誕生日クーポン設定</h3>
             <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
               <input type="checkbox" checked={birthdayEnabled} onChange={(e) => setBirthdayEnabled(e.target.checked)} /> 有効にする
             </label>
             {birthdayEnabled && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <input type="text" placeholder="誕生日クーポンタイトル" value={birthdayTitle} onChange={(e) => setBirthdayTitle(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                <input type="text" placeholder="記念日、お誕生日クーポンタイトル" value={birthdayTitle} onChange={(e) => setBirthdayTitle(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
                 <textarea placeholder="お祝いメッセージ本文" value={birthdayMessage} onChange={(e) => setBirthdayMessage(e.target.value)} rows={2} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
               </div>
             )}
@@ -1082,7 +1127,7 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
               cursor: saving ? 'wait' : 'pointer',
             }}
           >
-            {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 PRO設定を保存'}
+            {saving ? '保存中...' : saveSuccess ? '✨ 設定完了' : '✅ 設定完了（顧客画面に反映）'}
           </button>
         </div>
       )}

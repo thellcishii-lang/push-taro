@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { token, shopId, deviceId, customerId: requestedCustomerId, customerUid, birthDate } = body;
+    const { token, shopId, deviceId, customerId: requestedCustomerId, customerUid, birthDate, birthMonth: requestedBirthMonth, birthDay: requestedBirthDay } = body;
 
     // パラメータチェック
     if (!token || !shopId || shopId === 'undefined' || shopId === 'null') {
@@ -62,7 +62,10 @@ export async function POST(request: Request) {
     let birthMonth: number | null = null;
     let birthDay: number | null = null;
 
-    if (birthDate) {
+    if (requestedBirthMonth && requestedBirthDay) {
+      birthMonth = Number(requestedBirthMonth);
+      birthDay = Number(requestedBirthDay);
+    } else if (birthDate) {
       const dateObj = new Date(birthDate);
       if (!isNaN(dateObj.getTime())) {
         birthMonth = dateObj.getMonth() + 1; // 1〜12月
@@ -136,7 +139,7 @@ export async function POST(request: Request) {
       customerId,
       ...(normalizedDeviceId ? { deviceId: normalizedDeviceId } : {}),
       lastActive: FieldValue.serverTimestamp(),
-      ...(birthDate ? { birthDate, birthMonth, birthDay } : {}),
+      ...(birthMonth && birthDay ? { birthMonth, birthDay } : {}),
     };
 
     if (doc.exists) {

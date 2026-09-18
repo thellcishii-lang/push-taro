@@ -68,6 +68,8 @@ export async function GET(request: Request) {
 
     // ─── couponUsage[shopId] を取り出す（無ければデフォルト）───
     const usage = data?.couponUsage?.[shopId] || DEFAULT_USAGE;
+    const proCoupons = shopDoc.data()?.proCoupons || {};
+    const repeatActiveUntil = usage.repeatCouponActiveUntil?.toDate?.()?.toISOString?.() || usage.repeatCouponActiveUntil || null;
 
     return NextResponse.json({
       success: true,
@@ -80,7 +82,11 @@ export async function GET(request: Request) {
       couponUsed: Boolean(usage.firstCouponUsedAt), // 後方互換
       totalVisits: usage.totalVisits || 0,
       loyaltyAchieved: usage.loyaltyAchieved === true,
+      loyaltyAchievedAt: usage.loyaltyAchievedAt?.toDate?.()?.toISOString?.() || usage.loyaltyAchievedAt || null,
       stepUpIndex: usage.stepUpIndex || 0,
+      stepUpEnabled: proCoupons.stepUp?.enabled === true,
+      repeatEnabled: proCoupons.repeat?.enabled === true,
+      repeatCouponActiveUntil: repeatActiveUntil,
     }, {
       headers: {
         'Access-Control-Allow-Origin': '*',

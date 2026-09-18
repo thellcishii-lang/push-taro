@@ -19,6 +19,8 @@ export default function SubscribePage() {
   const [shopData, setShopData] = useState<any>(null);
 
   const [birthDate, setBirthDate] = useState('');
+  const [birthMonth, setBirthMonth] = useState('');
+  const [birthDay, setBirthDay] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
   const [couponUsed, setCouponUsed] = useState(false);
   const [couponExpired, setCouponExpired] = useState(false);
@@ -26,6 +28,9 @@ export default function SubscribePage() {
   const [normalCouponExpired, setNormalCouponExpired] = useState(false);
   const [loyaltyCouponAvailable, setLoyaltyCouponAvailable] = useState(false);
   const [loyaltyCouponExpired, setLoyaltyCouponExpired] = useState(false);
+  const [loyaltyAchievedAt, setLoyaltyAchievedAt] = useState<string | null>(null);
+  const [stepUpIndex, setStepUpIndex] = useState(0);
+  const [repeatCouponActiveUntil, setRepeatCouponActiveUntil] = useState<string | null>(null);
   const [hiddenCouponTypes, setHiddenCouponTypes] = useState<string[]>([]);
   const [customerUid, setCustomerUid] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -148,7 +153,12 @@ useEffect(() => {
             setCouponUsed(true);
           }
           if (data.success && data.normalCouponUsed) setNormalCouponUsed(true);
-          if (data.success) setLoyaltyCouponAvailable(data.loyaltyCouponAvailable === true);
+          if (data.success) {
+            setLoyaltyCouponAvailable(data.loyaltyCouponAvailable === true);
+            setLoyaltyAchievedAt(data.loyaltyAchievedAt || null);
+            setStepUpIndex(data.stepUpIndex || 0);
+            setRepeatCouponActiveUntil(data.repeatCouponActiveUntil || null);
+          }
         })
         .catch(err => console.error('ステータス確認エラー:', err));
     }
@@ -163,8 +173,12 @@ useEffect(() => {
     setNormalCouponExpired(Boolean(normalExpiresAt && new Date(`${normalExpiresAt}T23:59:59`).getTime() < Date.now()));
     const loyalty = shopData?.loyaltyCoupon;
     const loyaltyExpiredAt = loyalty?.expireType === 'date' ? loyalty.expireDate : '';
-    setLoyaltyCouponExpired(Boolean(loyaltyExpiredAt && new Date(`${loyaltyExpiredAt}T23:59:59`).getTime() < Date.now()));
-  }, [shopData]);
+    const loyaltyExpiresByDate = Boolean(loyaltyExpiredAt && new Date(`${loyaltyExpiredAt}T23:59:59`).getTime() < Date.now());
+    const loyaltyExpiresByDays = loyalty?.expireType === 'days' && loyaltyAchievedAt
+      ? new Date(loyaltyAchievedAt).getTime() + Math.max(1, Number(loyalty.expireDays) || 1) * 24 * 60 * 60 * 1000 < Date.now()
+      : false;
+    setLoyaltyCouponExpired(loyaltyExpiresByDate || loyaltyExpiresByDays);
+  }, [shopData, loyaltyAchievedAt]);
 
   useEffect(() => {
     if (!shopId) return;
@@ -333,9 +347,9 @@ useEffect(() => {
       return;
     }
 
-    if (shopData?.plan === 'pro' && !birthDate) {
+    if (shopData?.plan === 'pro' && (!birthMonth || !birthDay)) {
       setStatus('error');
-      setMessage('⚠️ バースデークーポン受取のため、生年月日を選択してください。');
+      setMessage('⚠️ クーポン受取のため、誕生日または記念日の月日を選択してください。');
       return;
     }
 
@@ -409,7 +423,9 @@ useEffect(() => {
           deviceId,
           customerId,
           customerUid,
-          birthDate: shopData?.plan === 'pro' ? birthDate : null,
+          birthDate: shopData?.plan === 'pro' ? `${new Date().getFullYear()}-${birthMonth.padStart(2, '0')}-${birthDay.padStart(2, '0')}` : null,
+          birthMonth: shopData?.plan === 'pro' ? Number(birthMonth) : null,
+          birthDay: shopData?.plan === 'pro' ? Number(birthDay) : null,
         }),
       });
 
@@ -530,6 +546,29 @@ useEffect(() => {
     )}
   </div>
 )}
+{shopData?.proCoupons?.stepUp?.enabled && shopData.proCoupons.stepUp.steps?.[stepUpIndex] && !hiddenCouponTypes.includes('step-up') && (
+  <div style={{ background: '#f5f3ff', border: '1px dashed #8b5cf6', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
+    <span style={{ fontSize: '11px', background: '#7c3aed', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>ステップアップクーポン</span>
+    <h3 style={{ margin: '6px 0 8px 0', color: '#6d28d9' }}>🐾 {shopData.proCoupons.stepUp.steps[stepUpIndex].title || `ステップ${stepUpIndex + 1}`}</h3>
+    <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>ステップ {stepUpIndex + 1} の特典です。</p>
+    <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
+      <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'step-up', token: fcmToken })} size={150} />
+    </div>
+    <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
+  </div>
+)}
+{shopData?.proCoupons?.repeat?.enabled && !hiddenCouponTypes.includes('repeat') && (
+  <div style={{ background: '#eff6ff', border: '1px dashed #0ea5e9', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
+    <span style={{ fontSize: '11px', background: '#0284c7', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>連続クーポン</span>
+    <h3 style={{ margin: '6px 0 8px 0', color: '#0369a1' }}>🔄 {shopData.proCoupons.repeat.title || '連続クーポン'}</h3>
+    {shopData.proCoupons.repeat.expireType === 'date' && shopData.proCoupons.repeat.expireDate && <p style={{ fontSize: '12px', color: '#64748b' }}>有効期限: {shopData.proCoupons.repeat.expireDate}</p>}
+    {repeatCouponActiveUntil && <p style={{ fontSize: '12px', color: '#64748b' }}>今回の有効期限: {new Date(repeatCouponActiveUntil).toLocaleDateString('ja-JP')}</p>}
+    <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
+      <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'repeat', token: fcmToken })} size={150} />
+    </div>
+    <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
+  </div>
+)}
 {shopData?.loyaltyCoupon?.enabled && loyaltyCouponAvailable && !hiddenCouponTypes.includes('loyalty') && (
   <div style={{ background: loyaltyCouponExpired ? '#f1f5f9' : '#fff7ed', border: loyaltyCouponExpired ? '1px solid #cbd5e1' : '1px dashed #fb923c', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
     <span style={{ fontSize: '11px', background: loyaltyCouponExpired ? '#64748b' : '#ea580c', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>特別達成クーポン</span>
@@ -623,15 +662,18 @@ useEffect(() => {
       {shopData?.plan === 'pro' && status !== 'success' && (
         <div style={{ marginBottom: '20px', textAlign: 'left', background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
           <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', fontSize: '14px', color: '#334155' }}>
-            🎂 生年月日（バースデークーポン受取用）
+            🎂 誕生日または記念日（バースデークーポン受取用）
           </label>
-          <input
-            type="date"
-            value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
-            required
-            style={{ width: '100%', padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box', background: '#fff' }}
-          />
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <select value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} required style={{ flex: 1, padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff' }}>
+              <option value="">月</option>
+              {Array.from({ length: 12 }, (_, index) => <option key={index + 1} value={index + 1}>{index + 1}月</option>)}
+            </select>
+            <select value={birthDay} onChange={(e) => setBirthDay(e.target.value)} required style={{ flex: 1, padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff' }}>
+              <option value="">日</option>
+              {Array.from({ length: 31 }, (_, index) => <option key={index + 1} value={index + 1}>{index + 1}日</option>)}
+            </select>
+          </div>
         </div>
       )}
 

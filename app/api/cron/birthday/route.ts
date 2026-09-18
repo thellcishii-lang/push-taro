@@ -68,7 +68,7 @@ export async function GET(request: Request) {
           await sendPushToShop({
             shopId,
             title: birthday.title || '🎂 お誕生日おめでとうございます',
-            body: birthday.message || `${shopData.name} より、誕生日クーポンをお贈りします🎁`,
+            body: birthday.message || `${shopData.name} より、記念日、お誕生日クーポンをお贈りします🎁`,
             url: `/subscribe?s=${shopId}`,
             source: 'cron_birthday',
           });
