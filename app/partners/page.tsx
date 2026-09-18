@@ -35,13 +35,30 @@ export default function ProgramsPage() {
     <div className="programs-page">
       {/* ナビゲーション */}
       <nav className="navbar">
-        <div className="container">
-          <BrandLogo tagline="みんなのプッシュ通知" taglineStyle="badge" />
-          <a href="#cta-final" className="nav-cta">
-            <i className="fas fa-rocket"></i> 今すぐ参加
-          </a>
-        </div>
-      </nav>
+  <div className="container">
+    <Link href="/" className="logo">
+      <svg className="logo-mark" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="logoGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#ff6b6b" />
+            <stop offset="100%" stopColor="#ff4500" />
+          </linearGradient>
+        </defs>
+        <circle cx="24" cy="24" r="23" fill="url(#logoGrad)" />
+        <path d="M24 8 L33 22 L28 22 L28 30 L20 30 L20 22 L15 22 Z" fill="#ffffff" />
+        <circle cx="24" cy="20" r="3" fill="#ff4500" opacity="0.5" />
+        <path d="M18 30 L14 38 L20 34 Z" fill="#ffffff" />
+        <path d="M30 30 L34 38 L28 34 Z" fill="#ffffff" />
+        <path d="M22 30 L24 40 L26 30 Z" fill="#fbbf24" />
+      </svg>
+      Push-taro<span>.</span>
+      <small>みんなの<span>プッシュ通知</span></small>
+    </Link>
+    <a href="#cta-final" className="nav-cta">
+      <i className="fas fa-rocket"></i> 今すぐ参加
+    </a>
+  </div>
+</nav>
 
       {/* ヒーロー */}
       <section className="hero">
