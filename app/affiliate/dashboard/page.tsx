@@ -703,7 +703,7 @@ export default function AffiliateDashboardPage() {
                       <th style={{ padding: '12px', textAlign: 'left' }}>店舗名</th>
                       <th style={{ padding: '12px', textAlign: 'center' }}>プラン</th>
                       <th style={{ padding: '12px', textAlign: 'center' }}>報酬率</th>
-                      <th style={{ padding: '12px', textAlign: 'right' }}>月額報酬</th>
+                      <th style={{ padding: '12px', textAlign: 'right' }}>{isRecurring ? '月額報酬' : '報酬額'}</th>
                       <th style={{ padding: '12px', textAlign: 'center' }}>ステータス</th>
                       <th style={{ padding: '12px', textAlign: 'center' }}>利用開始日</th>
                     </tr>
