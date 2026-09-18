@@ -22,6 +22,34 @@ const DEFAULT_USAGE = {
   birthdayNotifiedYear: null,
 };
 
+async function addToLoyaltyCount(
+  usageRef: FirebaseFirestore.DocumentReference,
+  shopData: FirebaseFirestore.DocumentData,
+  shopId: string,
+  shouldCount: boolean,
+) {
+  if (!shouldCount || shopData.loyaltyCoupon?.enabled !== true) return false;
+
+  let unlocked = false;
+  await db.runTransaction(async (transaction) => {
+    const currentDoc = await transaction.get(usageRef);
+    const currentUsage = currentDoc.data()?.couponUsage?.[shopId] || DEFAULT_USAGE;
+    const targetCount = Number(shopData.loyaltyCoupon?.targetCount || 0);
+    const nextVisitCount = Number(currentUsage.normalCouponVisitCount || 0) + 1;
+    unlocked = targetCount > 0 && nextVisitCount >= targetCount;
+    transaction.set(usageRef, {
+      couponUsage: {
+        [shopId]: {
+          ...currentUsage,
+          normalCouponVisitCount: unlocked ? 0 : nextVisitCount,
+          loyaltyCouponAvailable: unlocked || currentUsage.loyaltyCouponAvailable === true,
+        },
+      },
+    }, { merge: true });
+  });
+  return unlocked;
+}
+
 export async function POST(request: Request) {
   // ─── 認証（店舗オーナー）───
   const authHeader = request.headers.get('Authorization');
@@ -215,6 +243,9 @@ export async function POST(request: Request) {
       } else {
         responseExtra.allStepsCompleted = true;
       }
+      if (await addToLoyaltyCount(usageRef, shopData, shopId, currentStep.loyaltyCountable ?? currentStep.combinable === true)) {
+        responseExtra.loyaltyUnlocked = true;
+      }
     }
 
     // ============================================================
@@ -246,6 +277,9 @@ export async function POST(request: Request) {
       });
 
       responseExtra.nextRepeatCouponUntil = activeUntil?.toISOString() || null;
+      if (await addToLoyaltyCount(usageRef, shopData, shopId, repeat.loyaltyCountable ?? repeat.combinable === true)) {
+        responseExtra.loyaltyUnlocked = true;
+      }
     }
 
     // ============================================================
@@ -253,18 +287,26 @@ export async function POST(request: Request) {
     // → Cron 側で送信済み。消込時は使用記録のみ
     // ============================================================
     else if (couponType === 'birthday') {
-      couponTitle = shopData.proCoupons?.birthday?.title || '記念日、お誕生日クーポン';
+      const birthday = shopData.proCoupons?.birthday || {};
+      couponTitle = birthday.title || '記念日、お誕生日クーポン';
       await usageRef.update({
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
       });
+      if (await addToLoyaltyCount(usageRef, shopData, shopId, birthday.loyaltyCountable ?? birthday.combinable === true)) {
+        responseExtra.loyaltyUnlocked = true;
+      }
     }
     else if (couponType === 'dormant') {
-      couponTitle = shopData.proCoupons?.dormant?.title || '復帰クーポン';
+      const dormant = shopData.proCoupons?.dormant || {};
+      couponTitle = dormant.title || '復帰クーポン';
       await usageRef.update({
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
       });
+      if (await addToLoyaltyCount(usageRef, shopData, shopId, dormant.loyaltyCountable ?? dormant.combinable === true)) {
+        responseExtra.loyaltyUnlocked = true;
+      }
     }
 
     else if (couponType === 'scheduled') {
