@@ -34,20 +34,22 @@ export async function GET(request: Request) {
 
     console.log(`[月末バッチ] 対象 referral_relations: ${relSnap.size}件`);
 
-    // 2. 未処理の全決済履歴を collectionGroup で1回のクエリで一括取得（高速化）
-    const allUnpaidPaymentsSnap = await db.collectionGroup('payment_history')
-      .where('rewardProcessed', '==', false)
-      .get();
-
-    const unpaidSuccessPayments = allUnpaidPaymentsSnap.docs.filter((doc) => {
-      const result = doc.data().result;
-      return result === 'success';
-    });
+    // 2. 店舗ごとに未処理決済を取得し、Collection Groupインデックスに依存しない。
+    const shopsSnap = await db.collection('shops').get();
+    const unpaidSuccessPayments: FirebaseFirestore.QueryDocumentSnapshot[] = [];
+    for (const shopDoc of shopsSnap.docs) {
+      const paymentSnap = await shopDoc.ref.collection('payment_history')
+        .where('rewardProcessed', '==', false)
+        .get();
+      paymentSnap.docs.forEach((paymentDoc) => {
+        if (paymentDoc.data().result === 'success') unpaidSuccessPayments.push(paymentDoc);
+      });
+    }
 
     console.log(`[月末バッチ] 対象 未処理決済件数: ${unpaidSuccessPayments.length}件`);
 
     // 3. 決済履歴を shopId (親ドキュメントID) ごとにメモリ上でグループ化
-    const paymentsByShop = new Map<string, typeof allUnpaidPaymentsSnap.docs>();
+    const paymentsByShop = new Map<string, FirebaseFirestore.QueryDocumentSnapshot[]>();
     unpaidSuccessPayments.forEach((doc) => {
       const shopId = doc.ref.parent.parent?.id;
       if (!shopId) return;
