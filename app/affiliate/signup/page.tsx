@@ -227,7 +227,7 @@ export default function AffiliateSignupPage() {
                 <input type="radio" name="rewardType" value="recurring" checked={rewardType === 'recurring'} onChange={() => setRewardType('recurring')} />
                 <span>
                   <strong>継続課金型</strong>
-                  <span style={{ fontSize: '12px', color: '#64748b', marginLeft: '4px' }}>（毎月5%継続還元）</span>
+                  <span style={{ fontSize: '12px', color: '#64748b', marginLeft: '4px' }}>（初年度8%・13ヶ月目以降5%継続還元）</span>
                 </span>
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>

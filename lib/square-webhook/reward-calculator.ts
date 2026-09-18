@@ -6,9 +6,16 @@ import {
   AGENCY_RATE_OTHER,
   PRO_REFERRAL_RATE,
   AFFILIATE_RECURRING_RATE,
+  AFFILIATE_RECURRING_RATE_FIRST_YEAR,
+  AFFILIATE_FIRST_YEAR_MONTHS,
   AFFILIATE_ONE_TIME_REWARDS,
   WITHHOLDING_RATE,
 } from '@/lib/constants';
+
+// 紹介関係の開始日から現在までの経過月数（0始まり）
+function monthsElapsedSince(startDate: Date, now: Date): number {
+  return (now.getFullYear() - startDate.getFullYear()) * 12 + (now.getMonth() - startDate.getMonth());
+}
 
 // ============================================================
 // 代理店が紹介しているアクティブなPRO店舗数をカウント
@@ -47,7 +54,8 @@ export async function calculateRewardRate(
   referrerData: any,
   referrerType: string,
   plan: string,
-  referrerId: string
+  referrerId: string,
+  relationMeta?: { createdAt?: any; tieredReward?: boolean }
 ): Promise<number> {
   if (!referrerType || referrerType === 'shop') return 0;
 
@@ -68,6 +76,18 @@ export async function calculateRewardRate(
 
   if (referrerType === 'affiliate') {
     if (referrerData?.rewardType === 'one-time') return 0;
+
+    // 新規紹介（tieredReward フラグあり）のみ、初年度（12ヶ月間）8%→13ヶ月目から5%
+    if (relationMeta?.tieredReward && relationMeta.createdAt) {
+      const startDate = relationMeta.createdAt.toDate
+        ? relationMeta.createdAt.toDate()
+        : new Date(relationMeta.createdAt);
+      const monthsElapsed = monthsElapsedSince(startDate, new Date());
+      return monthsElapsed < AFFILIATE_FIRST_YEAR_MONTHS
+        ? AFFILIATE_RECURRING_RATE_FIRST_YEAR
+        : AFFILIATE_RECURRING_RATE;
+    }
+
     return AFFILIATE_RECURRING_RATE;
   }
 

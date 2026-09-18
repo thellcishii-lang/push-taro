@@ -117,7 +117,10 @@ export async function GET(request: Request) {
 
       // 源泉前の率
       const baseRate = isRecurring
-        ? await calculateRewardRate(affData, 'affiliate', plan, affiliateId)
+        ? await calculateRewardRate(affData, 'affiliate', plan, affiliateId, {
+            createdAt: rel.relData.createdAt,
+            tieredReward: rel.relData.tieredReward === true,
+          })
         : 0;
 
       // 参考値の計算（月末バッチと同じロジック）

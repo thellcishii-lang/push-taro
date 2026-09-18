@@ -110,7 +110,7 @@ export default function AffiliateConfirmPage() {
               <div><strong>会社名</strong><br />{formData.companyName || '未入力'}</div>
             )}
             <div><strong>インボイス番号</strong><br />{formData.invoiceNumber || '未登録'}</div>
-            <div><strong>報酬タイプ</strong><br />{formData.rewardType === 'recurring' ? '継続課金型（毎月5%還元）' : '一括報酬型'}</div>
+            <div><strong>報酬タイプ</strong><br />{formData.rewardType === 'recurring' ? '継続課金型（初年度8%・13ヶ月目以降5%還元）' : '一括報酬型'}</div>
             <div><strong>金融機関名</strong><br />{formData.bankAccount?.bankName || '未入力'}</div>
             <div><strong>支店名</strong><br />{formData.bankAccount?.branchName || '未入力'}</div>
             <div><strong>口座種別</strong><br />{formData.bankAccount?.accountType === 'savings' ? '普通' : '当座'}</div>

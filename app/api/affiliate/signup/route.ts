@@ -153,7 +153,7 @@ export async function POST(request: Request) {
     // 5. 申込者へのメール
     // ============================================================
     const rewardTypeLabel = rewardType === 'recurring'
-      ? 'ストック型（毎月5%還元）'
+      ? 'ストック型（初年度8%・13ヶ月目以降5%還元）'
       : '単発型（初回のみ固定報酬）';
 
     const applicantMailResult = await sendEmail({

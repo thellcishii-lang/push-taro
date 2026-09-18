@@ -125,7 +125,7 @@ export async function generateApplicationPDF(
       ['事業形態', data.businessType === 'corporation' ? '法人' : '個人'],
       ...(data.businessType === 'corporation' ? [['会社名', data.companyName || ''] as [string, string]] : []),
       ['インボイス番号', data.invoiceNumber || '未登録'],
-      ['報酬タイプ', data.rewardType === 'recurring' ? '継続課金型（毎月5%還元）' : '一括報酬型'],
+      ['報酬タイプ', data.rewardType === 'recurring' ? '継続課金型（初年度8%・13ヶ月目以降5%還元）' : '一括報酬型'],
       ['金融機関名', data.bankAccount?.bankName || ''],
       ['支店名', data.bankAccount?.branchName || ''],
       ['口座種別', data.bankAccount?.accountType === 'savings' ? '普通' : '当座'],

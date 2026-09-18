@@ -6,7 +6,7 @@ import { sendEmail } from '../../../lib/mailer';
 import {
   AGENCY_RATE_OTHER,
   PRO_REFERRAL_RATE,
-  AFFILIATE_RECURRING_RATE,
+  AFFILIATE_RECURRING_RATE_FIRST_YEAR,
 } from '@/lib/constants';
 
 export const dynamic = 'force-dynamic';
@@ -115,7 +115,7 @@ function resolveRewardRate(
     return PRO_REFERRAL_RATE;
   }
   if (referrerType === 'affiliate') {
-    return rewardType === 'one-time' ? 0 : AFFILIATE_RECURRING_RATE;
+    return rewardType === 'one-time' ? 0 : AFFILIATE_RECURRING_RATE_FIRST_YEAR;
   }
   return 0;
 }
@@ -197,6 +197,7 @@ export async function POST(request: Request) {
         rewardType: referrerInfo.affiliateRewardType,
         referrerType: referrerInfo.referrerType,
         status: 'pending',
+        tieredReward: referrerInfo.referrerType === 'affiliate' && referrerInfo.affiliateRewardType === 'recurring',
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       });

@@ -69,7 +69,7 @@ export async function GET(request: Request) {
     const groups = new Map<string, {
       referrerId: string;
       referrerType: string;
-      relations: Array<{ relId: string; referredTenantId: string }>;
+      relations: Array<{ relId: string; referredTenantId: string; createdAt?: any; tieredReward?: boolean }>;
     }>();
 
     relSnap.docs.forEach((relDoc) => {
@@ -83,7 +83,12 @@ export async function GET(request: Request) {
       if (!groups.has(key)) {
         groups.set(key, { referrerId, referrerType, relations: [] });
       }
-      groups.get(key)!.relations.push({ relId: relDoc.id, referredTenantId });
+      groups.get(key)!.relations.push({
+        relId: relDoc.id,
+        referredTenantId,
+        createdAt: relData.createdAt,
+        tieredReward: relData.tieredReward === true,
+      });
     });
 
     console.log(`[月末バッチ] referrer数: ${groups.size}`);
@@ -149,7 +154,10 @@ export async function GET(request: Request) {
           // 源泉前の率（単発型は 0）
           const baseRate = isOneTimeAffiliate
             ? 0
-            : await calculateRewardRate(referrerData, referrerType, plan, referrerId);
+            : await calculateRewardRate(referrerData, referrerType, plan, referrerId, {
+                createdAt: rel.createdAt,
+                tieredReward: rel.tieredReward,
+              });
 
           // 単発型の固定額（源泉前）
           const oneTimeAmount = isOneTimeAffiliate

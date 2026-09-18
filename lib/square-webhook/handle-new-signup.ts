@@ -139,17 +139,27 @@ try {
         const affiliateRewardType =
           referrerType === 'affiliate' ? (referrerData.rewardType || 'recurring') : null;
 
+        let relationMeta: { createdAt?: any; tieredReward?: boolean };
+
         if (!relSnap.empty) {
+          const existingRelData = relSnap.docs[0].data();
+          relationMeta = {
+            createdAt: existingRelData.createdAt,
+            tieredReward: existingRelData.tieredReward === true,
+          };
           await relSnap.docs[0].ref.update({
             status: 'active',
             updatedAt: FieldValue.serverTimestamp(),
           });
         } else {
+          const isTiered = referrerType === 'affiliate' && affiliateRewardType === 'recurring';
+          relationMeta = { createdAt: new Date(), tieredReward: isTiered };
           const effectiveRate = await calculateRewardRate(
             referrerData,
             referrerType,
             plan,
-            referrerId
+            referrerId,
+            relationMeta
           );
 
           await db.collection('referral_relations').add({
@@ -159,6 +169,7 @@ try {
             referrerType,
             rewardType: affiliateRewardType,
             status: 'active',
+            tieredReward: isTiered,
             createdAt: FieldValue.serverTimestamp(),
           });
         }
@@ -189,7 +200,8 @@ try {
           referrerData,
           referrerType,
           plan,
-          referrerId
+          referrerId,
+          relationMeta
         );
         const hasInvoice = !!(
           referrerData.invoiceNumber &&

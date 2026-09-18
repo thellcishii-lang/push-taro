@@ -1266,12 +1266,12 @@ export default function Home() {
               </div>
               <h3>アフィリエイト</h3>
               <div className="program-sub">誰でもOK｜リスクフリーで副収入</div>
-              <div className="program-rate">5% または 単発</div>
+              <div className="program-rate">8% または 単発</div>
               <div className="program-desc">
                 ブログ・SNS・知人紹介など、自由な方法で店舗を紹介。初期費用・月額費用0円で、リスクなく始められます。
               </div>
               <ul className="program-list">
-                <li>継続課金型: 毎月5%を継続還元</li>
+                <li>継続課金型: 初年度8%・13ヶ月目以降5%を継続還元</li>
                 <li>単発型: PRO¥5,000 / STD¥2,000 / LIGHT¥1,000</li>
                 <li>インボイス登録で源泉徴収なし</li>
                 <li>累計5,000円で振込申請</li>

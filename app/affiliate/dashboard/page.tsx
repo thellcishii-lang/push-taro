@@ -343,7 +343,7 @@ export default function AffiliateDashboardPage() {
           <div style={{ background: isRecurring ? '#eff6ff' : '#f0fdf4', padding: '20px', borderRadius: '12px', border: isRecurring ? '1px solid #bfdbfe' : '1px solid #86efac' }}>
             <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#718096', marginBottom: '6px' }}>報酬タイプ</div>
             <div style={{ fontSize: '18px', fontWeight: '900', color: isRecurring ? '#1d4ed8' : '#15803d' }}>
-              {isRecurring ? 'ストック型（5%）' : '単発型（固定額）'}
+              {isRecurring ? 'ストック型（初年度8%）' : '単発型（固定額）'}
             </div>
           </div>
         </div>

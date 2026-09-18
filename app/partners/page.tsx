@@ -14,7 +14,7 @@ export default function ProgramsPage() {
     },
     {
       q: 'Q. 紹介制度とアフィリエイトの違いは？',
-      a: '紹介制度はPROプラン契約者限定で、月額10%の継続還元が受けられます。アフィリエイトは誰でも参加可能で、5%継続還元または一括報酬（PRO:5,000円 / Standard:2,000円 / Light:1,000円）を選択できます。',
+      a: '紹介制度はPROプラン契約者限定で、月額10%の継続還元が受けられます。アフィリエイトは誰でも参加可能で、初年度8%継続還元（13ヶ月目以降5%）または一括報酬（PRO:5,000円 / Standard:2,000円 / Light:1,000円）を選択できます。',
     },
     {
       q: 'Q. 報酬はいつ・どうやって受け取れますか？',
@@ -186,7 +186,7 @@ export default function ProgramsPage() {
 
               <div className="price-table">
                 <div className="row"><span className="label">参加条件</span><span className="value">なし（誰でもOK）</span></div>
-                <div className="row"><span className="label">継続課金型（全プラン一律）</span><span className="value highlight">5%</span></div>
+                <div className="row"><span className="label">継続課金型（全プラン一律）</span><span className="value highlight">初年度8%（13ヶ月目以降5%）</span></div>
                 <div className="row"><span className="label">一時金（PRO/Standard/Light）</span><span className="value">¥5,000 / ¥2,000 / ¥1,000</span></div>
               </div>
 
@@ -241,13 +241,13 @@ export default function ProgramsPage() {
                   <td><strong>PRO紹介報酬</strong></td>
                   <td className="highlight-cell">30%（継続）</td>
                   <td>10%（継続）</td>
-                  <td>5%（継続） or ¥5,000（一括）</td>
+                  <td>初年度8%（継続） or ¥5,000（一括）</td>
                 </tr>
                 <tr>
                   <td><strong>Standard/Light紹介報酬</strong></td>
                   <td className="highlight-cell">18%（継続）</td>
                   <td>10%（継続）</td>
-                  <td>5%（継続） or ¥2,000/¥1,000（一括）</td>
+                  <td>初年度8%（継続） or ¥2,000/¥1,000（一括）</td>
                 </tr>
                 <tr>
                   <td><strong>収益の特徴</strong></td>
@@ -283,7 +283,7 @@ export default function ProgramsPage() {
               <ul className="feature-list">
                 <li><span>代理店制度</span><span className="val yes">✅ 充実 (30%/18%)</span></li>
                 <li><span>紹介制度</span><span className="val yes">✅ 10%継続</span></li>
-                <li><span>アフィリエイト</span><span className="val yes">✅ 5%継続 or 一括</span></li>
+                <li><span>アフィリエイト</span><span className="val yes">✅ 初年度8%継続 or 一括</span></li>
                 <li><span>収益化プログラム数</span><span className="val best">3つ</span></li>
                 <li><span>ターゲット</span><span className="val">実店舗CRM</span></li>
               </ul>
@@ -342,8 +342,8 @@ export default function ProgramsPage() {
 
             <div className="sim-card">
               <h4>📢 ケース③：アフィリエイト（10社PRO紹介）</h4>
-              <div className="desc">継続課金型：10社 × ¥10,000 × 5%</div>
-              <div className="amount">¥5,000 <span>/ 月</span></div>
+              <div className="desc">継続課金型（初年度）：10社 × ¥10,000 × 8%</div>
+              <div className="amount">¥8,000 <span>/ 月</span></div>
               <div className="note"><i className="fas fa-coins"></i> 一時金型なら <strong>¥50,000</strong> の一括収入も選択可！</div>
             </div>
           </div>

@@ -6,7 +6,7 @@ import { notifyAdmins } from '@/lib/error-notifier';
 import {
   AGENCY_RATE_OTHER,
   PRO_REFERRAL_RATE,
-  AFFILIATE_RECURRING_RATE,
+  AFFILIATE_RECURRING_RATE_FIRST_YEAR,
 } from '@/lib/constants';
 
 export const dynamic = 'force-dynamic';
@@ -153,8 +153,8 @@ export async function POST(request: Request) {
       affiliateRewardType = 'recurring';
     }
 
-    // ストック型は 5%、単発型は rate 0（固定額なので使わない）
-    rewardRate = affiliateRewardType === 'recurring' ? AFFILIATE_RECURRING_RATE : 0;
+    // ストック型は初年度優遇率、単発型は rate 0（固定額なので使わない）
+    rewardRate = affiliateRewardType === 'recurring' ? AFFILIATE_RECURRING_RATE_FIRST_YEAR : 0;
     // 後続で referral_relations に保存するために保持
     affiliateRewardTypeForRelation = affiliateRewardType;
   }
@@ -252,6 +252,7 @@ export async function POST(request: Request) {
     rewardType: relationRewardType,
     status: 'pending',
     referrerType: referrerType,
+    tieredReward: referrerType === 'affiliate' && relationRewardType === 'recurring',
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   });

@@ -45,6 +45,10 @@ export const PRO_REFERRAL_RATE = 0.10;
 // ============================================================
 export const AFFILIATE_RECURRING_RATE = 0.05;
 
+// 初年度優遇率（紹介から12ヶ月間・13ヶ月目から通常率に切り替え）
+export const AFFILIATE_RECURRING_RATE_FIRST_YEAR = 0.08;
+export const AFFILIATE_FIRST_YEAR_MONTHS = 12;
+
 // 単発型の固定報酬額（源泉前）
 export const AFFILIATE_ONE_TIME_REWARDS: Record<string, number> = {
   light: 1000,
