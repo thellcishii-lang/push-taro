@@ -39,7 +39,15 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { shopId, couponType, token, couponId } = await request.json();
+    const body = await request.json();
+    const { shopId, token, couponId } = body;
+    const rawCouponType = body.couponType;
+    const normalizedCouponType = typeof rawCouponType === 'string'
+      ? rawCouponType.trim().toLowerCase().replace(/_/g, '-')
+      : rawCouponType;
+    const couponType = normalizedCouponType === 'stepup' ? 'step-up'
+      : normalizedCouponType === 'repeat-coupon' ? 'repeat'
+      : normalizedCouponType;
 
     if (!shopId || !couponType || !token) {
       return NextResponse.json({ error: '無効なQRコードデータです' }, { status: 400 });
@@ -183,6 +191,9 @@ export async function POST(request: Request) {
       }
 
       const currentStep = steps[currentIndex];
+      if (!currentStep) {
+        return NextResponse.json({ error: '⚠️ 現在利用できるステップがありません。顧客画面を更新してください' }, { status: 400 });
+      }
       couponTitle = currentStep?.title || `ステップ${currentIndex + 1}`;
 
       // 次のステップへ進める
