@@ -20,6 +20,9 @@ export const dynamic = 'force-dynamic';
 const DEFAULT_USAGE = {
   firstCouponUsedAt: null,
   normalCouponUsedAt: null,
+  normalCouponUsedCouponId: null,
+  normalCouponVisitCount: 0,
+  loyaltyCouponAvailable: false,
   lastCouponUsedAt: null,
   totalVisits: 0,
   loyaltyAchieved: false,
@@ -60,6 +63,8 @@ export async function GET(request: Request) {
     }
 
     const data = doc.data()!;
+    const shopDoc = await db.collection('shops').doc(shopId).get();
+    const normalCouponId = shopDoc.data()?.normalCoupon?.couponId || 'legacy';
 
     // ─── couponUsage[shopId] を取り出す（無ければデフォルト）───
     const usage = data?.couponUsage?.[shopId] || DEFAULT_USAGE;
@@ -68,7 +73,10 @@ export async function GET(request: Request) {
       success: true,
       registered: true,
       firstCouponUsed: Boolean(usage.firstCouponUsedAt),
-      normalCouponUsed: Boolean(usage.normalCouponUsedAt),
+      normalCouponUsed: usage.normalCouponUsedCouponId === normalCouponId ||
+        (normalCouponId === 'legacy' && Boolean(usage.normalCouponUsedAt)),
+      normalCouponVisitCount: usage.normalCouponVisitCount || 0,
+      loyaltyCouponAvailable: usage.loyaltyCouponAvailable === true,
       couponUsed: Boolean(usage.firstCouponUsedAt), // 後方互換
       totalVisits: usage.totalVisits || 0,
       loyaltyAchieved: usage.loyaltyAchieved === true,

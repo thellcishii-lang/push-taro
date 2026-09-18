@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '../../../lib/firebase-admin';
+import { randomUUID } from 'crypto';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,7 +48,16 @@ export async function POST(request: Request) {
     const updateData: Record<string, any> = {};
     if (name !== undefined)          updateData.name = name;
     if (coupon !== undefined)        updateData.coupon = coupon;
-    if (normalCoupon !== undefined)  updateData.normalCoupon = normalCoupon;
+    if (normalCoupon !== undefined) {
+      const currentNormalCoupon = shopDoc.data()?.normalCoupon || {};
+      const changed = ['enabled', 'title', 'description', 'expiresAt'].some(
+        (key) => currentNormalCoupon[key] !== normalCoupon[key]
+      );
+      updateData.normalCoupon = {
+        ...normalCoupon,
+        couponId: changed ? randomUUID() : (normalCoupon.couponId || currentNormalCoupon.couponId || randomUUID()),
+      };
+    }
     if (loyaltyCoupon !== undefined) updateData.loyaltyCoupon = loyaltyCoupon;
     if (proCoupons !== undefined)    updateData.proCoupons = proCoupons;
     if (linkUrl !== undefined)       updateData.linkUrl = linkUrl;

@@ -129,7 +129,11 @@ export async function POST(request: Request) {
     const appBaseUrl = process.env.NODE_ENV === 'production'
       ? configuredBaseUrl.replace(/^http:/, 'https:')
       : configuredBaseUrl;
-    const targetUrl = new URL(url || `/subscribe?s=${shopId}`, appBaseUrl).toString();
+    const target = new URL(url || `/subscribe?s=${shopId}`, appBaseUrl);
+    if (target.origin === new URL(appBaseUrl).origin && !target.pathname.startsWith('/subscribe')) {
+      target.searchParams.set('returnTo', `/subscribe?s=${encodeURIComponent(shopId)}`);
+    }
+    const targetUrl = target.toString();
     const displayTitle = title || shopData.name || 'Push-taro';
     const displayIcon = new URL(shopData.iconUrl || '/icon-192x192.png', appBaseUrl).toString();
 

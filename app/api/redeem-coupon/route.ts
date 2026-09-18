@@ -9,6 +9,9 @@ export const dynamic = 'force-dynamic';
 const DEFAULT_USAGE = {
   firstCouponUsedAt: null,
   normalCouponUsedAt: null,
+  normalCouponUsedCouponId: null,
+  normalCouponVisitCount: 0,
+  loyaltyCouponAvailable: false,
   lastCouponUsedAt: null,
   totalVisits: 0,
   loyaltyAchieved: false,
@@ -100,13 +103,6 @@ export async function POST(request: Request) {
     else if (couponType === 'normal') {
       couponTitle = shopData.normalCoupon?.title || '通常クーポン';
 
-      if (usage.normalCouponUsedAt) {
-        return NextResponse.json(
-          { error: '⚠️ この通常クーポンはすでに使用済みです！' },
-          { status: 400 }
-        );
-      }
-
       const expiresAt = shopData.normalCoupon?.expiresAt;
       if (expiresAt && new Date(`${expiresAt}T23:59:59`).getTime() < Date.now()) {
         return NextResponse.json(
@@ -115,11 +111,36 @@ export async function POST(request: Request) {
         );
       }
 
-      await usageRef.update({
-        [`couponUsage.${shopId}.normalCouponUsedAt`]: FieldValue.serverTimestamp(),
-        [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
-        [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
+      const normalCouponId = shopData.normalCoupon?.couponId || 'legacy';
+      let loyaltyUnlocked = false;
+      await db.runTransaction(async (transaction) => {
+        const currentDoc = await transaction.get(usageRef);
+        const currentUsage = currentDoc.data()?.couponUsage?.[shopId] || DEFAULT_USAGE;
+        const alreadyUsed = currentUsage.normalCouponUsedCouponId === normalCouponId ||
+          (normalCouponId === 'legacy' && Boolean(currentUsage.normalCouponUsedAt));
+        if (alreadyUsed) {
+          throw new Error('COUPON_ALREADY_USED');
+        }
+
+        const targetCount = Number(shopData.loyaltyCoupon?.targetCount || 0);
+        const nextVisitCount = Number(currentUsage.normalCouponVisitCount || 0) + 1;
+        loyaltyUnlocked = targetCount > 0 && nextVisitCount >= targetCount;
+
+        transaction.set(usageRef, {
+          couponUsage: {
+            [shopId]: {
+              ...currentUsage,
+              normalCouponUsedAt: FieldValue.serverTimestamp(),
+              normalCouponUsedCouponId: normalCouponId,
+              normalCouponVisitCount: loyaltyUnlocked ? 0 : nextVisitCount,
+              loyaltyCouponAvailable: loyaltyUnlocked || currentUsage.loyaltyCouponAvailable === true,
+              lastCouponUsedAt: FieldValue.serverTimestamp(),
+              totalVisits: FieldValue.increment(1),
+            },
+          },
+        }, { merge: true });
       });
+      if (loyaltyUnlocked) responseExtra.loyaltyUnlocked = true;
     }
 
     // ============================================================
@@ -128,14 +149,15 @@ export async function POST(request: Request) {
     else if (couponType === 'loyalty') {
       couponTitle = shopData.loyaltyCoupon?.title || '特別達成クーポン';
 
-      if (usage.loyaltyAchieved) {
+      if (!usage.loyaltyCouponAvailable) {
         return NextResponse.json(
-          { error: '⚠️ このクーポンはすでに使用済みです！' },
+          { error: '⚠️ この特別達成クーポンはまだ利用できません！' },
           { status: 400 }
         );
       }
 
       await usageRef.update({
+        [`couponUsage.${shopId}.loyaltyCouponAvailable`]: false,
         [`couponUsage.${shopId}.loyaltyAchieved`]: true,
         [`couponUsage.${shopId}.loyaltyAchievedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
@@ -245,6 +267,12 @@ export async function POST(request: Request) {
     });
   } catch (error: any) {
     console.error('[redeem-coupon] エラー:', error);
+    if (error?.message === 'COUPON_ALREADY_USED') {
+      return NextResponse.json(
+        { error: '⚠️ この通常クーポンはすでに使用済みです！' },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
       { error: error.message || '消し込み処理に失敗しました' },
       { status: 500 }

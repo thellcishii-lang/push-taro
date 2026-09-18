@@ -896,9 +896,9 @@ export default function ShopPage() {
                   {loyaltyEnabled && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '13px' }}>累計消し込み回数:</span>
-                        <input type="number" min="1" value={loyaltyTargetCount} onChange={(e) => setLoyaltyTargetCount(Number(e.target.value))} style={{ width: '60px', padding: '4px' }} />
-                        <span style={{ fontSize: '13px' }}>回で達成</span>
+                        <span style={{ fontSize: '13px' }}>店舗設定の達成回数:</span>
+                        <input type="number" min="1" value={loyaltyTargetCount} onChange={(e) => setLoyaltyTargetCount(Math.max(1, Number(e.target.value) || 1))} style={{ width: '60px', padding: '4px' }} />
+                        <span style={{ fontSize: '13px' }}>回で達成（任意設定）</span>
                       </div>
                       <input type="text" placeholder="特典タイトル" value={loyaltyTitle} onChange={(e) => setLoyaltyTitle(e.target.value)} style={{ width: '100%', padding: '6px' }} />
                       <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', fontSize: '12px' }}>

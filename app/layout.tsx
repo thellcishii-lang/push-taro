@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import NotificationBackButton from '../components/NotificationBackButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,7 +24,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
-      <body style={{ margin: 0, background: '#fafafa' }}>{children}</body>
+      <body style={{ margin: 0, background: '#fafafa' }}>
+        <NotificationBackButton />
+        {children}
+      </body>
     </html>
   );
 }
