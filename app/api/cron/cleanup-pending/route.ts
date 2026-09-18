@@ -17,10 +17,15 @@ export async function GET(request: Request) {
     // 5日以上経過した pending_payment を取得
     const snapshot = await db.collection('shops')
       .where('status', '==', 'pending_payment')
-      .where('createdAt', '<', fiveDaysAgo)
       .get();
 
-    if (snapshot.empty) {
+    const expiredDocs = snapshot.docs.filter((doc) => {
+      const createdAt = doc.data().createdAt?.toDate?.() ||
+        (doc.data().createdAt ? new Date(doc.data().createdAt) : null);
+      return createdAt && !Number.isNaN(createdAt.getTime()) && createdAt < fiveDaysAgo;
+    });
+
+    if (expiredDocs.length === 0) {
       return NextResponse.json({ 
         success: true, 
         deleted: 0,
@@ -30,17 +35,17 @@ export async function GET(request: Request) {
 
     // バッチ削除
     const batch = db.batch();
-    snapshot.docs.forEach((doc) => {
+    expiredDocs.forEach((doc) => {
       batch.delete(doc.ref);
     });
     await batch.commit();
 
-    console.log(`[cleanup-pending] ${snapshot.size}件の期限切れ pending_payment を削除しました`);
+    console.log(`[cleanup-pending] ${expiredDocs.length}件の期限切れ pending_payment を削除しました`);
 
     return NextResponse.json({ 
       success: true, 
-      deleted: snapshot.size,
-      message: `${snapshot.size}件の期限切れ pending_payment を削除しました。`
+      deleted: expiredDocs.length,
+      message: `${expiredDocs.length}件の期限切れ pending_payment を削除しました。`
     });
 
   } catch (error: any) {
