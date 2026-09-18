@@ -37,14 +37,18 @@ export async function GET(request: Request) {
     // 2. 未処理の全決済履歴を collectionGroup で1回のクエリで一括取得（高速化）
     const allUnpaidPaymentsSnap = await db.collectionGroup('payment_history')
       .where('rewardProcessed', '==', false)
-      .where('result', '==', 'success')
       .get();
 
-    console.log(`[月末バッチ] 対象 未処理決済件数: ${allUnpaidPaymentsSnap.size}件`);
+    const unpaidSuccessPayments = allUnpaidPaymentsSnap.docs.filter((doc) => {
+      const result = doc.data().result;
+      return result === 'success';
+    });
+
+    console.log(`[月末バッチ] 対象 未処理決済件数: ${unpaidSuccessPayments.length}件`);
 
     // 3. 決済履歴を shopId (親ドキュメントID) ごとにメモリ上でグループ化
     const paymentsByShop = new Map<string, typeof allUnpaidPaymentsSnap.docs>();
-    allUnpaidPaymentsSnap.docs.forEach((doc) => {
+    unpaidSuccessPayments.forEach((doc) => {
       const shopId = doc.ref.parent.parent?.id;
       if (!shopId) return;
 
