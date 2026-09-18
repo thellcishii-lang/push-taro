@@ -8,8 +8,7 @@
  *   month:         '2026-08'（省略時は全期間）
  */
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase-admin';
-import { verifyAdmin } from '@/lib/admin-auth';
+import { db, authAdmin } from '@/lib/firebase-admin';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,10 +16,22 @@ const VALID_TYPES = ['pro', 'agency', 'affiliate'] as const;
 type ReferrerType = typeof VALID_TYPES[number];
 
 export async function GET(request: Request) {
-  // 🆕 管理者認証
-  const adminUid = await verifyAdmin(request);
-  if (!adminUid) {
-    return NextResponse.json({ error: '管理者権限が必要です' }, { status: 403 });
+  // 🆕 認証（本人 or 管理者）
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
+  }
+
+  let uid: string;
+  let isAdmin = false;
+  try {
+    const idToken = authHeader.split('Bearer ')[1];
+    const decoded = await authAdmin.verifyIdToken(idToken);
+    uid = decoded.uid;
+    const userRecord = await authAdmin.getUser(uid);
+    isAdmin = userRecord.customClaims?.admin === true;
+  } catch {
+    return NextResponse.json({ error: '無効なトークンです' }, { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
@@ -37,6 +48,19 @@ export async function GET(request: Request) {
       { error: `referrer_type は ${VALID_TYPES.join(' / ')} のいずれかです` },
       { status: 400 }
     );
+  }
+
+  if (!isAdmin) {
+    const ownerFieldByType: Record<ReferrerType, { collection: string; ownerField: string }> = {
+      pro: { collection: 'shops', ownerField: 'ownerUid' },
+      agency: { collection: 'agencies', ownerField: 'uid' },
+      affiliate: { collection: 'affiliates', ownerField: 'uid' },
+    };
+    const { collection, ownerField } = ownerFieldByType[referrerType];
+    const ownerDoc = await db.collection(collection).doc(referrerId).get();
+    if (!ownerDoc.exists || ownerDoc.data()?.[ownerField] !== uid) {
+      return NextResponse.json({ error: '権限がありません' }, { status: 403 });
+    }
   }
 
   try {
