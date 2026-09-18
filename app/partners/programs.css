@@ -48,6 +48,13 @@
   text-decoration: none;
 }
 
+.programs-page .logo-mark {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
 .programs-page .logo span {
   color: #ff4500;
   margin-left: 1px;
