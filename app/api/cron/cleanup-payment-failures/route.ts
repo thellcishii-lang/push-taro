@@ -28,9 +28,9 @@ export async function GET(request: Request) {
     // paymentStatus='canceled' かつ paymentCanceledAt が30日以上前
     // かつまだ非表示フラグが立っていない店舗を取得
     // ============================================================
+    // 複合インデックス不要の取得にして、App Hosting環境でも安定して実行する。
     const snapshot = await db.collection('shops')
       .where('paymentStatus.current', '==', 'canceled')
-      .where('paymentCanceledAt', '<', thirtyDaysAgo)
       .get();
 
     if (snapshot.empty) {
@@ -48,6 +48,10 @@ export async function GET(request: Request) {
 
     snapshot.docs.forEach((doc) => {
       const data = doc.data();
+      const canceledAt = data.paymentCanceledAt?.toDate?.() ||
+        (data.paymentCanceledAt ? new Date(data.paymentCanceledAt) : null);
+
+      if (!canceledAt || Number.isNaN(canceledAt.getTime()) || canceledAt >= thirtyDaysAgo) return;
 
       // 既に非表示済みならスキップ
       if (data.paymentFailureHidden === true) return;
