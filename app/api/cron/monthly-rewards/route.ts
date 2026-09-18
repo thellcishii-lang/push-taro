@@ -12,6 +12,7 @@ import {
   getOneTimeRewardAmount,
 } from '@/lib/square-webhook/reward-calculator';
 import { isValidCronRequest } from '@/lib/cron-auth';
+import { notifyAdmins } from '@/lib/error-notifier';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,15 +37,19 @@ export async function GET(request: Request) {
 
     // 2. 店舗ごとに未処理決済を取得し、Collection Groupインデックスに依存しない。
     const shopsSnap = await db.collection('shops').get();
+    const paymentSnapshots = await Promise.all(
+      shopsSnap.docs.map((shopDoc) =>
+        shopDoc.ref.collection('payment_history')
+          .where('rewardProcessed', '==', false)
+          .get()
+      )
+    );
     const unpaidSuccessPayments: FirebaseFirestore.QueryDocumentSnapshot[] = [];
-    for (const shopDoc of shopsSnap.docs) {
-      const paymentSnap = await shopDoc.ref.collection('payment_history')
-        .where('rewardProcessed', '==', false)
-        .get();
+    paymentSnapshots.forEach((paymentSnap) => {
       paymentSnap.docs.forEach((paymentDoc) => {
         if (paymentDoc.data().result === 'success') unpaidSuccessPayments.push(paymentDoc);
       });
-    }
+    });
 
     console.log(`[月末バッチ] 対象 未処理決済件数: ${unpaidSuccessPayments.length}件`);
 
@@ -332,6 +337,7 @@ export async function GET(request: Request) {
 
   } catch (error: any) {
     console.error('[月末バッチ] エラー:', error);
+    await notifyAdmins(error, { source: 'cron/monthly-rewards' });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
