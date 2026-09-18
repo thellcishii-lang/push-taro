@@ -36,7 +36,7 @@ export default function ProgramsPage() {
       {/* ナビゲーション */}
       <nav className="navbar">
         <div className="container">
-          <BrandLogo tagline="みんなのプッシュ通知" />
+          <BrandLogo tagline="みんなのプッシュ通知" taglineStyle="badge" />
           <a href="#cta-final" className="nav-cta">
             <i className="fas fa-rocket"></i> 今すぐ参加
           </a>
