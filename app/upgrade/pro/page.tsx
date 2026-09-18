@@ -31,6 +31,7 @@ function ProUpgradeContent() {
 
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
@@ -53,6 +54,11 @@ function ProUpgradeContent() {
       return;
     }
 
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmSubmit = async () => {
+    if (!shopId) return;
     setLoading(true);
     try {
       const idToken = user ? await user.getIdToken() : '';
@@ -83,6 +89,11 @@ function ProUpgradeContent() {
         throw new Error(data.error || 'お申し込みに失敗しました。');
       }
 
+      const data = await res.json();
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+        return;
+      }
       setSubmitted(true);
     } catch (err: any) {
       alert('エラー: ' + err.message);
@@ -115,6 +126,59 @@ function ProUpgradeContent() {
             店舗管理画面へ戻る
           </Link>
         </div>
+      </div>
+    );
+  }
+
+  if (showConfirmation) {
+    return (
+      <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '40px 20px', fontFamily: 'sans-serif' }}>
+        <main style={{ maxWidth: '650px', margin: '0 auto', background: '#fff', padding: '36px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+          <h1 style={{ fontSize: '24px', textAlign: 'center', marginBottom: '8px' }}>PROアップグレード内容の確認</h1>
+          <p style={{ textAlign: 'center', color: '#718096', fontSize: '14px', marginBottom: '30px' }}>
+            ご入力内容をご確認のうえ、決済画面へお進みください。
+          </p>
+
+          <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '20px', marginBottom: '24px' }}>
+            <h3 style={{ fontSize: '16px', marginBottom: '16px', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>アップグレード申込内容</h3>
+            <div style={{ display: 'grid', gap: '12px', fontSize: '14px' }}>
+              <div><strong>店舗ID</strong><br />{shopId}</div>
+              <div><strong>会社名 / 屋号</strong><br />{companyName || '未入力'}</div>
+              <div><strong>インボイス登録番号</strong><br />{invoiceNumber || '未登録'}</div>
+              <div><strong>所在地 / 住所</strong><br />{address || '未入力'}</div>
+              <div><strong>電話番号</strong><br />{phone || '未入力'}</div>
+              <div><strong>金融機関名</strong><br />{bankName || '未入力'}</div>
+              <div><strong>支店名</strong><br />{branchName || '未入力'}</div>
+              <div><strong>預金種目</strong><br />{accountType === 'savings' ? '普通' : '当座'}</div>
+              <div><strong>口座番号</strong><br />{accountNumber || '未入力'}</div>
+              <div><strong>口座名義</strong><br />{accountHolder || '未入力'}</div>
+              <div><strong>アップグレード先</strong><br />PROプラン（月額10,000円・税別）</div>
+            </div>
+          </div>
+
+          <p style={{ padding: '14px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '6px', color: '#9a3412', fontSize: '13px', lineHeight: 1.6 }}>
+            「決済画面へ進む」を押すと、Squareの決済ページへ移動します。
+          </p>
+
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '24px' }}>
+            <button
+              type="button"
+              onClick={() => setShowConfirmation(false)}
+              disabled={loading}
+              style={{ flex: 1, padding: '14px', background: '#e2e8f0', color: '#2d3748', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}
+            >
+              ← 戻って修正
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmSubmit}
+              disabled={loading}
+              style={{ flex: 1, padding: '14px', background: loading ? '#94a3b8' : '#ff4500', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '16px', cursor: loading ? 'not-allowed' : 'pointer' }}
+            >
+              {loading ? '処理中...' : '決済画面へ進む'}
+            </button>
+          </div>
+        </main>
       </div>
     );
   }
