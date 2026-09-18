@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import BrandLogo from '@/components/BrandLogo';
 import './programs.css';
 
 export default function ProgramsPage() {
