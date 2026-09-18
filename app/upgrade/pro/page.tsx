@@ -37,6 +37,22 @@ function ProUpgradeContent() {
     String.fromCharCode(digit.charCodeAt(0) - 0xfee0)
   );
 
+  const validateBankAccount = () => {
+    const normalizedAccountNumber = normalizeDigits(accountNumber).trim();
+    if (!/^\d{7}$/.test(normalizedAccountNumber)) {
+      alert('口座番号は半角数字7桁で入力してください。数字以外の文字は使用できません。');
+      return false;
+    }
+
+    if (!/^[ァ-ヶー]+$/.test(accountHolder.trim())) {
+      alert('口座名義は全角カナで入力してください。');
+      return false;
+    }
+
+    setAccountNumber(normalizedAccountNumber);
+    return true;
+  };
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       if (u) {
@@ -58,18 +74,7 @@ function ProUpgradeContent() {
       return;
     }
 
-    const normalizedAccountNumber = normalizeDigits(accountNumber).trim();
-    if (!/^\d{7}$/.test(normalizedAccountNumber)) {
-      alert('口座番号は半角数字7桁で入力してください。数字以外の文字は使用できません。');
-      return;
-    }
-
-    if (!/^[ァ-ヶー]+$/.test(accountHolder.trim())) {
-      alert('口座名義は全角カナで入力してください。');
-      return;
-    }
-
-    setAccountNumber(normalizedAccountNumber);
+    if (!validateBankAccount()) return;
 
     setShowConfirmation(true);
   };
@@ -322,7 +327,6 @@ function ProUpgradeContent() {
                 <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>口座番号</label>
                 <input
                   type="text"
-                  required
                   placeholder="1234567"
                   value={accountNumber}
                   onChange={(e) => setAccountNumber(normalizeDigits(e.target.value))}
@@ -334,7 +338,6 @@ function ProUpgradeContent() {
                 <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>口座名義（カナ）</label>
                 <input
                   type="text"
-                  required
                   placeholder="ヤマダ タロウ"
                   value={accountHolder}
                   onChange={(e) => setAccountHolder(e.target.value)}
