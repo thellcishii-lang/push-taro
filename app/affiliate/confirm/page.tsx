@@ -56,6 +56,30 @@ export default function AffiliateConfirmPage() {
     }
   };
 
+  const handleDownloadApplicationPdf = async () => {
+    if (!formData) return;
+    try {
+      const res = await fetch('/api/generate-application-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'affiliate', data: formData }),
+      });
+      if (!res.ok) {
+        alert('申込書の生成に失敗しました');
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'アフィリエイト申込書.pdf';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert('エラー: ' + err.message);
+    }
+  };
+
   if (!formData) {
     return <div style={{ padding: 40, textAlign: 'center' }}>読み込み中...</div>;
   }
@@ -92,6 +116,28 @@ export default function AffiliateConfirmPage() {
             <div><strong>口座種別</strong><br />{formData.bankAccount?.accountType === 'savings' ? '普通' : '当座'}</div>
             <div><strong>口座番号</strong><br />{formData.bankAccount?.accountNumber || '未入力'}</div>
             <div><strong>口座名義</strong><br />{formData.bankAccount?.accountHolder || '未入力'}</div>
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '24px', padding: '16px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+          <p style={{ margin: 0, fontSize: '13px', color: '#4a5568' }}>
+            <strong>📄 申込書・利用規約</strong><br />
+            お申し込み前に内容と利用規約をご確認ください。
+          </p>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
+            <button
+              onClick={handleDownloadApplicationPdf}
+              style={{ padding: '6px 16px', background: '#e2e8f0', color: '#2d3748', border: 'none', borderRadius: '4px', fontSize: '13px', cursor: 'pointer' }}
+            >
+              📥 申込書をダウンロード
+            </button>
+            <a
+              href="/api/generate-terms-pdf?type=affiliate"
+              download="アフィリエイト利用規約.pdf"
+              style={{ display: 'inline-block', padding: '6px 16px', background: '#e2e8f0', color: '#2d3748', borderRadius: '4px', textDecoration: 'none', fontSize: '13px' }}
+            >
+              📥 利用規約をダウンロード
+            </a>
           </div>
         </div>
 
