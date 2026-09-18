@@ -38,6 +38,28 @@
   flex-wrap: wrap;
 }
 
+.programs-page .logo {
+  display: flex;
+  align-items: center;
+  font-size: 22px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+  text-decoration: none;
+}
+
+.programs-page .logo span {
+  color: #ff4500;
+  margin-left: 1px;
+}
+
+.programs-page .logo small {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  margin-left: 8px;
+}
+
 .programs-page .nav-cta {
   background: #ff4500;
   color: #fff;
