@@ -54,6 +54,7 @@ export default function ProShopPage() {
   const [normalCouponEnabled, setNormalCouponEnabled] = useState(false);
   const [normalCouponTitle, setNormalCouponTitle] = useState('');
   const [normalCouponDesc, setNormalCouponDesc] = useState('');
+  const [normalCouponExpiresAt, setNormalCouponExpiresAt] = useState('');
 
   // 特別達成クーポン
   const [loyaltyEnabled, setLoyaltyEnabled] = useState(false);
@@ -168,6 +169,7 @@ export default function ProShopPage() {
                 setNormalCouponEnabled(shop.normalCoupon.enabled || false);
                 setNormalCouponTitle(shop.normalCoupon.title || '');
                 setNormalCouponDesc(shop.normalCoupon.description || '');
+                setNormalCouponExpiresAt(shop.normalCoupon.expiresAt || '');
               }
 
               if (shop?.loyaltyCoupon) {
@@ -419,6 +421,7 @@ export default function ProShopPage() {
             enabled: normalCouponEnabled,
             title: normalCouponTitle,
             description: normalCouponDesc,
+            expiresAt: normalCouponExpiresAt,
           },
           loyaltyCoupon: {
             enabled: loyaltyEnabled,
@@ -879,6 +882,9 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
                   <input type="text" placeholder="クーポンタイトル" value={normalCouponTitle} onChange={(e) => setNormalCouponTitle(e.target.value)} style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
                   <textarea placeholder="説明文・利用条件" value={normalCouponDesc} onChange={(e) => setNormalCouponDesc(e.target.value)} rows={2} style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                  <label style={{ fontSize: '14px', fontWeight: 'bold' }}>有効期限
+                    <input type="date" value={normalCouponExpiresAt} onChange={(e) => setNormalCouponExpiresAt(e.target.value)} style={{ display: 'block', marginTop: '5px', padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                  </label>
                 </div>
               )}
             </div>

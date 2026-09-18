@@ -19,6 +19,7 @@ export const dynamic = 'force-dynamic';
 // デフォルト値（既存顧客の遅延マイグレーション用）
 const DEFAULT_USAGE = {
   firstCouponUsedAt: null,
+  normalCouponUsedAt: null,
   lastCouponUsedAt: null,
   totalVisits: 0,
   loyaltyAchieved: false,
@@ -66,8 +67,9 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       registered: true,
-      firstCouponUsed: usage.firstCouponUsedAt !== null,
-      couponUsed: usage.firstCouponUsedAt !== null, // 後方互換
+      firstCouponUsed: Boolean(usage.firstCouponUsedAt),
+      normalCouponUsed: Boolean(usage.normalCouponUsedAt),
+      couponUsed: Boolean(usage.firstCouponUsedAt), // 後方互換
       totalVisits: usage.totalVisits || 0,
       loyaltyAchieved: usage.loyaltyAchieved === true,
       stepUpIndex: usage.stepUpIndex || 0,

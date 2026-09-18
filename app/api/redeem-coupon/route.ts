@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 // クーポン使用状態のデフォルト（遅延マイグレーション用）
 const DEFAULT_USAGE = {
   firstCouponUsedAt: null,
+  normalCouponUsedAt: null,
   lastCouponUsedAt: null,
   totalVisits: 0,
   loyaltyAchieved: false,
@@ -99,7 +100,23 @@ export async function POST(request: Request) {
     else if (couponType === 'normal') {
       couponTitle = shopData.normalCoupon?.title || '通常クーポン';
 
+      if (usage.normalCouponUsedAt) {
+        return NextResponse.json(
+          { error: '⚠️ この通常クーポンはすでに使用済みです！' },
+          { status: 400 }
+        );
+      }
+
+      const expiresAt = shopData.normalCoupon?.expiresAt;
+      if (expiresAt && new Date(`${expiresAt}T23:59:59`).getTime() < Date.now()) {
+        return NextResponse.json(
+          { error: '⚠️ この通常クーポンは有効期限切れです！' },
+          { status: 400 }
+        );
+      }
+
       await usageRef.update({
+        [`couponUsage.${shopId}.normalCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
       });
