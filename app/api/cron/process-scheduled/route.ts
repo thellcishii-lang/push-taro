@@ -27,6 +27,7 @@ export async function GET(req: Request) {
     for (const doc of shopsSnapshot.docs) {
       const shop = doc.data();
       const scheduledList = shop.scheduledList || [];
+      let activeScheduledCoupons = [...(shop.scheduledCoupons || [])];
       if (scheduledList.length === 0) continue;
 
       const remainingSchedules: any[] = [];
@@ -63,6 +64,13 @@ export async function GET(req: Request) {
       url: item.linkUrl,
       source: 'cron_scheduled',
     });
+    if (item.type === 'coupon') {
+      const issuedAt = new Date();
+      const expiresAt = new Date(issuedAt.getTime() + Math.max(1, Number(item.couponExpireDays) || 14) * 24 * 60 * 60 * 1000).toISOString();
+      activeScheduledCoupons = activeScheduledCoupons.filter((coupon: any) => coupon.id !== item.id);
+      activeScheduledCoupons.push({ id: item.id, title: item.title, body: item.body, issuedAt: issuedAt.toISOString(), expiresAt });
+      await adminDb.collection('shops').doc(doc.id).update({ scheduledCoupons: activeScheduledCoupons });
+    }
     totalSent++;
     sendOk = true;
   } catch (err: any) {

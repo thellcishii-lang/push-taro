@@ -41,6 +41,7 @@ export async function GET(request: Request) {
       normalCoupon: data?.normalCoupon || null,     // 通常クーポン（STANDARD/PRO）
       loyaltyCoupon: data?.loyaltyCoupon || null,   // 特別達成クーポン（STANDARD/PRO）
       proCoupons: data?.proCoupons || null,         // PRO専用クーポン群
+      scheduledCoupons: data?.scheduledCoupons || [],
 
       // ── アップグレード状態 ──
       upgradeStatus: data?.upgradeStatus || null,

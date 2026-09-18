@@ -33,6 +33,7 @@ export default function SubscribePage() {
   const [repeatCouponActiveUntil, setRepeatCouponActiveUntil] = useState<string | null>(null);
   const [birthdayCouponAvailable, setBirthdayCouponAvailable] = useState(false);
   const [dormantCouponAvailable, setDormantCouponAvailable] = useState(false);
+  const [scheduledCouponUsedIds, setScheduledCouponUsedIds] = useState<string[]>([]);
   const [hiddenCouponTypes, setHiddenCouponTypes] = useState<string[]>([]);
   const [customerUid, setCustomerUid] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -162,6 +163,7 @@ useEffect(() => {
             setRepeatCouponActiveUntil(data.repeatCouponActiveUntil || null);
             setBirthdayCouponAvailable(String(data.birthdayNotifiedYear) === String(new Date().getFullYear()));
             setDormantCouponAvailable(Boolean(data.dormantNotifiedAt));
+            setScheduledCouponUsedIds(data.scheduledCouponUsedIds || []);
           }
         })
         .catch(err => console.error('ステータス確認エラー:', err));
@@ -572,6 +574,27 @@ useEffect(() => {
     <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
   </div>
 )}
+{(shopData?.scheduledCoupons || []).filter((coupon: any) => !coupon.expiresAt || new Date(coupon.expiresAt).getTime() >= Date.now()).map((coupon: any) => {
+  const used = scheduledCouponUsedIds.includes(coupon.id);
+  return (
+    <div key={coupon.id} style={{ background: used ? '#f1f5f9' : '#fefce8', border: used ? '1px solid #cbd5e1' : '1px dashed #eab308', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
+      <span style={{ fontSize: '11px', background: used ? '#64748b' : '#ca8a04', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>予約クーポン</span>
+      <h3 style={{ margin: '6px 0 8px 0', color: used ? '#64748b' : '#854d0e' }}>🎫 {coupon.title || '予約クーポン'}</h3>
+      {coupon.expiresAt && <p style={{ fontSize: '12px', color: '#64748b' }}>有効期限: {new Date(coupon.expiresAt).toLocaleDateString('ja-JP')}</p>}
+      {used ? (
+        <div style={{ padding: '12px', background: '#e2e8f0', borderRadius: '6px', color: '#475569', fontWeight: 'bold' }}>✅ こちらのクーポンは使用済みです</div>
+      ) : (
+        <>
+          <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>{coupon.body}</p>
+          <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
+            <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'scheduled', couponId: coupon.id, token: fcmToken })} size={150} />
+          </div>
+          <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
+        </>
+      )}
+    </div>
+  );
+})}
 {shopData?.proCoupons?.stepUp?.enabled && shopData.proCoupons.stepUp.steps?.[stepUpIndex] && !hiddenCouponTypes.includes('step-up') && (
   <div style={{ background: '#f5f3ff', border: '1px dashed #8b5cf6', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
     <span style={{ fontSize: '11px', background: '#7c3aed', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>ステップアップクーポン</span>

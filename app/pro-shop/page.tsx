@@ -103,6 +103,7 @@ export default function ProShopPage() {
     title: string;
     body: string;
     linkUrl?: string;
+    couponExpireDays?: number;
   }>>([]);
 
   const [reserveType, setReserveType] = useState<'notification' | 'coupon'>('notification');
@@ -113,6 +114,7 @@ export default function ProShopPage() {
   const [reserveTitle, setReserveTitle] = useState('');
   const [reserveBody, setReserveBody] = useState('');
   const [reserveLinkUrl, setReserveLinkUrl] = useState('');
+  const [reserveCouponExpireDays, setReserveCouponExpireDays] = useState(14);
 
   // QRスキャン
   const [scanOpen, setScanOpen] = useState(false);
@@ -501,6 +503,7 @@ export default function ProShopPage() {
       title: reserveTitle,
       body: reserveBody,
       linkUrl: reserveLinkUrl || undefined,
+      couponExpireDays: reserveType === 'coupon' ? Math.max(1, reserveCouponExpireDays) : undefined,
       createdAt: new Date().toISOString(),
     };
 
@@ -538,6 +541,7 @@ if (user && shopId) {
 setReserveTitle('');
 setReserveBody('');
 setReserveLinkUrl('');
+setReserveCouponExpireDays(14);
 alert('✅ 予約を送信リストにセットし、保存しました！');
   };
 
@@ -1211,6 +1215,13 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
                 <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>リンク先URL（任意）</label>
                 <input type="url" placeholder="https://example.com" value={reserveLinkUrl} onChange={(e) => setReserveLinkUrl(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
               </div>
+
+              {reserveType === 'coupon' && (
+                <div>
+                  <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>クーポン有効日数</label>
+                  <input type="number" min="1" value={reserveCouponExpireDays} onChange={(e) => setReserveCouponExpireDays(Math.max(1, Number(e.target.value.replace(/^0+(?=\d)/, '')) || 1))} style={{ width: '100px', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} /> 日間
+                </div>
+              )}
 
               <button type="submit" style={{ padding: '12px', background: '#d97706', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' }}>
                 ➕ この内容で予約をセットする

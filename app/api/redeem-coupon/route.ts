@@ -39,7 +39,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { shopId, couponType, token } = await request.json();
+    const { shopId, couponType, token, couponId } = await request.json();
 
     if (!shopId || !couponType || !token) {
       return NextResponse.json({ error: '無効なQRコードデータです' }, { status: 400 });
@@ -251,6 +251,25 @@ export async function POST(request: Request) {
     else if (couponType === 'dormant') {
       couponTitle = shopData.proCoupons?.dormant?.title || '復帰クーポン';
       await usageRef.update({
+        [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
+        [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
+      });
+    }
+
+    else if (couponType === 'scheduled') {
+      const scheduledCoupon = (shopData.scheduledCoupons || []).find((coupon: any) => coupon.id === couponId);
+      if (!scheduledCoupon) {
+        return NextResponse.json({ error: 'この予約クーポンは見つかりません' }, { status: 404 });
+      }
+      if (scheduledCoupon.expiresAt && new Date(scheduledCoupon.expiresAt).getTime() < Date.now()) {
+        return NextResponse.json({ error: 'この予約クーポンは有効期限切れです' }, { status: 400 });
+      }
+      if ((usage.scheduledCouponUsedIds || []).includes(couponId)) {
+        return NextResponse.json({ error: 'この予約クーポンは使用済みです' }, { status: 400 });
+      }
+      couponTitle = scheduledCoupon.title || '予約クーポン';
+      await usageRef.update({
+        [`couponUsage.${shopId}.scheduledCouponUsedIds`]: FieldValue.arrayUnion(couponId),
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
       });

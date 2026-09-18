@@ -89,6 +89,7 @@ export async function GET(request: Request) {
       repeatCouponActiveUntil: repeatActiveUntil,
       birthdayNotifiedYear: usage.birthdayNotifiedYear || null,
       dormantNotifiedAt: usage.dormantNotifiedAt?.toDate?.()?.toISOString?.() || usage.dormantNotifiedAt || null,
+      scheduledCouponUsedIds: usage.scheduledCouponUsedIds || [],
     }, {
       headers: {
         'Access-Control-Allow-Origin': '*',
