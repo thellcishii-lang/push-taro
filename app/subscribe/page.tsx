@@ -7,10 +7,8 @@ import { getMessaging, onMessage } from 'firebase/messaging';
 import { QRCodeSVG } from 'qrcode.react';
 import { auth } from '../../lib/firebase-client';
 import { ConfirmationResult, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
 
 export default function SubscribePage() {
-  const router = useRouter();
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [shopId, setShopId] = useState<string>('');
@@ -450,10 +448,10 @@ useEffect(() => {
       <main style={{ padding: 20, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif' }}>
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => window.location.reload()}
           style={{ marginBottom: '16px', padding: '8px 14px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '6px', color: '#334155', cursor: 'pointer', fontWeight: 'bold' }}
         >
-          ← 戻る
+          ↻ 画面を更新
         </button>
         <div style={{ textAlign: 'center', marginBottom: '30px', marginTop: '20px' }}>
           {shopData?.iconUrl && (

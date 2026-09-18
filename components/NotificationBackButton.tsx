@@ -18,10 +18,11 @@ export default function NotificationBackButton() {
       href={returnTo}
       style={{
         position: 'fixed',
-        top: 'max(12px, env(safe-area-inset-top))',
-        left: '12px',
-        zIndex: 1000,
-        padding: '9px 14px',
+        bottom: 'calc(16px + env(safe-area-inset-bottom))',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 2147483647,
+        padding: '11px 18px',
         background: '#1e293b',
         color: '#fff',
         borderRadius: '6px',
@@ -29,6 +30,8 @@ export default function NotificationBackButton() {
         fontSize: '13px',
         fontWeight: 'bold',
         boxShadow: '0 2px 8px rgba(0,0,0,.2)',
+        whiteSpace: 'nowrap',
+        touchAction: 'manipulation',
       }}
     >
       ← 顧客画面へ戻る
