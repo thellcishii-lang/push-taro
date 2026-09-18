@@ -136,10 +136,6 @@ export default function GuideTopPage() {
       <style jsx global>{`
         .g-nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
         .g-nav-inner { max-width: 1100px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-        .g-logo { display: flex; align-items: baseline; gap: 8px; font-size: 20px; font-weight: 900; color: #0f172a; text-decoration: none; letter-spacing: -0.5px; line-height: 1; }
-.g-logo-dot { display: inline-block; width: 8px; height: 8px; background: #ff4500; border-radius: 50%; margin-left: 2px; align-self: flex-end; margin-bottom: 3px; }
-.g-logo small { font-size: 11px; font-weight: 600; color: #64748b; letter-spacing: 0; margin-left: 4px; }
-        .g-logo small { font-size: 11px; font-weight: 600; color: #64748b; }
         .g-nav-cta { background: #ff4500; color: #fff; padding: 10px 22px; border-radius: 8px; font-weight: 700; font-size: 14px; text-decoration: none; box-shadow: 0 4px 12px rgba(255,69,0,0.25); }
         .g-main { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans JP", sans-serif; }
         .g-hero { padding: 32px 0 40px; border-bottom: 1px solid #e2e8f0; margin-bottom: 40px; }
