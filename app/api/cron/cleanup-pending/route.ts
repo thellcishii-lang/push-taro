@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/firebase-admin';
+import { isValidCronRequest } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   // 🔒 Cron認証（Vercel Cron Jobs からのみ実行）
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isValidCronRequest(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

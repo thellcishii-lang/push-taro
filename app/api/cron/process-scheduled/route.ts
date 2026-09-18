@@ -2,14 +2,14 @@
 import { NextResponse } from 'next/server';
 import { db as adminDb } from '@/lib/firebase-admin';
 import { sendPushToShop } from '@/lib/push-sender';
+import { isValidCronRequest } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
 // 毎日 0:00 UTC（日本時間 9:00）に実行される予約配信バッチ
 export async function GET(req: Request) {
   // 🔒 Cron認証（Vercel Cron Jobs からのみ実行可能）
-  const authHeader = req.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isValidCronRequest(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
