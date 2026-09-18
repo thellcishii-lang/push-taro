@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import BrandLogo from '@/components/BrandLogo';
 
 export default function GuideTopPage() {
   return (
@@ -8,10 +9,7 @@ export default function GuideTopPage() {
       {/* ヘッダー */}
       <nav className="g-nav">
         <div className="g-nav-inner">
-          <Link href="/" className="g-logo">
-             Push-taro<span className="g-logo-dot"></span>
-             <small>実店舗のためのPush通知CRM</small>
-　　　　　　　　　　　　　　　　　　　　　</Link>
+          <BrandLogo tagline="実店舗のためのPush通知CRM" />
           <Link href="/signup" className="g-nav-cta">今すぐ申し込む →</Link>
         </div>
       </nav>

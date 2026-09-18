@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import BrandLogo from '@/components/BrandLogo';
 import './programs.css';
 
 export default function ProgramsPage() {
@@ -35,9 +36,7 @@ export default function ProgramsPage() {
       {/* ナビゲーション */}
       <nav className="navbar">
         <div className="container">
-          <div className="logo">
-            Push-taro<span>.</span> <small>みんなのプッシュ通知</small>
-          </div>
+          <BrandLogo tagline="みんなのプッシュ通知" />
           <a href="#cta-final" className="nav-cta">
             <i className="fas fa-rocket"></i> 今すぐ参加
           </a>

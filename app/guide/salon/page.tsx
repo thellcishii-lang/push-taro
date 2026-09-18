@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import BrandLogo from '@/components/BrandLogo';
 
 export default function SalonGuidePage() {
   return (
@@ -8,7 +9,7 @@ export default function SalonGuidePage() {
       {/* ヘッダー */}
       <nav className="s-nav">
         <div className="s-nav-inner">
-          <Link href="/" className="s-logo">🚀 Push-taro <small>/ 使い方ガイド</small></Link>
+          <BrandLogo tagline="使い方ガイド" />
           <Link href="/signup" className="s-nav-cta">今すぐ申し込む →</Link>
         </div>
       </nav>

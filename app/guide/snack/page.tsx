@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
+import BrandLogo from '@/components/BrandLogo';
 
 export default function SnackGuidePage() {
   return (
     <>
       <nav className="g-nav">
         <div className="g-nav-inner">
-          <Link href="/" className="g-logo">🚀 Push-taro <small>/ 使い方ガイド</small></Link>
+          <BrandLogo tagline="使い方ガイド" />
           <Link href="/signup" className="g-nav-cta">今すぐ申し込む →</Link>
         </div>
       </nav>
