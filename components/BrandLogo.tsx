@@ -7,19 +7,39 @@ interface BrandLogoProps {
   taglineStyle?: 'plain' | 'badge';
 }
 
-// LP (app/page.tsx) のロゴと完全一致させる
 export default function BrandLogo({
   tagline = '実店舗のためのPush通知CRM',
   className,
   taglineStyle = 'plain',
 }: BrandLogoProps) {
   return (
-    <Link href="/" className={`brand-logo${className ? ` ${className}` : ''}`}>
+    <Link
+      href="/"
+      className={className}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans JP", sans-serif',
+        fontSize: '22px',
+        fontWeight: 900,
+        color: '#0f172a',
+        letterSpacing: '-0.5px',
+        textDecoration: 'none',
+        lineHeight: 1,
+      }}
+    >
+      {/* ロケットマーク */}
       <svg
-        className="brand-logo-mark"
         viewBox="0 0 48 48"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        style={{
+          width: '34px',
+          height: '34px',
+          flexShrink: 0,
+          marginRight: '8px',
+        }}
       >
         <defs>
           <linearGradient
@@ -41,62 +61,39 @@ export default function BrandLogo({
         <path d="M30 30 L34 38 L28 34 Z" fill="#ffffff" />
         <path d="M22 30 L24 40 L26 30 Z" fill="#fbbf24" />
       </svg>
-      Push-taro<span className="brand-logo-dot">.</span>
+
+      {/* Push-taro ロゴ文字 */}
+      <span style={{ color: '#0f172a' }}>Push-taro</span>
+      <span style={{ color: '#ff4500', marginLeft: '1px' }}>.</span>
+
+      {/* タグライン */}
       {tagline && (
-        <small className={`brand-logo-tagline ${taglineStyle === 'badge' ? 'is-badge' : ''}`}>
+        <small
+          style={
+            taglineStyle === 'badge'
+              ? {
+                  fontSize: '12px',
+                  fontWeight: 800,
+                  color: '#ff4500',
+                  background: '#fff7ed',
+                  border: '1.5px solid #ff4500',
+                  padding: '4px 12px',
+                  borderRadius: '20px',
+                  marginLeft: '10px',
+                  letterSpacing: '0.3px',
+                }
+              : {
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: '#64748b',
+                  letterSpacing: 0,
+                  marginLeft: '8px',
+                }
+          }
+        >
           {tagline}
         </small>
       )}
-      <style jsx>{`
-        .brand-logo {
-          display: flex;
-          align-items: center;
-          font-size: 22px;
-          font-weight: 900;
-          color: #0f172a;
-          letter-spacing: -0.5px;
-          text-decoration: none;
-        }
-        .brand-logo-mark {
-          width: 34px;
-          height: 34px;
-          flex-shrink: 0;
-          margin-right: 8px;
-        }
-        .brand-logo-dot {
-          color: #ff4500;
-          margin-left: 1px;
-        }
-        .brand-logo-tagline {
-          font-size: 11px;
-          font-weight: 600;
-          color: #64748b;
-          letter-spacing: 0;
-          margin-left: 8px;
-        }
-        .brand-logo-tagline.is-badge {
-          font-size: 12px;
-          font-weight: 800;
-          color: #ff4500;
-          background: #fff7ed;
-          border: 1.5px solid #ff4500;
-          padding: 4px 12px;
-          border-radius: 20px;
-          margin-left: 10px;
-          letter-spacing: 0.3px;
-        }
-        @media (max-width: 640px) {
-          .brand-logo { font-size: 18px; }
-          .brand-logo-mark { width: 28px; height: 28px; margin-right: 6px; }
-          .brand-logo-tagline { display: none; }
-          .brand-logo-tagline.is-badge {
-            display: inline-block;
-            font-size: 10px;
-            padding: 3px 8px;
-            margin-left: 6px;
-          }
-        }
-      `}</style>
     </Link>
   );
 }
