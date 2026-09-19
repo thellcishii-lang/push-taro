@@ -66,7 +66,7 @@ export default function CouponStepupFeature() {
             <div className="g-flow-item"><div className="g-flow-circle">3回目</div><p>¥300引き</p></div>
             <div className="g-flow-arrow">→</div>
             <div className="g-flow-item"><div className="g-flow-circle is-highlight">4回目</div><p>¥500引き</p></div>
-            <div class="g-flow-arrow">→</div>
+            <div className="g-flow-arrow">→</div>
             <div className="g-flow-item"><div className="g-flow-circle is-success">🎉</div><p>5回目<br />特別特典</p></div>
           </div>
 
