@@ -85,7 +85,7 @@ export default function ReferralFeature() {
             <div className="g-flow-item"><div className="g-flow-circle">1</div><p>紹介コード<br />を共有</p></div>
             <div className="g-flow-arrow">→</div>
             <div className="g-flow-item"><div className="g-flow-circle is-highlight">2</div><p>相手が<br />登録</p></div>
-            <div class="g-flow-arrow">→</div>
+            <div className="g-flow-arrow">→</div>
             <div className="g-flow-item"><div className="g-flow-circle is-highlight">3</div><p>決済<br />完了</p></div>
             <div className="g-flow-arrow">→</div>
             <div className="g-flow-item"><div className="g-flow-circle is-success">💰</div><p>毎月<br />報酬発生</p></div>
