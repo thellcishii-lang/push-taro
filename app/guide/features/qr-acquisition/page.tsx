@@ -117,7 +117,7 @@ export default function QrAcquisitionFeature() {
                 <p>画面に表示されるQRコードを、POPに印刷して店頭に設置。</p>
               </div>
             </div>
-            <div class="g-step">
+            <div className="g-step">
               <div className="g-step-body">
                 <h4>初回クーポンを設定</h4>
                 <p>登録と同時に配布される初回クーポンを有効化。</p>
