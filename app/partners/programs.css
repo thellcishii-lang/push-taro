@@ -54,7 +54,7 @@
   height: 34px;
   flex-shrink: 0;
   margin-right: 8px;
-  align-self: center;
+  align-self: baseline;
 }
 
 .programs-page .logo span {
