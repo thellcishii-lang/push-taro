@@ -78,6 +78,7 @@ messaging.onBackgroundMessage(async (payload) => {
   const linkUrl = new URL(rawLinkUrl, self.location.origin).toString();
   const image = payload.data?.image || payload.notification?.image || '';
   const shopId = payload.data?.shopId || 'default';
+  const notificationId = payload.data?.notificationId || '';
 
   // 1. IndexedDB へ履歴保存
   await saveNotificationToDB({ title, body, icon, url: linkUrl });
@@ -90,7 +91,7 @@ messaging.onBackgroundMessage(async (payload) => {
     ...(image ? { image } : {}),
     tag: shopId,
     renotify: true,
-    data: { url: linkUrl },
+    data: { url: linkUrl, notificationId },
     vibrate: [200, 100, 200],
     silent: false,
     requireInteraction: true
@@ -103,9 +104,16 @@ messaging.onBackgroundMessage(async (payload) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const urlToOpen = new URL(event.notification.data?.url || '/', self.location.origin).toString();
+  const notificationId = event.notification.data?.notificationId;
 
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+    Promise.all([
+      notificationId ? fetch(new URL('/api/notification-open', self.location.origin), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationId }),
+      }).catch(() => undefined) : Promise.resolve(),
+      clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
       const sameOriginClient = windowClients.find((client) => {
         try {
           return new URL(client.url).origin === new URL(urlToOpen).origin;
@@ -122,7 +130,8 @@ self.addEventListener('notificationclick', (event) => {
       if (clients.openWindow) {
         return clients.openWindow(urlToOpen);
       }
-    })
+      }),
+    ])
   );
 });
 `;

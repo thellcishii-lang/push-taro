@@ -136,6 +136,7 @@ export async function POST(request: Request) {
     const targetUrl = target.toString();
     const displayTitle = title || shopData.name || 'Push-taro';
     const displayIcon = new URL(shopData.iconUrl || '/icon-192x192.png', appBaseUrl).toString();
+    const notificationId = crypto.randomUUID();
 
     // ✅ 各OSに特化した全端末対応メッセージ構造
     const baseMessage = {
@@ -145,6 +146,7 @@ export async function POST(request: Request) {
         icon: String(displayIcon),
         url: String(targetUrl),
         shopId: String(shopId),
+        notificationId,
       },
       apns: {
         payload: {
@@ -250,8 +252,9 @@ export async function POST(request: Request) {
     }
 
     if (totalSuccessCount === 0) {
-      await db.collection('histories').add({
+      await db.collection('histories').doc(notificationId).set({
         shopId,
+        notificationId,
         title,
         body,
         linkUrl: url || null,
@@ -259,6 +262,7 @@ export async function POST(request: Request) {
         status: 'error',
         successCount: 0,
         failureCount: totalFailureCount,
+        openedCount: 0,
       });
 
       return NextResponse.json({
@@ -277,8 +281,9 @@ export async function POST(request: Request) {
     });
 
     // 📝 履歴保存
-    await db.collection('histories').add({
+    await db.collection('histories').doc(notificationId).set({
       shopId,
+      notificationId,
       title,
       body,
       linkUrl: url || null,
@@ -286,12 +291,14 @@ export async function POST(request: Request) {
       status: 'success',
       successCount: totalSuccessCount,
       failureCount: totalFailureCount,
+      openedCount: 0,
     });
 
     return NextResponse.json({ 
       success: true, 
       successCount: totalSuccessCount,
       failureCount: totalFailureCount,
+      notificationId,
       currentMonthSent: newMonthSentCount,
     }, { status: 200 });
 

@@ -10,6 +10,9 @@ export interface PushHistory {
   status: 'success' | 'error';
   errorMessage?: string;
   successCount?: number; // 👈 ここを追加！
+  notificationId?: string;
+  openedCount?: number;
+  openRate?: number;
 }
 
 class PushTaroDB extends Dexie {

@@ -44,6 +44,7 @@ export default function ProShopPage() {
 
   // 履歴・購読者
   const [history, setHistory] = useState<PushHistory[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const [subscriberCount, setSubscriberCount] = useState<number | null>(null);
 
   // 退会
@@ -128,7 +129,7 @@ export default function ProShopPage() {
       setLoadingAuth(false);
 
       if (u) {
-        await loadHistory();
+        await loadHistory(undefined, u);
 
         try {
           const idToken = await u.getIdToken();
@@ -146,6 +147,7 @@ export default function ProShopPage() {
           if (data.success) {
             const currentShopId = data.shopId;
             setShopId(currentShopId);
+            await loadHistory(currentShopId, u);
 
             const dashRes = await fetch(`/api/dashboard?shopId=${currentShopId}`, {
               headers: { 'Authorization': `Bearer ${idToken}` },
@@ -269,9 +271,31 @@ export default function ProShopPage() {
     appleTitle.content = shopName || 'Push-taro';
   }, [shopId, shopName, shopIconUrl]);
 
-  const loadHistory = async () => {
-    const all = await localDb.history.orderBy('sentAt').reverse().toArray();
-    setHistory(all);
+  const loadHistory = async (targetShopId = shopId, targetUser = user) => {
+    setHistoryLoading(true);
+    try {
+      const all = await localDb.history.orderBy('sentAt').reverse().toArray();
+      if (!targetShopId || !targetUser) {
+        setHistory(all);
+        return;
+      }
+
+      const idToken = await targetUser.getIdToken();
+      const response = await fetch(`/api/push-history?shopId=${encodeURIComponent(targetShopId)}`, {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (!response.ok) {
+        setHistory(all);
+        return;
+      }
+      const data = await response.json();
+      const remote = new Map<string, PushHistory>(
+        data.histories.map((item: PushHistory) => [item.notificationId, item])
+      );
+      setHistory(all.map((item) => ({ ...item, ...(item.notificationId ? remote.get(item.notificationId) : {}) })));
+    } finally {
+      setHistoryLoading(false);
+    }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -390,6 +414,9 @@ export default function ProShopPage() {
         sentAt: new Date(),
         status: 'success',
         successCount: data.successCount || 0,
+        notificationId: data.notificationId,
+        openedCount: 0,
+        openRate: 0,
       });
 
       await loadHistory();
@@ -827,6 +854,7 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
               <h2 style={{ margin: 0, fontSize: '20px' }}>📁 送信履歴</h2>
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <button onClick={() => loadHistory()} disabled={historyLoading} style={{ padding: '8px 16px', background: '#1976d2', color: '#fff', border: 'none', borderRadius: '4px', cursor: historyLoading ? 'default' : 'pointer', fontSize: '14px' }}>🔄 {historyLoading ? '更新中...' : '更新'}</button>
                 <button onClick={handleExport} style={{ padding: '8px 16px', background: '#4CAF50', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}>📤 エクスポート</button>
                 <button onClick={handleCleanup} style={{ padding: '8px 16px', background: '#ff5722', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}>🧹 古いトークン削除</button>
               </div>
@@ -851,6 +879,9 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
                       )}
                       {typeof h.successCount === 'number' && (
                         <span style={{ fontSize: '12px', color: '#555', fontWeight: 'bold' }}>（送信数: {h.successCount}件）</span>
+                      )}
+                      {typeof h.openRate === 'number' && h.notificationId && (
+                        <span style={{ fontSize: '12px', color: '#1565c0', fontWeight: 'bold' }}>開封率: {h.openRate.toFixed(1)}%</span>
                       )}
                     </div>
                   </div>
