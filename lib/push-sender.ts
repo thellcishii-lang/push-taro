@@ -16,6 +16,7 @@
  */
 import { messaging, db } from './firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
+import { enqueuePushJob } from './push-job';
 
 export interface SendPushOptions {
   shopId: string;
@@ -47,6 +48,21 @@ export async function sendPushToShop(options: SendPushOptions): Promise<SendPush
     return { success: false, successCount: 0, failureCount: 0, totalTokens: 0, error: '店舗が見つかりません' };
   }
   const shopData = shopDoc.data()!;
+
+  // 店舗全体への配信はFirestoreキューへ登録し、Cronワーカーで分割送信する。
+  // token指定の誕生日・休眠通知は1端末だけなので従来の短時間処理を使う。
+  if (!options.token) {
+    const notificationId = crypto.randomUUID();
+    await enqueuePushJob({
+      shopId,
+      ownerUid: String(shopData.ownerUid || ''),
+      title,
+      body,
+      url,
+      notificationId,
+    });
+    return { success: true, successCount: 0, failureCount: 0, totalTokens: 0 };
+  }
 
   // ─── 2. トークン取得 ───
   const tokensSnapshot = options.token

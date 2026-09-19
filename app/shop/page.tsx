@@ -373,9 +373,10 @@ export default function ShopPage() {
         body,
         linkUrl: linkUrl || undefined,
         sentAt: new Date(),
-        status: 'success',
+        status: 'pending',
         successCount: data.successCount || 0,
         notificationId: data.notificationId,
+        jobId: data.jobId,
         openedCount: 0,
         openRate: 0,
       });
@@ -385,7 +386,7 @@ export default function ShopPage() {
 
       await loadHistory();
 
-      setMessage('✨ 送信が完了しました！');
+      setMessage('✨ 送信を受け付けました。バックグラウンドで配信します。');
       setTitle('');
       setBody('');
       setLinkUrl('');
@@ -842,7 +843,9 @@ export default function ShopPage() {
                     </div>
                     <p style={{ margin: '8px 0', fontSize: '14px', color: '#333' }}>{h.body}</p>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
-                      {h.status === 'success' ? (
+                      {h.status === 'pending' ? (
+                        <span style={{ fontSize: '11px', color: '#1565c0', background: '#e3f2fd', padding: '2px 8px', borderRadius: '12px' }}>送信待ち</span>
+                      ) : h.status === 'success' ? (
                         <span style={{ fontSize: '11px', color: '#4CAF50', background: '#e8f5e9', padding: '2px 8px', borderRadius: '12px' }}>送信成功</span>
                       ) : (
                         <span style={{ fontSize: '11px', color: '#d32f2f', background: '#ffebee', padding: '2px 8px', borderRadius: '12px' }}>送信失敗</span>

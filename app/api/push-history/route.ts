@@ -27,7 +27,9 @@ export async function GET(request: Request) {
       const openedCount = Number(data.openedCount || 0);
       return {
         notificationId: data.notificationId || doc.id,
+        status: data.status === 'success' ? 'success' : data.status === 'error' ? 'error' : 'pending',
         successCount,
+        failureCount: Number(data.failureCount || 0),
         openedCount,
         openRate: successCount > 0 ? Math.min(100, (openedCount / successCount) * 100) : null,
       };

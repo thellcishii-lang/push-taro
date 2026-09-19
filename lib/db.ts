@@ -7,10 +7,11 @@ export interface PushHistory {
   imageUrl?: string;
   linkUrl?: string;
   sentAt: Date;
-  status: 'success' | 'error';
+  status: 'pending' | 'success' | 'error';
   errorMessage?: string;
   successCount?: number; // 👈 ここを追加！
   notificationId?: string;
+  jobId?: string;
   openedCount?: number;
   openRate?: number;
 }
