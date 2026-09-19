@@ -18,8 +18,12 @@ const DEFAULT_USAGE = {
   loyaltyAchievedAt: null,
   stepUpIndex: 0,
   repeatCouponActiveUntil: null,
+  repeatCouponUsedAt: null,
   dormantNotifiedAt: null,
+  dormantCouponUsedAt: null,
   birthdayNotifiedYear: null,
+  birthdayCouponUsedYear: null,
+  scheduledCouponUsedIds: [],
 };
 
 async function addToLoyaltyCount(
@@ -36,7 +40,9 @@ async function addToLoyaltyCount(
     const currentUsage = currentDoc.data()?.couponUsage?.[shopId] || DEFAULT_USAGE;
     const targetCount = Number(shopData.loyaltyCoupon?.targetCount || 0);
     const nextVisitCount = Number(currentUsage.normalCouponVisitCount || 0) + 1;
-    unlocked = targetCount > 0 && nextVisitCount >= targetCount;
+    const canRepeat = shopData.loyaltyCoupon?.repeatEnabled === true;
+    unlocked = targetCount > 0 && nextVisitCount >= targetCount &&
+      (canRepeat || currentUsage.loyaltyAchieved !== true);
     transaction.set(usageRef, {
       couponUsage: {
         [shopId]: {
@@ -192,9 +198,22 @@ export async function POST(request: Request) {
         );
       }
 
+      const loyalty = shopData.loyaltyCoupon || {};
+      if (loyalty.expireType === 'date' && loyalty.expireDate &&
+        new Date(`${loyalty.expireDate}T23:59:59`).getTime() < Date.now()) {
+        return NextResponse.json({ error: '⚠️ この特別達成クーポンは有効期限切れです！' }, { status: 400 });
+      }
+      if (loyalty.expireType === 'days' && usage.loyaltyAchievedAt) {
+        const achievedAt = usage.loyaltyAchievedAt?.toDate?.() || new Date(usage.loyaltyAchievedAt);
+        const expiresAt = new Date(achievedAt.getTime() + Math.max(1, Number(loyalty.expireDays) || 1) * 24 * 60 * 60 * 1000);
+        if (expiresAt.getTime() < Date.now()) {
+          return NextResponse.json({ error: '⚠️ この特別達成クーポンは有効期限切れです！' }, { status: 400 });
+        }
+      }
+
       await usageRef.update({
         [`couponUsage.${shopId}.loyaltyCouponAvailable`]: false,
-        [`couponUsage.${shopId}.loyaltyAchieved`]: true,
+        [`couponUsage.${shopId}.loyaltyAchieved`]: shopData.loyaltyCoupon?.repeatEnabled !== true,
         [`couponUsage.${shopId}.loyaltyAchievedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
@@ -257,6 +276,10 @@ export async function POST(request: Request) {
       }
       couponTitle = shopData.proCoupons?.repeat?.title || '連続クーポン';
 
+      if (usage.repeatCouponUsedAt) {
+        return NextResponse.json({ error: '⚠️ この連続クーポンはすでに使用済みです！' }, { status: 400 });
+      }
+
       const repeat = shopData.proCoupons.repeat;
       const expireType = repeat.expireType || 'days';
       let activeUntil: Date | null = null;
@@ -272,6 +295,7 @@ export async function POST(request: Request) {
 
       await usageRef.update({
         [`couponUsage.${shopId}.repeatCouponActiveUntil`]: activeUntil,
+        [`couponUsage.${shopId}.repeatCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
       });
@@ -289,7 +313,15 @@ export async function POST(request: Request) {
     else if (couponType === 'birthday') {
       const birthday = shopData.proCoupons?.birthday || {};
       couponTitle = birthday.title || '記念日、お誕生日クーポン';
+      const currentYear = String(new Date().getFullYear());
+      if (String(usage.birthdayNotifiedYear) !== currentYear) {
+        return NextResponse.json({ error: '⚠️ このお誕生日クーポンは現在利用できません！' }, { status: 400 });
+      }
+      if (String(usage.birthdayCouponUsedYear) === currentYear) {
+        return NextResponse.json({ error: '⚠️ このお誕生日クーポンはすでに使用済みです！' }, { status: 400 });
+      }
       await usageRef.update({
+        [`couponUsage.${shopId}.birthdayCouponUsedYear`]: currentYear,
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
       });
@@ -300,7 +332,19 @@ export async function POST(request: Request) {
     else if (couponType === 'dormant') {
       const dormant = shopData.proCoupons?.dormant || {};
       couponTitle = dormant.title || '復帰クーポン';
+      if (!usage.dormantNotifiedAt) {
+        return NextResponse.json({ error: '⚠️ この休眠復活クーポンは現在利用できません！' }, { status: 400 });
+      }
+      if (usage.dormantCouponUsedAt) {
+        return NextResponse.json({ error: '⚠️ この休眠復活クーポンはすでに使用済みです！' }, { status: 400 });
+      }
+      const notifiedAt = usage.dormantNotifiedAt?.toDate?.() || new Date(usage.dormantNotifiedAt);
+      const expiresAt = new Date(notifiedAt.getTime() + Math.max(1, Number(dormant.expireDays) || 14) * 24 * 60 * 60 * 1000);
+      if (expiresAt.getTime() < Date.now()) {
+        return NextResponse.json({ error: '⚠️ この休眠復活クーポンは有効期限切れです！' }, { status: 400 });
+      }
       await usageRef.update({
+        [`couponUsage.${shopId}.dormantCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
       });

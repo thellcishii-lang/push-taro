@@ -29,8 +29,12 @@ const DEFAULT_USAGE = {
   loyaltyAchievedAt: null,
   stepUpIndex: 0,
   repeatCouponActiveUntil: null,
+  repeatCouponUsedAt: null,
   dormantNotifiedAt: null,
+  dormantCouponUsedAt: null,
   birthdayNotifiedYear: null,
+  birthdayCouponUsedYear: null,
+  scheduledCouponUsedIds: [],
 };
 
 export async function GET(request: Request) {
@@ -70,6 +74,9 @@ export async function GET(request: Request) {
     const usage = data?.couponUsage?.[shopId] || DEFAULT_USAGE;
     const proCoupons = shopDoc.data()?.proCoupons || {};
     const repeatActiveUntil = usage.repeatCouponActiveUntil?.toDate?.()?.toISOString?.() || usage.repeatCouponActiveUntil || null;
+    const dormantNotifiedAt = usage.dormantNotifiedAt?.toDate?.()?.toISOString?.() || usage.dormantNotifiedAt || null;
+    const dormantCouponUsedAt = usage.dormantCouponUsedAt?.toDate?.()?.toISOString?.() || usage.dormantCouponUsedAt || null;
+    const currentYear = String(new Date().getFullYear());
 
     return NextResponse.json({
       success: true,
@@ -87,8 +94,11 @@ export async function GET(request: Request) {
       stepUpEnabled: proCoupons.stepUp?.enabled === true,
       repeatEnabled: proCoupons.repeat?.enabled === true,
       repeatCouponActiveUntil: repeatActiveUntil,
+      repeatCouponUsed: Boolean(usage.repeatCouponUsedAt),
       birthdayNotifiedYear: usage.birthdayNotifiedYear || null,
-      dormantNotifiedAt: usage.dormantNotifiedAt?.toDate?.()?.toISOString?.() || usage.dormantNotifiedAt || null,
+      birthdayCouponUsed: String(usage.birthdayCouponUsedYear) === currentYear,
+      dormantNotifiedAt,
+      dormantCouponUsed: Boolean(dormantCouponUsedAt),
       scheduledCouponUsedIds: usage.scheduledCouponUsedIds || [],
     }, {
       headers: {

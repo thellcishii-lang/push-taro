@@ -64,6 +64,7 @@ export default function ProShopPage() {
   const [loyaltyExpireDays, setLoyaltyExpireDays] = useState(7);
   const [loyaltyExpireDate, setLoyaltyExpireDate] = useState('');
   const [loyaltyCombinable, setLoyaltyCombinable] = useState(false);
+  const [loyaltyRepeatEnabled, setLoyaltyRepeatEnabled] = useState(false);
 
   // PRO機能：ステップアップ
   const [stepUpEnabled, setStepUpEnabled] = useState(false);
@@ -183,6 +184,7 @@ export default function ProShopPage() {
                 if (shop.loyaltyCoupon.expireDays) setLoyaltyExpireDays(shop.loyaltyCoupon.expireDays);
                 if (shop.loyaltyCoupon.expireDate) setLoyaltyExpireDate(shop.loyaltyCoupon.expireDate);
                 setLoyaltyCombinable(shop.loyaltyCoupon.combinable || false);
+                setLoyaltyRepeatEnabled(shop.loyaltyCoupon.repeatEnabled === true);
               }
 
               if (shop?.proCoupons) {
@@ -435,6 +437,7 @@ export default function ProShopPage() {
             expireDays: loyaltyExpireDays,
             expireDate: loyaltyExpireDate,
             combinable: loyaltyCombinable,
+            repeatEnabled: loyaltyRepeatEnabled,
           },
           proCoupons: {
             stepUp: { enabled: stepUpEnabled, steps: stepUpList.map(({ combinable, ...step }) => ({ ...step, loyaltyCountable: combinable })) },
@@ -925,6 +928,9 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
                   </div>
                   <label style={{ cursor: 'pointer' }}>
                     <input type="checkbox" checked={loyaltyCombinable} onChange={(e) => setLoyaltyCombinable(e.target.checked)} /> 他クーポンと併用可能
+                  </label>
+                  <label style={{ cursor: 'pointer' }}>
+                    <input type="checkbox" checked={loyaltyRepeatEnabled} onChange={(e) => setLoyaltyRepeatEnabled(e.target.checked)} /> 繰り返す（利用後、再度達成回数をカウントする）
                   </label>
                 </div>
               )}

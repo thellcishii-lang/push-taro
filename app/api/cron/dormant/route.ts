@@ -73,6 +73,7 @@ export async function GET(request: Request) {
           // 2-4. 送信記録
           await subDoc.ref.update({
             [`couponUsage.${shopId}.dormantNotifiedAt`]: FieldValue.serverTimestamp(),
+            [`couponUsage.${shopId}.dormantCouponUsedAt`]: null,
           });
 
           totalSent++;
