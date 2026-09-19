@@ -167,7 +167,7 @@ export default function ReferralFeature() {
                 <span className="arrow">→</span>
               </Link>
               <Link href="/guide/case-studies" className="g-related-card">
-                <span class="ico">📈</span>
+                <span className="ico">📈</span>
                 <div><div className="title">導入事例</div><div className="sub">成果を出した店舗</div></div>
                 <span className="arrow">→</span>
               </Link>
