@@ -40,7 +40,7 @@
 
 .programs-page .logo {
   display: flex;
-  align-items: baseline;
+  align-items: center;         /* ← baseline → center に変更 */
   font-size: 22px;
   font-weight: 900;
   color: #0f172a;
@@ -54,7 +54,7 @@
   height: 34px;
   flex-shrink: 0;
   margin-right: 8px;
-  align-self: center;
+  /* align-self: center; ← 不要（親がcenterなので） */
 }
 
 .programs-page .logo span {
@@ -62,20 +62,18 @@
   margin-left: 1px;
 }
 
-/* みんなの + プッシュ通知 の親 */
 .programs-page .logo small {
-  font-size: 14px;        /* ← みんなの は小さめ */
+  font-size: 14px;
   font-weight: 600;
   color: #0f172a;
   letter-spacing: 0;
-  margin-left: 16px;
+  margin-left: 24px;           /* ← 16px → 24px に拡大 */
   line-height: 1;
 }
 
-/* プッシュ通知 だけ大きく */
 .programs-page .logo small span {
   color: #ff4500;
-  font-size: 22px;        /* ← Push-taro と同じ */
+  font-size: 22px;
   font-weight: 900;
   letter-spacing: -0.5px;
   margin-left: 2px;
