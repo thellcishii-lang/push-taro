@@ -40,7 +40,12 @@ export async function enqueuePushJob(input: Omit<PushJob, 'status' | 'successCou
 
     const now = FieldValue.serverTimestamp();
     transaction.create(jobRef, {
-      ...input,
+      shopId: input.shopId,
+      ownerUid: input.ownerUid,
+      title: input.title,
+      body: input.body,
+      notificationId: input.notificationId,
+      ...(input.url ? { url: input.url } : {}),
       status: 'queued',
       successCount: 0,
       failureCount: 0,
