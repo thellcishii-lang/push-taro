@@ -45,13 +45,14 @@ async function sendUserPayoutEmail({ to, amount, bankHolder, typeLabel }: {
     `,
   });
 }
-const VALID_COLLECTIONS = ['shops', 'agencies', 'affiliates'] as const;
+const VALID_COLLECTIONS = ['shops', 'agencies', 'affiliates', 'affilishops'] as const;
 type Collection = typeof VALID_COLLECTIONS[number];
 
 // collection → referrerType / typeLabel のマッピング
 function resolveMeta(collection: Collection) {
-  if (collection === 'agencies')   return { referrerType: 'agency',    typeLabel: '代理店' };
-  if (collection === 'affiliates') return { referrerType: 'affiliate', typeLabel: 'アフィリエイト' };
+  if (collection === 'agencies')    return { referrerType: 'agency',     typeLabel: '代理店' };
+  if (collection === 'affiliates')  return { referrerType: 'affiliate',  typeLabel: 'アフィリエイト' };
+  if (collection === 'affilishops') return { referrerType: 'affilishop', typeLabel: 'affilishop' };
   return { referrerType: 'pro', typeLabel: 'PRO紹介' };
 }
 
@@ -106,7 +107,6 @@ export async function POST(req: Request) {
     const userData = userDoc.data()!;
 
     const unpaidField = targetCollection === 'affiliates' ? 'unpaidReward' : 'unpaidRewardTotal';
-
     // ─── 1. monthly_rewards を paid に更新 ───
     const rewardsSnap = await db.collection('monthly_rewards')
       .where('userId', '==', userId)

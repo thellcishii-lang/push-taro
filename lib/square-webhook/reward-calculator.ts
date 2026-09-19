@@ -9,6 +9,9 @@ import {
   AFFILIATE_RECURRING_RATE_FIRST_YEAR,
   AFFILIATE_FIRST_YEAR_MONTHS,
   AFFILIATE_ONE_TIME_REWARDS,
+  AFFILISHOP_RATE,
+  AFFILISHOP_RATE_FIRST_YEAR,
+  AFFILISHOP_FIRST_YEAR_MONTHS,
   WITHHOLDING_RATE,
 } from '@/lib/constants';
 
@@ -91,6 +94,20 @@ export async function calculateRewardRate(
     return AFFILIATE_RECURRING_RATE;
   }
 
+  if (referrerType === 'affilishop') {
+    // 常に紹介開始日からの経過月数で判定（初年度10% → 13ヶ月目から7%）
+    if (relationMeta?.createdAt) {
+      const startDate = relationMeta.createdAt.toDate
+        ? relationMeta.createdAt.toDate()
+        : new Date(relationMeta.createdAt);
+      const monthsElapsed = monthsElapsedSince(startDate, new Date());
+      return monthsElapsed < AFFILISHOP_FIRST_YEAR_MONTHS
+        ? AFFILISHOP_RATE_FIRST_YEAR
+        : AFFILISHOP_RATE;
+    }
+    return AFFILISHOP_RATE_FIRST_YEAR;
+  }
+
   return 0;
 }
 
@@ -148,6 +165,7 @@ export function calculateRewards(params: {
 export function getReferrerCollection(referrerType: string): string {
   if (referrerType === 'agency') return 'agencies';
   if (referrerType === 'affiliate') return 'affiliates';
+  if (referrerType === 'affilishop') return 'affilishops';
   return 'shops';
 }
 

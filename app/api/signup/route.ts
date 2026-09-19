@@ -7,6 +7,7 @@ import {
   AGENCY_RATE_OTHER,
   PRO_REFERRAL_RATE,
   AFFILIATE_RECURRING_RATE_FIRST_YEAR,
+  AFFILISHOP_RATE_FIRST_YEAR,
 } from '@/lib/constants';
 
 export const dynamic = 'force-dynamic';
@@ -177,6 +178,24 @@ export async function POST(request: Request) {
           // 源泉前の率を保存（源泉徴収は月末バッチで適用）
           rewardRate = (plan === 'pro') ? 0.30 : AGENCY_RATE_OTHER;
         }
+      } else if (refCode.startsWith('ASHOP-')) {
+        // affilishop（実店舗向けアフィリエイト・affilishops コレクション）
+        const affilishopSnapshot = await db.collection('affilishops')
+          .where('referralCode', '==', refCode)
+          .where('status', '==', 'active')
+          .limit(1)
+          .get();
+
+        if (!affilishopSnapshot.empty) {
+          const doc = affilishopSnapshot.docs[0];
+          const data = doc.data();
+          referrerId = doc.id;
+          referrerType = 'affilishop';
+          referrerEmail = data.email;
+          referrerName = data.companyName || data.ownerName || 'affilishop';
+          // 全プラン一律。源泉前の初年度優遇率を保存（源泉徴収は月末バッチで適用）
+          rewardRate = AFFILISHOP_RATE_FIRST_YEAR;
+        }
       } else {
         // それ以外（shops コレクション）- PROユーザー or 一般店舗
         const shopSnapshot = await db.collection('shops')
@@ -252,7 +271,7 @@ export async function POST(request: Request) {
     rewardType: relationRewardType,
     status: 'pending',
     referrerType: referrerType,
-    tieredReward: referrerType === 'affiliate' && relationRewardType === 'recurring',
+    tieredReward: (referrerType === 'affiliate' && relationRewardType === 'recurring') || referrerType === 'affilishop',
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   });

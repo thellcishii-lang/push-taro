@@ -1896,6 +1896,242 @@ function AgenciesTab() {
   );
 }
 // ============================================================
+// affilishop一覧 & 審査タブ
+// ============================================================
+function AffilishopsTab() {
+  const [loading, setLoading] = useState(true);
+  const [affilishops, setAffilishops] = useState<any[]>([]);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [selected, setSelected] = useState<any>(null);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending_approval' | 'active' | 'rejected' | 'withdrawn'>('all');
+
+  const fetchAffilishops = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/admin/affilishops', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAffilishops(data.affilishops || []);
+      }
+    } catch (err) {
+      console.error('affilishopデータ取得エラー:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAffilishops();
+  }, []);
+
+  const handleApprove = async (id: string, name: string) => {
+    if (!confirm(`${name} を承認して、ログイン情報メールを送信しますか？`)) return;
+    setActionLoading(id);
+    try {
+      const user = auth.currentUser;
+      if (!user) { alert('ログインが必要です'); return; }
+      const idToken = await user.getIdToken();
+      const res = await fetch(`/api/affilishop/approve?affilishopId=${id}`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert('✅ 承認処理が完了しました。ログイン情報メールを送信しました。');
+        fetchAffilishops();
+      } else {
+        alert('エラー: ' + data.error);
+      }
+    } catch (err: any) {
+      alert('通信エラー: ' + err.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleReject = async (id: string, name: string) => {
+    const reason = prompt(`【却下理由】（空欄でもOK）\n\n${name} を却下します。\n理由を入力してください（任意）:`);
+    if (reason === null) return;
+    setActionLoading(id);
+    try {
+      const user = auth.currentUser;
+      if (!user) { alert('ログインが必要です'); return; }
+      const idToken = await user.getIdToken();
+      const res = await fetch('/api/affilishop/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+        body: JSON.stringify({ affilishopId: id, reason }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert('✅ 却下処理が完了しました。通知メールを送信しました。');
+        fetchAffilishops();
+      } else {
+        alert('エラー: ' + data.error);
+      }
+    } catch (err: any) {
+      alert('通信エラー: ' + err.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const filtered = statusFilter === 'all' ? affilishops : affilishops.filter((a) => a.status === statusFilter);
+
+  const getStatusBadge = (status: string) => {
+    const map: Record<string, { label: string; bg: string; color: string }> = {
+      pending_approval: { label: '審査中', bg: '#fef3c7', color: '#92400e' },
+      active:            { label: '稼働中', bg: '#c6f6d5', color: '#22543d' },
+      rejected:          { label: '却下',   bg: '#e2e8f0', color: '#475569' },
+      withdrawn:         { label: '自動退会', bg: '#fecaca', color: '#991b1b' },
+    };
+    const s = map[status] || { label: status, bg: '#f1f5f9', color: '#475569' };
+    return (
+      <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold', background: s.bg, color: s.color }}>
+        {s.label}
+      </span>
+    );
+  };
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>読み込み中...</div>;
+
+  return (
+    <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+        <div>
+          <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>affilishop一覧 & 審査</h2>
+          <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>
+            却下された申し込みも含め、すべての申請が記録として残ります
+          </p>
+        </div>
+        <span style={{ fontSize: '13px', color: '#64748b' }}>全 {affilishops.length} 件</span>
+      </div>
+
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+        {([
+          ['all', 'すべて'],
+          ['pending_approval', '審査中'],
+          ['active', '稼働中'],
+          ['rejected', '却下'],
+          ['withdrawn', '自動退会'],
+        ] as const).map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => setStatusFilter(key)}
+            style={{
+              padding: '6px 14px', borderRadius: '20px',
+              border: statusFilter === key ? '2px solid #0ea5e9' : '1px solid #cbd5e0',
+              background: statusFilter === key ? '#f0f9ff' : '#fff',
+              fontWeight: statusFilter === key ? 'bold' : 'normal',
+              color: statusFilter === key ? '#0369a1' : '#475569',
+              cursor: 'pointer', fontSize: '13px',
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {affilishops.length === 0 ? (
+        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>affilishopの申し込みはまだありません</p>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                <th style={{ padding: '12px', textAlign: 'left' }}>会社名/屋号</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>担当者</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>メール</th>
+                <th style={{ padding: '12px', textAlign: 'left' }}>紹介コード</th>
+                <th style={{ padding: '12px', textAlign: 'center' }}>ステータス</th>
+                <th style={{ padding: '12px', textAlign: 'center' }}>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((item) => {
+                const isPending = item.status === 'pending_approval';
+                const isLoading = actionLoading === item.id;
+                return (
+                  <tr key={item.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                    <td style={{ padding: '12px', fontWeight: 'bold' }}>
+                      <button
+                        onClick={() => setSelected(item)}
+                        style={{ background: 'none', border: 'none', color: '#0ea5e9', cursor: 'pointer', fontWeight: 'bold', textDecoration: 'underline', padding: 0, fontSize: '13px' }}
+                      >
+                        {item.companyName || item.ownerName || '未設定'}
+                      </button>
+                    </td>
+                    <td style={{ padding: '12px' }}>{item.ownerName || '-'}</td>
+                    <td style={{ padding: '12px', fontSize: '12px' }}>{item.email || '-'}</td>
+                    <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '12px' }}>{item.referralCode || '-'}</td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>{getStatusBadge(item.status)}</td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                      {isPending ? (
+                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                          <button
+                            onClick={() => handleApprove(item.id, item.companyName || item.ownerName)}
+                            disabled={isLoading}
+                            style={{ padding: '6px 14px', background: isLoading ? '#94a3b8' : '#16a34a', color: '#fff', border: 'none', borderRadius: '4px', cursor: isLoading ? 'wait' : 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                          >
+                            {isLoading ? '処理中...' : '✓ 承認'}
+                          </button>
+                          <button
+                            onClick={() => handleReject(item.id, item.companyName || item.ownerName)}
+                            disabled={isLoading}
+                            style={{ padding: '6px 14px', background: isLoading ? '#94a3b8' : '#dc2626', color: '#fff', border: 'none', borderRadius: '4px', cursor: isLoading ? 'wait' : 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                          >
+                            却下
+                          </button>
+                        </div>
+                      ) : (
+                        <span style={{ fontSize: '12px', color: '#94a3b8' }}>―</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {selected && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '20px', overflowY: 'auto' }}>
+          <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', maxWidth: '600px', width: '100%', marginTop: '40px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '2px solid #eee', paddingBottom: '12px' }}>
+              <h3 style={{ margin: 0, fontSize: '18px' }}>affilishop 詳細情報</h3>
+              <button
+                onClick={() => setSelected(null)}
+                style={{ padding: '6px 14px', background: '#e2e8f0', color: '#475569', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
+              >
+                ✕ 閉じる
+              </button>
+            </div>
+            <div style={{ display: 'grid', gap: '12px', fontSize: '13px' }}>
+              <div><strong>会社名 / 屋号</strong><br />{selected.companyName || '未設定'}</div>
+              <div><strong>担当者名</strong><br />{selected.ownerName || '未設定'}</div>
+              <div><strong>メールアドレス</strong><br />{selected.email || '未設定'}</div>
+              <div><strong>電話番号</strong><br />{selected.phone || '未設定'}</div>
+              <div><strong>住所</strong><br />{selected.address || '未設定'}</div>
+              <div><strong>事業形態</strong><br />{selected.businessType === 'corporation' ? '法人' : '個人事業主'}</div>
+              <div><strong>インボイス番号</strong><br />{selected.invoiceNumber || '未登録'}</div>
+              <div><strong>紹介コード</strong><br /><code>{selected.referralCode || '未設定'}</code></div>
+              <div><strong>ステータス</strong><br />{getStatusBadge(selected.status)}</div>
+              {selected.approvedAt && <div><strong>承認日時</strong><br />{new Date(selected.approvedAt).toLocaleString('ja-JP')}</div>}
+              {selected.rejectedAt && <div><strong>却下日時</strong><br />{new Date(selected.rejectedAt).toLocaleString('ja-JP')}</div>}
+              {selected.rejectReason && <div><strong>却下理由</strong><br />{selected.rejectReason}</div>}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+// ============================================================
 // 代理店月額決済状況タブ
 // ============================================================
 function AgencyMonthlyTab() {
@@ -2018,7 +2254,7 @@ export default function SystemAdminPage() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'all' | 'pro' | 'agencies' | 'affiliates' | 'pending-payouts' | 'payment-failures' | 'agency-monthly' | 'agency-statements' | 'affiliate-statements' | 'pro-statements'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'pro' | 'agencies' | 'affiliates' | 'affilishops' | 'pending-payouts' | 'payment-failures' | 'agency-monthly' | 'agency-statements' | 'affiliate-statements' | 'pro-statements'>('all');
   const [filterType, setFilterType] = useState<'all' | 'direct' | 'referral' | 'agency'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [errorCount, setErrorCount] = useState(0);
@@ -2320,6 +2556,7 @@ export default function SystemAdminPage() {
           <button onClick={() => setActiveTab('pro')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'pro' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'pro' ? '#3182ce' : '#718096', cursor: 'pointer' }}>プロプラン顧客詳細</button>
           <button onClick={() => setActiveTab('agencies')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'agencies' ? '3px solid #3182ce' : 'none', fontWeight: 'bold', color: activeTab === 'agencies' ? '#3182ce' : '#718096', cursor: 'pointer' }}>代理店一覧 & 審査</button>
           <button onClick={() => setActiveTab('affiliates')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'affiliates' ? '3px solid #16a34a' : 'none', fontWeight: 'bold', color: activeTab === 'affiliates' ? '#16a34a' : '#718096', cursor: 'pointer' }}>📢 アフィリエイト一覧</button>
+          <button onClick={() => setActiveTab('affilishops')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'affilishops' ? '3px solid #0ea5e9' : 'none', fontWeight: 'bold', color: activeTab === 'affilishops' ? '#0ea5e9' : '#718096', cursor: 'pointer' }}>🏪 affilishop一覧 & 審査</button>
           <button onClick={() => setActiveTab('pending-payouts')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'pending-payouts' ? '3px solid #f59e0b' : 'none', fontWeight: 'bold', color: activeTab === 'pending-payouts' ? '#f59e0b' : '#718096', cursor: 'pointer' }}>💰 報酬振込管理</button>
           <button onClick={() => setActiveTab('payment-failures')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'payment-failures' ? '3px solid #ef4444' : 'none', fontWeight: 'bold', color: activeTab === 'payment-failures' ? '#ef4444' : '#718096', cursor: 'pointer' }}>⚠️ 決済不履行一覧</button>
           <button onClick={() => setActiveTab('agency-monthly')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'agency-monthly' ? '3px solid #f97316' : 'none', fontWeight: 'bold', color: activeTab === 'agency-monthly' ? '#f97316' : '#718096', cursor: 'pointer' }}>💳 代理店月額決済</button>
@@ -2328,7 +2565,7 @@ export default function SystemAdminPage() {
           <button onClick={() => setActiveTab('pro-statements')} style={{ padding: '10px 16px', background: 'none', border: 'none', borderBottom: activeTab === 'pro-statements' ? '3px solid #8b5cf6' : 'none', fontWeight: 'bold', color: activeTab === 'pro-statements' ? '#8b5cf6' : '#718096', cursor: 'pointer' }}>📊 PRO紹介支払い履歴</button>
         </div>
 
-        {activeTab !== 'agencies' && activeTab !== 'payment-failures' && activeTab !== 'affiliates' && activeTab !== 'pending-payouts' && activeTab !== 'agency-monthly' && activeTab !== 'agency-statements' && activeTab !== 'affiliate-statements' && activeTab !== 'pro-statements' && (
+        {activeTab !== 'agencies' && activeTab !== 'payment-failures' && activeTab !== 'affiliates' && activeTab !== 'affilishops' && activeTab !== 'pending-payouts' && activeTab !== 'agency-monthly' && activeTab !== 'agency-statements' && activeTab !== 'affiliate-statements' && activeTab !== 'pro-statements' && (
           <div style={{ background: '#ffffff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -2413,6 +2650,7 @@ export default function SystemAdminPage() {
 　　　　　　　　　　　　　　　　{activeTab === 'agencies' && <AgenciesTab />}
         {activeTab === 'agency-monthly' && <AgencyMonthlyTab />}
         {activeTab === 'affiliates' && <AffiliatesTab />}
+        {activeTab === 'affilishops' && <AffilishopsTab />}
         {activeTab === 'pending-payouts' && <PendingPayoutsTab />}
         {activeTab === 'payment-failures' && <PaymentFailuresTab />}
         {activeTab === 'agency-statements' && <AgencyStatementsTab />}

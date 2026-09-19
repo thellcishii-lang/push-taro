@@ -152,7 +152,7 @@ try {
             updatedAt: FieldValue.serverTimestamp(),
           });
         } else {
-          const isTiered = referrerType === 'affiliate' && affiliateRewardType === 'recurring';
+          const isTiered = (referrerType === 'affiliate' && affiliateRewardType === 'recurring') || referrerType === 'affilishop';
           relationMeta = { createdAt: new Date(), tieredReward: isTiered };
           const effectiveRate = await calculateRewardRate(
             referrerData,
@@ -220,6 +220,15 @@ try {
           );
         } else if (referrerType === 'agency' && referrerData.email) {
           await sendAgencyNotificationEmail(
+            referrerData,
+            pendingShopData,
+            plan,
+            planAmount,
+            hasInvoice,
+            effectiveRate
+          );
+        } else if (referrerType === 'affilishop' && referrerData.email) {
+          await sendAffilishopNotificationEmail(
             referrerData,
             pendingShopData,
             plan,
@@ -354,6 +363,61 @@ async function sendAgencyNotificationEmail(
         <p>
           <a href="${process.env.NEXT_PUBLIC_APP_URL}/agency/dashboard" style="display:inline-block;padding:12px 24px;background:#3182ce;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
             代理店コンソールで確認する
+          </a>
+        </p>
+        <hr />
+        <p><strong>Push-taro.com</strong></p>
+        <p>運営会社：the合同会社</p>
+        <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
+      </div>
+    `,
+  });
+}
+
+// ============================================================
+// affilishop（実店舗向けアフィリエイト）への通知メール
+// ============================================================
+async function sendAffilishopNotificationEmail(
+  referrerData: any,
+  pendingShopData: any,
+  plan: string,
+  planAmount: number,
+  hasInvoice: boolean,
+  effectiveRate: number
+) {
+  const baseRate = hasInvoice ? effectiveRate : effectiveRate / 0.9;
+  const baseReward = Math.floor(planAmount * baseRate);
+  const withholding = hasInvoice ? 0 : Math.floor(baseReward * 0.1);
+  const netReward = baseReward - withholding;
+
+  await sendEmail({
+    to: referrerData.email,
+    subject: '【Push-taro】あなたの紹介コードから新規店舗申し込みが完了しました',
+    html: `
+      <div style="font-family: sans-serif; padding: 20px;">
+        <h2>${referrerData.companyName || referrerData.ownerName || 'affilishop'} 様</h2>
+        <p>あなたの紹介コード（${referrerData.referralCode || '---'}）を経由して、</p>
+        <p>新規店舗の申し込みおよび決済が完了いたしました。</p>
+        <hr />
+        <table style="font-size: 14px;">
+          <tr><td style="padding: 6px; font-weight: bold;">店舗名</td><td style="padding: 6px;">${pendingShopData.name || '未設定'}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">プラン</td><td style="padding: 6px;">${plan.toUpperCase()}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">報酬率</td><td style="padding: 6px;">${(baseRate * 100).toFixed(1)}%</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">今回の紹介報酬（参考値）</td><td style="padding: 6px;">¥${baseReward.toLocaleString()}</td></tr>
+          ${!hasInvoice ? `<tr><td style="padding: 6px; font-weight: bold; color: #dc2626;">源泉徴収（インボイス未登録 -10%）</td><td style="padding: 6px; color: #dc2626;">-¥${withholding.toLocaleString()}</td></tr>` : ''}
+          <tr style="border-top: 1px solid #e2e8f0;">
+            <td style="padding: 6px; font-weight: bold;">お支払い予定額</td>
+            <td style="padding: 6px; color: #ff4500; font-weight: bold; font-size: 16px;">¥${netReward.toLocaleString()}</td>
+          </tr>
+        </table>
+        <hr />
+        <p style="font-size: 13px; color: #64748b;">
+          ※ 上記金額は参考値です。正式な確定額は月末締め後にご案内いたします。<br />
+          ※ 報酬は月末締め・翌月払いです。
+        </p>
+        <p>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/affilishop/dashboard" style="display:inline-block;padding:12px 24px;background:#0ea5e9;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
+            affilishopダッシュボードで確認する
           </a>
         </p>
         <hr />

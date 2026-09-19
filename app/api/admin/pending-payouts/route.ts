@@ -96,6 +96,29 @@ export async function GET(request: Request) {
       });
     });
 
+    // ============================================================
+    // ④ affilishop（実店舗向けアフィリエイト）
+    // ============================================================
+    const affilishopsSnap = await db.collection('affilishops')
+      .where('unpaidRewardTotal', '>', 0)
+      .get();
+
+    affilishopsSnap.docs.forEach((doc) => {
+      const data = doc.data();
+      pendingUsers.push({
+        id: doc.id,                       // ← docId
+        collection: 'affilishops',
+        referrerType: 'affilishop',
+        name: data.companyName || data.ownerName || '未設定',
+        email: data.email || '',
+        type: 'affilishop',
+        unpaidReward: data.unpaidRewardTotal || 0,
+        payoutStatus: data.payoutStatus || 'none',
+        bankAccount: data.bankAccount || null,
+        lastPaidAt: data.lastPaidAt?.toDate?.()?.toISOString() || null,
+      });
+    });
+
     // 未払い額の降順
     pendingUsers.sort((a, b) => b.unpaidReward - a.unpaidReward);
 

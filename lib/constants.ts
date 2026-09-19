@@ -62,6 +62,17 @@ export const AFFILIATE_ONE_TIME_REWARDS: Record<string, number> = {
 export const WITHHOLDING_RATE = 0.10;
 
 // ============================================================
+// affilishop（実店舗向けアフィリエイト）報酬率（源泉前）
+// ============================================================
+// 全プラン一律7%。初年度（紹介から12ヶ月間）は10%、13ヶ月目より7%。
+export const AFFILISHOP_RATE = 0.07;
+export const AFFILISHOP_RATE_FIRST_YEAR = 0.10;
+export const AFFILISHOP_FIRST_YEAR_MONTHS = 12;
+
+// 実績0件が続いた場合の自動退会までの月数
+export const AFFILISHOP_AUTO_WITHDRAW_MONTHS = 3;
+
+// ============================================================
 // 代理店費用
 // ============================================================
 export const AGENCY_INITIAL_FEE = 300000;
