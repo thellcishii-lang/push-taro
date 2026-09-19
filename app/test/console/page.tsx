@@ -243,8 +243,8 @@ export default function TestConsolePage() {
   };
 
   useEffect(() => {
-    fetchSubscriptions();
-  }, []);
+    if (isAdmin) fetchSubscriptions();
+  }, [isAdmin]);
 
   // 🗑️ 不要・古いトークンデータの削除
   const handleDeleteSub = async (docId: string) => {

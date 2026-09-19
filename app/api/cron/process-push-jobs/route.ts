@@ -11,14 +11,20 @@ export async function GET(request: Request) {
   }
 
   try {
-    const queued = await db.collection('push_jobs').where('status', '==', 'queued').limit(10).get();
     const stale = await db.collection('push_jobs').where('status', '==', 'processing').limit(10).get();
-    const jobIds = [...queued.docs, ...stale.docs].map((doc) => doc.id).slice(0, 10);
+    const queued = await db.collection('push_jobs').where('status', '==', 'queued').limit(1).get();
+    const jobIds = [...stale.docs, ...queued.docs].map((doc) => doc.id);
     const results = [];
     for (const jobId of jobIds) {
-      results.push({ jobId, result: await processPushJobBatch(jobId) });
+      const result = await processPushJobBatch(jobId);
+      results.push({ jobId, result });
+      if (result !== 'skipped') break;
     }
-    return NextResponse.json({ success: true, processed: results.length, results });
+    return NextResponse.json({
+      success: true,
+      processed: results.filter(({ result }) => result !== 'skipped').length,
+      results,
+    });
   } catch (error: any) {
     console.error('[process-push-jobs] エラー:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

@@ -38,6 +38,10 @@ export interface SendPushResult {
 }
 
 const CHUNK_SIZE = 450;
+const INVALID_TOKEN_ERRORS = new Set([
+  'messaging/invalid-registration-token',
+  'messaging/registration-token-not-registered',
+]);
 
 export async function sendPushToShop(options: SendPushOptions): Promise<SendPushResult> {
   const { shopId, title, body, url, source = 'manual' } = options;
@@ -155,7 +159,7 @@ export async function sendPushToShop(options: SendPushOptions): Promise<SendPush
       totalFailureCount += response.failureCount;
 
       response.responses.forEach((resp, idx) => {
-        if (!resp.success) {
+        if (!resp.success && INVALID_TOKEN_ERRORS.has(resp.error?.code || '')) {
           failedTokens.push(chunkTokens[idx]);
         }
       });

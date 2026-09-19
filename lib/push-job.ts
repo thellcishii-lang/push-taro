@@ -4,6 +4,10 @@ import { PLAN_LIMITS } from './constants';
 
 const CHUNK_SIZE = 450;
 const LEASE_MS = 2 * 60 * 1000;
+const INVALID_TOKEN_ERRORS = new Set([
+  'messaging/invalid-registration-token',
+  'messaging/registration-token-not-registered',
+]);
 
 export type PushJobStatus = 'queued' | 'processing' | 'completed' | 'failed';
 
@@ -178,7 +182,9 @@ export async function processPushJobBatch(jobId: string): Promise<'skipped' | 'p
     successCount = response.successCount;
     failureCount = response.failureCount;
     response.responses.forEach((result, index) => {
-      if (!result.success) failedTokens.push(tokens[index]);
+      if (!result.success && INVALID_TOKEN_ERRORS.has(result.error?.code || '')) {
+        failedTokens.push(tokens[index]);
+      }
     });
   }
 

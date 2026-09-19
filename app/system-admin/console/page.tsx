@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { auth } from '@/lib/firebase-client';
+import { onAuthStateChanged, User } from 'firebase/auth';
 
 interface ErrorLog {
   id: string;
@@ -18,30 +19,37 @@ interface ErrorLog {
 export default function ErrorConsolePage() {
   const [logs, setLogs] = useState<ErrorLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [autoRefresh, setAutoRefresh] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const fetchLogs = async () => {
+  const fetchLogs = async (authenticatedUser: User | null = auth.currentUser) => {
     try {
-      const user = auth.currentUser;
-      if (!user) return;
-      const idToken = await user.getIdToken();
+      if (!authenticatedUser) {
+        throw new Error('管理者としてログインしてください');
+      }
+      setLoadError('');
+      const idToken = await authenticatedUser.getIdToken();
       const res = await fetch('/api/admin/error-logs', {
         headers: { Authorization: `Bearer ${idToken}` },
       });
-      if (res.ok) {
-        const data = await res.json();
-        setLogs(data.logs || []);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || `エラーログを取得できませんでした（HTTP ${res.status}）`);
       }
-    } catch (err) {
+      setLogs(data.logs || []);
+    } catch (err: any) {
       console.error('エラーログ取得失敗:', err);
+      setLoadError(err.message || 'エラーログを取得できませんでした');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchLogs();
+    return onAuthStateChanged(auth, (user) => {
+      void fetchLogs(user);
+    });
   }, []);
 
   // 自動更新（10秒ごと）
@@ -92,7 +100,7 @@ export default function ErrorConsolePage() {
               自動更新（10秒）
             </label>
             <button
-              onClick={fetchLogs}
+              onClick={() => void fetchLogs()}
               style={{ padding: '6px 14px', background: '#1e293b', color: '#38bdf8', border: '1px solid #334155', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontFamily: 'monospace' }}
             >
               🔄 更新
@@ -129,6 +137,8 @@ export default function ErrorConsolePage() {
         >
           {loading ? (
             <div style={{ color: '#64748b' }}>$ loading error logs...</div>
+          ) : loadError ? (
+            <div style={{ color: '#ef4444' }}>$ error: {loadError}</div>
           ) : logs.length === 0 ? (
             <div style={{ color: '#22c55e' }}>$ no errors detected. system is healthy ✅</div>
           ) : (

@@ -2,10 +2,14 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Production data is accessed only through authenticated server APIs.
-    // Firebase Admin SDK requests bypass Security Rules.
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    // Production data is normally accessed through server APIs. Direct client
+    // access is reserved for the authenticated administrator test console.
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if isAdmin();
     }
   }
 }
