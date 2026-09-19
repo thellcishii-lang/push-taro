@@ -73,7 +73,34 @@ export async function GET(request: Request) {
     // ─── couponUsage[shopId] を取り出す（無ければデフォルト）───
     const usage = data?.couponUsage?.[shopId] || DEFAULT_USAGE;
     const proCoupons = shopDoc.data()?.proCoupons || {};
-    const repeatActiveUntil = usage.repeatCouponActiveUntil?.toDate?.()?.toISOString?.() || usage.repeatCouponActiveUntil || null;
+
+    // ─── ステップアップ／連続クーポンが再有効化され、キャンペーンIDが変わっていたら進捗をリセット ───
+    let stepUpIndex = usage.stepUpIndex || 0;
+    let repeatCouponUsedAt = usage.repeatCouponUsedAt || null;
+    let repeatCouponActiveUntilRaw = usage.repeatCouponActiveUntil || null;
+    const resetFields: Record<string, any> = {};
+
+    const stepUpCampaignId = proCoupons.stepUp?.campaignId || null;
+    if (stepUpCampaignId && usage.stepUpCampaignId !== stepUpCampaignId) {
+      stepUpIndex = 0;
+      resetFields[`couponUsage.${shopId}.stepUpIndex`] = 0;
+      resetFields[`couponUsage.${shopId}.stepUpCampaignId`] = stepUpCampaignId;
+    }
+
+    const repeatCampaignId = proCoupons.repeat?.campaignId || null;
+    if (repeatCampaignId && usage.repeatCampaignId !== repeatCampaignId) {
+      repeatCouponUsedAt = null;
+      repeatCouponActiveUntilRaw = null;
+      resetFields[`couponUsage.${shopId}.repeatCouponUsedAt`] = null;
+      resetFields[`couponUsage.${shopId}.repeatCouponActiveUntil`] = null;
+      resetFields[`couponUsage.${shopId}.repeatCampaignId`] = repeatCampaignId;
+    }
+
+    if (Object.keys(resetFields).length > 0) {
+      await doc.ref.update(resetFields);
+    }
+
+    const repeatActiveUntil = repeatCouponActiveUntilRaw?.toDate?.()?.toISOString?.() || repeatCouponActiveUntilRaw || null;
     const dormantNotifiedAt = usage.dormantNotifiedAt?.toDate?.()?.toISOString?.() || usage.dormantNotifiedAt || null;
     const dormantCouponUsedAt = usage.dormantCouponUsedAt?.toDate?.()?.toISOString?.() || usage.dormantCouponUsedAt || null;
     const currentYear = String(new Date().getFullYear());
@@ -92,11 +119,11 @@ export async function GET(request: Request) {
       totalVisits: usage.totalVisits || 0,
       loyaltyAchieved: usage.loyaltyAchieved === true,
       loyaltyAchievedAt: usage.loyaltyAchievedAt?.toDate?.()?.toISOString?.() || usage.loyaltyAchievedAt || null,
-      stepUpIndex: usage.stepUpIndex || 0,
+      stepUpIndex,
       stepUpEnabled: proCoupons.stepUp?.enabled === true,
       repeatEnabled: proCoupons.repeat?.enabled === true,
       repeatCouponActiveUntil: repeatActiveUntil,
-      repeatCouponUsed: Boolean(usage.repeatCouponUsedAt),
+      repeatCouponUsed: Boolean(repeatCouponUsedAt),
       birthdayNotifiedYear: usage.birthdayNotifiedYear || null,
       birthdayCouponUsed: String(usage.birthdayCouponUsedYear) === currentYear,
       dormantNotifiedAt,

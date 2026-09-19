@@ -661,7 +661,7 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
   return (
     <main style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
       {/* ヘッダー */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '10px', borderBottom: '2px solid #eee', paddingBottom: '15px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '25px', flexWrap: 'wrap', gap: '10px', borderBottom: '2px solid #eee', paddingBottom: '15px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {shopIconUrl ? (
             <img src={shopIconUrl} alt="アイコン" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #ddd' }} />
@@ -680,17 +680,26 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Link
-            href="/pro-shop/dashboard"
-            style={{ padding: '8px 16px', background: '#fff7ed', color: '#c2410c', border: '1px solid #fdba74', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none' }}
-          >
-            🤝 紹介・報酬
-          </Link>
-          <span style={{ fontSize: '14px', color: '#666' }}>{user.email}</span>
-          <button onClick={() => signOut(auth)} style={{ padding: '8px 16px', cursor: 'pointer', borderRadius: '4px', border: '1px solid #ccc' }}>
-            ログアウト
-          </button>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+          <span style={{ fontSize: '13px', color: '#666' }}>{user.email}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              style={{ padding: '8px 16px', background: '#fff', color: '#334155', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}
+            >
+              ↻ 画面を更新
+            </button>
+            <Link
+              href="/pro-shop/dashboard"
+              style={{ padding: '8px 16px', background: '#fff7ed', color: '#c2410c', border: '1px solid #fdba74', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none' }}
+            >
+              🤝 紹介・報酬
+            </Link>
+            <button onClick={() => signOut(auth)} style={{ padding: '8px 16px', cursor: 'pointer', borderRadius: '4px', border: '1px solid #ccc' }}>
+              ログアウト
+            </button>
+          </div>
         </div>
       </div>
 
@@ -899,13 +908,13 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
             </div>
 
             {/* 特別達成クーポン */}
-            <div style={{ background: '#fff', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '16px' }}>
-              <h4 style={{ margin: '0 0 10px 0', fontSize: '15px' }}>🏆 特別達成クーポン設定</h4>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px' }}>
+            <div style={{ marginTop: '25px', borderTop: '1px solid #ddd', paddingTop: '15px' }}>
+              <h4 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>🏆 特別達成クーポン設定</h4>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', marginBottom: '10px' }}>
                 <input type="checkbox" checked={loyaltyEnabled} onChange={(e) => setLoyaltyEnabled(e.target.checked)} /> 有効にする
               </label>
               {loyaltyEnabled && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontSize: '13px' }}>店舗設定の達成回数:</span>
                     <input type="number" min="1" value={loyaltyTargetCount} onChange={(e) => setLoyaltyTargetCount(Math.max(1, Number(e.target.value) || 1))} style={{ width: '60px', padding: '4px' }} />

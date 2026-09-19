@@ -59,7 +59,30 @@ export async function POST(request: Request) {
       };
     }
     if (loyaltyCoupon !== undefined) updateData.loyaltyCoupon = loyaltyCoupon;
-    if (proCoupons !== undefined)    updateData.proCoupons = proCoupons;
+    if (proCoupons !== undefined) {
+      const currentProCoupons = shopDoc.data()?.proCoupons || {};
+      const nextProCoupons: Record<string, any> = { ...proCoupons };
+
+      // 無効化→再度有効化された場合は新しいキャンペーンとして顧客側の進捗をリセットする
+      if (proCoupons.stepUp) {
+        const currentStepUp = currentProCoupons.stepUp || {};
+        const reactivated = currentStepUp.enabled === false && proCoupons.stepUp.enabled === true;
+        nextProCoupons.stepUp = {
+          ...proCoupons.stepUp,
+          campaignId: reactivated ? randomUUID() : (currentStepUp.campaignId || randomUUID()),
+        };
+      }
+      if (proCoupons.repeat) {
+        const currentRepeat = currentProCoupons.repeat || {};
+        const reactivated = currentRepeat.enabled === false && proCoupons.repeat.enabled === true;
+        nextProCoupons.repeat = {
+          ...proCoupons.repeat,
+          campaignId: reactivated ? randomUUID() : (currentRepeat.campaignId || randomUUID()),
+        };
+      }
+
+      updateData.proCoupons = nextProCoupons;
+    }
     if (linkUrl !== undefined)       updateData.linkUrl = linkUrl;
     if (iconUrl !== undefined)       updateData.iconUrl = iconUrl;
     if (bankAccount !== undefined)   updateData.bankAccount = bankAccount;
