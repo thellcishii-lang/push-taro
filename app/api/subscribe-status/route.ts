@@ -81,6 +81,8 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       registered: true,
+      birthMonth: data.birthMonth || null,
+      birthDay: data.birthDay || null,
       firstCouponUsed: Boolean(usage.firstCouponUsedAt),
       normalCouponUsed: usage.normalCouponUsedCouponId === normalCouponId ||
         (normalCouponId === 'legacy' && Boolean(usage.normalCouponUsedAt)),

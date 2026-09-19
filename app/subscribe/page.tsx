@@ -18,9 +18,12 @@ export default function SubscribePage() {
   const [fcmToken, setFcmToken] = useState('');
   const [shopData, setShopData] = useState<any>(null);
 
-  const [birthDate, setBirthDate] = useState('');
   const [birthMonth, setBirthMonth] = useState('');
   const [birthDay, setBirthDay] = useState('');
+  const [savedBirthMonth, setSavedBirthMonth] = useState<number | null>(null);
+  const [savedBirthDay, setSavedBirthDay] = useState<number | null>(null);
+  const [birthdaySetStatus, setBirthdaySetStatus] = useState<'idle' | 'saving' | 'error'>('idle');
+  const [birthdaySetMessage, setBirthdaySetMessage] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
   const [couponUsed, setCouponUsed] = useState(false);
   const [couponExpired, setCouponExpired] = useState(false);
@@ -170,6 +173,8 @@ useEffect(() => {
             setDormantCouponAvailable(Boolean(data.dormantNotifiedAt));
             setDormantCouponUsed(data.dormantCouponUsed === true);
             setScheduledCouponUsedIds(data.scheduledCouponUsedIds || []);
+            setSavedBirthMonth(data.birthMonth || null);
+            setSavedBirthDay(data.birthDay || null);
           }
         })
         .catch(err => console.error('ステータス確認エラー:', err));
@@ -243,6 +248,8 @@ useEffect(() => {
           setDormantCouponAvailable(Boolean(data.dormantNotifiedAt));
           setDormantCouponUsed(data.dormantCouponUsed === true);
           setScheduledCouponUsedIds(data.scheduledCouponUsedIds || []);
+          setSavedBirthMonth(data.birthMonth || null);
+          setSavedBirthDay(data.birthDay || null);
         }
       } catch (err) {
         console.error('クーポン状態の自動更新エラー:', err);
@@ -348,6 +355,37 @@ useEffect(() => {
     }
   };
 
+  const handleSetBirthday = async () => {
+    if (!birthMonth || !birthDay) {
+      setBirthdaySetStatus('error');
+      setBirthdaySetMessage('誕生日または記念日の月日を選択してください。');
+      return;
+    }
+
+    setBirthdaySetStatus('saving');
+    setBirthdaySetMessage('');
+
+    try {
+      const res = await fetch('/api/set-birthday', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: fcmToken, birthMonth, birthDay }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || `HTTP ${res.status}`);
+      }
+
+      setSavedBirthMonth(data.birthMonth);
+      setSavedBirthDay(data.birthDay);
+      setBirthdaySetStatus('idle');
+      setBirthdaySetMessage('');
+    } catch (err: any) {
+      setBirthdaySetStatus('error');
+      setBirthdaySetMessage('❌ ' + err.message);
+    }
+  };
+
   const handleSubscribe = async () => {
     let effectiveShopId = shopId;
 
@@ -365,12 +403,6 @@ useEffect(() => {
     if (!effectiveShopId) {
       setStatus('error');
       setMessage('❌ 店舗IDが取得できていません。URLの末尾に ?s=店舗ID がついているかご確認ください。');
-      return;
-    }
-
-    if (shopData?.plan === 'pro' && (!birthMonth || !birthDay)) {
-      setStatus('error');
-      setMessage('⚠️ クーポン受取のため、誕生日または記念日の月日を選択してください。');
       return;
     }
 
@@ -444,9 +476,6 @@ useEffect(() => {
           deviceId,
           customerId,
           customerUid,
-          birthDate: shopData?.plan === 'pro' ? `${new Date().getFullYear()}-${birthMonth.padStart(2, '0')}-${birthDay.padStart(2, '0')}` : null,
-          birthMonth: shopData?.plan === 'pro' ? Number(birthMonth) : null,
-          birthDay: shopData?.plan === 'pro' ? Number(birthDay) : null,
         }),
       });
 
@@ -506,7 +535,46 @@ useEffect(() => {
           )}
         </div>
 
-        {/* 🎁 初回限定クーポンエリア */}
+        {/* � 記念日・誕生日設定エリア（PROプランのみ／一度設定すると変更不可） */}
+        {shopData?.plan === 'pro' && (
+          <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', padding: '16px', borderRadius: '8px', marginBottom: '20px' }}>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#9a3412' }}>🎂 記念日・誕生日設定</h3>
+            {savedBirthMonth && savedBirthDay ? (
+              <p style={{ margin: 0, fontSize: '14px', color: '#334155' }}>
+                記念日・誕生日設定月日: <strong>{savedBirthMonth}月{savedBirthDay}日</strong>
+              </p>
+            ) : (
+              <>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                  <select value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} style={{ flex: 1, padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff' }}>
+                    <option value="">月</option>
+                    {Array.from({ length: 12 }, (_, index) => <option key={index + 1} value={index + 1}>{index + 1}月</option>)}
+                  </select>
+                  <select value={birthDay} onChange={(e) => setBirthDay(e.target.value)} style={{ flex: 1, padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff' }}>
+                    <option value="">日</option>
+                    {Array.from({ length: 31 }, (_, index) => <option key={index + 1} value={index + 1}>{index + 1}日</option>)}
+                  </select>
+                </div>
+                <p style={{ margin: '0 0 10px 0', fontSize: '12px', color: '#c2410c', fontWeight: 'bold' }}>
+                  ⚠️ 一度設定すると後から変更できませんのでご注意ください。
+                </p>
+                <button
+                  type="button"
+                  onClick={handleSetBirthday}
+                  disabled={birthdaySetStatus === 'saving'}
+                  style={{ width: '100%', padding: '10px', fontSize: '14px', background: birthdaySetStatus === 'saving' ? '#cbd5e1' : '#ea580c', color: '#fff', border: 'none', borderRadius: '6px', cursor: birthdaySetStatus === 'saving' ? 'wait' : 'pointer', fontWeight: 'bold' }}
+                >
+                  {birthdaySetStatus === 'saving' ? '設定中...' : '設定する'}
+                </button>
+                {birthdaySetMessage && (
+                  <p style={{ marginTop: '8px', fontSize: '12px', color: '#dc2626' }}>{birthdaySetMessage}</p>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* �🎁 初回限定クーポンエリア */}
 {shopData?.coupon?.enabled && !hiddenCouponTypes.includes('first') && (
   <div style={{ background: couponUsed || couponExpired ? '#f1f5f9' : '#fff3e0', border: couponUsed || couponExpired ? '1px solid #cbd5e1' : '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
     <span style={{ fontSize: '11px', background: couponUsed || couponExpired ? '#64748b' : '#e65100', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>初回限定</span>
@@ -751,24 +819,6 @@ useEffect(() => {
 <h1 style={{ fontSize: '22px', margin: '0 0 8px 0' }}>{shopData?.name}</h1>
 <p style={{ color: '#666', fontSize: '14px' }}>お得な情報をプッシュ通知でお届けします</p>
       </div>
-
-      {shopData?.plan === 'pro' && status !== 'success' && (
-        <div style={{ marginBottom: '20px', textAlign: 'left', background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-          <label style={{ display: 'block', marginBottom: '6px', fontWeight: 'bold', fontSize: '14px', color: '#334155' }}>
-            🎂 誕生日または記念日（バースデークーポン受取用）
-          </label>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <select value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} required style={{ flex: 1, padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff' }}>
-              <option value="">月</option>
-              {Array.from({ length: 12 }, (_, index) => <option key={index + 1} value={index + 1}>{index + 1}月</option>)}
-            </select>
-            <select value={birthDay} onChange={(e) => setBirthDay(e.target.value)} required style={{ flex: 1, padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff' }}>
-              <option value="">日</option>
-              {Array.from({ length: 31 }, (_, index) => <option key={index + 1} value={index + 1}>{index + 1}日</option>)}
-            </select>
-          </div>
-        </div>
-      )}
 
       {status === 'success' ? (
         <div style={{ marginTop: 30 }}>

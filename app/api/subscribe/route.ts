@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { token, shopId, deviceId, customerId: requestedCustomerId, customerUid, birthDate, birthMonth: requestedBirthMonth, birthDay: requestedBirthDay } = body;
+    const { token, shopId, deviceId, customerId: requestedCustomerId, customerUid } = body;
 
     // パラメータチェック
     if (!token || !shopId || shopId === 'undefined' || shopId === 'null') {
@@ -58,22 +58,7 @@ export async function POST(request: Request) {
     const customerId = getCustomerId(request) || requestedCustomerId || randomUUID();
     const topic = `shop_${shopId}_users`;
 
-    // 1. 生年月日の数値化処理（日付が送られてきた場合）
-    let birthMonth: number | null = null;
-    let birthDay: number | null = null;
-
-    if (requestedBirthMonth && requestedBirthDay) {
-      birthMonth = Number(requestedBirthMonth);
-      birthDay = Number(requestedBirthDay);
-    } else if (birthDate) {
-      const dateObj = new Date(birthDate);
-      if (!isNaN(dateObj.getTime())) {
-        birthMonth = dateObj.getMonth() + 1; // 1〜12月
-        birthDay = dateObj.getDate();        // 1〜31日
-      }
-    }
-
-    // 2. FCM トピック登録（エラーが起きても処理をスキップしてDB保存を優先）
+    // FCM トピック登録（エラーが起きても処理をスキップしてDB保存を優先）
     try {
       await messaging.subscribeToTopic([normalizedToken], topic);
     } catch (fcmErr: any) {
@@ -139,7 +124,6 @@ export async function POST(request: Request) {
       customerId,
       ...(normalizedDeviceId ? { deviceId: normalizedDeviceId } : {}),
       lastActive: FieldValue.serverTimestamp(),
-      ...(birthMonth && birthDay ? { birthMonth, birthDay } : {}),
     };
 
     if (doc.exists) {
@@ -165,7 +149,7 @@ export async function POST(request: Request) {
         });
       }
     } else {
-      console.log('[API] 新規登録:', { shopId, birthDate });
+      console.log('[API] 新規登録:', { shopId });
       const previousShopIds = Array.isArray(previousData?.shopIds) ? previousData.shopIds : [];
       const previousTopics = Array.isArray(previousData?.topics) ? previousData.topics : [];
       await docRef.set({
