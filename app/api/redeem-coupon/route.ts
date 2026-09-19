@@ -249,6 +249,7 @@ export async function POST(request: Request) {
 
       await usageRef.update({
         [`couponUsage.${shopId}.stepUpIndex`]: nextIndex,
+        [`couponUsage.${shopId}.stepUpIndexUpdatedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
       });

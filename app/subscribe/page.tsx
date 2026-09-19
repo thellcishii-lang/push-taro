@@ -33,12 +33,14 @@ export default function SubscribePage() {
   const [loyaltyCouponExpired, setLoyaltyCouponExpired] = useState(false);
   const [loyaltyAchievedAt, setLoyaltyAchievedAt] = useState<string | null>(null);
   const [stepUpIndex, setStepUpIndex] = useState(0);
+  const [stepUpIndexAppearedAt, setStepUpIndexAppearedAt] = useState<string | null>(null);
   const [repeatCouponActiveUntil, setRepeatCouponActiveUntil] = useState<string | null>(null);
   const [repeatCouponUsed, setRepeatCouponUsed] = useState(false);
   const [birthdayCouponAvailable, setBirthdayCouponAvailable] = useState(false);
   const [birthdayCouponUsed, setBirthdayCouponUsed] = useState(false);
   const [dormantCouponAvailable, setDormantCouponAvailable] = useState(false);
   const [dormantCouponUsed, setDormantCouponUsed] = useState(false);
+  const [dormantNotifiedAt, setDormantNotifiedAt] = useState<string | null>(null);
   const [scheduledCouponUsedIds, setScheduledCouponUsedIds] = useState<string[]>([]);
   const [hiddenCouponTypes, setHiddenCouponTypes] = useState<string[]>([]);
   const [customerUid, setCustomerUid] = useState('');
@@ -166,12 +168,14 @@ useEffect(() => {
             setLoyaltyCouponAvailable(data.loyaltyCouponAvailable === true);
             setLoyaltyAchievedAt(data.loyaltyAchievedAt || null);
             setStepUpIndex(data.stepUpIndex || 0);
+            setStepUpIndexAppearedAt(data.stepUpIndexAppearedAt || null);
             setRepeatCouponActiveUntil(data.repeatCouponActiveUntil || null);
             setRepeatCouponUsed(data.repeatCouponUsed === true);
             setBirthdayCouponAvailable(String(data.birthdayNotifiedYear) === String(new Date().getFullYear()));
             setBirthdayCouponUsed(data.birthdayCouponUsed === true);
             setDormantCouponAvailable(Boolean(data.dormantNotifiedAt));
             setDormantCouponUsed(data.dormantCouponUsed === true);
+            setDormantNotifiedAt(data.dormantNotifiedAt || null);
             setScheduledCouponUsedIds(data.scheduledCouponUsedIds || []);
             setSavedBirthMonth(data.birthMonth || null);
             setSavedBirthDay(data.birthDay || null);
@@ -241,12 +245,14 @@ useEffect(() => {
           setLoyaltyCouponAvailable(data.loyaltyCouponAvailable === true);
           setLoyaltyAchievedAt(data.loyaltyAchievedAt || null);
           setStepUpIndex(data.stepUpIndex || 0);
+          setStepUpIndexAppearedAt(data.stepUpIndexAppearedAt || null);
           setRepeatCouponActiveUntil(data.repeatCouponActiveUntil || null);
           setRepeatCouponUsed(data.repeatCouponUsed === true);
           setBirthdayCouponAvailable(String(data.birthdayNotifiedYear) === String(new Date().getFullYear()));
           setBirthdayCouponUsed(data.birthdayCouponUsed === true);
           setDormantCouponAvailable(Boolean(data.dormantNotifiedAt));
           setDormantCouponUsed(data.dormantCouponUsed === true);
+          setDormantNotifiedAt(data.dormantNotifiedAt || null);
           setScheduledCouponUsedIds(data.scheduledCouponUsedIds || []);
           setSavedBirthMonth(data.birthMonth || null);
           setSavedBirthDay(data.birthDay || null);
@@ -657,7 +663,7 @@ useEffect(() => {
   <div style={{ background: dormantCouponUsed ? '#f1f5f9' : '#f8fafc', border: dormantCouponUsed ? '1px solid #cbd5e1' : '1px dashed #94a3b8', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
     <span style={{ fontSize: '11px', background: '#64748b', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>休眠復活クーポン</span>
     <h3 style={{ margin: '6px 0 8px 0', color: '#475569' }}>💤 {shopData.proCoupons.dormant.title || '復帰クーポン'}</h3>
-    <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: 配信から {Math.max(1, Number(shopData.proCoupons.dormant.expireDays) || 14)} 日間</p>
+    <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {dormantNotifiedAt ? new Date(new Date(dormantNotifiedAt).getTime() + Math.max(1, Number(shopData.proCoupons.dormant.expireDays) || 14) * 24 * 60 * 60 * 1000).toLocaleDateString('ja-JP') : `配信から ${Math.max(1, Number(shopData.proCoupons.dormant.expireDays) || 14)} 日間`}</p>
     {dormantCouponUsed ? (
       <div style={{ padding: '12px', background: '#e2e8f0', borderRadius: '6px', color: '#475569', fontSize: '14px', marginTop: '10px' }}>
         <strong>✅ こちらのクーポンは使用済みです</strong>
@@ -696,12 +702,12 @@ useEffect(() => {
     </div>
   );
 })}
-{shopData?.proCoupons?.stepUp?.enabled && shopData.proCoupons.stepUp.steps?.[stepUpIndex] && !hiddenCouponTypes.includes('step-up') && (
+{shopData?.proCoupons?.stepUp?.enabled && shopData.proCoupons.stepUp.steps?.[stepUpIndex] && !hiddenCouponTypes.includes(`step-up:${shopData.proCoupons.stepUp.campaignId || 'legacy'}`) && (
   <div style={{ background: '#f5f3ff', border: '1px dashed #8b5cf6', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
     <span style={{ fontSize: '11px', background: '#7c3aed', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>ステップアップクーポン</span>
     <h3 style={{ margin: '6px 0 8px 0', color: '#6d28d9' }}>🐾 {shopData.proCoupons.stepUp.steps[stepUpIndex].title || `ステップ${stepUpIndex + 1}`}</h3>
     {shopData.proCoupons.stepUp.steps[stepUpIndex].expireType === 'date' && shopData.proCoupons.stepUp.steps[stepUpIndex].expireDate && <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {shopData.proCoupons.stepUp.steps[stepUpIndex].expireDate}</p>}
-    {shopData.proCoupons.stepUp.steps[stepUpIndex].expireType === 'days' && <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: 出現から {Math.max(1, Number(shopData.proCoupons.stepUp.steps[stepUpIndex].expireDays) || 1)} 日間</p>}
+    {shopData.proCoupons.stepUp.steps[stepUpIndex].expireType === 'days' && <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {stepUpIndexAppearedAt ? new Date(new Date(stepUpIndexAppearedAt).getTime() + Math.max(1, Number(shopData.proCoupons.stepUp.steps[stepUpIndex].expireDays) || 1) * 24 * 60 * 60 * 1000).toLocaleDateString('ja-JP') : `出現から ${Math.max(1, Number(shopData.proCoupons.stepUp.steps[stepUpIndex].expireDays) || 1)} 日間`}</p>}
     <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>ステップ {stepUpIndex + 1} の特典です。</p>
     <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
       <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'step-up', token: fcmToken })} size={150} />
@@ -709,7 +715,7 @@ useEffect(() => {
     <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
   </div>
 )}
-{shopData?.proCoupons?.repeat?.enabled && !hiddenCouponTypes.includes('repeat') && (
+{shopData?.proCoupons?.repeat?.enabled && !hiddenCouponTypes.includes(`repeat:${shopData.proCoupons.repeat.campaignId || 'legacy'}`) && (
   <div style={{ background: repeatCouponUsed ? '#f1f5f9' : '#eff6ff', border: repeatCouponUsed ? '1px solid #cbd5e1' : '1px dashed #0ea5e9', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
     <span style={{ fontSize: '11px', background: '#0284c7', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>連続クーポン</span>
     <h3 style={{ margin: '6px 0 8px 0', color: '#0369a1' }}>🔄 {shopData.proCoupons.repeat.title || '連続クーポン'}</h3>
@@ -718,7 +724,7 @@ useEffect(() => {
     {repeatCouponUsed ? (
       <div style={{ padding: '12px', background: '#e2e8f0', borderRadius: '6px', color: '#475569', fontSize: '14px', marginTop: '10px' }}>
         <strong>✅ こちらのクーポンは使用済みです</strong>
-        <button type="button" onClick={() => hideCoupon('repeat')} style={{ display: 'block', margin: '10px auto 0', padding: '7px 12px', background: '#64748b', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>削除</button>
+        <button type="button" onClick={() => hideCoupon(`repeat:${shopData.proCoupons.repeat.campaignId || 'legacy'}`)} style={{ display: 'block', margin: '10px auto 0', padding: '7px 12px', background: '#64748b', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>削除</button>
       </div>
     ) : <>
       <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>

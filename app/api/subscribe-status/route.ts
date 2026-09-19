@@ -13,6 +13,7 @@
  */
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 export const dynamic = 'force-dynamic';
 
@@ -80,10 +81,13 @@ export async function GET(request: Request) {
     let repeatCouponActiveUntilRaw = usage.repeatCouponActiveUntil || null;
     const resetFields: Record<string, any> = {};
 
+    let stepUpIndexUpdatedAt: any = usage.stepUpIndexUpdatedAt || null;
     const stepUpCampaignId = proCoupons.stepUp?.campaignId || null;
     if (stepUpCampaignId && usage.stepUpCampaignId !== stepUpCampaignId) {
       stepUpIndex = 0;
+      stepUpIndexUpdatedAt = new Date();
       resetFields[`couponUsage.${shopId}.stepUpIndex`] = 0;
+      resetFields[`couponUsage.${shopId}.stepUpIndexUpdatedAt`] = FieldValue.serverTimestamp();
       resetFields[`couponUsage.${shopId}.stepUpCampaignId`] = stepUpCampaignId;
     }
 
@@ -101,6 +105,9 @@ export async function GET(request: Request) {
     }
 
     const repeatActiveUntil = repeatCouponActiveUntilRaw?.toDate?.()?.toISOString?.() || repeatCouponActiveUntilRaw || null;
+    const stepUpIndexAppearedAt = stepUpIndexUpdatedAt?.toDate?.()?.toISOString?.()
+      || (stepUpIndexUpdatedAt instanceof Date ? stepUpIndexUpdatedAt.toISOString() : null)
+      || (typeof stepUpIndexUpdatedAt === 'string' ? stepUpIndexUpdatedAt : null);
     const dormantNotifiedAt = usage.dormantNotifiedAt?.toDate?.()?.toISOString?.() || usage.dormantNotifiedAt || null;
     const dormantCouponUsedAt = usage.dormantCouponUsedAt?.toDate?.()?.toISOString?.() || usage.dormantCouponUsedAt || null;
     const currentYear = String(new Date().getFullYear());
@@ -120,6 +127,7 @@ export async function GET(request: Request) {
       loyaltyAchieved: usage.loyaltyAchieved === true,
       loyaltyAchievedAt: usage.loyaltyAchievedAt?.toDate?.()?.toISOString?.() || usage.loyaltyAchievedAt || null,
       stepUpIndex,
+      stepUpIndexAppearedAt,
       stepUpEnabled: proCoupons.stepUp?.enabled === true,
       repeatEnabled: proCoupons.repeat?.enabled === true,
       repeatCouponActiveUntil: repeatActiveUntil,
