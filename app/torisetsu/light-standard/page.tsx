@@ -369,6 +369,98 @@ export default function TorisetsuBasic() {
           </div>
         </section>
 
+                {/* お客様の登録フロー */}
+        <section className="t-section">
+          <div className="t-sec-head">
+            <span className="t-sec-num">8</span>
+            <h2>お客様の登録フロー</h2>
+          </div>
+          <p className="t-desc">
+            お客様がPush-taroの通知を受け取るまでの流れです。<strong>不正利用防止のため、SMS認証が必要</strong>です。
+          </p>
+
+          <div className="t-reg-flow">
+            <div className="t-reg-step">
+              <div className="t-reg-num">1</div>
+              <div className="t-reg-content">
+                <h4>🔗 QRコードを読み取る</h4>
+                <p>店頭POPのQRコードをスマホでスキャン。アプリのインストールは不要です。</p>
+              </div>
+            </div>
+
+            <div className="t-reg-step is-ios">
+              <div className="t-reg-num">2</div>
+              <div className="t-reg-content">
+                <h4>📱 iPhoneの場合：ホーム画面に追加</h4>
+                <p>
+                  iOSの仕様上、Webプッシュ通知を受け取るには<strong>「ホーム画面に追加」が必須</strong>です。
+                  <br />
+                  Safari下部の「共有ボタン（□に↑）」 → <strong>「ホーム画面に追加」</strong>をタップ →
+                  ホーム画面に作成されたアイコンから開きます。
+                </p>
+              </div>
+            </div>
+
+            <div className="t-reg-step is-sms">
+              <div className="t-reg-num">3</div>
+              <div className="t-reg-content">
+                <h4>📞 電話番号でSMS認証</h4>
+                <p>
+                  電話番号を入力すると、SMSで6桁の認証コードが届きます。
+                  コードを入力して認証完了。<br />
+                  <strong>認証は一度だけ</strong>。以降は認証済みの端末として扱われます。
+                </p>
+              </div>
+            </div>
+
+            <div className="t-reg-step">
+              <div className="t-reg-num">4</div>
+              <div className="t-reg-content">
+                <h4>🔔 通知を許可する</h4>
+                <p>ブラウザの通知許可ダイアログで「許可」をタップ。これで登録完了です。</p>
+              </div>
+            </div>
+          </div>
+
+          {/* SMS認証の目的（安心感の訴求） */}
+          <div className="t-sms-reason">
+            <div className="t-sms-reason-head">
+              <span className="t-sms-reason-icon">🛡️</span>
+              <h3>なぜSMS認証が必要なのですか？</h3>
+            </div>
+            <p className="t-sms-reason-lead">
+              SMS認証は、<strong>クーポンの不正利用を防ぐため</strong>に設けています。
+            </p>
+
+            <div className="t-sms-reason-grid">
+              <div className="t-sms-reason-card is-bad">
+                <div className="t-sms-badge is-bad">SMS認証がない場合</div>
+                <ul>
+                  <li>同じ人が何度も登録し直せる</li>
+                  <li>「初回クーポン」を何度も使い回せる</li>
+                  <li>店舗の貴重なクーポンが不正消費される</li>
+                </ul>
+              </div>
+              <div className="t-sms-reason-card is-good">
+                <div className="t-sms-badge is-good">SMS認証がある場合</div>
+                <ul>
+                  <li>電話番号1つにつき、<strong>1回のみ</strong>登録可能</li>
+                  <li>初回クーポンの使い回しを完全ブロック</li>
+                  <li>お客様は安心してご利用いただける</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="t-sms-reason-note">
+              <strong>💡 電話番号はSMS認証以外の用途では一切使用しません</strong>
+              <p>
+                ご登録いただいた電話番号は、本人確認（SMS認証）のみに使用し、
+                マーケティング目的の営業電話・SMS送信などは<strong>一切行いません</strong>。
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* 顧客側の画面 */}
         <section className="t-section">
           <div className="t-sec-head">
@@ -612,6 +704,74 @@ export default function TorisetsuBasic() {
           .t-plan-table { font-size: 12px; }
           .t-plan-table th, .t-plan-table td { padding: 10px 12px; }
         }
+
+                /* ============================================================
+           お客様の登録フロー
+        ============================================================ */
+        .t-reg-flow { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; }
+        .t-reg-step { display: flex; gap: 16px; padding: 20px 24px; background: #fff; border: 2px solid #e2e8f0; border-radius: 14px; align-items: flex-start; }
+        .t-reg-step.is-ios { border-color: #bae6fd; background: #f0f9ff; }
+        .t-reg-step.is-sms { border-color: #86efac; background: #f0fdf4; }
+        .t-reg-step.is-pro { border-color: #fed7aa; background: #fff7ed; }
+        .t-reg-num { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: linear-gradient(135deg, #ff4500, #f97316); color: #fff; border-radius: 50%; font-size: 16px; font-weight: 900; box-shadow: 0 4px 12px rgba(255,69,0,0.25); flex-shrink: 0; }
+        .t-reg-content h4 { font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 8px; }
+        .t-reg-content p { font-size: 13.5px; color: #475569; line-height: 1.8; margin: 0; }
+        .t-reg-content strong { color: #0f172a; }
+
+        /* SMS認証の理由 */
+        .t-sms-reason { padding: 28px; background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 2px solid #86efac; border-radius: 20px; margin-bottom: 24px; }
+        .t-sms-reason-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .t-sms-reason-icon { font-size: 32px; }
+        .t-sms-reason-head h3 { font-size: 20px; font-weight: 900; color: #166534; margin: 0; letter-spacing: -0.5px; }
+        .t-sms-reason-lead { font-size: 15px; color: #166534; line-height: 1.8; margin: 0 0 24px; }
+        .t-sms-reason-lead strong { color: #14532d; background: #fef3c7; padding: 2px 8px; border-radius: 4px; }
+        .t-sms-reason-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        .t-sms-reason-card { padding: 18px 20px; border-radius: 14px; }
+        .t-sms-reason-card.is-bad { background: #fef2f2; border: 1px solid #fecaca; }
+        .t-sms-reason-card.is-good { background: #fff; border: 1px solid #86efac; }
+        .t-sms-badge { display: inline-block; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 12px; margin-bottom: 12px; }
+        .t-sms-badge.is-bad { background: #dc2626; color: #fff; }
+        .t-sms-badge.is-good { background: #16a34a; color: #fff; }
+        .t-sms-reason-card ul { margin: 0; padding-left: 20px; font-size: 13.5px; line-height: 1.9; }
+        .t-sms-reason-card.is-bad ul { color: #7f1d1d; }
+        .t-sms-reason-card.is-good ul { color: #14532d; }
+        .t-sms-reason-card strong { font-weight: 800; }
+        .t-sms-reason-note { padding: 18px 22px; background: #fff; border: 1px solid #86efac; border-radius: 12px; }
+        .t-sms-reason-note strong { display: block; font-size: 14px; color: #166534; margin-bottom: 8px; }
+        .t-sms-reason-note p { font-size: 13px; color: #475569; line-height: 1.8; margin: 0; }
+        .t-sms-reason-note p strong { display: inline; color: #dc2626; }
+
+        @media (max-width: 640px) {
+          .t-sms-reason-grid { grid-template-columns: 1fr; }
+          .t-reg-step { padding: 16px 18px; }
+        }
+
+        /* ============================================================
+           不正利用防止（PRO）
+        ============================================================ */
+        .t-fraud-prevention { padding: 28px; background: #fff; border: 2px solid #fed7aa; border-radius: 20px; margin-top: 24px; }
+        .t-fraud-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .t-fraud-icon { font-size: 32px; }
+        .t-fraud-head h3 { font-size: 20px; font-weight: 900; color: #c2410c; margin: 0; letter-spacing: -0.5px; }
+        .t-fraud-lead { font-size: 15px; color: #7c2d12; line-height: 1.8; margin: 0 0 24px; }
+        .t-fraud-lead strong { color: #ea580c; background: #ffedd5; padding: 2px 8px; border-radius: 4px; }
+        .t-fraud-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .t-fraud-card { position: relative; padding: 22px 18px 18px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 14px; }
+        .t-fraud-num { position: absolute; top: -12px; left: 18px; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: linear-gradient(135deg, #ea580c, #f97316); color: #fff; border-radius: 50%; font-size: 14px; font-weight: 900; border: 3px solid #fff; box-shadow: 0 4px 10px rgba(234,88,12,0.25); }
+        .t-fraud-card h4 { font-size: 14px; font-weight: 800; color: #c2410c; margin: 0 0 8px; padding-top: 6px; }
+        .t-fraud-card p { font-size: 13px; color: #7c2d12; line-height: 1.8; margin: 0; }
+        .t-fraud-card strong { color: #ea580c; }
+        .t-fraud-note { padding: 18px 22px; background: #fff; border: 1px solid #fed7aa; border-radius: 12px; }
+        .t-fraud-note strong { display: block; font-size: 14px; color: #c2410c; margin-bottom: 8px; }
+        .t-fraud-note p { font-size: 13px; color: #475569; line-height: 1.8; margin: 0; }
+
+        /* 誕生日モックアップ */
+        .t-birthday-mockup { padding: 16px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 12px; }
+        .t-birthday-mockup h4 { font-size: 13px; font-weight: 800; color: #9a3412; margin: 0 0 10px; }
+        .t-birthday-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .t-birthday-select { flex: 1; padding: 10px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; font-size: 13px; color: #94a3b8; }
+        .t-birthday-warn { font-size: 11px; font-weight: 700; color: #c2410c; margin-bottom: 10px; line-height: 1.6; }
+        .t-birthday-btn { padding: 10px; background: #ea580c; color: #fff; border-radius: 6px; text-align: center; font-weight: 800; font-size: 13px; }
       `}</style>
     </>
   );
