@@ -795,6 +795,8 @@
   .programs-page .logo { font-size: 18px; }
 }
 
-@media (max-width: 480px) {
-  .programs-page .pillars { grid-template-columns: 1fr; }
+@media (max-width: 768px) {
+  .programs-page .nav-cta {
+    display: none;
+  }
 }
