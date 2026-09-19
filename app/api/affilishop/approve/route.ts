@@ -75,8 +75,10 @@ export async function GET(request: Request) {
       });
     } catch (e: any) {
       if (e.code === 'auth/email-already-exists') {
-        userRecord = await authAdmin.getUserByEmail(normalizedEmail);
-        await authAdmin.updateUser(userRecord.uid, { password: generatedPassword });
+        return NextResponse.json(
+          { error: 'このメールアドレスの認証アカウントは既に存在します。別のメールアドレスを指定してください。' },
+          { status: 409 }
+        );
       } else {
         throw e;
       }

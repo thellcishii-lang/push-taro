@@ -1,10 +1,14 @@
-import admin from 'firebase-admin';
+import { App, cert, getApps, initializeApp } from 'firebase-admin/app';
+import { Auth, getAuth } from 'firebase-admin/auth';
+import { Firestore, getFirestore } from 'firebase-admin/firestore';
+import { getMessaging, Messaging } from 'firebase-admin/messaging';
 
 // 🔥 遅延初期化：初回アクセス時にのみ初期化する
-function getAdminApp(): admin.app.App {
+function getAdminApp(): App {
   // 既に初期化済みなら、それを返す
-  if (admin.apps.length > 0) {
-    return admin.apps[0]!;
+  const apps = getApps();
+  if (apps.length > 0) {
+    return apps[0];
   }
 
   const projectId = process.env.FIREBASE_PROJECT_ID;
@@ -22,8 +26,8 @@ function getAdminApp(): admin.app.App {
     throw new Error('Firebase Admin SDK の環境変数が不足しています');
   }
 
-  const app = admin.initializeApp({
-    credential: admin.credential.cert({
+  const app = initializeApp({
+    credential: cert({
       projectId,
       clientEmail,
       privateKey,
@@ -35,28 +39,28 @@ function getAdminApp(): admin.app.App {
 }
 
 // 🔥 getter 経由で遅延初期化（ビルド時には実行されない）
-export const messaging = new Proxy({} as admin.messaging.Messaging, {
+export const messaging = new Proxy({} as Messaging, {
   get: (_, prop) => {
     const app = getAdminApp();
-    const instance = admin.messaging(app);
+    const instance = getMessaging(app);
     const value = (instance as any)[prop];
     return typeof value === 'function' ? value.bind(instance) : value;
   },
 });
 
-export const db = new Proxy({} as admin.firestore.Firestore, {
+export const db = new Proxy({} as Firestore, {
   get: (_, prop) => {
     const app = getAdminApp();
-    const instance = admin.firestore(app);
+    const instance = getFirestore(app);
     const value = (instance as any)[prop];
     return typeof value === 'function' ? value.bind(instance) : value;
   },
 });
 
-export const authAdmin = new Proxy({} as admin.auth.Auth, {
+export const authAdmin = new Proxy({} as Auth, {
   get: (_, prop) => {
     const app = getAdminApp();
-    const instance = admin.auth(app);
+    const instance = getAuth(app);
     const value = (instance as any)[prop];
     return typeof value === 'function' ? value.bind(instance) : value;
   },

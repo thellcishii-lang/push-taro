@@ -49,8 +49,7 @@ try {
   });
 } catch (e: any) {
   if (e.code === 'auth/email-already-exists') {
-    userRecord = await authAdmin.getUserByEmail(normalizedEmail);
-    await authAdmin.updateUser(userRecord.uid, { password: generatedPassword });
+    throw new Error('このメールアドレスの認証アカウントは既に存在します');
   } else {
     throw e;
   }

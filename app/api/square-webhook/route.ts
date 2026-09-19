@@ -5,6 +5,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
 import { notifyAdmins } from '@/lib/error-notifier';
+import { FieldValue } from 'firebase-admin/firestore';
 import crypto from 'crypto';
 
 import { handlePaymentFailed } from '@/lib/square-webhook/handle-payment-failed';
@@ -14,6 +15,31 @@ import { handleRecurring } from '@/lib/square-webhook/handle-recurring';
 import { handleAgencyPaymentSuccess, handleAgencyPaymentFailed } from '@/lib/square-webhook/handle-agency-payment';
 
 export const dynamic = 'force-dynamic';
+
+const WEBHOOK_CLAIM_LEASE_MS = 10 * 60 * 1000;
+
+async function claimWebhookEvent(eventKey: string, eventType: string) {
+  const eventRef = db.collection('square_webhook_events').doc(eventKey);
+  const claimed = await db.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(eventRef);
+    const data = snapshot.data();
+    const claimedAt = data?.claimedAt?.toMillis?.() || 0;
+
+    if (data?.status === 'completed' || (data?.status === 'processing' && claimedAt > Date.now() - WEBHOOK_CLAIM_LEASE_MS)) {
+      return false;
+    }
+
+    transaction.set(eventRef, {
+      eventType,
+      status: 'processing',
+      claimedAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
+    return true;
+  });
+
+  return { claimed, eventRef };
+}
 
 async function verifySquareSignature(request: Request, rawBody: string): Promise<boolean> {
   const signature = request.headers.get('x-square-hmacsha256-signature');
@@ -59,11 +85,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
+  const eventType = String(body?.type || 'unknown');
+  const sourceEventId = String(body?.event_id || body?.id || rawBody);
+  const eventKey = crypto.createHash('sha256').update(sourceEventId).digest('hex');
+  const { claimed, eventRef } = await claimWebhookEvent(eventKey, eventType);
+  if (!claimed) {
+    console.log(`[Square Webhook] 重複イベントをスキップ: ${sourceEventId}`);
+    return NextResponse.json({ received: true, alreadyProcessed: true }, { status: 200 });
+  }
+
+  let processingCompleted = false;
   try {
-    const eventType = body?.type;
     const dataObject = body?.data?.object;
 
     console.log(`[Square Webhook 受信] イベント種別: ${eventType}`);
+
+    const response = await (async () => {
 
     // ============================================================
     // 1. 引き落とし失敗
@@ -185,11 +222,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
-    // その他のイベントタイプは無視
-    return NextResponse.json({ received: true }, { status: 200 });
+      // その他のイベントタイプは無視
+      return NextResponse.json({ received: true }, { status: 200 });
+    })();
+
+    processingCompleted = true;
+    await eventRef.update({
+      status: 'completed',
+      completedAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+    return response;
 
   } catch (error: any) {
     console.error('[square-webhook] エラー:', error);
+
+    if (!processingCompleted) {
+      await eventRef.delete().catch((claimError) => {
+        console.error('[square-webhook] イベントclaim解放エラー:', claimError);
+      });
+    }
 
     await notifyAdmins(error, {
       source: 'square-webhook',

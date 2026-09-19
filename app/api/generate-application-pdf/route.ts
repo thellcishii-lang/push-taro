@@ -5,14 +5,44 @@
  */
 import { NextResponse } from 'next/server';
 import { generateApplicationPDF } from '@/lib/pdf-generator';
+import { enforceRateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
 const VALID_TYPES = ['shop', 'agency', 'affiliate'] as const;
+const MAX_REQUEST_BYTES = 32 * 1024;
+const MAX_FIELD_LENGTH = 500;
+
+function containsOversizedString(value: unknown): boolean {
+  if (typeof value === 'string') return value.length > MAX_FIELD_LENGTH;
+  if (Array.isArray(value)) return value.some(containsOversizedString);
+  if (value && typeof value === 'object') {
+    return Object.values(value).some(containsOversizedString);
+  }
+  return false;
+}
 
 export async function POST(request: Request) {
+  const retryAfter = await enforceRateLimit(request, 'generate-application-pdf', 10, 60 * 1000);
+  if (retryAfter !== null) {
+    return NextResponse.json(
+      { error: 'しばらく待ってから再度お試しください' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+    );
+  }
+
   try {
-    const { type, data } = await request.json();
+    const contentLength = Number(request.headers.get('content-length') || 0);
+    if (contentLength > MAX_REQUEST_BYTES) {
+      return NextResponse.json({ error: 'リクエストが大きすぎます' }, { status: 413 });
+    }
+
+    const rawBody = await request.text();
+    if (Buffer.byteLength(rawBody, 'utf8') > MAX_REQUEST_BYTES) {
+      return NextResponse.json({ error: 'リクエストが大きすぎます' }, { status: 413 });
+    }
+
+    const { type, data } = JSON.parse(rawBody);
 
     if (!VALID_TYPES.includes(type)) {
       return NextResponse.json(
@@ -22,6 +52,9 @@ export async function POST(request: Request) {
     }
     if (!data || typeof data !== 'object') {
       return NextResponse.json({ error: 'data が必要です' }, { status: 400 });
+    }
+    if (containsOversizedString(data)) {
+      return NextResponse.json({ error: '入力項目は500文字以内で指定してください' }, { status: 400 });
     }
 
     const pdfBuffer = await generateApplicationPDF(type, data);

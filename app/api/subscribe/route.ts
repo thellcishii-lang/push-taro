@@ -2,20 +2,7 @@ import { NextResponse } from 'next/server';
 import { messaging, db, authAdmin } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { randomUUID } from 'crypto';
-
-const rateLimit = new Map();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const record = rateLimit.get(ip);
-  if (!record || now > record.resetAt) {
-    rateLimit.set(ip, { count: 1, resetAt: now + 60000 });
-    return false;
-  }
-  if (record.count >= 10) return true;
-  record.count++;
-  return false;
-}
+import { enforceRateLimit } from '@/lib/rate-limit';
 
 function getCustomerId(request: Request): string {
   const cookieHeader = request.headers.get('cookie') || '';
@@ -28,10 +15,12 @@ function getCustomerId(request: Request): string {
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
-
-  if (isRateLimited(ip)) {
-    return NextResponse.json({ error: 'レート制限を超えました' }, { status: 429 });
+  const retryAfter = await enforceRateLimit(request, 'subscribe', 20, 60 * 1000);
+  if (retryAfter !== null) {
+    return NextResponse.json(
+      { error: 'レート制限を超えました' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+    );
   }
 
   try {

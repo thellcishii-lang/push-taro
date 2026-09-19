@@ -14,6 +14,7 @@ export interface PushJob {
   body: string;
   url?: string;
   notificationId: string;
+  openToken?: string;
   status: PushJobStatus;
   cursor?: string;
   successCount: number;
@@ -28,6 +29,7 @@ export interface PushJob {
 export async function enqueuePushJob(input: Omit<PushJob, 'status' | 'successCount' | 'failureCount' | 'processedCount' | 'createdAt' | 'updatedAt'>) {
   const jobRef = db.collection('push_jobs').doc();
   const shopRef = db.collection('shops').doc(input.shopId);
+  const openToken = crypto.randomUUID();
 
   await db.runTransaction(async (transaction) => {
     const shopSnapshot = await transaction.get(shopRef);
@@ -45,6 +47,7 @@ export async function enqueuePushJob(input: Omit<PushJob, 'status' | 'successCou
       title: input.title,
       body: input.body,
       notificationId: input.notificationId,
+      openToken,
       ...(input.url ? { url: input.url } : {}),
       status: 'queued',
       successCount: 0,
@@ -131,6 +134,7 @@ export async function processPushJobBatch(jobId: string): Promise<'skipped' | 'p
         successCount: job.successCount,
         failureCount: job.failureCount,
         openedCount: 0,
+        openToken: job.openToken || job.notificationId,
       }, { merge: true });
     });
     return 'completed';
@@ -165,6 +169,7 @@ export async function processPushJobBatch(jobId: string): Promise<'skipped' | 'p
         url: target.toString(),
         shopId: job.shopId,
         notificationId: job.notificationId,
+        openToken: job.openToken || job.notificationId,
       },
       webpush: { headers: { Urgency: 'high' }, fcmOptions: { link: target.toString() } },
       android: { priority: 'high', notification: { title: job.title, body: job.body, icon: displayIcon } },

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
+import { enforceRateLimit } from '@/lib/rate-limit';
 
 // 紹介コード生成
 //   recurring（ストック型）: AF-S-XXXXXX
@@ -29,6 +30,14 @@ function generatePassword(): string {
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  const retryAfter = await enforceRateLimit(request, 'signup-affiliate', 10, 10 * 60 * 1000);
+  if (retryAfter !== null) {
+    return NextResponse.json(
+      { error: 'しばらく待ってから再度お試しください' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+    );
+  }
+
   let createdAffiliateId: string | null = null;
   let createdAuthUid: string | null = null;
   let isNewAuthUser = false;
@@ -81,7 +90,7 @@ export async function POST(request: Request) {
     }
 
     // ============================================================
-    // 2. Auth ユーザー作成（既存ならパスワード上書き）
+    // 2. Auth ユーザー作成
     // ============================================================
     const generatedPassword = generatePassword();
 
@@ -95,9 +104,10 @@ export async function POST(request: Request) {
       isNewAuthUser = true;
     } catch (e: any) {
       if (e.code === 'auth/email-already-exists') {
-        userRecord = await authAdmin.getUserByEmail(normalizedEmail);
-        await authAdmin.updateUser(userRecord.uid, { password: generatedPassword });
-        isNewAuthUser = false;
+        return NextResponse.json(
+          { error: 'このメールアドレスは既に登録されています' },
+          { status: 409 }
+        );
       } else {
         throw e;
       }

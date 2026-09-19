@@ -11,6 +11,7 @@
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { sendEmail } from '@/lib/mailer';
+import { enforceRateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,6 +25,14 @@ const ROLE_LABELS: Record<Role, string> = {
 };
 
 export async function POST(request: Request) {
+  const retryAfter = await enforceRateLimit(request, 'reset-password', 5, 15 * 60 * 1000);
+  if (retryAfter !== null) {
+    return NextResponse.json(
+      { error: 'しばらく待ってから再度お試しください' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+    );
+  }
+
   try {
     const { email, role } = await request.json();
 

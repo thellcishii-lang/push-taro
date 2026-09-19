@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
+import { enforceRateLimit } from '@/lib/rate-limit';
 
 // 紹介コード生成（AGENCY-XXXXXX）
 function generateReferralCode(): string {
@@ -26,6 +27,14 @@ function generatePassword(): string {
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  const retryAfter = await enforceRateLimit(request, 'signup-agency', 10, 10 * 60 * 1000);
+  if (retryAfter !== null) {
+    return NextResponse.json(
+      { error: 'しばらく待ってから再度お試しください' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+    );
+  }
+
   try {
     const {
       businessType,
@@ -83,8 +92,10 @@ try {
   });
 } catch (e: any) {
   if (e.code === 'auth/email-already-exists') {
-    userRecord = await authAdmin.getUserByEmail(normalizedEmail);
-    await authAdmin.updateUser(userRecord.uid, { password: generatedPassword });
+    return NextResponse.json(
+      { error: 'このメールアドレスは既に登録されています' },
+      { status: 409 }
+    );
   } else {
     throw e;
   }

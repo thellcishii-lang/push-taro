@@ -12,11 +12,34 @@
  */
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
+import { getAuth } from 'firebase-admin/auth';
+import { enforceRateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  const retryAfter = await enforceRateLimit(request, 'set-birthday', 10, 10 * 60 * 1000);
+  if (retryAfter !== null) {
+    return NextResponse.json(
+      { success: false, error: 'しばらく待ってから再度お試しください' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+    );
+  }
+
   try {
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ success: false, error: '電話番号認証が必要です' }, { status: 401 });
+    }
+
+    let customerUid: string;
+    try {
+      const decoded = await getAuth().verifyIdToken(authHeader.slice('Bearer '.length));
+      customerUid = decoded.uid;
+    } catch {
+      return NextResponse.json({ success: false, error: '認証の有効期限が切れています' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { token, birthMonth: rawBirthMonth, birthDay: rawBirthDay } = body;
 
@@ -31,21 +54,30 @@ export async function POST(request: Request) {
     }
 
     const docRef = db.collection('subscriptions').doc(token);
-    const doc = await docRef.get();
+    const result = await db.runTransaction(async (transaction) => {
+      const doc = await transaction.get(docRef);
+      if (!doc.exists) return 'not-found' as const;
 
-    if (!doc.exists) {
+      const data = doc.data()!;
+      if (!data.customerUid || data.customerUid !== customerUid) return 'forbidden' as const;
+      if (data.birthMonth && data.birthDay) return 'already-set' as const;
+
+      transaction.set(docRef, { birthMonth, birthDay }, { merge: true });
+      return 'saved' as const;
+    });
+
+    if (result === 'not-found') {
       return NextResponse.json({ success: false, error: '顧客情報が見つかりません' }, { status: 404 });
     }
-
-    const data = doc.data()!;
-    if (data.birthMonth && data.birthDay) {
+    if (result === 'forbidden') {
+      return NextResponse.json({ success: false, error: 'この顧客情報を更新する権限がありません' }, { status: 403 });
+    }
+    if (result === 'already-set') {
       return NextResponse.json(
         { success: false, error: '誕生日・記念日は既に設定済みのため変更できません' },
         { status: 409 }
       );
     }
-
-    await docRef.set({ birthMonth, birthDay }, { merge: true });
 
     return NextResponse.json({ success: true, birthMonth, birthDay });
   } catch (error: any) {

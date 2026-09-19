@@ -372,9 +372,17 @@ useEffect(() => {
     setBirthdaySetMessage('');
 
     try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        throw new Error('電話番号認証が必要です');
+      }
+
       const res = await fetch('/api/set-birthday', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${await currentUser.getIdToken()}`,
+        },
         body: JSON.stringify({ token: fcmToken, birthMonth, birthDay }),
       });
       const data = await res.json().catch(() => ({}));

@@ -11,6 +11,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
+import { enforceRateLimit } from '@/lib/rate-limit';
 
 // 紹介コード生成（ASHOP-XXXXXX）
 function generateReferralCode(): string {
@@ -25,6 +26,14 @@ function generateReferralCode(): string {
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  const retryAfter = await enforceRateLimit(request, 'signup-affilishop', 10, 10 * 60 * 1000);
+  if (retryAfter !== null) {
+    return NextResponse.json(
+      { error: 'しばらく待ってから再度お試しください' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+    );
+  }
+
   try {
     const {
       businessType,

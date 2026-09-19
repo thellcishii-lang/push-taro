@@ -3,6 +3,7 @@ import { db, authAdmin } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../lib/mailer';
 import { notifyAdmins } from '@/lib/error-notifier';
+import { enforceRateLimit } from '@/lib/rate-limit';
 import {
   AGENCY_RATE_OTHER,
   PRO_REFERRAL_RATE,
@@ -13,6 +14,14 @@ import {
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  const retryAfter = await enforceRateLimit(request, 'signup-shop', 10, 10 * 60 * 1000);
+  if (retryAfter !== null) {
+    return NextResponse.json(
+      { error: 'しばらく待ってから再度お試しください' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+    );
+  }
+
   // ★★★ 追加ここから ★★★
   console.log('[ENV-CHECK] GMAIL_USER:', process.env.GMAIL_USER ? 'SET' : 'MISSING');
   console.log('[ENV-CHECK] GMAIL_PASS:', process.env.GMAIL_PASS ? `SET (len=${process.env.GMAIL_PASS.length})` : 'MISSING');
@@ -59,7 +68,15 @@ export async function POST(request: Request) {
     // ============================================================
 
     // 🔥 2-1. Firebase Auth の重複チェック
-    
+    try {
+      await authAdmin.getUserByEmail(normalizedEmail);
+      return NextResponse.json({
+        error: 'このメールアドレスはすでに登録されています。管理画面よりログインしてください。',
+        status: 'already_registered',
+      }, { status: 409 });
+    } catch (error: any) {
+      if (error.code !== 'auth/user-not-found') throw error;
+    }
 
     // 🔥 2-2. Firestore (shops) の重複チェック（既存）
     const existingShops = await db.collection('shops')

@@ -3,9 +3,9 @@ import { db } from '../../../lib/firebase-admin';
 
 export async function GET(
   request: Request,
-  { params }: { params: { shopId: string } }
+  { params }: { params: Promise<{ shopId: string }> }
 ) {
-  const shopId = params.shopId;
+  const { shopId } = await params;
   const mode = new URL(request.url).searchParams.get('mode');
   
   let shopName = 'プッシュ通知';

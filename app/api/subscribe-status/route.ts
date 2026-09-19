@@ -13,7 +13,6 @@
  */
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
 
 export const dynamic = 'force-dynamic';
 
@@ -68,6 +67,14 @@ export async function GET(request: Request) {
     }
 
     const data = doc.data()!;
+    const shopIds = Array.isArray(data.shopIds) ? data.shopIds : [];
+    if (!shopIds.includes(shopId)) {
+      return NextResponse.json(
+        { success: false, error: 'この購読は指定店舗に紐づいていません' },
+        { status: 403 }
+      );
+    }
+
     const shopDoc = await db.collection('shops').doc(shopId).get();
     const normalCouponId = shopDoc.data()?.normalCoupon?.couponId || 'legacy';
 
@@ -79,29 +86,18 @@ export async function GET(request: Request) {
     let stepUpIndex = usage.stepUpIndex || 0;
     let repeatCouponUsedAt = usage.repeatCouponUsedAt || null;
     let repeatCouponActiveUntilRaw = usage.repeatCouponActiveUntil || null;
-    const resetFields: Record<string, any> = {};
 
     let stepUpIndexUpdatedAt: any = usage.stepUpIndexUpdatedAt || null;
     const stepUpCampaignId = proCoupons.stepUp?.campaignId || null;
     if (stepUpCampaignId && usage.stepUpCampaignId !== stepUpCampaignId) {
       stepUpIndex = 0;
       stepUpIndexUpdatedAt = new Date();
-      resetFields[`couponUsage.${shopId}.stepUpIndex`] = 0;
-      resetFields[`couponUsage.${shopId}.stepUpIndexUpdatedAt`] = FieldValue.serverTimestamp();
-      resetFields[`couponUsage.${shopId}.stepUpCampaignId`] = stepUpCampaignId;
     }
 
     const repeatCampaignId = proCoupons.repeat?.campaignId || null;
     if (repeatCampaignId && usage.repeatCampaignId !== repeatCampaignId) {
       repeatCouponUsedAt = null;
       repeatCouponActiveUntilRaw = null;
-      resetFields[`couponUsage.${shopId}.repeatCouponUsedAt`] = null;
-      resetFields[`couponUsage.${shopId}.repeatCouponActiveUntil`] = null;
-      resetFields[`couponUsage.${shopId}.repeatCampaignId`] = repeatCampaignId;
-    }
-
-    if (Object.keys(resetFields).length > 0) {
-      await doc.ref.update(resetFields);
     }
 
     const repeatActiveUntil = repeatCouponActiveUntilRaw?.toDate?.()?.toISOString?.() || repeatCouponActiveUntilRaw || null;

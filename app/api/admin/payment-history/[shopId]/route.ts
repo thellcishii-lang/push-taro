@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
   request: Request,
-  { params }: { params: { shopId: string } }
+  { params }: { params: Promise<{ shopId: string }> }
 ) {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
@@ -26,7 +26,7 @@ export async function GET(
   }
 
   try {
-    const shopId = params.shopId;
+    const { shopId } = await params;
     const shopDoc = await db.collection('shops').doc(shopId).get();
     if (!shopDoc.exists) {
       return NextResponse.json({ error: '店舗が見つかりません' }, { status: 404 });

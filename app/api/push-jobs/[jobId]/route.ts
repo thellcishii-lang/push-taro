@@ -5,7 +5,7 @@ import { getPushJob } from '@/lib/push-job';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request, { params }: { params: { jobId: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ jobId: string }> }) {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
     return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
@@ -13,7 +13,8 @@ export async function GET(request: Request, { params }: { params: { jobId: strin
 
   try {
     const { uid } = await getAuth().verifyIdToken(authHeader.slice(7));
-    const job = await getPushJob(params.jobId);
+    const { jobId } = await params;
+    const job = await getPushJob(jobId);
     if (!job) return NextResponse.json({ error: 'ジョブが見つかりません' }, { status: 404 });
 
     const shop = await db.collection('shops').doc(String(job.shopId)).get();
