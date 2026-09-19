@@ -683,6 +683,14 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
           <span style={{ fontSize: '13px', color: '#666' }}>{user.email}</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <a
+              href="https://push-taro.com/torisetsu"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ padding: '8px 16px', background: '#fff7ed', color: '#c2410c', border: '1px solid #fdba74', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none' }}
+            >
+              📖 取扱説明書
+            </a>
             <button
               type="button"
               onClick={() => window.location.reload()}

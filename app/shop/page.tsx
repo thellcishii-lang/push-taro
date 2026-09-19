@@ -561,6 +561,14 @@ export default function ShopPage() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '14px', color: '#666' }}>{user.email}</span>
+          <a
+            href="https://push-taro.com/torisetsu"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ padding: '8px 16px', background: '#fff7ed', color: '#c2410c', border: '1px solid #fdba74', borderRadius: '4px', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none' }}
+          >
+            📖 取扱説明書
+          </a>
           <button onClick={() => signOut(auth)} style={{ padding: '8px 16px', cursor: 'pointer', borderRadius: '4px', border: '1px solid #ccc' }}>
             ログアウト
           </button>
