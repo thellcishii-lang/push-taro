@@ -42,8 +42,8 @@ export default function CouponFirstFeature() {
           <span className="g-badge is-all">全プラン対応</span>
           <h1>🎫 初回クーポン</h1>
           <p>
-            QRコードから通知登録したお客様に、<strong>自動で配布される初回特典</strong>です。
-            登録の動機づけと、1回目の来店を促す役割を担います。
+            QRコードから通知登録したお客様に、設定しておくと<strong>自動で配布される初回特典</strong>です。
+            PUSH通知を受け取ってもらうためにはまず登録してもらうための動機づけが必須となります。これがLIGHTプランから全てのプランに付いてます。
           </p>
         </div>
 
@@ -59,8 +59,7 @@ export default function CouponFirstFeature() {
 
           <h2 className="g-h2"><span className="num">2</span>こんな時に使う</h2>
           <div className="g-usecase-grid">
-            <div className="g-usecase-card"><span className="ico">🆕</span><h4>新規顧客の獲得</h4><p>「登録で10%OFF」で、QRを読み取る動機を作る。</p></div>
-            <div className="g-usecase-card"><span className="ico">📈</span><h4>顧客リスト構築</h4><p>登録者数がダイレクトに増えるので、リストを育てやすい。</p></div>
+            <div className="g-usecase-card"><span className="ico">🆕</span><h4>常連客への導線を引く</h4><p>「登録で10%OFF」で、QRを読み取る動機を作る。</p></div>
             <div className="g-usecase-card"><span className="ico">🔁</span><h4>2回目来店の約束</h4><p>「次回使える」クーポンとして、再来店を促す。</p></div>
             <div className="g-usecase-card"><span className="ico">📊</span><h4>施策の効果測定</h4><p>初回クーポンの消込率で、施策の良し悪しがわかる。</p></div>
           </div>
