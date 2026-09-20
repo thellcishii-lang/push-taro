@@ -5,6 +5,7 @@ import { auth } from '@/lib/firebase-client';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import Link from 'next/link';
 import PaymentFailuresSection from '@/components/PaymentFailuresSection';
+import PromotionalToolsSection from '@/components/PromotionalToolsSection';
 
 interface DetailedShop {
   id: string;
@@ -484,6 +485,8 @@ export default function AgencyDashboardPage() {
             </div>
           </div>
         )}
+
+        <PromotionalToolsSection />
 
         {/* 🆕 振込先口座情報 */}
         <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
