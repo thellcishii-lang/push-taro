@@ -223,6 +223,20 @@ useEffect(() => {
       const body = payload.data?.body || payload.notification?.body || '';
       const rawUrl = payload.data?.url || payload.data?.linkUrl || '/';
       const url = new URL(rawUrl, window.location.origin).toString();
+      const notificationId = payload.data?.notificationId || '';
+      const openToken = payload.data?.openToken || '';
+      if (notificationId && openToken) {
+        await fetch('/api/notification-open', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            notificationId,
+            openToken,
+            openReceiptId: crypto.randomUUID(),
+            eventType: 'opened',
+          }),
+        }).catch(() => undefined);
+      }
       const request = indexedDB.open('PushTaroDB', 3);
       request.onsuccess = (event: any) => {
         const historyDb = event.target.result;

@@ -12,6 +12,7 @@ export interface PushHistory {
   successCount?: number; // 👈 ここを追加！
   notificationId?: string;
   jobId?: string;
+  deliveredCount?: number;
   openedCount?: number;
   openRate?: number;
 }

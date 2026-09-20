@@ -896,8 +896,11 @@ export default function ShopPage() {
                       {typeof h.successCount === 'number' && (
                         <span style={{ fontSize: '12px', color: '#555', fontWeight: 'bold' }}>（送信数: {h.successCount}件）</span>
                       )}
-                      {typeof h.openRate === 'number' && h.notificationId && (
-                        <span style={{ fontSize: '12px', color: '#1565c0', fontWeight: 'bold' }}>開封率: {h.openRate.toFixed(1)}%</span>
+                      {isStandard && typeof h.openRate === 'number' && h.notificationId && (
+                        <span style={{ fontSize: '12px', color: '#1565c0', fontWeight: 'bold' }}>
+                          開封率: {h.openRate.toFixed(1)}%
+                          {typeof h.deliveredCount === 'number' && h.deliveredCount > 0 && `（${h.openedCount || 0}/${h.deliveredCount}件）`}
+                        </span>
                       )}
                     </div>
                   </div>

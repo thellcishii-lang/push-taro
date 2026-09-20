@@ -71,6 +71,7 @@ export async function enqueuePushJob(input: Omit<PushJob, 'status' | 'successCou
       status: 'pending',
       successCount: 0,
       failureCount: 0,
+      deliveredCount: 0,
       openedCount: 0,
       openToken,
     });
@@ -175,7 +176,14 @@ export async function processPushJobBatch(jobId: string): Promise<'skipped' | 'p
   const failedTokens: string[] = [];
   if (tokens.length > 0) {
     const appBaseUrl = getBaseUrl();
-    const target = new URL(job.url || `/subscribe?s=${job.shopId}`, appBaseUrl);
+    const customerHome = new URL(`/subscribe?s=${encodeURIComponent(job.shopId)}`, appBaseUrl);
+    let target = customerHome;
+    if (job.url) {
+      const destination = new URL(job.url, appBaseUrl);
+      target = new URL('/notification-link', appBaseUrl);
+      target.searchParams.set('target', destination.toString());
+      target.searchParams.set('returnTo', `${customerHome.pathname}${customerHome.search}`);
+    }
     const displayIcon = new URL(shop.iconUrl || '/icon-192x192.png', appBaseUrl).toString();
     const response = await messaging.sendEachForMulticast({
       tokens,
@@ -187,7 +195,6 @@ export async function processPushJobBatch(jobId: string): Promise<'skipped' | 'p
         shopId: job.shopId,
         notificationId: job.notificationId,
         openToken: job.openToken || job.notificationId,
-        openInNewWindow: job.url ? 'true' : 'false',
       },
       webpush: { headers: { Urgency: 'high' }, fcmOptions: { link: target.toString() } },
       android: { priority: 'high', notification: { title: job.title, body: job.body, icon: displayIcon } },

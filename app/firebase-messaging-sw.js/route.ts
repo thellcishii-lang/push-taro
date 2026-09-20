@@ -80,7 +80,6 @@ messaging.onBackgroundMessage(async (payload) => {
   const shopId = payload.data?.shopId || 'default';
   const notificationId = payload.data?.notificationId || '';
   const openToken = payload.data?.openToken || '';
-  const openInNewWindow = payload.data?.openInNewWindow === 'true';
   const openReceiptId = crypto.randomUUID();
 
   // 1. IndexedDB へ履歴保存
@@ -94,13 +93,21 @@ messaging.onBackgroundMessage(async (payload) => {
     ...(image ? { image } : {}),
     tag: shopId,
     renotify: true,
-    data: { url: linkUrl, notificationId, openToken, openReceiptId, openInNewWindow },
+    data: { url: linkUrl, notificationId, openToken, openReceiptId },
     vibrate: [200, 100, 200],
     silent: false,
     requireInteraction: true
   };
 
-  self.registration.showNotification(title, options);
+  await self.registration.showNotification(title, options);
+
+  if (notificationId && openToken && openReceiptId) {
+    await fetch(new URL('/api/notification-open', self.location.origin), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notificationId, openToken, openReceiptId, eventType: 'delivered' }),
+    }).catch(() => undefined);
+  }
 });
 
 // 📱 通知タップ時の画面遷移処理
@@ -110,19 +117,15 @@ self.addEventListener('notificationclick', (event) => {
   const notificationId = event.notification.data?.notificationId;
   const openToken = event.notification.data?.openToken;
   const openReceiptId = event.notification.data?.openReceiptId;
-  const openInNewWindow = event.notification.data?.openInNewWindow === true;
 
   event.waitUntil(
     Promise.all([
       notificationId && openToken && openReceiptId ? fetch(new URL('/api/notification-open', self.location.origin), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notificationId, openToken, openReceiptId }),
+        body: JSON.stringify({ notificationId, openToken, openReceiptId, eventType: 'opened' }),
       }).catch(() => undefined) : Promise.resolve(),
       clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      if (openInNewWindow && clients.openWindow) {
-        return clients.openWindow(urlToOpen);
-      }
       const sameOriginClient = windowClients.find((client) => {
         try {
           return new URL(client.url).origin === new URL(urlToOpen).origin;
@@ -149,6 +152,7 @@ self.addEventListener('notificationclick', (event) => {
     headers: {
       'Content-Type': 'application/javascript',
       'Service-Worker-Allowed': '/',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
     },
   });
 }

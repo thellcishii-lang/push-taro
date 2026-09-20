@@ -24,7 +24,9 @@ export async function GET(request: Request) {
     const histories = snapshot.docs.map((doc) => {
       const data = doc.data();
       const successCount = Number(data.successCount || 0);
+      const deliveredCount = Number(data.deliveredCount || 0);
       const openedCount = Number(data.openedCount || 0);
+      const openRateDenominator = deliveredCount > 0 ? deliveredCount : successCount;
       return {
         notificationId: data.notificationId || doc.id,
         title: String(data.title || ''),
@@ -34,8 +36,9 @@ export async function GET(request: Request) {
         status: data.status === 'success' ? 'success' : data.status === 'error' ? 'error' : 'pending',
         successCount,
         failureCount: Number(data.failureCount || 0),
+        deliveredCount,
         openedCount,
-        openRate: successCount > 0 ? Math.min(100, (openedCount / successCount) * 100) : null,
+        openRate: openRateDenominator > 0 ? Math.min(100, (openedCount / openRateDenominator) * 100) : null,
       };
     });
 

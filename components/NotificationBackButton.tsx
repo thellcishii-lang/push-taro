@@ -8,7 +8,7 @@ export default function NotificationBackButton() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const target = params.get('returnTo') || '';
-    if (target.startsWith('/')) setReturnTo(target);
+    if (target.startsWith('/subscribe?')) setReturnTo(target);
   }, []);
 
   if (!returnTo) return null;
