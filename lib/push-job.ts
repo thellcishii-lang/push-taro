@@ -187,6 +187,7 @@ export async function processPushJobBatch(jobId: string): Promise<'skipped' | 'p
         shopId: job.shopId,
         notificationId: job.notificationId,
         openToken: job.openToken || job.notificationId,
+        openInNewWindow: job.url ? 'true' : 'false',
       },
       webpush: { headers: { Urgency: 'high' }, fcmOptions: { link: target.toString() } },
       android: { priority: 'high', notification: { title: job.title, body: job.body, icon: displayIcon } },

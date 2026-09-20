@@ -27,6 +27,10 @@ export async function GET(request: Request) {
       const openedCount = Number(data.openedCount || 0);
       return {
         notificationId: data.notificationId || doc.id,
+        title: String(data.title || ''),
+        body: String(data.body || ''),
+        linkUrl: typeof data.linkUrl === 'string' ? data.linkUrl : undefined,
+        sentAt: data.sentAt?.toDate?.().toISOString() || null,
         status: data.status === 'success' ? 'success' : data.status === 'error' ? 'error' : 'pending',
         successCount,
         failureCount: Number(data.failureCount || 0),

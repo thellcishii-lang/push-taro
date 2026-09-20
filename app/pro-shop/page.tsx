@@ -290,9 +290,15 @@ export default function ProShopPage() {
       }
       const data = await response.json();
       const remote = new Map<string, PushHistory>(
-        data.histories.map((item: PushHistory) => [item.notificationId, item])
+        data.histories.map((item: PushHistory & { sentAt: string | null }) => [
+          item.notificationId,
+          { ...item, sentAt: item.sentAt ? new Date(item.sentAt) : new Date() },
+        ])
       );
-      setHistory(all.map((item) => ({ ...item, ...(item.notificationId ? remote.get(item.notificationId) : {}) })));
+      const localNotificationIds = new Set(all.map((item) => item.notificationId).filter(Boolean));
+      const mergedLocal = all.map((item) => ({ ...item, ...(item.notificationId ? remote.get(item.notificationId) : {}) }));
+      const remoteOnly = Array.from(remote.values()).filter((item) => !localNotificationIds.has(item.notificationId));
+      setHistory([...mergedLocal, ...remoteOnly].sort((a, b) => b.sentAt.getTime() - a.sentAt.getTime()));
     } finally {
       setHistoryLoading(false);
     }
