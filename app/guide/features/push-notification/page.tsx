@@ -43,7 +43,7 @@ export default function PushNotificationFeature() {
           <h1>📢 プッシュ通知</h1>
           <p>
             登録済みのお客様全員に、一斉に通知を配信する基本機能です。
-            タイトル・本文・リンク先URL・画像を自由に設定でき、開封率はメルマガの約6倍。
+            タイトル・本文・リンク先URLを自由に設定でき、開封率はなんと！メルマガの約6倍。
           </p>
         </div>
 
@@ -53,7 +53,6 @@ export default function PushNotificationFeature() {
           <h2 className="g-h2"><span className="num">1</span>この機能でできること</h2>
           <div className="g-feature-list">
             <div className="g-feature-item"><span className="ico">📢</span><div><strong>全登録者へ一斉配信</strong><p>QRコードから登録したお客様全員に、1回の操作で通知を届けます。</p></div></div>
-            <div className="g-feature-item"><span className="ico">🖼️</span><div><strong>画像付きリッチ通知</strong><p>画像URLを設定すれば、通知に画像を表示できます。</p></div></div>
             <div className="g-feature-item"><span className="ico">🔗</span><div><strong>リンク遷移</strong><p>タップで任意のURL（店舗サイト・予約ページ等）に遷移させられます。</p></div></div>
             <div className="g-feature-item"><span className="ico">📊</span><div><strong>送信数・成功数の記録</strong><p>送信履歴が自動で保存され、いつでも確認できます。</p></div></div>
           </div>
@@ -62,7 +61,7 @@ export default function PushNotificationFeature() {
           <h2 className="g-h2"><span className="num">2</span>こんな時に使う</h2>
           <div className="g-usecase-grid">
             <div className="g-usecase-card"><span className="ico">🔥</span><h4>セール・キャンペーン告知</h4><p>「本日限定20%OFF」を即時配信。来店動機を刺激。</p></div>
-            <div className="g-usecase-card"><span className="ico">🍰</span><h4>新商品入荷の告知</h4><p>新メニュー・新作の画像を添えて配信。</p></div>
+            <div className="g-usecase-card"><span className="ico">🍰</span><h4>新商品入荷の告知</h4><p>新メニュー・の特徴などを配信。</p></div>
             <div className="g-usecase-card"><span className="ico">☔</span><h4>天候に応じた配信</h4><p>「雨の日限定」を当日の天気に合わせて送信。</p></div>
             <div className="g-usecase-card"><span className="ico">⏰</span><h4>アイドルタイム対策</h4><p>「今空いてます」をリアルタイムで配信。</p></div>
           </div>
