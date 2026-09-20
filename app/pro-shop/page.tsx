@@ -144,6 +144,18 @@ export default function ProShopPage() {
           });
           const data = await res.json();
 
+          if (!res.ok || !data.success) {
+            alert('このアカウントはPRO管理画面を利用できません。');
+            await signOut(auth);
+            return;
+          }
+
+          if (String(data.shop?.plan || '').toLowerCase() !== 'pro') {
+            alert('PROプラン専用の管理画面です。');
+            await signOut(auth);
+            return;
+          }
+
           if (data.success) {
             const currentShopId = data.shopId;
             setShopId(currentShopId);

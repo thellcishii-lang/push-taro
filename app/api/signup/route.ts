@@ -4,6 +4,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../lib/mailer';
 import { notifyAdmins } from '@/lib/error-notifier';
 import { enforceRateLimit } from '@/lib/rate-limit';
+import { getReferrerDashboardUrl } from '@/lib/referrer-dashboard';
 import {
   AGENCY_RATE_OTHER,
   PRO_REFERRAL_RATE,
@@ -298,6 +299,7 @@ export async function POST(request: Request) {
     const ratePercent = rewardRate > 0
       ? `${(rewardRate * 100).toFixed(1)}%`
       : '初回のみ固定報酬';
+    const dashboardUrl = getReferrerDashboardUrl(referrerType);
 
     await sendEmail({
       to: referrerEmail,
@@ -308,7 +310,7 @@ export async function POST(request: Request) {
         <p><strong>店舗名:</strong> ${companyName || '未設定'}</p>
         <p><strong>紹介報酬:</strong> ${ratePercent}</p>
         <p>この店舗が決済を完了すると、紹介報酬が確定します。</p>
-        <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/affiliate/dashboard">ダッシュボードで確認する</a></p>
+        ${dashboardUrl ? `<p><a href="${dashboardUrl}">ダッシュボードで確認する</a></p>` : ''}
         <hr />
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>

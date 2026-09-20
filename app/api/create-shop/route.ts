@@ -142,6 +142,14 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, referralCode } = body;
 
+    const partnerCollections = ['agencies', 'affiliates', 'affilishops'];
+    for (const collection of partnerCollections) {
+      const partner = await db.collection(collection).where('uid', '==', uid).limit(1).get();
+      if (!partner.empty) {
+        return NextResponse.json({ error: 'このアカウントでは店舗管理画面を利用できません' }, { status: 403 });
+      }
+    }
+
     // ─── 既存店舗チェック ───
     const existing = await db.collection('shops').where('ownerUid', '==', uid).limit(1).get();
     if (!existing.empty) {

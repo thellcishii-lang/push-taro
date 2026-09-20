@@ -75,27 +75,8 @@ export default function ProShopDashboardPage() {
       try {
         const idToken = await u.getIdToken();
 
-        // 店舗情報取得（create-shop で存在確認 + shopId取得）
-        const createRes = await fetch('/api/create-shop', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${idToken}`,
-          },
-          body: JSON.stringify({}),
-        });
-        const createData = await createRes.json();
-
-        if (!createData.success) {
-          setLoading(false);
-          return;
-        }
-
-        const currentShopId = createData.shopId;
-        setShopId(currentShopId);
-
         // ダッシュボードデータ取得
-        const res = await fetch(`/api/pro-shop/dashboard?shopId=${currentShopId}`, {
+        const res = await fetch('/api/pro-shop/dashboard', {
           headers: { Authorization: `Bearer ${idToken}` },
         });
 
@@ -104,6 +85,7 @@ export default function ProShopDashboardPage() {
           const shop = data.shop || {};
           const summary = data.summary || {};
 
+          setShopId(shop.id || null);
           setShopName(shop.name || '');
           setReferralCode(shop.referralCode || '');
           setTotalEarnings(summary.totalEarnings || 0);
@@ -120,6 +102,8 @@ export default function ProShopDashboardPage() {
 
           setReferrals(data.referrals || []);
           setRewards(data.rewards || []);
+        } else {
+          await signOut(auth);
         }
       } catch (err) {
         console.error('ダッシュボード取得エラー:', err);

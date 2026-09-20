@@ -53,7 +53,9 @@ export default function AffilishopDashboardPage() {
             setAccountHolder(data.affilishop.bankAccount.accountHolder || '');
           }
         } else {
-          setFetchError(data.error || 'データの取得に失敗しました');
+          setLoginError('このアカウントはaffilishop管理画面を利用できません。');
+          setDashboardData(null);
+          await signOut(auth);
         }
       } catch (err) {
         console.error('affilishopダッシュボード取得エラー:', err);

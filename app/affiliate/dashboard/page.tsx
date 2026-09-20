@@ -51,6 +51,8 @@ export default function AffiliateDashboardPage() {
             headers: { Authorization: `Bearer ${idToken}` },
           });
           if (!res.ok) {
+            setLoginError('このアカウントはアフィリエイト管理画面を利用できません。');
+            await signOut(auth);
             setLoading(false);
             return;
           }

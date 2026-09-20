@@ -35,10 +35,18 @@ export async function GET(request: Request) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const shopId = searchParams.get('shopId');
+    let shopId = searchParams.get('shopId');
 
     if (!shopId) {
-      return NextResponse.json({ error: 'shopId が必要です' }, { status: 400 });
+      const ownedShop = await db.collection('shops')
+        .where('ownerUid', '==', uid)
+        .where('plan', '==', 'pro')
+        .limit(1)
+        .get();
+      if (ownedShop.empty) {
+        return NextResponse.json({ error: 'PRO店舗情報が見つかりません' }, { status: 403 });
+      }
+      shopId = ownedShop.docs[0].id;
     }
 
     // ─── 権限チェック（店舗オーナー or 管理者）───
@@ -50,6 +58,9 @@ export async function GET(request: Request) {
     const shopData = shopDoc.data()!;
     if (shopData.ownerUid !== uid && !isAdmin) {
       return NextResponse.json({ error: '権限がありません' }, { status: 403 });
+    }
+    if (shopData.plan !== 'pro') {
+      return NextResponse.json({ error: 'PROプラン専用の管理画面です' }, { status: 403 });
     }
 
     // ============================================================

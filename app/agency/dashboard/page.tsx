@@ -74,7 +74,10 @@ export default function AgencyDashboardPage() {
       setUser(currentUser);
       if (currentUser) {
         try {
-          const res = await fetch(`/api/agency/stats?agencyId=${currentUser.uid}`);
+          const idToken = await currentUser.getIdToken();
+          const res = await fetch(`/api/agency/stats?agencyId=${currentUser.uid}`, {
+            headers: { Authorization: `Bearer ${idToken}` },
+          });
           if (res.ok) {
             const data = await res.json();
             if (data.summary) setSummary(data.summary);
@@ -113,6 +116,10 @@ export default function AgencyDashboardPage() {
             setAccountNumber(data.agency.bankAccount.accountNumber || '');
             setAccountHolder(data.agency.bankAccount.accountHolder || '');
           }
+        } else {
+          setLoginError('このアカウントは代理店管理画面を利用できません。');
+          setDashboardData(null);
+          await signOut(auth);
         }
       } catch (err) {
         console.error('代理店ダッシュボード取得エラー:', err);

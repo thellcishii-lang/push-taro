@@ -13,6 +13,7 @@ import {
 } from '@/lib/square-webhook/reward-calculator';
 import { isValidCronRequest } from '@/lib/cron-auth';
 import { notifyAdmins } from '@/lib/error-notifier';
+import { getReferrerDashboardPath } from '@/lib/referrer-dashboard';
 
 export const dynamic = 'force-dynamic';
 
@@ -414,11 +415,13 @@ async function sendPayoutScheduledEmail(
   amount: number,
   scheduledPayoutMonth: string
 ) {
-    const typeLabel = referrerType === 'affiliate' ? 'アフィリエイト' : 'PRO紹介';
+  const typeLabel = referrerType === 'affiliate'
+    ? 'アフィリエイト'
+    : referrerType === 'affilishop'
+      ? 'affilishop'
+      : 'PRO紹介';
 
-  const dashboardPath = referrerType === 'affiliate'
-    ? '/affiliate/dashboard'
-    : '/admin';
+  const dashboardPath = getReferrerDashboardPath(referrerType) || '/';
 
   const [year, month] = scheduledPayoutMonth.split('-');
   const payoutMonthLabel = `${year}年${parseInt(month, 10)}月`;

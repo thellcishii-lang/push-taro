@@ -17,6 +17,7 @@ import {
   getUnpaidField,
   calculateRewardRate,
 } from './reward-calculator';
+import { getReferrerDashboardUrl } from '@/lib/referrer-dashboard';
 
 const PLAN_PRICES: Record<string, number> = {
   light: 1980,
@@ -235,6 +236,15 @@ try {
             hasInvoice,
             effectiveRate
           );
+        } else if (referrerType === 'pro' && referrerData.email) {
+          await sendProNotificationEmail(
+            referrerData,
+            pendingShopData,
+            plan,
+            planAmount,
+            hasInvoice,
+            effectiveRate
+          );
         }
 
         console.log(
@@ -251,6 +261,50 @@ try {
     { success: true, message: '本登録完了しました' },
     { status: 200 }
   );
+}
+
+// ============================================================
+// PRO紹介者への通知メール
+// ============================================================
+async function sendProNotificationEmail(
+  referrerData: any,
+  pendingShopData: any,
+  plan: string,
+  planAmount: number,
+  hasInvoice: boolean,
+  effectiveRate: number
+) {
+  const baseReward = Math.floor(planAmount * effectiveRate);
+  const withholding = hasInvoice ? 0 : Math.floor(baseReward * 0.1);
+  const netReward = baseReward - withholding;
+  const dashboardUrl = getReferrerDashboardUrl('pro');
+
+  await sendEmail({
+    to: referrerData.email,
+    subject: '【Push-taro】あなたの紹介コードから新規店舗の決済が完了しました',
+    html: `
+      <div style="font-family: sans-serif; padding: 20px;">
+        <h2>${referrerData.name || 'PRO店舗'} 様</h2>
+        <p>あなたの紹介コード（${referrerData.referralCode || '---'}）を経由した新規店舗の決済が完了しました。</p>
+        <p>紹介実績が確定し、紹介報酬が発生する予定です。</p>
+        <hr />
+        <table style="font-size: 14px;">
+          <tr><td style="padding: 6px; font-weight: bold;">店舗名</td><td style="padding: 6px;">${pendingShopData.name || '未設定'}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">プラン</td><td style="padding: 6px;">${plan.toUpperCase()}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">報酬率</td><td style="padding: 6px;">${(effectiveRate * 100).toFixed(1)}%</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">今回の紹介報酬（参考値）</td><td style="padding: 6px;">¥${baseReward.toLocaleString()}</td></tr>
+          ${!hasInvoice ? `<tr><td style="padding: 6px; font-weight: bold; color: #dc2626;">源泉徴収（インボイス未登録 -10%）</td><td style="padding: 6px; color: #dc2626;">-¥${withholding.toLocaleString()}</td></tr>` : ''}
+          <tr style="border-top: 1px solid #e2e8f0;"><td style="padding: 6px; font-weight: bold;">お支払い予定額</td><td style="padding: 6px; color: #ff4500; font-weight: bold; font-size: 16px;">¥${netReward.toLocaleString()}</td></tr>
+        </table>
+        <p style="font-size: 13px; color: #64748b;">※ 正式な確定額は月末締め後にご案内いたします。</p>
+        ${dashboardUrl ? `<p><a href="${dashboardUrl}" style="display:inline-block;padding:12px 24px;background:#ff4500;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">PRO紹介・報酬ダッシュボードで確認する</a></p>` : ''}
+        <hr />
+        <p><strong>Push-taro.com</strong></p>
+        <p>運営会社：the合同会社</p>
+        <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
+      </div>
+    `,
+  });
 }
 
 // ============================================================
