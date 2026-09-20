@@ -31,9 +31,13 @@ export async function GET(request: Request) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const affilishopId = searchParams.get('affilishopId');
+    let affilishopId = searchParams.get('affilishopId');
     if (!affilishopId) {
-      return NextResponse.json({ error: 'affilishopId が必要です' }, { status: 400 });
+      const ownAffilishop = await db.collection('affilishops').where('uid', '==', uid).limit(1).get();
+      if (ownAffilishop.empty) {
+        return NextResponse.json({ error: 'affilishop情報が見つかりません' }, { status: 403 });
+      }
+      affilishopId = ownAffilishop.docs[0].id;
     }
 
     const affilishopDoc = await db.collection('affilishops').doc(affilishopId).get();
@@ -154,18 +158,17 @@ export async function PUT(request: Request) {
   }
 
   try {
-    const { affilishopId, bankAccount } = await request.json();
-    if (!affilishopId || !bankAccount) {
-      return NextResponse.json({ error: 'affilishopId と bankAccount が必要です' }, { status: 400 });
+    const { bankAccount } = await request.json();
+    if (!bankAccount) {
+      return NextResponse.json({ error: 'bankAccount が必要です' }, { status: 400 });
     }
 
-    const ref = db.collection('affilishops').doc(affilishopId);
-    const doc = await ref.get();
-    if (!doc.exists || doc.data()?.uid !== uid) {
+    const ownAffilishop = await db.collection('affilishops').where('uid', '==', uid).limit(1).get();
+    if (ownAffilishop.empty) {
       return NextResponse.json({ error: '権限がありません' }, { status: 403 });
     }
 
-    await ref.update({ bankAccount });
+    await ownAffilishop.docs[0].ref.update({ bankAccount });
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('[affilishop/dashboard PUT] エラー:', error);

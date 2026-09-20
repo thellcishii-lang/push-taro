@@ -35,6 +35,7 @@ export default function SignupPage() {
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [emailConfirm, setEmailConfirm] = useState('');
 
   // Proプラン用 口座情報詳細
   const [bankName, setBankName] = useState('');
@@ -64,11 +65,13 @@ export default function SignupPage() {
         try {
           const data = JSON.parse(stored);
           setEmail(data.email || '');
+          setEmailConfirm(data.emailConfirm || data.email || '');
           setCompanyName(data.companyName || '');
           setPhone(data.phone || '');
           setAddress(data.address || '');
           setInvoiceNumber(data.invoiceNumber || '');
           setSelectedPlan(data.plan || 'light');
+          setTermsAgreed(data.termsAgreed === true);
           
           // 🔑 URLに紹介コードがなかった場合のみ、セッションの紹介コードを復元
           if (data.referralCode && !refFromUrl) {
@@ -104,7 +107,6 @@ export default function SignupPage() {
     // ============================================================
     
     // ① メールアドレス確認（2回入力チェック）
-    const emailConfirm = (document.getElementById('emailConfirm') as HTMLInputElement)?.value;
     if (email !== emailConfirm) {
       alert('メールアドレスが一致しません。もう一度入力してください。');
       return;
@@ -168,6 +170,7 @@ export default function SignupPage() {
     // ============================================================
    const formData = {
       email,
+      emailConfirm,
       plan: selectedPlan,
       companyName,
       invoiceNumber,
@@ -181,6 +184,7 @@ export default function SignupPage() {
         accountNumber,
         accountHolder,
       } : null,
+      termsAgreed,
     };
 
     sessionStorage.setItem('went_to_confirm', 'true');
@@ -323,7 +327,9 @@ export default function SignupPage() {
                 type="email"
                 required
                 placeholder="もう一度入力してください"
-                id="emailConfirm"
+                value={emailConfirm}
+                onChange={(e) => setEmailConfirm(e.target.value)}
+                autoComplete="off"
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
               />
             </div>

@@ -24,6 +24,7 @@ export default function AgencyConfirmPage() {
   }, [router]);
 
   const handleBack = () => {
+    sessionStorage.setItem('agency_went_to_confirm', 'true');
     router.push('/agency');
   };
 

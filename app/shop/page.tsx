@@ -20,6 +20,7 @@ export default function ShopPage() {
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -100,6 +101,20 @@ export default function ShopPage() {
             body: JSON.stringify({}),
           });
           const data = await res.json();
+
+          if (!res.ok || !data.success) {
+            await signOut(auth);
+            setUser(null);
+            setLoginError('このアカウントはLIGHT / STANDARD管理画面を利用できません。');
+            return;
+          }
+
+          if (String(data.shop?.plan || '').toLowerCase() === 'pro') {
+            await signOut(auth);
+            setUser(null);
+            setLoginError('PROプランのアカウントはPRO管理画面からログインしてください。');
+            return;
+          }
 
           if (data.success) {
             const currentShopId = data.shopId;
@@ -238,10 +253,11 @@ export default function ShopPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginError('');
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err: any) {
-      alert('ログイン失敗: ' + err.message);
+      setLoginError('メールアドレスまたはパスワードが正しくありません。');
     }
   };
 
@@ -513,6 +529,11 @@ export default function ShopPage() {
         </div>
         <h1>Push-taro</h1>
         <p style={{ color: '#666', marginBottom: '20px' }}>オーナー専用ログイン画面</p>
+        {loginError && (
+          <div role="alert" style={{ background: '#fff5f5', border: '1px solid #feb2b2', color: '#c53030', padding: '10px', borderRadius: '6px', fontSize: '13px', marginBottom: '16px' }}>
+            {loginError}
+          </div>
+        )}
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <input
             type="email"

@@ -15,6 +15,7 @@ export default function AffilishopPage() {
   const [companyName, setCompanyName] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [email, setEmail] = useState('');
+  const [emailConfirm, setEmailConfirm] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
@@ -39,6 +40,30 @@ export default function AffilishopPage() {
       setSubmitted(true);
       sessionStorage.removeItem('affilishop_sent_email');
     }
+
+    if (sessionStorage.getItem('affilishop_went_to_confirm') === 'true') {
+      const stored = sessionStorage.getItem('affilishop_signup_data');
+      if (stored) {
+        try {
+          const data = JSON.parse(stored);
+          setBusinessType(data.businessType || 'corporation');
+          setCompanyName(data.companyName || '');
+          setOwnerName(data.ownerName || '');
+          setEmail(data.email || '');
+          setEmailConfirm(data.emailConfirm || data.email || '');
+          setPhone(data.phone || '');
+          setAddress(data.address || '');
+          setInvoiceNumber(data.invoiceNumber || '');
+          setBankName(data.bankAccount?.bankName || '');
+          setBranchName(data.bankAccount?.branchName || '');
+          setAccountType(data.bankAccount?.accountType || 'savings');
+          setAccountNumber(data.bankAccount?.accountNumber || '');
+          setAccountHolder(data.bankAccount?.accountHolder || '');
+          setAgreed(data.agreed === true);
+        } catch {}
+      }
+      sessionStorage.removeItem('affilishop_went_to_confirm');
+    }
   }, []);
 
   useEffect(() => {
@@ -55,6 +80,10 @@ export default function AffilishopPage() {
 
     if (!agreed) {
       setError('affilishop利用規約に同意してください。');
+      return;
+    }
+    if (email !== emailConfirm) {
+      setError('メールアドレスが一致しません。もう一度入力してください。');
       return;
     }
     if (!address) {
@@ -77,13 +106,15 @@ export default function AffilishopPage() {
 
     sessionStorage.setItem('affilishop_signup_data', JSON.stringify({
       businessType,
-      companyName: businessType === 'corporation' ? companyName : null,
+      companyName,
       ownerName,
       email,
+      emailConfirm,
       phone,
       address,
       invoiceNumber: invoiceNumber || null,
       bankAccount: { bankName, branchName, accountType, accountNumber, accountHolder },
+      agreed,
     }));
 
     router.push('/affilishop/confirm');
@@ -195,6 +226,19 @@ export default function AffilishopPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="例: shop@example.com"
+                style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>メールアドレス（確認） <span style={{ color: 'red' }}>*</span></label>
+              <input
+                type="email"
+                required
+                value={emailConfirm}
+                onChange={(e) => setEmailConfirm(e.target.value)}
+                placeholder="確認のためもう一度入力してください"
+                autoComplete="off"
                 style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
               />
             </div>

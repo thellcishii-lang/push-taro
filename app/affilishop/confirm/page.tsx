@@ -23,6 +23,7 @@ export default function AffilishopConfirmPage() {
   }, [router]);
 
   const handleBack = () => {
+    sessionStorage.setItem('affilishop_went_to_confirm', 'true');
     router.push('/affilishop');
   };
 

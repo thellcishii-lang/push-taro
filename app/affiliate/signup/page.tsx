@@ -10,6 +10,7 @@ export default function AffiliateSignupPage() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [emailConfirm, setEmailConfirm] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [businessType, setBusinessType] = useState<'individual' | 'corporation'>('individual');
@@ -48,12 +49,14 @@ export default function AffiliateSignupPage() {
           const data = JSON.parse(stored);
           setName(data.name || '');
           setEmail(data.email || '');
+          setEmailConfirm(data.emailConfirm || data.email || '');
           setPhone(data.phone || '');
           setAddress(data.address || '');
           setBusinessType(data.businessType || 'individual');
           setCompanyName(data.companyName || '');
           setInvoiceNumber(data.invoiceNumber || '');
           setRewardType(data.rewardType || 'recurring');
+          setTermsAgreed(data.termsAgreed === true);
           if (data.bankAccount) {
             setBankName(data.bankAccount.bankName || '');
             setBranchName(data.bankAccount.branchName || '');
@@ -84,6 +87,11 @@ export default function AffiliateSignupPage() {
       return;
     }
 
+    if (email !== emailConfirm) {
+      setError('メールアドレスが一致しません。もう一度入力してください。');
+      return;
+    }
+
     if (!address) {
       setError('住所を入力してください。');
       return;
@@ -109,6 +117,7 @@ export default function AffiliateSignupPage() {
     sessionStorage.setItem('affiliate_signup_data', JSON.stringify({
       name,
       email,
+      emailConfirm,
       phone,
       address,
       businessType,
@@ -116,6 +125,7 @@ export default function AffiliateSignupPage() {
       invoiceNumber: invoiceNumber || null,
       rewardType,
       bankAccount: { bankName, branchName, accountType, accountNumber, accountHolder },
+      termsAgreed,
     }));
 
     sessionStorage.setItem('affiliate_went_to_confirm', 'true');
@@ -179,6 +189,11 @@ export default function AffiliateSignupPage() {
             <div style={{ marginBottom: '14px' }}>
               <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>メールアドレス <span style={{ color: '#e53e3e' }}>*</span></label>
               <input type="email" required placeholder="taro@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }} />
+            </div>
+
+            <div style={{ marginBottom: '14px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>メールアドレス（確認） <span style={{ color: '#e53e3e' }}>*</span></label>
+              <input type="email" required placeholder="確認のためもう一度入力してください" value={emailConfirm} onChange={(e) => setEmailConfirm(e.target.value)} autoComplete="off" style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }} />
             </div>
 
             <div style={{ marginBottom: '14px' }}>

@@ -30,6 +30,7 @@ export default function ProShopDashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [accessError, setAccessError] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -104,6 +105,8 @@ export default function ProShopDashboardPage() {
           setRewards(data.rewards || []);
         } else {
           await signOut(auth);
+          setUser(null);
+          setAccessError('このアカウントはPRO紹介・報酬ダッシュボードを利用できません。');
         }
       } catch (err) {
         console.error('ダッシュボード取得エラー:', err);
@@ -216,6 +219,11 @@ export default function ProShopDashboardPage() {
     return (
       <main style={{ maxWidth: '400px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif', textAlign: 'center' }}>
         <h2>ログインが必要です</h2>
+        {accessError && (
+          <div role="alert" style={{ background: '#fff5f5', border: '1px solid #feb2b2', color: '#c53030', padding: '10px', borderRadius: '6px', fontSize: '13px', marginBottom: '16px' }}>
+            {accessError}
+          </div>
+        )}
         <Link href="/pro-shop" style={{ color: '#ff4500', textDecoration: 'none', fontWeight: 'bold' }}>
           ← PROコンソールへ戻る
         </Link>

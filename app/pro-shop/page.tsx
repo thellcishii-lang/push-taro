@@ -20,6 +20,7 @@ export default function ProShopPage() {
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -145,14 +146,16 @@ export default function ProShopPage() {
           const data = await res.json();
 
           if (!res.ok || !data.success) {
-            alert('このアカウントはPRO管理画面を利用できません。');
             await signOut(auth);
+            setUser(null);
+            setLoginError('このアカウントはPRO管理画面を利用できません。');
             return;
           }
 
           if (String(data.shop?.plan || '').toLowerCase() !== 'pro') {
-            alert('PROプラン専用の管理画面です。');
             await signOut(auth);
+            setUser(null);
+            setLoginError('PROプラン専用の管理画面です。');
             return;
           }
 
@@ -318,10 +321,11 @@ export default function ProShopPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginError('');
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err: any) {
-      alert('ログイン失敗: ' + err.message);
+      setLoginError('メールアドレスまたはパスワードが正しくありません。');
     }
   };
 
@@ -674,6 +678,11 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
         </div>
         <h1>Push-taro</h1>
         <p style={{ color: '#666', marginBottom: '20px' }}>PROオーナー専用ログイン画面</p>
+        {loginError && (
+          <div role="alert" style={{ background: '#fff5f5', border: '1px solid #feb2b2', color: '#c53030', padding: '10px', borderRadius: '6px', fontSize: '13px', marginBottom: '16px' }}>
+            {loginError}
+          </div>
+        )}
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <input
             type="email"

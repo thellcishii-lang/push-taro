@@ -39,7 +39,7 @@ export default function AffilishopDashboardPage() {
     const fetchDashboard = async () => {
       try {
         const idToken = await user.getIdToken();
-        const res = await fetch(`/api/affilishop/dashboard?affilishopId=${user.uid}`, {
+        const res = await fetch('/api/affilishop/dashboard', {
           headers: { Authorization: `Bearer ${idToken}` },
         });
         const data = await res.json();
@@ -53,9 +53,10 @@ export default function AffilishopDashboardPage() {
             setAccountHolder(data.affilishop.bankAccount.accountHolder || '');
           }
         } else {
-          setLoginError('このアカウントはaffilishop管理画面を利用できません。');
           setDashboardData(null);
           await signOut(auth);
+          setUser(null);
+          setLoginError('このアカウントはaffilishop管理画面を利用できません。');
         }
       } catch (err) {
         console.error('affilishopダッシュボード取得エラー:', err);
@@ -93,7 +94,6 @@ export default function AffilishopDashboardPage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
         body: JSON.stringify({
-          affilishopId: user.uid,
           bankAccount: { bankName, branchName, accountType, accountNumber, accountHolder },
         }),
       });

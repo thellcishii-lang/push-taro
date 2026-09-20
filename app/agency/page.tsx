@@ -41,6 +41,30 @@ export default function AgencyPage() {
       setSubmitted(true);
       sessionStorage.removeItem('agency_sent_email');
     }
+
+    if (sessionStorage.getItem('agency_went_to_confirm') === 'true') {
+      const stored = sessionStorage.getItem('agency_signup_data');
+      if (stored) {
+        try {
+          const data = JSON.parse(stored);
+          setBusinessType(data.businessType || 'corporation');
+          setCompanyName(data.companyName || '');
+          setOwnerName(data.ownerName || '');
+          setEmail(data.email || '');
+          setEmailConfirm(data.emailConfirm || data.email || '');
+          setPhone(data.phone || '');
+          setAddress(data.address || '');
+          setInvoiceNumber(data.invoiceNumber || '');
+          setBankName(data.bankAccount?.bankName || '');
+          setBranchName(data.bankAccount?.branchName || '');
+          setAccountType(data.bankAccount?.accountType || 'savings');
+          setAccountNumber(data.bankAccount?.accountNumber || '');
+          setAccountHolder(data.bankAccount?.accountHolder || '');
+          setAgreed(data.agreed === true);
+        } catch {}
+      }
+      sessionStorage.removeItem('agency_went_to_confirm');
+    }
   }, []);
 
   useEffect(() => {
@@ -94,13 +118,15 @@ export default function AgencyPage() {
     // ✅ sessionStorage に保存して確認画面へ
     sessionStorage.setItem('agency_signup_data', JSON.stringify({
       businessType,
-      companyName: businessType === 'corporation' ? companyName : null,
+      companyName,
       ownerName,
       email,
+      emailConfirm,
       phone,
       address,
       invoiceNumber: invoiceNumber || null,
       bankAccount: { bankName, branchName, accountType, accountNumber, accountHolder },
+      agreed,
     }));
 
     router.push('/agency/confirm');

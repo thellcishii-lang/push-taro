@@ -82,6 +82,12 @@ export default function AgencyDashboardPage() {
             const data = await res.json();
             if (data.summary) setSummary(data.summary);
             if (data.shops) setShops(data.shops);
+          } else {
+            await signOut(auth);
+            setUser(null);
+            setLoginError('このアカウントは代理店管理画面を利用できません。');
+            setLoading(false);
+            return;
           }
         } catch (err) {
           console.error('代理店データ取得エラー:', err);
@@ -117,9 +123,10 @@ export default function AgencyDashboardPage() {
             setAccountHolder(data.agency.bankAccount.accountHolder || '');
           }
         } else {
-          setLoginError('このアカウントは代理店管理画面を利用できません。');
           setDashboardData(null);
           await signOut(auth);
+          setUser(null);
+          setLoginError('このアカウントは代理店管理画面を利用できません。');
         }
       } catch (err) {
         console.error('代理店ダッシュボード取得エラー:', err);
