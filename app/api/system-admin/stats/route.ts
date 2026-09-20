@@ -97,7 +97,7 @@ export async function GET(request: Request) {
           referral: referralCount,
           agency: agencyCount,
         },
-        agencyTotal: agencies.length, // 🔥 agencies の数
+        agencyTotal: agencies.filter((agency) => agency.status !== 'rejected').length,
       },
       shops,
       agencies, // 🔥 agencies データを返す

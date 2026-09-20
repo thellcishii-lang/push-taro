@@ -39,6 +39,7 @@ export default function AgencyDashboardPage() {
 
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
@@ -82,12 +83,14 @@ export default function AgencyDashboardPage() {
             const data = await res.json();
             if (data.summary) setSummary(data.summary);
             if (data.shops) setShops(data.shops);
-          } else {
+          } else if (res.status === 401 || res.status === 403) {
             await signOut(auth);
             setUser(null);
             setLoginError('このアカウントは代理店管理画面を利用できません。');
             setLoading(false);
             return;
+          } else {
+            console.error('代理店データ取得エラー:', res.status);
           }
         } catch (err) {
           console.error('代理店データ取得エラー:', err);
@@ -122,11 +125,13 @@ export default function AgencyDashboardPage() {
             setAccountNumber(data.agency.bankAccount.accountNumber || '');
             setAccountHolder(data.agency.bankAccount.accountHolder || '');
           }
-        } else {
+        } else if (res.status === 401 || res.status === 403) {
           setDashboardData(null);
           await signOut(auth);
           setUser(null);
           setLoginError('このアカウントは代理店管理画面を利用できません。');
+        } else {
+          console.error('代理店ダッシュボード取得エラー:', res.status);
         }
       } catch (err) {
         console.error('代理店ダッシュボード取得エラー:', err);
@@ -334,14 +339,17 @@ export default function AgencyDashboardPage() {
 
             <div>
               <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#4a5568', marginBottom: '6px' }}>パスワード</label>
-              <input
-                type="password"
-                required
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-                placeholder="••••••••"
-                style={{ width: '100%', padding: '10px 12px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '14px', boxSizing: 'border-box' }}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showLoginPassword ? 'text' : 'password'}
+                  required
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  placeholder="••••••••"
+                  style={{ width: '100%', padding: '10px 42px 10px 12px', borderRadius: '6px', border: '1px solid #cbd5e0', fontSize: '14px', boxSizing: 'border-box' }}
+                />
+                <button type="button" onClick={() => setShowLoginPassword(!showLoginPassword)} aria-label={showLoginPassword ? 'パスワードを隠す' : 'パスワードを表示'} title={showLoginPassword ? 'パスワードを隠す' : 'パスワードを表示'} style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '18px' }}>👁</button>
+              </div>
             </div>
 
             <button

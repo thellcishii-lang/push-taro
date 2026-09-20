@@ -4,6 +4,14 @@ import sanitizeHtml from 'sanitize-html';
 
 const infoMailUser = process.env.INFOMAIL_USER?.trim();
 const infoMailPass = process.env.INFOMAIL_PASS?.trim();
+const fromAddress = 'info@push-taro.com';
+const companyFooter = `
+  <hr />
+  <p><strong>Push-taro.com</strong></p>
+  <p>運営会社：the合同会社</p>
+  <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
+  <p><a href="mailto:${fromAddress}">${fromAddress}</a></p>
+`;
 
 const transporter = infoMailUser && infoMailPass
   ? nodemailer.createTransport({
@@ -35,6 +43,10 @@ export function sanitizeEmailHtml(html: string): string {
   });
 }
 
+function addCompanyFooter(html: string): string {
+  return html.includes('中藤下郷') ? html : `${html}${companyFooter}`;
+}
+
 export async function sendEmail({
   to,
   subject,
@@ -54,10 +66,10 @@ export async function sendEmail({
 
   try {
     const info = await transporter.sendMail({
-      from: `Push-taro <${infoMailUser}>`,
+      from: `Push-taro <${fromAddress}>`,
       to,
       subject,
-      html: sanitizeEmailHtml(html),
+      html: sanitizeEmailHtml(addCompanyFooter(html)),
       attachments,
     });
     console.log('[Mailer] メール送信成功:', info.messageId);

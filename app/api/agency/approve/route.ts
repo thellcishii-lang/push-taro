@@ -56,29 +56,16 @@ export async function GET(request: Request) {
       );
     }
 
-    // ============================================================
-    // 1. agencies のステータスを更新
-    // ============================================================
-    await agencyRef.update({
-      status: 'approved_pending_payment',
-      approvedAt: FieldValue.serverTimestamp(),
-      approvedBy: uid,
-      updatedAt: FieldValue.serverTimestamp(),
-    });
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
 
-    // ============================================================
-    // 2. 決済リンクの準備
-    // ============================================================
-    const initialFeeUrl = process.env.SQUARE_AGENCY_INITIAL_URL || 'https://square.link/u/your-initial-fee-link';
-    const monthlyFeeUrl = process.env.SQUARE_AGENCY_MONTHLY_URL || 'https://square.link/u/your-monthly-fee-link';
-
-    const initialPaymentLink = `${initialFeeUrl}?client_id=${agencyId}`;
-    const monthlyPaymentLink = `${monthlyFeeUrl}?client_id=${agencyId}`;
+    // メール内のリンクは必ず状態確認画面を経由させる。
+    const initialPaymentLink = `${appUrl}/agency/payment?agencyId=${encodeURIComponent(agencyId)}&type=initial`;
+    const monthlyPaymentLink = `${appUrl}/agency/payment?agencyId=${encodeURIComponent(agencyId)}&type=monthly`;
 
     // ============================================================
     // 3. 決済案内メール送信
     // ============================================================
-    await sendEmail({
+    const mailResult = await sendEmail({
       to: agencyData.email,
       subject: '【Push-taro】代理店パートナー 審査完了・決済手続きのご案内',
       html: `
@@ -95,8 +82,24 @@ export async function GET(request: Request) {
         <p>両方のお支払いが確認され次第、代理店専用アカウントが完全に有効化されます。</p>
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
+        <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
         <p><a href="mailto:info@push-taro.com">info@push-taro.com</a></p>
       `,
+    });
+
+    if (!mailResult.success) {
+      return NextResponse.json(
+        { error: `決済案内メールを送信できませんでした: ${mailResult.error || '不明なエラー'}` },
+        { status: 502 }
+      );
+    }
+
+    await agencyRef.update({
+      status: 'approved_pending_payment',
+      approvedAt: FieldValue.serverTimestamp(),
+      approvedBy: uid,
+      paymentGuideSentAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
     });
 
     console.log(`[代理店承認] agencyId: ${agencyId} / 送信先: ${agencyData.email}`);
@@ -182,6 +185,7 @@ export async function POST(request: Request) {
         <hr />
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
+        <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
         <p><a href="mailto:info@push-taro.com">info@push-taro.com</a></p>
       `,
     });

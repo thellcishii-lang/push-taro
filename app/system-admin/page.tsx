@@ -2249,6 +2249,7 @@ export default function SystemAdminPage() {
   const [authChecking, setAuthChecking] = useState(true);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -2453,7 +2454,10 @@ export default function SystemAdminPage() {
 
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <input type="email" placeholder="メールアドレス" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required style={{ padding: '12px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: '#f8fafc', fontSize: '14px' }} />
-            <input type="password" placeholder="パスワード" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required style={{ padding: '12px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: '#f8fafc', fontSize: '14px' }} />
+            <div style={{ position: 'relative' }}>
+              <input type={showLoginPassword ? 'text' : 'password'} placeholder="パスワード" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required style={{ width: '100%', boxSizing: 'border-box', padding: '12px 42px 12px 12px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: '#f8fafc', fontSize: '14px' }} />
+              <button type="button" onClick={() => setShowLoginPassword(!showLoginPassword)} aria-label={showLoginPassword ? 'パスワードを隠す' : 'パスワードを表示'} title={showLoginPassword ? 'パスワードを隠す' : 'パスワードを表示'} style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'transparent', color: '#f8fafc', cursor: 'pointer', fontSize: '18px' }}>👁</button>
+            </div>
             <button type="submit" disabled={isLoggingIn} style={{ padding: '12px', background: isLoggingIn ? '#475569' : '#3182ce', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: isLoggingIn ? 'wait' : 'pointer', fontSize: '14px' }}>
               {isLoggingIn ? 'ログイン中...' : 'ログイン'}
             </button>
