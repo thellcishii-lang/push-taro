@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
       const openedCount = Number(data.openedCount || 0);
       const successCount = Number(data.successCount || 0);
-      if (successCount <= 0 || openedCount >= successCount) return;
+      if (successCount > 0 && openedCount >= successCount) return;
 
       transaction.create(receiptRef, { openedAt: FieldValue.serverTimestamp() });
       transaction.update(historyRef, { openedCount: FieldValue.increment(1) });

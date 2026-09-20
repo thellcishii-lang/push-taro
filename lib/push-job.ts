@@ -33,6 +33,7 @@ export interface PushJob {
 export async function enqueuePushJob(input: Omit<PushJob, 'status' | 'successCount' | 'failureCount' | 'processedCount' | 'createdAt' | 'updatedAt'>) {
   const jobRef = db.collection('push_jobs').doc();
   const shopRef = db.collection('shops').doc(input.shopId);
+  const historyRef = db.collection('histories').doc(input.notificationId);
   const openToken = crypto.randomUUID();
 
   await db.runTransaction(async (transaction) => {
@@ -59,6 +60,19 @@ export async function enqueuePushJob(input: Omit<PushJob, 'status' | 'successCou
       processedCount: 0,
       createdAt: now,
       updatedAt: now,
+    });
+    transaction.create(historyRef, {
+      shopId: input.shopId,
+      notificationId: input.notificationId,
+      title: input.title,
+      body: input.body,
+      linkUrl: input.url || null,
+      sentAt: now,
+      status: 'pending',
+      successCount: 0,
+      failureCount: 0,
+      openedCount: 0,
+      openToken,
     });
     transaction.update(shopRef, { activePushJobId: jobRef.id });
   });
@@ -137,7 +151,6 @@ export async function processPushJobBatch(jobId: string): Promise<'skipped' | 'p
         status: job.successCount > 0 ? 'success' : 'error',
         successCount: job.successCount,
         failureCount: job.failureCount,
-        openedCount: 0,
         openToken: job.openToken || job.notificationId,
       }, { merge: true });
     });

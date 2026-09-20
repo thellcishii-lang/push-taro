@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -14,6 +14,7 @@ export default function AgencyPage() {
   const [companyName, setCompanyName] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [email, setEmail] = useState('');
+  const [emailConfirm, setEmailConfirm] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
@@ -30,6 +31,7 @@ export default function AgencyPage() {
   // success パラメータのチェック（完了画面用）
   const [submitted, setSubmitted] = useState(false);
   const [sentEmail, setSentEmail] = useState('');
+  const errorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -41,12 +43,25 @@ export default function AgencyPage() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!error) return;
+    requestAnimationFrame(() => {
+      errorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      errorRef.current?.focus({ preventScroll: true });
+    });
+  }, [error]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     if (!agreed) {
       setError('代理店利用規約に同意してください。');
+      return;
+    }
+
+    if (email !== emailConfirm) {
+      setError('メールアドレスが一致しません。もう一度入力してください。');
       return;
     }
 
@@ -62,6 +77,11 @@ export default function AgencyPage() {
 
     if (!bankName || !branchName || !accountNumber || !accountHolder) {
       setError('振込先口座情報はすべて必須です。');
+      return;
+    }
+
+    if (!/^\d{7}$/.test(accountNumber)) {
+      setError('口座番号は7桁の半角数字で入力してください。');
       return;
     }
 
@@ -133,7 +153,7 @@ if (submitted) {
           </div>
 
           {error && (
-            <div style={{ background: '#fecaca', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
+            <div ref={errorRef} role="alert" tabIndex={-1} style={{ background: '#fecaca', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px', outline: 'none' }}>
               {error}
             </div>
           )}
@@ -210,6 +230,19 @@ if (submitted) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="例: agency@example.com"
+                style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>メールアドレス（確認） <span style={{ color: 'red' }}>*</span></label>
+              <input
+                type="email"
+                required
+                value={emailConfirm}
+                onChange={(e) => setEmailConfirm(e.target.value)}
+                placeholder="確認のためもう一度入力してください"
+                autoComplete="off"
                 style={{ width: '100%', padding: '10px', fontSize: '15px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
               />
             </div>
@@ -308,7 +341,11 @@ if (submitted) {
                   required
                   placeholder="1234567"
                   value={accountNumber}
-                  onChange={(e) => setAccountNumber(e.target.value)}
+                  onChange={(e) => {
+                    if (/^\d{0,7}$/.test(e.target.value)) setAccountNumber(e.target.value);
+                  }}
+                  inputMode="numeric"
+                  maxLength={7}
                   style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
                 />
               </div>

@@ -337,7 +337,11 @@ export default function SignupPage() {
                 type="text"
                 placeholder="例: UBGIEXEK（お持ちの方のみ）"
                 value={referralCode}
-                onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                onChange={(e) => setReferralCode(e.target.value)}
+                onBlur={() => setReferralCode((code) => code.trim().toUpperCase())}
+                maxLength={8}
+                autoCapitalize="characters"
+                spellCheck={false}
                 style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e0', boxSizing: 'border-box' }}
               />
               <p style={{ fontSize: '11px', color: '#718096', margin: '4px 0 0 0' }}>

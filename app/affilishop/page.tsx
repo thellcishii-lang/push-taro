@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -29,6 +29,7 @@ export default function AffilishopPage() {
 
   const [submitted, setSubmitted] = useState(false);
   const [sentEmail, setSentEmail] = useState('');
+  const errorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -39,6 +40,14 @@ export default function AffilishopPage() {
       sessionStorage.removeItem('affilishop_sent_email');
     }
   }, []);
+
+  useEffect(() => {
+    if (!error) return;
+    requestAnimationFrame(() => {
+      errorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      errorRef.current?.focus({ preventScroll: true });
+    });
+  }, [error]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,7 +137,7 @@ export default function AffilishopPage() {
           </div>
 
           {error && (
-            <div style={{ background: '#fecaca', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
+            <div ref={errorRef} role="alert" tabIndex={-1} style={{ background: '#fecaca', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px', outline: 'none' }}>
               {error}
             </div>
           )}

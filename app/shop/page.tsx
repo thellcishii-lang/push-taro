@@ -567,9 +567,14 @@ export default function ShopPage() {
 
   return (
     <main style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+        <button onClick={() => signOut(auth)} style={{ padding: '7px 14px', cursor: 'pointer', borderRadius: '4px', border: '1px solid #ccc', background: '#fff', whiteSpace: 'nowrap' }}>
+          ログアウト
+        </button>
+      </div>
       {/* ヘッダー */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '10px', borderBottom: '2px solid #eee', paddingBottom: '15px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '25px', flexWrap: 'wrap', gap: '16px', borderBottom: '2px solid #eee', paddingBottom: '15px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
           {shopIconUrl ? (
             <img src={shopIconUrl} alt="アイコン" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #ddd' }} />
           ) : (
@@ -587,19 +592,25 @@ export default function ShopPage() {
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '14px', color: '#666' }}>{user.email}</span>
-          <a
-            href="https://push-taro.com/torisetsu"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ padding: '8px 16px', background: '#fff7ed', color: '#c2410c', border: '1px solid #fdba74', borderRadius: '4px', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none' }}
-          >
-            📖 取扱説明書
-          </a>
-          <button onClick={() => signOut(auth)} style={{ padding: '8px 16px', cursor: 'pointer', borderRadius: '4px', border: '1px solid #ccc' }}>
-            ログアウト
-          </button>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '8px', maxWidth: '100%' }}>
+          <span style={{ fontSize: '14px', color: '#666', overflowWrap: 'anywhere' }}>{user.email}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <a
+              href="https://push-taro.com/torisetsu"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ padding: '8px 14px', background: '#fff7ed', color: '#c2410c', border: '1px solid #fdba74', borderRadius: '4px', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none', whiteSpace: 'nowrap' }}
+            >
+              📖 取扱説明書
+            </a>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              style={{ padding: '8px 14px', background: '#fff', color: '#334155', border: '1px solid #cbd5e1', borderRadius: '4px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}
+            >
+              ↻ 画面を更新
+            </button>
+          </div>
         </div>
       </div>
 

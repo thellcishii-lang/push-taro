@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -27,6 +27,7 @@ export default function AffiliateSignupPage() {
   // URLクエリパラメータから success をチェック
   const [showSuccess, setShowSuccess] = useState(false);
   const [sentEmail, setSentEmail] = useState('');
+  const errorRef = useRef<HTMLDivElement>(null);
 
   // 初回ロード時に success パラメータをチェック
     // 初回ロード時に success パラメータをチェック
@@ -65,6 +66,14 @@ export default function AffiliateSignupPage() {
       sessionStorage.removeItem('affiliate_went_to_confirm');
     }
   }, []);
+
+  useEffect(() => {
+    if (!error) return;
+    requestAnimationFrame(() => {
+      errorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      errorRef.current?.focus({ preventScroll: true });
+    });
+  }, [error]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,7 +159,7 @@ export default function AffiliateSignupPage() {
         </div>
 
         {error && (
-          <div style={{ background: '#fecaca', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
+          <div ref={errorRef} role="alert" tabIndex={-1} style={{ background: '#fecaca', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px', outline: 'none' }}>
             {error}
           </div>
         )}
