@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { auth } from '@/lib/firebase-client';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import Link from 'next/link';
 
 export default function AffilishopDashboardPage() {
   const [loading, setLoading] = useState(true);
@@ -157,6 +158,11 @@ export default function AffilishopDashboardPage() {
               {isLoggingIn ? 'ログイン中...' : 'ログイン'}
             </button>
           </form>
+          <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '13px' }}>
+            <Link href="/reset-password?role=affilishop&returnTo=/affilishop/dashboard" style={{ color: '#0ea5e9', textDecoration: 'none' }}>
+              パスワードをお忘れの方
+            </Link>
+          </div>
         </div>
       </main>
     );

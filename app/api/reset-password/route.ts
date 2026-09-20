@@ -1,9 +1,9 @@
 // app/api/reset-password/route.ts
 /**
- * パスワード再発行（3役割共通）
+ * パスワード再発行（全アカウント共通）
  * 
  * リクエストボディに role を含める:
- *   role: 'shop' | 'agency' | 'affiliate'
+ *   role: 'shop' | 'agency' | 'affiliate' | 'affilishop'
  * 
  * 該当コレクションにメールが存在する場合のみ送信。
  * 存在しなくても 200 を返す（列挙対策）。
@@ -15,13 +15,14 @@ import { enforceRateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
-const VALID_ROLES = ['shop', 'agency', 'affiliate'] as const;
+const VALID_ROLES = ['shop', 'agency', 'affiliate', 'affilishop'] as const;
 type Role = typeof VALID_ROLES[number];
 
 const ROLE_LABELS: Record<Role, string> = {
   shop: '店舗',
   agency: '代理店',
   affiliate: 'アフィリエイト',
+  affilishop: 'affilishop',
 };
 
 export async function POST(request: Request) {
@@ -58,6 +59,9 @@ export async function POST(request: Request) {
       exists = !snap.empty;
     } else if (role === 'affiliate') {
       const snap = await db.collection('affiliates').where('email', '==', normalizedEmail).limit(1).get();
+      exists = !snap.empty;
+    } else if (role === 'affilishop') {
+      const snap = await db.collection('affilishops').where('email', '==', normalizedEmail).limit(1).get();
       exists = !snap.empty;
     }
 

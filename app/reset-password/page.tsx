@@ -8,7 +8,19 @@ import Link from 'next/link';
 function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const roleParam = searchParams.get('role') || 'affiliate';
-  const role = ['shop', 'agency', 'affiliate'].includes(roleParam) ? roleParam : 'affiliate';
+  const role = ['shop', 'agency', 'affiliate', 'affilishop'].includes(roleParam) ? roleParam : 'affiliate';
+  const requestedReturnTo = searchParams.get('returnTo');
+  const allowedReturnPaths = ['/shop', '/pro-shop', '/agency/dashboard', '/affiliate/dashboard', '/affilishop/dashboard'];
+  const defaultReturnPath = role === 'shop'
+    ? '/shop'
+    : role === 'agency'
+      ? '/agency/dashboard'
+      : role === 'affilishop'
+        ? '/affilishop/dashboard'
+        : '/affiliate/dashboard';
+  const returnPath = requestedReturnTo && allowedReturnPaths.includes(requestedReturnTo)
+    ? requestedReturnTo
+    : defaultReturnPath;
 
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,7 +28,7 @@ function ResetPasswordContent() {
   const [error, setError] = useState('');
 
   const roleLabel =
-    role === 'shop' ? '店舗' : role === 'agency' ? '代理店' : 'アフィリエイト';
+    role === 'shop' ? '店舗' : role === 'agency' ? '代理店' : role === 'affilishop' ? 'affilishop' : 'アフィリエイト';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,7 +89,7 @@ function ResetPasswordContent() {
             </div>
             <div style={{ textAlign: 'center', marginTop: '24px' }}>
               <Link
-                href={`/${role === 'shop' ? 'admin' : role === 'agency' ? 'agency' : 'affiliate/dashboard'}`}
+                href={returnPath}
                 style={{ color: '#3182ce', fontSize: '13px', textDecoration: 'none' }}
               >
                 ← ログイン画面に戻る
@@ -153,7 +165,7 @@ function ResetPasswordContent() {
 
             <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '13px' }}>
               <Link
-                href={`/${role === 'shop' ? 'admin' : role === 'agency' ? 'agency' : 'affiliate/dashboard'}`}
+                href={returnPath}
                 style={{ color: '#64748b', textDecoration: 'none' }}
               >
                 ← ログイン画面に戻る

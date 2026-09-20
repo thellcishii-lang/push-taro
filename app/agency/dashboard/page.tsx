@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { auth } from '@/lib/firebase-client';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import Link from 'next/link';
 import PaymentFailuresSection from '@/components/PaymentFailuresSection';
 
 interface DetailedShop {
@@ -348,6 +349,11 @@ export default function AgencyDashboardPage() {
               {isLoggingIn ? 'ログイン中...' : 'ログイン'}
             </button>
           </form>
+          <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '13px' }}>
+            <Link href="/reset-password?role=agency&returnTo=/agency/dashboard" style={{ color: '#3182ce', textDecoration: 'none' }}>
+              パスワードをお忘れの方
+            </Link>
+          </div>
         </div>
       </div>
     );

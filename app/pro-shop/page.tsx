@@ -680,6 +680,11 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
             ログイン
           </button>
         </form>
+        <div style={{ marginTop: '16px', fontSize: '13px' }}>
+          <Link href="/reset-password?role=shop&returnTo=/pro-shop" style={{ color: '#c2410c', textDecoration: 'none' }}>
+            パスワードをお忘れの方
+          </Link>
+        </div>
       </main>
     );
   }

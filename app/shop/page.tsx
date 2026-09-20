@@ -531,6 +531,11 @@ export default function ShopPage() {
             ログイン
           </button>
         </form>
+        <div style={{ marginTop: '16px', fontSize: '13px' }}>
+          <Link href="/reset-password?role=shop&returnTo=/shop" style={{ color: '#3182ce', textDecoration: 'none' }}>
+            パスワードをお忘れの方
+          </Link>
+        </div>
       </main>
     );
   }
