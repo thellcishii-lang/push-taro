@@ -11,7 +11,7 @@ import LeafletA5 from '@/components/print/LeafletA5';
 import LeafletA4 from '@/components/print/LeafletA4';
 import BusinessCard from '@/components/print/BusinessCard';
 import Card from '@/components/print/Card';
-import './print.css';
+import '../print.css';
 
 const VALID_TYPES: PrintMaterialType[] = [
   'trifold', 'leaflet-a5', 'leaflet-a4', 'card', 'business-card',
