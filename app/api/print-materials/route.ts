@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminAuth, db } from '@/lib/firebase-admin';
+import { authAdmin, db } from '@/lib/firebase-admin';
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const idToken = authHeader.split('Bearer ')[1];
-    const decoded = await adminAuth.verifyIdToken(idToken);
+    const decoded = await authAdmin.verifyIdToken(idToken);  // ← authAdmin
     const uid = decoded.uid;
 
     // 1. 代理店として探す
