@@ -111,7 +111,7 @@ export async function GET(request: Request) {
         <p style="font-size:12px;color:#64748b;">※ 3ヶ月間紹介実績が0件の場合、自動的に退会となりますのでご注意ください。</p>
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
-        <p><a href="mailto:pushtaro.info@gmail.com">pushtaro.info@gmail.com</a></p>
+        <p><a href="mailto:info@push-taro.com">info@push-taro.com</a></p>
       `,
     });
 
@@ -183,7 +183,7 @@ export async function POST(request: Request) {
         <hr />
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
-        <p><a href="mailto:pushtaro.info@gmail.com">pushtaro.info@gmail.com</a></p>
+        <p><a href="mailto:info@push-taro.com">info@push-taro.com</a></p>
       `,
     });
 

@@ -67,7 +67,7 @@ export async function POST(request: Request) {
     // テスト送信モード（管理者のメールアドレスのみ）
     // ============================================================
     if (testOnly) {
-      const adminEmail = process.env.ADMIN_EMAILS?.split(',')[0]?.trim() || 'pushtaro-info@gmail.com';
+      const adminEmail = process.env.ADMIN_EMAILS?.split(',')[0]?.trim() || 'info@push-taro.com';
       await sendEmail({
         to: adminEmail,
         subject: `[TEST] ${subject}`,

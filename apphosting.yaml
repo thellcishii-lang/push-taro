@@ -44,3 +44,11 @@ env:
     availability:
       - BUILD
       - RUNTIME
+  - variable: INFOMAIL_USER
+    secret: INFOMAIL_USER
+    availability:
+      - RUNTIME
+  - variable: INFOMAIL_PASS
+    secret: INFOMAIL_PASS
+    availability:
+      - RUNTIME

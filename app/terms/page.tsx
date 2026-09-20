@@ -123,7 +123,7 @@ export default function TermsPage() {
           <p style={{ fontWeight: 'bold', margin: '0 0 4px 0', color: '#2d3748' }}>【サービス運営事業者】</p>
           <p style={{ margin: '0 0 2px 0' }}>事業者名：the合同会社</p>
           <p style={{ margin: '0 0 2px 0' }}>所在地：〒357-0123 埼玉県飯能市中藤下郷２３−２１</p>
-          <p style={{ margin: 0 }}>お問い合わせ：pushtaro-info@gmail.com</p>
+          <p style={{ margin: 0 }}>お問い合わせ：info@push-taro.com</p>
         </div>
 
       </div>

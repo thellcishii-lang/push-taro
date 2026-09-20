@@ -201,7 +201,7 @@ const SHOP_TERMS = `この利用規約（以下、「本規約」といいます
 【サービス運営事業者】
 事業者名：the合同会社
 所在地：〒357-0123 埼玉県飯能市中藤下郷２３−２１
-お問い合わせ：pushtaro-info@gmail.com`;
+お問い合わせ：info@push-taro.com`;
 
 const AGENCY_TERMS = `第1条（総則および目的）
 本規約は、Push-taro（以下「当社」）が提供するLINE風Web Push通知・CRMサービス（以下「本サービス」）の販売パートナー（以下「代理店」）との間の権利義務関係および取扱い条件を定めるものです。
@@ -242,7 +242,7 @@ const AGENCY_TERMS = `第1条（総則および目的）
 【サービス運営事業者】
 事業者名：the合同会社
 所在地：〒357-0123 埼玉県飯能市中藤下郷２３−２１
-お問い合わせ：pushtaro-info@gmail.com`;
+お問い合わせ：info@push-taro.com`;
 
 const AFFILIATE_TERMS = `1. アフィリエイトプログラムはPush-taroの収益化プログラムの一部です。
 2. 報酬は紹介した店舗のプランに応じて計算されます。
@@ -256,7 +256,7 @@ const AFFILIATE_TERMS = `1. アフィリエイトプログラムはPush-taroの�
 【サービス運営事業者】
 事業者名：the合同会社
 所在地：〒357-0123 埼玉県飯能市中藤下郷２３−２１
-お問い合わせ：pushtaro-info@gmail.com`;
+お問い合わせ：info@push-taro.com`;
 
 const TERMS_TITLES: Record<'shop' | 'agency' | 'affiliate', string> = {
   shop: 'Push-taro 利用規約',

@@ -539,7 +539,7 @@ export default function TorisetsuBasic() {
         <div className="t-cta">
           <h3>困ったときは</h3>
           <p>操作で分からないことがあれば、お気軽にお問い合わせください。</p>
-          <a href="mailto:pushtaro-info@gmail.com" className="t-cta-btn">お問い合わせ →</a>
+          <a href="mailto:info@push-taro.com" className="t-cta-btn">お問い合わせ →</a>
         </div>
       </main>
 

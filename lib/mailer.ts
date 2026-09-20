@@ -1,20 +1,39 @@
 // lib/mailer.ts
 import nodemailer from 'nodemailer';
+import sanitizeHtml from 'sanitize-html';
 
-const gmailUser = process.env.GMAIL_USER?.trim();
-const gmailPass = process.env.GMAIL_PASS?.trim();
+const infoMailUser = process.env.INFOMAIL_USER?.trim();
+const infoMailPass = process.env.INFOMAIL_PASS?.trim();
 
-const transporter = gmailUser && gmailPass
+const transporter = infoMailUser && infoMailPass
   ? nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 587,
       secure: false,
       auth: {
-        user: gmailUser,
-        pass: gmailPass,
+        user: infoMailUser,
+        pass: infoMailPass,
       },
     })
   : null;
+
+export function sanitizeEmailHtml(html: string): string {
+  return sanitizeHtml(html, {
+    allowedTags: [
+      ...sanitizeHtml.defaults.allowedTags,
+      'div', 'span', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'img',
+    ],
+    allowedAttributes: {
+      '*': ['style'],
+      a: ['href', 'target', 'rel'],
+      img: ['src', 'alt', 'width', 'height'],
+      td: ['colspan', 'rowspan'],
+      th: ['colspan', 'rowspan'],
+    },
+    allowedSchemes: ['http', 'https', 'mailto'],
+    allowProtocolRelative: false,
+  });
+}
 
 export async function sendEmail({
   to,
@@ -27,18 +46,18 @@ export async function sendEmail({
   html: string;
   attachments?: any[];
 }) {
-  if (!transporter || !gmailUser || !gmailPass) {
-    const errorMessage = 'メール送信は未設定です。GMAIL_USER と GMAIL_PASS を .env.local に設定してください（Gmail は 16 文字の App Password を使用）。';
+  if (!transporter || !infoMailUser || !infoMailPass) {
+    const errorMessage = 'メール送信は未設定です。INFOMAIL_USER と INFOMAIL_PASS を環境変数に設定してください。';
     console.error('[Mailer]', errorMessage);
     return { success: false, error: errorMessage };
   }
 
   try {
     const info = await transporter.sendMail({
-      from: `Push-taro <${gmailUser}>`,
+      from: `Push-taro <${infoMailUser}>`,
       to,
       subject,
-      html,
+      html: sanitizeEmailHtml(html),
       attachments,
     });
     console.log('[Mailer] メール送信成功:', info.messageId);

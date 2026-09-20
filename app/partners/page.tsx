@@ -420,7 +420,7 @@ export default function ProgramsPage() {
           <div className="footnote">
             <i className="fas fa-clock"></i> Push-taroは <strong>2026年9月</strong> サービス開始予定です。<br />
             現在は事前登録を受け付けております。{' '}
-            <a href="mailto:pushtaro-info@gmail.com" style={{ color: '#fb923c', textDecoration: 'underline' }}>
+            <a href="mailto:info@push-taro.com" style={{ color: '#fb923c', textDecoration: 'underline' }}>
               お問い合わせ
             </a>
           </div>

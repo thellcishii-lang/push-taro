@@ -185,7 +185,7 @@ export async function sendAdminPayoutNotification(
   totalAmount: number,
   referrerType: string
 ) {
-  const adminEmail = 'pushtaro.info@gmail.com';
+  const adminEmail = 'info@push-taro.com';
   const typeLabel =
     referrerType === 'agency'    ? '代理店' :
     referrerType === 'affiliate' ? 'アフィリエイト' :
@@ -225,7 +225,7 @@ export async function sendAdminPayoutNotification(
           <p><strong>Push-taro.com</strong></p>
           <p>運営会社：the合同会社</p>
           <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
-          <p><a href="mailto:pushtaro.info@gmail.com">pushtaro.info@gmail.com</a></p>
+          <p><a href="mailto:info@push-taro.com">info@push-taro.com</a></p>
         </div>
       `,
     });

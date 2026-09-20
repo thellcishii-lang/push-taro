@@ -23,16 +23,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // ★★★ 追加ここから ★★★
-  console.log('[ENV-CHECK] GMAIL_USER:', process.env.GMAIL_USER ? 'SET' : 'MISSING');
-  console.log('[ENV-CHECK] GMAIL_PASS:', process.env.GMAIL_PASS ? `SET (len=${process.env.GMAIL_PASS.length})` : 'MISSING');
-  console.log('[ENV-CHECK] GMAIL_USER value:', process.env.GMAIL_USER);
-  console.log('[ENV-CHECK] GMAIL_PASS first4/last4:', 
-    process.env.GMAIL_PASS 
-      ? `${process.env.GMAIL_PASS.slice(0,4)}...${process.env.GMAIL_PASS.slice(-4)}` 
-      : 'N/A'
-  );
-  // ★★★ 追加ここまで ★★★
 
   let body: any = {};  // 🔥 try の外で宣言
 
@@ -315,7 +305,7 @@ export async function POST(request: Request) {
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
         <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
-        <p><a href="mailto:pushtaro.info@gmail.com">pushtaro.info@gmail.com</a></p>
+        <p><a href="mailto:info@push-taro.com">info@push-taro.com</a></p>
       `,
     });
   }
@@ -361,7 +351,7 @@ export async function POST(request: Request) {
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
         <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
-        <p><a href="mailto:pushtaro.info@gmail.com">pushtaro.info@gmail.com</a></p>
+        <p><a href="mailto:info@push-taro.com">info@push-taro.com</a></p>
       `,
     });
 

@@ -408,7 +408,7 @@ function ProUpgradeContent() {
             <div style={{ marginTop: '12px', paddingTop: '8px', borderTop: '1px solid #cbd5e0', fontSize: '11px', color: '#64748b' }}>
               【事業者名】the合同会社<br />
               【所在地】〒357-0123 埼玉県飯能市中藤下郷２３−２１<br />
-              【連絡先】pushtaro-info@gmail.com
+              【連絡先】info@push-taro.com
             </div>
           </div>
 

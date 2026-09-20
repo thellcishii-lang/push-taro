@@ -27,7 +27,7 @@ export default function TokushoPage() {
             </tr>
             <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
               <th style={{ background: '#f8fafc', padding: '14px', textAlign: 'left', color: '#2d3748' }}>メールアドレス</th>
-              <td style={{ padding: '14px', color: '#4a5568' }}>pushtaro-info@gmail.com</td>
+              <td style={{ padding: '14px', color: '#4a5568' }}>info@push-taro.com</td>
             </tr>
             <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
               <th style={{ background: '#f8fafc', padding: '14px', textAlign: 'left', color: '#2d3748' }}>販売価格</th>

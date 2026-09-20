@@ -1741,7 +1741,7 @@ export default function Home() {
             <a href="/privacy">プライバシーポリシー</a>
             <a href="/tokusho">特定商取引法に基づく表記</a>
             <a href="/programs">収益化プログラム</a>
-            <a href="mailto:pushtaro-info@gmail.com">お問い合わせ</a>
+            <a href="mailto:info@push-taro.com">お問い合わせ</a>
           </div>
 
           <p className="footer-copy">

@@ -195,7 +195,7 @@ export async function POST(request: Request) {
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
         <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
-        <p><a href="mailto:pushtaro.info@gmail.com">pushtaro.info@gmail.com</a></p>
+        <p><a href="mailto:info@push-taro.com">info@push-taro.com</a></p>
       `,
     });
 
@@ -217,7 +217,7 @@ export async function POST(request: Request) {
     // ============================================================
     // 6. 管理者への通知メール（失敗しても登録は維持）
     // ============================================================
-    const adminEmail = process.env.ADMIN_EMAILS?.split(',')[0]?.trim() || 'pushtaro.info@gmail.com';
+    const adminEmail = process.env.ADMIN_EMAILS?.split(',')[0]?.trim() || 'info@push-taro.com';
     await sendEmail({
       to: adminEmail,
       subject: `【新規アフィリエイト登録】${name}（${rewardTypeLabel}）`,
@@ -237,7 +237,7 @@ export async function POST(request: Request) {
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
         <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
-        <p><a href="mailto:pushtaro.info@gmail.com">pushtaro.info@gmail.com</a></p>
+        <p><a href="mailto:info@push-taro.com">info@push-taro.com</a></p>
       `,
     });
 

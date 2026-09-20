@@ -62,7 +62,7 @@ export default function PrivacyPage() {
           <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '10px', fontSize: '13px', color: '#4a5568' }}>
             <p style={{ margin: '0 0 4px 0', fontWeight: 'bold' }}>the合同会社 個人情報問合せ窓口</p>
             <p style={{ margin: '0 0 2px 0' }}>住所：〒357-0123 埼玉県飯能市中藤下郷２３−２１</p>
-            <p style={{ margin: 0 }}>E-mail：pushtaro-info@gmail.com</p>
+            <p style={{ margin: 0 }}>E-mail：info@push-taro.com</p>
           </div>
         </section>
 

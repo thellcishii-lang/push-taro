@@ -95,7 +95,7 @@ export async function GET(request: Request) {
         <p>両方のお支払いが確認され次第、代理店専用アカウントが完全に有効化されます。</p>
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
-        <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
+        <p><a href="mailto:info@push-taro.com">info@push-taro.com</a></p>
       `,
     });
 
@@ -182,7 +182,7 @@ export async function POST(request: Request) {
         <hr />
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
-        <p><a href="mailto:pushtaro-info@gmail.com">pushtaro-info@gmail.com</a></p>
+        <p><a href="mailto:info@push-taro.com">info@push-taro.com</a></p>
       `,
     });
 
