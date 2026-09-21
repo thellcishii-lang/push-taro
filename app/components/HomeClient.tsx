@@ -11,6 +11,7 @@ import { faqs } from '../data/faq';
    ============================================================ */
 function useScrollReveal() {
   useEffect(() => {
+   if (typeof document === 'undefined') return;
     const selectors = [
       '.reveal', '.reveal-left', '.reveal-right',
       '.tilt-in', '.tilt-in-left', '.tilt-in-right',
@@ -172,13 +173,13 @@ export default function HomeClient() {
           <div className="hero-stats">
             <div className="hero-stat float tilt-in">
               <div className="hero-stat-number">
-                最大<span className="count-up" data-count="10">0</span><small>倍</small>
+                最大<span className="count-up" data-count="10">10</span><small>倍</small>
               </div>
               <div className="hero-stat-label">メルマガ比 開封率</div>
             </div>
             <div className="hero-stat float tilt-in" style={{ transitionDelay: '0.1s' }}>
               <div className="hero-stat-number">
-                <span className="count-up" data-count="7">0</span><small>種類</small>
+                <span className="count-up" data-count="7">7</span><small>種類</small>
               </div>
               <div className="hero-stat-label">クーポン自動配信</div>
             </div>
@@ -188,7 +189,7 @@ export default function HomeClient() {
             </div>
             <div className="hero-stat float tilt-in" style={{ transitionDelay: '0.3s' }}>
               <div className="hero-stat-number">
-                <span className="count-up" data-count="3">0</span><small>種</small>
+                <span className="count-up" data-count="3">3</span><small>種</small>
               </div>
               <div className="hero-stat-label">収益化プログラム</div>
             </div>
@@ -971,14 +972,14 @@ export default function HomeClient() {
             </div>
             <div className="ba-stat-item">
               <div className="ba-stat-value">
-                <span className="count-up" data-count="87">0</span><span className="ba-stat-unit">%</span>
+                <span className="count-up" data-count="87">87</span><span className="ba-stat-unit">%</span>
               </div>
               <div className="ba-stat-label">小売業での<br />プッシュ通知による行動変容率</div>
               <div className="ba-stat-source">出典：アイリッジ 2025年調査</div>
             </div>
             <div className="ba-stat-item">
               <div className="ba-stat-value">
-                <span className="count-up" data-count="47">0</span><span className="ba-stat-unit">〜80%</span>
+                <span className="count-up" data-count="47">47</span><span className="ba-stat-unit">〜80%</span>
               </div>
               <div className="ba-stat-label">プッシュ通知の<br />開封率レンジ</div>
               <div className="ba-stat-source">出典：Thanx</div>
