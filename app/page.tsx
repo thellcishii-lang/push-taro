@@ -112,7 +112,7 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* ============================================================
+           {/* ============================================================
           HERO
       ============================================================ */}
       <section className="hero">
@@ -143,8 +143,8 @@ export default function Home() {
             2026年9月 正式リリース予定・先行登録受付中
           </div>
           <h1>
-            お客様に喜んで頂ける、<br />
-            <span className="gradient-text">お店づくりのお手伝い。</span>
+            既存客のリピートを、<br />
+            <span className="gradient-text">&quot;プッシュ通知 × CRM&quot;</span> で仕組化。
           </h1>
           <p className="hero-lead">
             良いサービス、良い商品。それだけでは、お客様には伝わりません。<br />
@@ -158,12 +158,12 @@ export default function Home() {
                 <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </a>
-            <a href="#philosophy" className="btn-secondary">
+            <a href="#features" className="btn-secondary">
               <svg className="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
                 <path d="M12 8v4l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
-              なぜ必要なのか
+              機能を詳しく見る
             </a>
           </div>
 
@@ -181,8 +181,8 @@ export default function Home() {
               <div className="hero-stat-label">クーポン自動配信</div>
             </div>
             <div className="hero-stat float tilt-in" style={{ transitionDelay: '0.2s' }}>
-              <div className="hero-stat-number">0<small>円</small></div>
-              <div className="hero-stat-label">導入費用・追加課金なし</div>
+              <div className="hero-stat-number">無制限</div>
+              <div className="hero-stat-label">PROプラン配信数</div>
             </div>
             <div className="hero-stat float tilt-in" style={{ transitionDelay: '0.3s' }}>
               <div className="hero-stat-number">
