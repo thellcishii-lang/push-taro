@@ -3,6 +3,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { faqs } from '../data/faq';
 
 /* ============================================================
    スクロール出現フック
@@ -67,7 +68,7 @@ function useCountUp() {
   }, []);
 }
 
-export default function Home() {
+export default function HomeClient() {
   useScrollReveal();
   useCountUp();
 
@@ -1306,39 +1307,34 @@ export default function Home() {
           </div>
 
           <div className="faq-list">
-            <details className="faq-item reveal" style={{ transitionDelay: '0s' }}>
-              <summary>専門知識がなくても運用できますか？<svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#ff4500" strokeWidth="2.5" strokeLinecap="round" /></svg></summary>
-              <div className="faq-answer">はい、まったく問題ありません。管理画面はすべて日本語で、直感的に操作いただけるUI設計です。QRコードを店頭に置いて、管理画面からクーポンと通知を設定するだけ。専門用語やITスキルは一切不要です。</div>
-            </details>
-            <details className="faq-item reveal" style={{ transitionDelay: '0.05s' }}>
-              <summary>お客様側にアプリのインストールは必要ですか？<svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#ff4500" strokeWidth="2.5" strokeLinecap="round" /></svg></summary>
-              <div className="faq-answer">基本的には不要です。SafariやChromeなどのブラウザからQRコードを読み取り、通知を許可するだけで完了します。iPhoneの場合は「ホーム画面に追加」の手順が必要ですが、管理画面から案内を表示できます。</div>
-            </details>
-            <details className="faq-item reveal" style={{ transitionDelay: '0.1s' }}>
-              <summary>配信数に応じた追加料金はかかりますか？<svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#ff4500" strokeWidth="2.5" strokeLinecap="round" /></svg></summary>
-              <div className="faq-answer">LIGHT（5,000通/月）とSTANDARD（15,000通/月）は上限がありますが、上限を超えた場合の追加課金はありません。上限に達した月は翌月まで送信がブロックされるだけです。PROプランは完全無制限で、追加課金は一切ありません。</div>
-            </details>
-            <details className="faq-item reveal" style={{ transitionDelay: '0.15s' }}>
-              <summary>無料トライアルはありますか？<svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#ff4500" strokeWidth="2.5" strokeLinecap="round" /></svg></summary>
-              <div className="faq-answer">現在、無料トライアルは用意しておりません。ただ、Push-taroは、最短１ヶ月で退会することも可能ですので、是非ご検討ください。</div>
-            </details>
-            <details className="faq-item reveal" style={{ transitionDelay: '0.2s' }}>
-              <summary>解約はいつでも可能ですか？<svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#ff4500" strokeWidth="2.5" strokeLinecap="round" /></svg></summary>
-              <div className="faq-answer">はい、管理画面からいつでも解約手続きが可能です。解約後も、既にお支払いいただいた期間の満了日まではサービスをご利用いただけます（日割り返金は行いません）。</div>
-            </details>
-            <details className="faq-item reveal" style={{ transitionDelay: '0.25s' }}>
-              <summary>紹介報酬はいつ・どうやって受け取れますか？<svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#ff4500" strokeWidth="2.5" strokeLinecap="round" /></svg></summary>
-              <div className="faq-answer">毎月末日で締め、翌月末日にご指定の銀行口座へお振込みいたします。インボイス未登録の場合は10%が源泉徴収されます。</div>
-            </details>
-            <details className="faq-item reveal" style={{ transitionDelay: '0.3s' }}>
-              <summary>複数店舗を運営していますが、アカウントは分けられますか？<svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#ff4500" strokeWidth="2.5" strokeLinecap="round" /></svg></summary>
-              <div className="faq-answer">はい、1つのメールアドレスにつき1店舗のアカウントとなります。複数店舗を運営されている場合は、店舗ごとに別のメールアドレスでお申し込みください。</div>
-            </details>
-            <details className="faq-item reveal" style={{ transitionDelay: '0.35s' }}>
-              <summary>顧客の個人情報は安全に管理されますか？<svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#ff4500" strokeWidth="2.5" strokeLinecap="round" /></svg></summary>
-              <div className="faq-answer">Firebase（Google Cloud）上で暗号化して保管されます。店舗オーナー以外は自身の店舗の顧客情報にしかアクセスできず、管理者であっても閲覧には監査ログが残ります。プライバシーポリシーに基づき、適切に取り扱います。</div>
-            </details>
-          </div>
+  {faqs.map((f, i) => (
+    <details
+      key={f.q}
+      className="faq-item reveal"
+      style={{ transitionDelay: `${i * 0.05}s` }}
+    >
+      <summary>
+        {f.q}
+        <svg
+          className="faq-icon"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M12 5v14M5 12h14"
+            stroke="#ff4500"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          />
+        </svg>
+      </summary>
+      <div className="faq-answer">{f.a}</div>
+    </details>
+  ))}
+</div>
         </div>
       </section>
 
