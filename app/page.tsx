@@ -1320,7 +1320,7 @@ export default function Home() {
             </details>
             <details className="faq-item reveal" style={{ transitionDelay: '0.15s' }}>
               <summary>無料トライアルはありますか？<svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#ff4500" strokeWidth="2.5" strokeLinecap="round" /></svg></summary>
-              <div className="faq-answer">現在、正式リリース前の先行登録を受け付けております。先行登録いただいた方には、優先的にご案内するとともに、特別なサポート体制をご用意しています。詳しくはお問い合わせください。</div>
+              <div className="faq-answer">現在、無料トライアルは用意しておりません。ただ、Push-taroは、最短１ヶ月で退会することも可能ですので、是非ご検討ください。</div>
             </details>
             <details className="faq-item reveal" style={{ transitionDelay: '0.2s' }}>
               <summary>解約はいつでも可能ですか？<svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#ff4500" strokeWidth="2.5" strokeLinecap="round" /></svg></summary>
@@ -1328,11 +1328,11 @@ export default function Home() {
             </details>
             <details className="faq-item reveal" style={{ transitionDelay: '0.25s' }}>
               <summary>紹介報酬はいつ・どうやって受け取れますか？<svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#ff4500" strokeWidth="2.5" strokeLinecap="round" /></svg></summary>
-              <div className="faq-answer">毎月末日で締め、翌月末日にご指定の銀行口座へお振込みいたします。PRO紹介制度・代理店報酬は累計1万円以上、アフィリエイト報酬は累計5,000円以上で振込申請が可能です。インボイス未登録の場合は10%が源泉徴収されます。</div>
+              <div className="faq-answer">毎月末日で締め、翌月末日にご指定の銀行口座へお振込みいたします。インボイス未登録の場合は10%が源泉徴収されます。</div>
             </details>
             <details className="faq-item reveal" style={{ transitionDelay: '0.3s' }}>
               <summary>複数店舗を運営していますが、アカウントは分けられますか？<svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#ff4500" strokeWidth="2.5" strokeLinecap="round" /></svg></summary>
-              <div className="faq-answer">はい、1つのメールアドレスにつき1店舗のアカウントとなります。複数店舗を運営されている場合は、店舗ごとに別のメールアドレスでお申し込みください。代理店プランをご利用いただくと、複数店舗をまとめて管理することも可能です。</div>
+              <div className="faq-answer">はい、1つのメールアドレスにつき1店舗のアカウントとなります。複数店舗を運営されている場合は、店舗ごとに別のメールアドレスでお申し込みください。</div>
             </details>
             <details className="faq-item reveal" style={{ transitionDelay: '0.35s' }}>
               <summary>顧客の個人情報は安全に管理されますか？<svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#ff4500" strokeWidth="2.5" strokeLinecap="round" /></svg></summary>
