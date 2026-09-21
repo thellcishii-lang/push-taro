@@ -466,7 +466,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ============================================================
+            {/* ============================================================
           SCREEN MOCKUP
       ============================================================ */}
       <section className="section screen-section" id="interface">
@@ -474,10 +474,12 @@ export default function Home() {
           <div className="section-header reveal">
             <span className="section-tag">Interface</span>
             <h2>シンプルで使いやすい、2つの画面</h2>
-            <p>お客様が使うのは、たった1つのボタン。<br />店舗オーナーは、見やすい管理画面で全ての施策をコントロールできます。</p>
+            <p>お客様が使うのは、QRコードを読み取るだけ。<br />店舗オーナーは、見やすい管理画面で全ての施策をコントロールできます。</p>
           </div>
 
           <div className="screen-grid">
+
+            {/* ========== お客様側 ========== */}
             <div>
               <div className="phone-mock">
                 <div className="phone-screen">
@@ -487,68 +489,86 @@ export default function Home() {
                       <rect x="0" y="4" width="3" height="6" fill="#1a202c" />
                       <rect x="5" y="2" width="3" height="8" fill="#1a202c" />
                       <rect x="10" y="0" width="3" height="10" fill="#1a202c" />
-                      <path d="M18 6a6 6 0 016-5" stroke="#1a202c" strokeWidth="1.5" fill="none" />
-                      <path d="M18 9a3 3 0 013-2.5" stroke="#1a202c" strokeWidth="1.5" fill="none" />
                       <rect x="32" y="1" width="12" height="9" rx="2" stroke="#1a202c" strokeWidth="1" fill="none" />
                       <rect x="33.5" y="2.5" width="8" height="6" fill="#1a202c" />
                     </svg>
                   </div>
-                  <div className="phone-shop-icon">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                      <path d="M4 21h16v-4H4z" fill="#fff" />
-                      <path d="M4 17c1 0 1-1 2-1s1 1 2 1 1-1 2-1 1 1 2 1 1-1 2-1 1 1 2 1 1-1 2-1 1 1 2 1v-4H4z" fill="#ffedd5" />
-                      <path d="M12 3v6M12 3c-1 0-2 1-2 2s1 2 2 2M12 3c1 0 2 1 2 2s-1 2-2 2" stroke="#fbbf24" strokeWidth="1.5" strokeLinecap="round" />
-                    </svg>
-                  </div>
-                  <div className="phone-shop-name">Patisserie Taro</div>
-                  <div className="phone-shop-sub">お得な情報をプッシュ通知でお届け</div>
 
-                  <div className="phone-notif">
-                    <div className="phone-notif-icon">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  {/* 店舗ヘッダー */}
+                  <div className="phone-shop-header">
+                    <div className="phone-shop-icon">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                         <path d="M4 21h16v-4H4z" fill="#fff" />
+                        <path d="M4 17c1 0 1-1 2-1s1 1 2 1 1-1 2-1 1 1 2 1 1-1 2-1 1 1 2 1 1-1 2-1 1 1 2 1v-4H4z" fill="#ffedd5" />
                         <path d="M12 3v6M12 3c-1 0-2 1-2 2s1 2 2 2M12 3c1 0 2 1 2 2s-1 2-2 2" stroke="#fbbf24" strokeWidth="1.5" strokeLinecap="round" />
                       </svg>
                     </div>
-                    <div className="phone-notif-content">
-                      <div className="phone-notif-title">Patisserie Taro</div>
-                      <div className="phone-notif-body">本日限定！新作いちごタルト20%OFFクーポン配信中🎁</div>
-                      <div className="phone-notif-time">今</div>
-                    </div>
+                    <div className="phone-shop-name">Patisserie Taro</div>
+                    <div className="phone-link-btn">🌐 サイトはこちらから</div>
                   </div>
 
-                  <div className="phone-notif">
-                    <div className="phone-notif-icon">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                        <path d="M4 21h16v-4H4z" fill="#fff" />
-                        <path d="M12 3v6M12 3c-1 0-2 1-2 2s1 2 2 2M12 3c1 0 2 1 2 2s-1 2-2 2" stroke="#fbbf24" strokeWidth="1.5" strokeLinecap="round" />
-                      </svg>
+                  <div className="phone-coupons-scroll">
+
+                    {/* 初回クーポン */}
+                    <div className="phone-coupon phone-coupon-first">
+                      <span className="phone-coupon-badge">初回限定</span>
+                      <div className="phone-coupon-title">🎁 初回限定クーポン</div>
+                      <div className="phone-coupon-desc">次回ご来店時にご利用ください</div>
+                      <div className="phone-coupon-qr">
+                        <svg width="80" height="80" viewBox="0 0 21 21">
+                          <rect width="21" height="21" fill="#fff"/>
+                          <path fill="#0f172a" d="M0,0h7v7h-7zM1,1v5h5v-5zM2,2h3v3h-3zM14,0h7v7h-7zM15,1v5h5v-5zM16,2h3v3h-3zM0,14h7v7h-7zM1,15v5h5v-5zM2,16h3v3h-3zM9,0h1v1h-1zM11,0h1v1h-1zM9,2h1v1h-1zM10,3h1v1h-1zM8,4h1v1h-1z"/>
+                        </svg>
+                      </div>
+                      <div className="phone-coupon-note">会計時にこちらのQRコードをスタッフにご提示ください</div>
                     </div>
-                    <div className="phone-notif-content">
-                      <div className="phone-notif-title">Patisserie Taro</div>
-                      <div className="phone-notif-body">お誕生日おめでとうございます🎉 特別クーポンをプレゼント</div>
-                      <div className="phone-notif-time">5分前</div>
+
+                    {/* 通常クーポン */}
+                    <div className="phone-coupon phone-coupon-normal">
+                      <span className="phone-coupon-badge is-green">通常クーポン</span>
+                      <div className="phone-coupon-title">🎟️ 会員様 10%OFF</div>
+                      <div className="phone-coupon-desc">いつでも何度でもご利用いただけます</div>
+                      <div className="phone-coupon-qr">
+                        <svg width="80" height="80" viewBox="0 0 21 21">
+                          <rect width="21" height="21" fill="#fff"/>
+                          <path fill="#0f172a" d="M0,0h7v7h-7zM1,1v5h5v-5zM2,2h3v3h-3zM14,0h7v7h-7zM15,1v5h5v-5zM16,2h3v3h-3zM0,14h7v7h-7zM1,15v5h5v-5zM2,16h3v3h-3zM9,0h1v1h-1zM11,0h1v1h-1zM9,2h1v1h-1zM10,3h1v1h-1zM8,4h1v1h-1z"/>
+                        </svg>
+                      </div>
+                      <div className="phone-coupon-note">会計時にこちらのQRコードをスタッフにご提示ください</div>
                     </div>
+
+                    {/* 特別達成クーポン */}
+                    <div className="phone-coupon phone-coupon-loyalty">
+                      <span className="phone-coupon-badge is-orange">特別達成クーポン</span>
+                      <div className="phone-coupon-title">🏆 3回達成 20%OFF</div>
+                      <div className="phone-coupon-desc">通常クーポンを規定回数ご利用いただいた特典です</div>
+                      <div className="phone-coupon-qr">
+                        <svg width="80" height="80" viewBox="0 0 21 21">
+                          <rect width="21" height="21" fill="#fff"/>
+                          <path fill="#0f172a" d="M0,0h7v7h-7zM1,1v5h5v-5zM2,2h3v3h-3zM14,0h7v7h-7zM15,1v5h5v-5zM16,2h3v3h-3zM0,14h7v7h-7zM1,15v5h5v-5zM2,16h3v3h-3zM9,0h1v1h-1zM11,0h1v1h-1zM9,2h1v1h-1zM10,3h1v1h-1zM8,4h1v1h-1z"/>
+                        </svg>
+                      </div>
+                      <div className="phone-coupon-note">会計時にこちらのQRコードをスタッフにご提示ください</div>
+                    </div>
+
                   </div>
 
-                  <div className="phone-notif">
-                    <div className="phone-notif-icon">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                        <path d="M6 16a4 4 0 010-8 5 5 0 019.9-1.5A4.5 4.5 0 0118 16H6z" stroke="#fff" strokeWidth="2" strokeLinejoin="round" fill="none" />
-                        <path d="M8 20l-1 2M12 20l-1 2M16 20l-1 2" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-                      </svg>
-                    </div>
-                    <div className="phone-notif-content">
-                      <div className="phone-notif-title">Patisserie Taro</div>
-                      <div className="phone-notif-body">雨の日限定 全品15%OFF。本日18時まで！</div>
-                      <div className="phone-notif-time">2時間前</div>
+                  {/* 通知履歴 */}
+                  <div className="phone-history">
+                    <div className="phone-history-head">
+                      <span>📜 通知履歴 (3件)</span>
+                      <span>▼ 展開する</span>
                     </div>
                   </div>
                 </div>
               </div>
-              <p className="screen-caption">📱 お客様側の画面イメージ<br />QRを読み取って通知を許可するだけ</p>
+              <p className="screen-caption">
+                📱 お客様側の画面イメージ<br />
+                QRを読み取って、クーポンを提示するだけ
+              </p>
             </div>
 
+            {/* ========== 店舗オーナー側 ========== */}
             <div>
               <div className="dash-mock">
                 <div className="dash-topbar">
@@ -557,68 +577,107 @@ export default function Home() {
                   <span className="dash-dot green"></span>
                   <span className="dash-url">push-taro.com/pro-shop</span>
                 </div>
+
                 <div className="dash-body">
+
+                  {/* ヘッダー */}
                   <div className="dash-header">
-                    <div className="dash-title">🍰 Patisserie Taro<span className="dash-badge">PRO</span></div>
-                    <div style={{ fontSize: '11px', color: '#64748b' }}>owner@patisserie-taro.jp</div>
-                  </div>
-                  <div className="dash-stats">
-                    <div className="dash-stat">
-                      <div className="dash-stat-label">登録顧客数</div>
-                      <div className="dash-stat-value blue">1,247</div>
-                    </div>
-                    <div className="dash-stat">
-                      <div className="dash-stat-label">今月の送信数</div>
-                      <div className="dash-stat-value orange">8,392</div>
-                    </div>
-                    <div className="dash-stat">
-                      <div className="dash-stat-label">紹介報酬</div>
-                      <div className="dash-stat-value green">¥24,500</div>
-                    </div>
-                  </div>
-                  <div className="dash-progress">
-                    <div className="dash-progress-label">
-                      <span>📈 今月の送信上限使用率 (PROプラン)</span>
-                      <span style={{ color: '#ff4500' }}>無制限</span>
-                    </div>
-                    <div className="dash-progress-bar">
-                      <div className="dash-progress-fill"></div>
-                    </div>
-                  </div>
-                  <div className="dash-coupons">
-                    <div className="dash-coupon">
-                      <div className="dash-coupon-title">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 10a2 2 0 010-4V4a1 1 0 011-1h16a1 1 0 011 1v2a2 2 0 010 4v2a2 2 0 010 4v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2a2 2 0 010-4v-2z" fill="#ff4500" /></svg>
-                        初回限定クーポン
+                    <div className="dash-header-left">
+                      <div className="dash-shop-icon">🍰</div>
+                      <div>
+                        <div className="dash-title">
+                          Patisserie Taro
+                          <span className="dash-badge">PRO</span>
+                        </div>
+                        <div className="dash-email">owner@patisserie-taro.jp</div>
                       </div>
-                      <div className="dash-coupon-desc">登録者全員に自動配信</div>
                     </div>
-                    <div className="dash-coupon">
-                      <div className="dash-coupon-title">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M4 21h16v-4H4z" fill="#ff4500" /><path d="M12 3v6M12 3c-1 0-2 1-2 2s1 2 2 2M12 3c1 0 2 1 2 2s-1 2-2 2" stroke="#fbbf24" strokeWidth="1.5" strokeLinecap="round" /></svg>
-                        誕生日クーポン
-                      </div>
-                      <div className="dash-coupon-desc">毎日 9:00 に自動送信</div>
+                    <button className="dash-logout">ログアウト</button>
+                  </div>
+
+                  {/* タブ */}
+                  <div className="dash-tabs">
+                    <div className="dash-tab is-active">📢 即時通知・消し込み</div>
+                    <div className="dash-tab">🏪 店舗・基本クーポン</div>
+                    <div className="dash-tab">🔥 PRO機能</div>
+                    <div className="dash-tab">📅 予約配信</div>
+                  </div>
+
+                  {/* 消し込みボタン */}
+                  <div className="dash-scan-btn">
+                    📷 クーポンQRコードを読み取る（消し込み）
+                  </div>
+
+                  {/* 通知作成フォーム */}
+                  <div className="dash-form">
+                    <div className="dash-form-title">📢 プッシュ通知を作成・即時送信</div>
+                    <div className="dash-form-field">
+                      <div className="dash-form-label">タイトル</div>
+                      <div className="dash-form-input">例: 新着セールのお知らせ</div>
                     </div>
-                    <div className="dash-coupon">
-                      <div className="dash-coupon-title">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 11-3-6.7" stroke="#ff4500" strokeWidth="2" fill="none" strokeLinecap="round" /><path d="M21 3v6h-6" stroke="#ff4500" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                        連続クーポン
-                      </div>
-                      <div className="dash-coupon-desc">消込と同時に次回分発行</div>
+                    <div className="dash-form-field">
+                      <div className="dash-form-label">本文</div>
+                      <div className="dash-form-textarea">例: 本日から全品20%OFFセール開催中！</div>
                     </div>
-                    <div className="dash-coupon">
-                      <div className="dash-coupon-title">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" fill="#ff4500" /></svg>
-                        休眠復活クーポン
-                      </div>
-                      <div className="dash-coupon-desc">60日経過で自動配信</div>
+                    <div className="dash-form-btn">🔥 Push 通知送信</div>
+                  </div>
+
+                  {/* 送信ステータス */}
+                  <div className="dash-status">
+                    <div className="dash-status-left">
+                      🔥 月間送信ステータス
+                      <span className="dash-status-tag">PRO</span>
+                    </div>
+                    <div className="dash-status-right">配信無制限</div>
+                  </div>
+
+                  {/* 受取許可件数 */}
+                  <div className="dash-subscribers">
+                    <span>📱 現在の受取許可件数</span>
+                    <strong>1,247 件</strong>
+                  </div>
+
+                  {/* 送信履歴 */}
+                  <div className="dash-history-title">
+                    <span>📁 送信履歴</span>
+                    <div className="dash-history-actions">
+                      <span>🔄 更新</span>
+                      <span>📤 エクスポート</span>
                     </div>
                   </div>
+                  <div className="dash-history-item">
+                    <div className="dash-history-head">
+                      <strong>新作スイーツ入荷のお知らせ</strong>
+                      <span className="dash-history-time">2026/09/20 18:30</span>
+                    </div>
+                    <div className="dash-history-body">本日より新作いちごタルト販売開始🍰</div>
+                    <div className="dash-history-meta">
+                      <span className="dash-history-status">送信成功</span>
+                      <span>（送信数: 1,204件）</span>
+                      <span className="dash-history-open">開封率: 62.4%</span>
+                    </div>
+                  </div>
+                  <div className="dash-history-item">
+                    <div className="dash-history-head">
+                      <strong>週末限定セールのお知らせ</strong>
+                      <span className="dash-history-time">2026/09/18 12:00</span>
+                    </div>
+                    <div className="dash-history-body">今週末は全品10%OFF！</div>
+                    <div className="dash-history-meta">
+                      <span className="dash-history-status">送信成功</span>
+                      <span>（送信数: 1,198件）</span>
+                      <span className="dash-history-open">開封率: 58.7%</span>
+                    </div>
+                  </div>
+
                 </div>
               </div>
-              <p className="screen-caption">💻 店舗オーナー側の管理画面イメージ<br />すべての施策を1画面でコントロール</p>
+              <p className="screen-caption">
+                💻 店舗オーナー側の管理画面イメージ<br />
+                すべての施策を1画面でコントロール
+              </p>
             </div>
+
           </div>
         </div>
       </section>
@@ -2060,7 +2119,7 @@ export default function Home() {
           line-height: 1.6;
         }
 
-        /* ============================================================
+                /* ============================================================
            SCREEN MOCKUP
         ============================================================ */
         .screen-section {
@@ -2070,9 +2129,11 @@ export default function Home() {
           display: grid;
           grid-template-columns: 320px 1fr;
           gap: 48px;
-          align-items: center;
+          align-items: start;
           justify-content: center;
         }
+
+        /* ========== スマホモック ========== */
         .phone-mock {
           width: 300px; height: 620px;
           background: #1a202c; border-radius: 42px;
@@ -2093,8 +2154,10 @@ export default function Home() {
           background: linear-gradient(180deg, #fef3e7 0%, #fff 40%);
           border-radius: 32px; overflow: hidden;
           position: relative;
-          padding: 44px 18px 18px;
+          padding: 44px 14px 14px;
           box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
         }
         .phone-status-bar {
           position: absolute; top: 10px; left: 0; right: 0;
@@ -2102,59 +2165,124 @@ export default function Home() {
           padding: 0 22px;
           font-size: 11px; font-weight: 700; color: #1a202c;
         }
+
+        /* 店舗ヘッダー */
+        .phone-shop-header {
+          text-align: center;
+          margin-bottom: 14px;
+          flex-shrink: 0;
+        }
         .phone-shop-icon {
-          width: 64px; height: 64px; border-radius: 50%;
+          width: 56px; height: 56px; border-radius: 50%;
           background: linear-gradient(135deg, #ff6b6b, #ff4500);
           display: flex; align-items: center; justify-content: center;
-          margin: 16px auto 10px;
+          margin: 0 auto 8px;
           box-shadow: 0 8px 20px rgba(255,69,0,0.35);
         }
         .phone-shop-name {
-          text-align: center; font-size: 15px; font-weight: 800;
-          color: #1a202c; margin-bottom: 4px;
+          font-size: 14px; font-weight: 800;
+          color: #1a202c; margin-bottom: 8px;
         }
-        .phone-shop-sub {
-          text-align: center; font-size: 11px;
-          color: #64748b; margin-bottom: 16px;
+        .phone-link-btn {
+          display: inline-block;
+          padding: 6px 14px;
+          background: #2563eb;
+          color: #fff;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 700;
         }
-        .phone-notif {
-          background: rgba(255,255,255,0.95);
-          backdrop-filter: blur(20px);
-          border-radius: 14px;
-          padding: 12px 14px;
-          margin-bottom: 10px;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-          display: flex; gap: 10px; align-items: flex-start;
-          animation: notifFade 6s infinite;
+
+        /* クーポン */
+        .phone-coupons-scroll {
+          display: flex; flex-direction: column;
+          gap: 10px;
+          overflow-y: auto;
+          flex: 1;
+          padding-right: 2px;
         }
-        .phone-notif:nth-child(3) { animation-delay: 0.3s; }
-        .phone-notif:nth-child(4) { animation-delay: 0.6s; }
-        @keyframes notifFade {
-          0%, 90%, 100% { opacity: 1; transform: translateX(0); }
-          95% { opacity: 0.8; transform: translateX(-2px); }
+        .phone-coupons-scroll::-webkit-scrollbar { width: 3px; }
+        .phone-coupons-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+        .phone-coupon {
+          padding: 12px 12px;
+          border-radius: 8px;
+          text-align: center;
         }
-        .phone-notif-icon {
-          width: 34px; height: 34px; border-radius: 8px;
-          background: linear-gradient(135deg, #ff6b6b, #ff4500);
-          display: flex; align-items: center; justify-content: center;
+        .phone-coupon-first {
+          background: #fff3e0;
+          border: 1px dashed #ffb74d;
+        }
+        .phone-coupon-normal {
+          background: #f0fdf4;
+          border: 1px dashed #4ade80;
+        }
+        .phone-coupon-loyalty {
+          background: #fff7ed;
+          border: 1px dashed #fb923c;
+        }
+
+        .phone-coupon-badge {
+          display: inline-block;
+          font-size: 9px;
+          font-weight: 800;
+          padding: 2px 8px;
+          border-radius: 8px;
+          background: #e65100;
+          color: #fff;
+          margin-bottom: 6px;
+        }
+        .phone-coupon-badge.is-green { background: #16a34a; }
+        .phone-coupon-badge.is-orange { background: #ea580c; }
+
+        .phone-coupon-title {
+          font-size: 12px;
+          font-weight: 800;
+          color: #e65100;
+          margin-bottom: 6px;
+        }
+        .phone-coupon-normal .phone-coupon-title { color: #15803d; }
+        .phone-coupon-loyalty .phone-coupon-title { color: #c2410c; }
+
+        .phone-coupon-desc {
+          font-size: 10px;
+          color: #64748b;
+          margin-bottom: 8px;
+          line-height: 1.4;
+        }
+
+        .phone-coupon-qr {
+          display: inline-block;
+          padding: 4px;
+          background: #fff;
+          border-radius: 6px;
+          margin-bottom: 6px;
+        }
+        .phone-coupon-note {
+          font-size: 8px;
+          color: #888;
+          line-height: 1.3;
+        }
+
+        /* 通知履歴 */
+        .phone-history {
+          margin-top: 10px;
+          padding: 10px 12px;
+          background: #f5f5f5;
+          border: 1px solid #ddd;
+          border-radius: 6px;
           flex-shrink: 0;
         }
-        .phone-notif-content { flex: 1; min-width: 0; }
-        .phone-notif-title {
-          font-size: 12.5px; font-weight: 800;
-          color: #1a202c; margin-bottom: 2px;
-          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        .phone-history-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 11px;
+          font-weight: 700;
+          color: #334155;
         }
-        .phone-notif-body {
-          font-size: 11.5px; color: #475569; line-height: 1.5;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-        .phone-notif-time {
-          font-size: 10px; color: #94a3b8; margin-top: 4px;
-        }
+
+        /* ========== ダッシュボードモック ========== */
         .dash-mock {
           background: #fff; border-radius: 16px;
           box-shadow: 0 30px 60px -20px rgba(0,0,0,0.15), 0 0 0 1px #e2e8f0;
@@ -2176,15 +2304,39 @@ export default function Home() {
           margin-left: 8px; border: 1px solid #e2e8f0;
         }
         .dash-body { padding: 20px; background: #f8fafc; }
+
+        /* ヘッダー */
         .dash-header {
-          display: flex; justify-content: space-between; align-items: center;
-          margin-bottom: 16px; padding: 12px 16px;
-          background: #fff; border-radius: 10px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 16px;
+          background: #fff;
+          border-radius: 10px;
           border: 1px solid #e2e8f0;
+          margin-bottom: 14px;
+        }
+        .dash-header-left {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .dash-shop-icon {
+          width: 36px; height: 36px;
+          border-radius: 50%;
+          background: #fef3c7;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
         }
         .dash-title {
-          font-size: 14px; font-weight: 800; color: #1a202c;
-          display: flex; align-items: center; gap: 6px;
+          font-size: 14px;
+          font-weight: 800;
+          color: #1a202c;
+          display: flex;
+          align-items: center;
+          gap: 6px;
         }
         .dash-badge {
           font-size: 9px; font-weight: 800;
@@ -2192,60 +2344,224 @@ export default function Home() {
           background: linear-gradient(135deg, #ff4500, #f97316);
           color: #fff; letter-spacing: 0.3px;
         }
-        .dash-stats {
-          display: grid; grid-template-columns: repeat(3, 1fr);
-          gap: 10px; margin-bottom: 14px;
+        .dash-email {
+          font-size: 10px;
+          color: #64748b;
+          margin-top: 2px;
         }
-        .dash-stat {
-          background: #fff; border-radius: 10px;
-          padding: 12px; border: 1px solid #e2e8f0;
+        .dash-logout {
+          padding: 6px 12px;
+          font-size: 11px;
+          font-weight: 700;
+          background: #edf2f7;
+          color: #4a5568;
+          border: 1px solid #cbd5e0;
+          border-radius: 6px;
+          cursor: pointer;
         }
-        .dash-stat-label {
-          font-size: 10px; font-weight: 700;
-          color: #64748b; margin-bottom: 4px;
+
+        /* タブ */
+        .dash-tabs {
+          display: flex;
+          gap: 4px;
+          border-bottom: 2px solid #e2e8f0;
+          padding-bottom: 4px;
+          margin-bottom: 14px;
+          overflow-x: auto;
         }
-        .dash-stat-value {
-          font-size: 20px; font-weight: 900;
-          color: #1a202c; letter-spacing: -0.5px; line-height: 1;
+        .dash-tab {
+          padding: 6px 12px;
+          font-size: 10px;
+          font-weight: 800;
+          color: #64748b;
+          border-bottom: 2px solid transparent;
+          white-space: nowrap;
+          margin-bottom: -6px;
         }
-        .dash-stat-value.orange { color: var(--orange); }
-        .dash-stat-value.green  { color: var(--green); }
-        .dash-stat-value.blue   { color: var(--blue); }
-        .dash-progress {
-          background: #fff; border-radius: 10px;
-          padding: 14px 16px; border: 1px solid #e2e8f0;
+        .dash-tab.is-active {
+          color: #ff4500;
+          border-bottom-color: #ff4500;
+        }
+
+        /* 消し込みボタン */
+        .dash-scan-btn {
+          padding: 10px;
+          background: #16a34a;
+          color: #fff;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 800;
+          text-align: center;
           margin-bottom: 14px;
         }
-        .dash-progress-label {
-          display: flex; justify-content: space-between;
-          font-size: 11px; font-weight: 800;
-          color: #334155; margin-bottom: 8px;
+
+        /* 通知フォーム */
+        .dash-form {
+          background: #fff;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          padding: 14px;
+          margin-bottom: 14px;
         }
-        .dash-progress-bar {
-          width: 100%; height: 8px;
-          background: #e2e8f0; border-radius: 4px; overflow: hidden;
+        .dash-form-title {
+          font-size: 12px;
+          font-weight: 800;
+          color: #1a202c;
+          margin-bottom: 10px;
         }
-        .dash-progress-fill {
-          width: 68%; height: 100%;
-          background: linear-gradient(90deg, #ff4500, #f97316);
+        .dash-form-field { margin-bottom: 10px; }
+        .dash-form-label {
+          font-size: 10px;
+          font-weight: 700;
+          color: #334155;
+          margin-bottom: 4px;
+        }
+        .dash-form-input,
+        .dash-form-textarea {
+          padding: 8px 10px;
+          background: #f8fafc;
+          border: 1px solid #cbd5e1;
+          border-radius: 4px;
+          font-size: 11px;
+          color: #94a3b8;
+        }
+        .dash-form-textarea { min-height: 40px; }
+        .dash-form-btn {
+          padding: 10px;
+          background: #ff4500;
+          color: #fff;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 800;
+          text-align: center;
+        }
+
+        /* 送信ステータス */
+        .dash-status {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 10px 14px;
+          background: #fff7ed;
+          border: 1px solid #fed7aa;
+          border-radius: 8px;
+          margin-bottom: 10px;
+        }
+        .dash-status-left {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 11px;
+          font-weight: 800;
+          color: #c2410c;
+        }
+        .dash-status-tag {
+          font-size: 9px;
+          font-weight: 800;
+          padding: 2px 6px;
+          background: #ea580c;
+          color: #fff;
+          border-radius: 8px;
+        }
+        .dash-status-right {
+          font-size: 12px;
+          font-weight: 900;
+          color: #c2410c;
+        }
+
+        /* 受取許可件数 */
+        .dash-subscribers {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 10px 14px;
+          background: #e3f2fd;
+          border-radius: 6px;
+          margin-bottom: 14px;
+        }
+        .dash-subscribers span {
+          font-size: 11px;
+          font-weight: 800;
+          color: #0d47a1;
+        }
+        .dash-subscribers strong {
+          font-size: 14px;
+          font-weight: 900;
+          color: #1565c0;
+        }
+
+        /* 送信履歴 */
+        .dash-history-title {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 10px;
+        }
+        .dash-history-title > span {
+          font-size: 12px;
+          font-weight: 800;
+          color: #1a202c;
+        }
+        .dash-history-actions {
+          display: flex;
+          gap: 6px;
+        }
+        .dash-history-actions span {
+          padding: 4px 8px;
+          background: #1976d2;
+          color: #fff;
+          font-size: 9px;
+          font-weight: 700;
           border-radius: 4px;
         }
-        .dash-coupons {
-          display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        .dash-history-actions span:last-child { background: #4CAF50; }
+
+        .dash-history-item {
+          padding: 10px 12px;
+          background: #fff;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          margin-bottom: 8px;
         }
-        .dash-coupon {
-          background: #fff; border-radius: 10px;
-          padding: 12px; border-left: 3px solid #ff4500;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        .dash-history-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 4px;
         }
-        .dash-coupon-title {
-          font-size: 11px; font-weight: 800;
-          color: #1a202c; margin-bottom: 4px;
-          display: flex; align-items: center; gap: 4px;
+        .dash-history-head strong {
+          font-size: 11px;
+          font-weight: 800;
+          color: #1a202c;
         }
-        .dash-coupon-desc {
-          font-size: 10px; color: #64748b; line-height: 1.5;
+        .dash-history-time {
+          font-size: 9px;
+          color: #94a3b8;
         }
+        .dash-history-body {
+          font-size: 10px;
+          color: #475569;
+          margin-bottom: 6px;
+        }
+        .dash-history-meta {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+          font-size: 9px;
+          color: #64748b;
+        }
+        .dash-history-status {
+          padding: 2px 6px;
+          background: #e8f5e9;
+          color: #2e7d32;
+          border-radius: 8px;
+          font-weight: 800;
+        }
+        .dash-history-open {
+          color: #1565c0;
+          font-weight: 800;
+        }
+
         .screen-caption {
           text-align: center; font-size: 12px;
           color: #94a3b8; margin-top: 20px; font-weight: 600;
