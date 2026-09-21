@@ -26,7 +26,6 @@ export async function GET(request: Request) {
       const successCount = Number(data.successCount || 0);
       const deliveredCount = Number(data.deliveredCount || 0);
       const openedCount = Number(data.openedCount || 0);
-      const openRateDenominator = deliveredCount > 0 ? deliveredCount : successCount;
       return {
         notificationId: data.notificationId || doc.id,
         title: String(data.title || ''),
@@ -38,7 +37,7 @@ export async function GET(request: Request) {
         failureCount: Number(data.failureCount || 0),
         deliveredCount,
         openedCount,
-        openRate: openRateDenominator > 0 ? Math.min(100, (openedCount / openRateDenominator) * 100) : null,
+        openRate: successCount > 0 ? Math.min(100, (openedCount / successCount) * 100) : null,
       };
     });
 

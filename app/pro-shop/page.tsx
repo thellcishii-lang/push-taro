@@ -924,7 +924,7 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
                       {typeof h.openRate === 'number' && h.notificationId && (
                         <span style={{ fontSize: '12px', color: '#1565c0', fontWeight: 'bold' }}>
                           開封率: {h.openRate.toFixed(1)}%
-                          {typeof h.deliveredCount === 'number' && h.deliveredCount > 0 && `（${h.openedCount || 0}/${h.deliveredCount}件）`}
+                          {typeof h.successCount === 'number' && h.successCount > 0 && `（${h.openedCount || 0}/${h.successCount}件）`}
                         </span>
                       )}
                     </div>
