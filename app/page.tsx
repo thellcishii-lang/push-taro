@@ -1174,7 +1174,7 @@ export default function Home() {
                 <span className="usecase-plan">PRO</span>
               </div>
               <div className="usecase-body">
-                <<div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>新規顧客の自動リスト化</div>
+                <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>新規顧客の自動リスト化</div>
                 <p className="usecase-desc">連続クーポンと休眠復活クーポンを自動運用。来店サイクルを可視化し、メンテナンス時期を逃さずリピート安定。</p>
               </div>
             </div>
