@@ -965,7 +965,7 @@ export default function HomeClient() {
           <div className="ba-stats reveal">
             <div className="ba-stat-item">
               <div className="ba-stat-value">
-                <span className="count-up" data-count="10">0</span><span className="ba-stat-unit">倍</span>
+                <span className="count-up" data-count="10">10</span><span className="ba-stat-unit">倍</span>
               </div>
               <div className="ba-stat-label">メルマガ比<br />プッシュ通知の開封率</div>
               <div className="ba-stat-source">出典：PUSHONE調査</div>
