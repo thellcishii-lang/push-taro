@@ -15,9 +15,9 @@ const companyFooter = `
 
 const transporter = infoMailUser && infoMailPass
   ? nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
+      host: 'smtp.zoho.jp',
+      port: 465,
+      secure: true,
       auth: {
         user: infoMailUser,
         pass: infoMailPass,
