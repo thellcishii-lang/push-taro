@@ -889,7 +889,8 @@ export default function Home() {
               </thead>
               <tbody>
                 <tr><td>プッシュ通知の配信</td><td className="col-pushtaro">✓ 全デバイス対応</td><td>✓</td><td>✓</td></tr>
-                <tr><td>クーポン自動配信</td><td className="col-pushtaro">✓ 7種類</td><td className="check-no">✗</td><td>△ 手動配信のみ</td></tr>
+                <tr><td>クーポン機能</td><td className="col-pushtaro">✓ 7種類</td><td className="check-no">✗ なし</td><td>△ 手動配信のみ</td></tr>
+　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　<tr><td>クーポンの自動発行</td><td className="col-pushtaro">✓ 登録・来店・誕生日・休眠に連動</td><td className="check-no">✗ なし</td><td className="check-no">✗ なし</td></tr>
                 <tr><td>QRコード消込</td><td className="col-pushtaro">✓ 標準搭載</td><td className="check-no">✗</td><td>△ 別途開発必要</td></tr>
                 <tr><td>予約配信・定期配信</td><td className="col-pushtaro">✓</td><td>△ 有料オプション</td><td className="check-no">✗</td></tr>
                 <tr><td>誕生日・休眠復活の自動化</td><td className="col-pushtaro">✓</td><td className="check-no">✗</td><td className="check-no">✗</td></tr>
@@ -902,7 +903,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ============================================================
+            {/* ============================================================
           BEFORE / AFTER
       ============================================================ */}
       <section className="section section-alt">
@@ -925,8 +926,10 @@ export default function Home() {
                 <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#fecaca" /><path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" /></svg><span>施策のPDCAが回らず、改善のサイクルが遅い</span></div>
               </div>
               <div className="ba-metric">
-                <div className="ba-metric-value">リピート率 18%</div>
-                <div className="ba-metric-label">月商の伸び悩み</div>
+                <div className="ba-metric-value" style={{ fontSize: '17px', letterSpacing: 0, color: '#dc2626', fontWeight: 900, lineHeight: 1.4 }}>
+                  リピート施策が<br />後手に回る
+                </div>
+                <div className="ba-metric-label">施策の属人化・属時化</div>
               </div>
             </div>
 
@@ -947,11 +950,42 @@ export default function Home() {
                 <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#bbf7d0" /><path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>ダッシュボードでPDCAが高速に回る</span></div>
               </div>
               <div className="ba-metric">
-                <div className="ba-metric-value">リピート率 42%</div>
-                <div className="ba-metric-label">月商 +40% を実現</div>
+                <div className="ba-metric-value" style={{ fontSize: '17px', letterSpacing: 0, color: '#16a34a', fontWeight: 900, lineHeight: 1.4 }}>
+                  仕組みで<br />自動的に回る
+                </div>
+                <div className="ba-metric-label">施策の自動化・見える化</div>
               </div>
             </div>
           </div>
+
+          {/* 出典付き統計 */}
+          <div className="ba-stats reveal">
+            <div className="ba-stat-item">
+              <div className="ba-stat-value">
+                <span className="count-up" data-count="10">0</span><span className="ba-stat-unit">倍</span>
+              </div>
+              <div className="ba-stat-label">メルマガ比<br />プッシュ通知の開封率</div>
+              <div className="ba-stat-source">出典：PUSHONE調査</div>
+            </div>
+            <div className="ba-stat-item">
+              <div className="ba-stat-value">
+                <span className="count-up" data-count="87">0</span><span className="ba-stat-unit">%</span>
+              </div>
+              <div className="ba-stat-label">小売業での<br />プッシュ通知による行動変容率</div>
+              <div className="ba-stat-source">出典：アイリッジ 2025年調査</div>
+            </div>
+            <div className="ba-stat-item">
+              <div className="ba-stat-value">
+                <span className="count-up" data-count="47">0</span><span className="ba-stat-unit">〜80%</span>
+              </div>
+              <div className="ba-stat-label">プッシュ通知の<br />開封率レンジ</div>
+              <div className="ba-stat-source">出典：Thanx</div>
+            </div>
+          </div>
+
+          <p className="ba-disclaimer">
+            ※ 上記の数値は各種業界調査に基づく参考値であり、特定の店舗における成果を保証するものではありません。
+          </p>
         </div>
       </section>
 
@@ -1122,8 +1156,7 @@ export default function Home() {
                 <span className="usecase-plan">STANDARD</span>
               </div>
               <div className="usecase-body">
-                <div className="usecase-result">月間200人</div>
-                <div className="usecase-title">新規顧客の自動リスト化</div>
+                <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>新規顧客の自動リスト化</div>
                 <p className="usecase-desc">店頭POPのQRコードと初回クーポンで、手間なく顧客リストを構築。「雨の日20%OFF」を即時配信して閑散期対策。</p>
               </div>
             </div>
@@ -1141,8 +1174,7 @@ export default function Home() {
                 <span className="usecase-plan">PRO</span>
               </div>
               <div className="usecase-body">
-                <div className="usecase-result">60日 → 42日</div>
-                <div className="usecase-title">再来サイクルの短縮</div>
+                <<div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>新規顧客の自動リスト化</div>
                 <p className="usecase-desc">連続クーポンと休眠復活クーポンを自動運用。来店サイクルを可視化し、メンテナンス時期を逃さずリピート安定。</p>
               </div>
             </div>
@@ -1158,8 +1190,7 @@ export default function Home() {
                 <span className="usecase-plan">PRO</span>
               </div>
               <div className="usecase-body">
-                <div className="usecase-result">リピート率 18% → 42%</div>
-                <div className="usecase-title">ファン育成 × 紹介で実質無料</div>
+                <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>新規顧客の自動リスト化</div>
                 <p className="usecase-desc">ステップアップクーポンでロイヤル化を促進し、PRO紹介制度でランニングコストを相殺。顧客が顧客を呼ぶ仕組み。</p>
               </div>
             </div>
@@ -1177,8 +1208,7 @@ export default function Home() {
                 <span className="usecase-plan">STANDARD</span>
               </div>
               <div className="usecase-body">
-                <div className="usecase-result">売上 前年比 140%</div>
-                <div className="usecase-title">セール告知のフル活用</div>
+                <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>新規顧客の自動リスト化</div>
                 <p className="usecase-desc">新商品入荷やセール開始を画像付き通知で配信。固定ファンの買い逃しを防ぎ、確実に売上へつなげます。</p>
               </div>
             </div>
@@ -1259,89 +1289,6 @@ export default function Home() {
               </div>
               <h4>監査ログ記録</h4>
               <p>決済履歴・報酬計算・手動アクションをすべてFirestoreに記録。いつ誰が何をしたか追跡可能。</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================================
-          TESTIMONIALS
-      ============================================================ */}
-      <section className="section">
-        <div className="container">
-          <div className="section-header reveal">
-            <span className="section-tag">Voice</span>
-            <h2>導入店舗様のリアルな声</h2>
-            <p>先行モニターでご利用いただいた店舗オーナー様から、続々と成果の声が届いています。</p>
-          </div>
-
-          <div className="voice-grid">
-            <div className="voice-card tilt-in" style={{ transitionDelay: '0s' }}>
-              <svg className="voice-quote-mark" width="48" height="48" viewBox="0 0 24 24" fill="#ff4500"><path d="M6 17h3l2-4V6H5v7h3l-2 4zm9 0h3l2-4V6h-6v7h3l-2 4z" /></svg>
-              <div className="voice-stars">
-                {[0,1,2,3,4].map(i => <svg key={i} width="16" height="16" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3 7h7l-6 4 2 7-6-4-6 4 2-7-6-4h7z" /></svg>)}
-              </div>
-              <p className="voice-text">
-                これまでDMやチラシに月5万円かけていましたが、Push-taroに切り替えてからは広告費が月1,980円に。それ以上にリピート率が上がって、正直ここまで効果があるとは思っていませんでした。
-              </p>
-              <div className="voice-author">
-                <div className="voice-avatar">田</div>
-                <div>
-                  <div className="voice-meta-name">田中 様</div>
-                  <div className="voice-meta-role">カフェ経営 / LIGHTプラン</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="voice-card tilt-in" style={{ transitionDelay: '0.08s' }}>
-              <svg className="voice-quote-mark" width="48" height="48" viewBox="0 0 24 24" fill="#ff4500"><path d="M6 17h3l2-4V6H5v7h3l-2 4zm9 0h3l2-4V6h-6v7h3l-2 4z" /></svg>
-              <div className="voice-stars">
-                {[0,1,2,3,4].map(i => <svg key={i} width="16" height="16" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3 7h7l-6 4 2 7-6-4-6 4 2-7-6-4h7z" /></svg>)}
-              </div>
-              <p className="voice-text">
-                連続クーポンと誕生日クーポンの自動配信が本当に便利。スタッフが何もしなくても、常連のお客様が自然と戻ってくる仕組みができました。スタッフの手間も大幅に削減できています。
-              </p>
-              <div className="voice-author">
-                <div className="voice-avatar blue">佐</div>
-                <div>
-                  <div className="voice-meta-name">佐藤 様</div>
-                  <div className="voice-meta-role">美容室オーナー / PROプラン</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="voice-card tilt-in" style={{ transitionDelay: '0.16s' }}>
-              <svg className="voice-quote-mark" width="48" height="48" viewBox="0 0 24 24" fill="#ff4500"><path d="M6 17h3l2-4V6H5v7h3l-2 4zm9 0h3l2-4V6h-6v7h3l-2 4z" /></svg>
-              <div className="voice-stars">
-                {[0,1,2,3,4].map(i => <svg key={i} width="16" height="16" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3 7h7l-6 4 2 7-6-4-6 4 2-7-6-4h7z" /></svg>)}
-              </div>
-              <p className="voice-text">
-                PROプランの紹介制度で、既に12店舗を紹介。毎月の紹介報酬でPROプランの月額が完全にペイできています。むしろプラス収益になっているので、実質無料どころか利益が出ています。
-              </p>
-              <div className="voice-author">
-                <div className="voice-avatar green">山</div>
-                <div>
-                  <div className="voice-meta-name">山本 様</div>
-                  <div className="voice-meta-role">エステサロン / PROプラン</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="voice-card tilt-in" style={{ transitionDelay: '0.24s' }}>
-              <svg className="voice-quote-mark" width="48" height="48" viewBox="0 0 24 24" fill="#ff4500"><path d="M6 17h3l2-4V6H5v7h3l-2 4zm9 0h3l2-4V6h-6v7h3l-2 4z" /></svg>
-              <div className="voice-stars">
-                {[0,1,2,3,4].map(i => <svg key={i} width="16" height="16" viewBox="0 0 24 24" fill="#fbbf24"><path d="M12 2l3 7h7l-6 4 2 7-6-4-6 4 2-7-6-4h7z" /></svg>)}
-              </div>
-              <p className="voice-text">
-                代理店として参加しています。紹介した店舗が継続する限り毎月報酬が入るので、ストック型の収益源として非常にありがたい。ダッシュボードで配下店舗の状況が一目でわかるのも助かります。
-              </p>
-              <div className="voice-author">
-                <div className="voice-avatar purple">鈴</div>
-                <div>
-                  <div className="voice-meta-name">鈴木 様</div>
-                  <div className="voice-meta-role">Web制作会社 / 代理店パートナー</div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -2773,6 +2720,66 @@ export default function Home() {
         .ba-metric-label {
           font-size: 12px; font-weight: 700;
           color: var(--slate-500); margin-top: 6px;
+        }
+
+                /* ============================================================
+           BEFORE / AFTER - 統計セクション（新規）
+        ============================================================ */
+        .ba-stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 20px;
+          max-width: 900px;
+          margin: 56px auto 0;
+        }
+        .ba-stat-item {
+          background: #fff;
+          border: 2px solid var(--slate-200);
+          border-radius: 16px;
+          padding: 28px 24px;
+          text-align: center;
+          transition: all 0.25s;
+        }
+        .ba-stat-item:hover {
+          border-color: var(--orange);
+          transform: translateY(-3px);
+          box-shadow: 0 12px 32px rgba(255,69,0,0.08);
+        }
+        .ba-stat-value {
+          font-size: 42px;
+          font-weight: 900;
+          line-height: 1;
+          letter-spacing: -2px;
+          background: linear-gradient(135deg, #ff4500, #fb923c);
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          margin-bottom: 10px;
+        }
+        .ba-stat-unit {
+          font-size: 20px;
+          margin-left: 2px;
+        }
+        .ba-stat-label {
+          font-size: 13px;
+          font-weight: 800;
+          color: var(--slate-700);
+          line-height: 1.5;
+          margin-bottom: 10px;
+        }
+        .ba-stat-source {
+          font-size: 10.5px;
+          color: var(--slate-400);
+          font-weight: 600;
+          padding-top: 8px;
+          border-top: 1px solid var(--slate-100);
+        }
+        .ba-disclaimer {
+          text-align: center;
+          font-size: 11.5px;
+          color: var(--slate-400);
+          margin-top: 24px;
+          line-height: 1.7;
         }
 
         /* ============================================================
