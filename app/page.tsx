@@ -27,15 +27,20 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'ja_JP',
     title: '既存客のリピートを"プッシュ通知×CRM"で仕組化｜Push-taro',
+    // ★ 33文字 → 88文字に拡張
     description:
-      '7種類のクーポン自動配信を標準搭載。月額1,980円〜、従量課金なし。',
+      '実店舗のリピート施策を「プッシュ通知×CRM」で自動化するSaaS。7種類のクーポン自動配信・QR消込・休眠復活・誕生日配信を標準搭載。月額1,980円〜、従量課金なし。',
     url: '/',
     siteName: 'Push-taro',
+    // ★ images は書かない（opengraph-image.tsx が自動検出）
   },
   twitter: {
     card: 'summary_large_image',
     title: '既存客のリピートを"プッシュ通知×CRM"で仕組化｜Push-taro',
-    description: '7種類のクーポン自動配信を標準搭載。月額1,980円〜。',
+    // ★ 26文字 → 72文字に拡張
+    description:
+      '実店舗のリピート施策を「プッシュ通知×CRM」で自動化。7種類のクーポン自動配信・QR消込・休眠復活を標準搭載。月額1,980円〜。',
+    // ★ images は書かない
   },
   robots: {
     index: true,
