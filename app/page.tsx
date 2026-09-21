@@ -2,6 +2,7 @@
 import type { Metadata } from 'next';
 import HomeClient from './components/HomeClient';
 import { faqs } from './data/faq';
+import './lp.css';
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 
