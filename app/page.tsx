@@ -1156,8 +1156,8 @@ export default function Home() {
                 <span className="usecase-plan">STANDARD</span>
               </div>
               <div className="usecase-body">
-                <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>新規顧客の自動リスト化</div>
-                <p className="usecase-desc">店頭POPのQRコードと初回クーポンで、手間なく顧客リストを構築。「雨の日20%OFF」を即時配信して閑散期対策。</p>
+                <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>毎日配信で顧客を取り込む</div>
+                <p className="usecase-desc">ランチ激戦区では、日替わりランチの今日のメニューを毎日１０時に発信！数量限定なども発信に入れるなど</p>
               </div>
             </div>
 
@@ -1169,13 +1169,13 @@ export default function Home() {
                     <circle cx="18" cy="7" r="3" stroke="#475569" strokeWidth="2" fill="none" />
                     <path d="M21 10c-2 0-3 1-3 3v8" stroke="#475569" strokeWidth="2" strokeLinecap="round" fill="none" />
                   </svg>
-                  美容室・サロン
+                  小売店・雑貨屋
                 </span>
                 <span className="usecase-plan">PRO</span>
               </div>
               <div className="usecase-body">
-                <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>新規顧客の自動リスト化</div>
-                <p className="usecase-desc">連続クーポンと休眠復活クーポンを自動運用。来店サイクルを可視化し、メンテナンス時期を逃さずリピート安定。</p>
+                <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>クーポン活用で来店率を上げる</div>
+                <p className="usecase-desc">連続クーポンとステップアップクーポン、さらに特別達成クーポンで来れば来るほどお得がもらえる仕組みで来店率を上げる。</p>
               </div>
             </div>
 
@@ -1190,8 +1190,8 @@ export default function Home() {
                 <span className="usecase-plan">PRO</span>
               </div>
               <div className="usecase-body">
-                <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>新規顧客の自動リスト化</div>
-                <p className="usecase-desc">ステップアップクーポンでロイヤル化を促進し、PRO紹介制度でランニングコストを相殺。顧客が顧客を呼ぶ仕組み。</p>
+                <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>クーポン活用で来店を促す</div>
+                <p className="usecase-desc">クーポンについてる期間を設定しステップアップと特別達成の組み合わせで通う動機を楽しみに変える</p>
               </div>
             </div>
 
@@ -1208,8 +1208,8 @@ export default function Home() {
                 <span className="usecase-plan">STANDARD</span>
               </div>
               <div className="usecase-body">
-                <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>新規顧客の自動リスト化</div>
-                <p className="usecase-desc">新商品入荷やセール開始を画像付き通知で配信。固定ファンの買い逃しを防ぎ、確実に売上へつなげます。</p>
+                <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>クーポン活用で来店を増やす</div>
+                <p className="usecase-desc">来るだけで、買わなくともステップアップする仕組みを使い、特別クーポンでお得に買える仕組みにする。</p>
               </div>
             </div>
           </div>
