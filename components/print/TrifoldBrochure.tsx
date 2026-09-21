@@ -291,9 +291,8 @@ export default function TrifoldBrochure({ data }: Props) {
               だから、<span className="accent">Push-taro</span> です。
             </h3>
             <p className="tf-solution-text">
-              「クーポンだけでいいじゃん？」<br />
-              そう思われるかもしれません。<br />
-              でもクーポンは<strong>受け身</strong>。サイトや来店で知ってもらうしか、伝える手段がない。
+              「クーポンだけでいいのでは？」と、思われるかもしれません。<br />
+              しかしクーポンは<strong>受け身</strong>。サイトや来店で知ってもらうしか、伝える手段がないのです。
             </p>
             <p className="tf-solution-text">
               それを、<strong>メルマガの6倍の開封率</strong>を持つプッシュ通知で、<strong>動的に仕組み化</strong>する。
