@@ -170,7 +170,7 @@ export default function Home() {
           <div className="hero-stats">
             <div className="hero-stat float tilt-in">
               <div className="hero-stat-number">
-                最大<span className="count-up" data-count="6">0</span><small>倍</small>
+                最大<span className="count-up" data-count="10">0</span><small>倍</small>
               </div>
               <div className="hero-stat-label">メルマガ比 開封率</div>
             </div>
