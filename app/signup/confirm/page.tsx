@@ -124,12 +124,14 @@ export default function SignupConfirmPage() {
             お申し込み前に内容と利用規約をご確認ください。
           </p>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
-            <button
-              onClick={handleDownloadApplicationPdf}
-              style={{ padding: '6px 16px', background: '#e2e8f0', color: '#2d3748', border: 'none', borderRadius: '4px', fontSize: '13px', cursor: 'pointer' }}
+                        <a
+              href={`/print/application?type=${plan === 'pro' ? 'pro-shop' : 'shop'}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: 'inline-block', padding: '6px 16px', background: '#e2e8f0', color: '#2d3748', borderRadius: '4px', textDecoration: 'none', fontSize: '13px' }}
             >
               📥 申込書をダウンロード
-            </button>
+            </a>
             <a
               href={`/print/terms?type=${plan === 'pro' ? 'pro-shop' : 'shop'}`}
               target="_blank"
