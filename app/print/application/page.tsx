@@ -80,7 +80,6 @@ function ApplicationContent() {
           <span>A4 / 1ページ</span>
         </div>
         <div className="print-toolbar-actions">
-          <button onClick={() => router.back()}>← 戻る</button>
           <button className="primary" onClick={() => window.print()}>
             🖨️ 印刷 / PDF保存
           </button>
