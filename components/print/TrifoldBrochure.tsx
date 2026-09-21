@@ -646,55 +646,90 @@ export default function TrifoldBrochure({ data }: Props) {
           font-size: 11pt; text-align: center;
         }
 
-        /* ========== 内側中：雨の日 + Push-taro ========== */
+                /* ========== 内側中：雨の日 + Push-taro（圧縮版） ========== */
         .tf-rain {
           background: linear-gradient(180deg, #f0f9ff 0%, #fff 40%, #fffbf5 100%);
           border-right: 1px dashed #e2e8f0;
-          padding: 10mm 9mm;
+          padding: 8mm 7mm;
         }
-        .tf-rain-h { font-size: 12pt; font-weight: 900; line-height: 1.45; letter-spacing: -0.5px; margin: 0 0 3.5mm; }
+        .tf-rain-h {
+          font-size: 11pt; font-weight: 900;
+          line-height: 1.35; letter-spacing: -0.4px;
+          margin: 0 0 2.5mm;
+        }
         .tf-rain-h .accent { color: #0284c7; }
-        .tf-rain-text { font-size: 8pt; color: #334155; line-height: 1.9; margin: 0 0 3mm; }
+        .tf-rain-text {
+          font-size: 7.5pt; color: #334155;
+          line-height: 1.7; margin: 0 0 2mm;
+        }
         .tf-rain-text strong { color: #0f172a; font-weight: 900; }
-        .tf-rain-compare { display: flex; flex-direction: column; gap: 2mm; margin: 3mm 0; }
-        .tf-rain-card { padding: 2.5mm 3mm; border-radius: 6px; }
+        .tf-rain-compare {
+          display: flex; flex-direction: column;
+          gap: 1.5mm; margin: 2mm 0;
+        }
+        .tf-rain-card { padding: 2mm 2.5mm; border-radius: 5px; }
         .tf-rain-card.is-bad { background: #fef2f2; border: 1px solid #fecaca; }
         .tf-rain-card.is-good { background: #f0fdf4; border: 1px solid #86efac; }
         .tf-rain-card-label {
-          font-size: 6pt; font-weight: 900; letter-spacing: 1px;
-          margin-bottom: 1mm; display: inline-block;
-          padding: 0.6mm 2mm; border-radius: 8px; color: #fff;
+          font-size: 5.5pt; font-weight: 900; letter-spacing: 0.8px;
+          margin-bottom: 0.8mm; display: inline-block;
+          padding: 0.5mm 1.8mm; border-radius: 6px; color: #fff;
         }
         .tf-rain-card.is-bad .tf-rain-card-label { background: #dc2626; }
         .tf-rain-card.is-good .tf-rain-card-label { background: #16a34a; }
-        .tf-rain-card-text { font-size: 7.5pt; font-weight: 700; line-height: 1.6; margin: 0; }
+        .tf-rain-card-text {
+          font-size: 7pt; font-weight: 700;
+          line-height: 1.5; margin: 0;
+        }
         .tf-rain-card.is-bad .tf-rain-card-text { color: #7f1d1d; }
         .tf-rain-card.is-good .tf-rain-card-text { color: #14532d; }
-        .tf-rain-arrow { text-align: center; color: #0284c7; font-size: 10pt; font-weight: 900; line-height: 1; margin: 0; }
+        .tf-rain-arrow {
+          text-align: center; color: #0284c7;
+          font-size: 9pt; font-weight: 900;
+          line-height: 1; margin: 0;
+        }
         .tf-rain-conclusion {
-          margin-top: 2mm; padding: 3mm;
+          margin-top: 1.5mm; padding: 2.5mm;
           background: linear-gradient(135deg, #0284c7, #0369a1);
-          color: #fff; border-radius: 8px;
+          color: #fff; border-radius: 6px;
         }
-        .tf-rain-conclusion-text { font-size: 7.5pt; color: #e0f2fe; line-height: 1.7; margin: 0; font-weight: 700; }
+        .tf-rain-conclusion-text {
+          font-size: 7pt; color: #e0f2fe;
+          line-height: 1.55; margin: 0; font-weight: 700;
+        }
         .tf-rain-conclusion-text strong { color: #fff; font-weight: 900; }
+
         .tf-mid-divider {
-          margin: 4mm 0 3mm; padding-top: 3mm;
-          border-top: 2px dashed #fdba74;
-          font-size: 7pt; font-weight: 900;
-          letter-spacing: 2px; color: #ff4500; text-align: center;
+          margin: 3mm 0 2mm; padding-top: 2mm;
+          border-top: 1.5px dashed #fdba74;
+          font-size: 6.5pt; font-weight: 900;
+          letter-spacing: 1.5px; color: #ff4500; text-align: center;
         }
+
         .tf-solution { flex: 1; display: flex; flex-direction: column; }
-        .tf-solution-h { font-size: 12pt; font-weight: 900; line-height: 1.45; letter-spacing: -0.5px; margin: 0 0 3mm; }
+        .tf-solution-h {
+          font-size: 11pt; font-weight: 900;
+          line-height: 1.35; letter-spacing: -0.4px;
+          margin: 0 0 2mm;
+        }
         .tf-solution-h .accent { color: #ff4500; }
-        .tf-solution-text { font-size: 8pt; color: #334155; line-height: 1.85; margin: 0 0 3mm; }
+        .tf-solution-text {
+          font-size: 7.5pt; color: #334155;
+          line-height: 1.65; margin: 0 0 2mm;
+        }
         .tf-solution-text strong { color: #0f172a; font-weight: 900; }
         .tf-solution-push {
-          background: #0f172a; border-radius: 8px; padding: 3mm;
+          background: #0f172a; border-radius: 6px; padding: 2.5mm;
           color: #fff; margin-top: auto;
         }
-        .tf-solution-push-title { font-size: 8pt; font-weight: 900; line-height: 1.4; margin-bottom: 1.5mm; }
-        .tf-solution-push-text { font-size: 7pt; color: #cbd5e1; line-height: 1.7; margin: 0; }
+        .tf-solution-push-title {
+          font-size: 7.5pt; font-weight: 900;
+          line-height: 1.35; margin-bottom: 1.2mm;
+        }
+        .tf-solution-push-text {
+          font-size: 6.5pt; color: #cbd5e1;
+          line-height: 1.55; margin: 0;
+        }
         .tf-solution-push-text strong { color: #fd7e5a; font-weight: 900; }
 
         /* ========== 内側右：機能一覧 ========== */
