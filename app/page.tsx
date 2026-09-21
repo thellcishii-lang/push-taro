@@ -180,9 +180,6 @@ const howToJsonLd = {
   ],
 };
 
-// faqs を import
-import { faqs } from './data/faq';
-
 export default function Page() {
   return (
     <>
