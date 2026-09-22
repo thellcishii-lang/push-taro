@@ -38,7 +38,7 @@ export default function SignupConfirmPage() {
   router.push('/signup');
 };
 
-  const handleSubmit = async () => {
+    const handleSubmit = async () => {
     if (!formData) return;
     setLoading(true);
 
@@ -52,6 +52,12 @@ export default function SignupConfirmPage() {
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || '登録に失敗しました。');
+      }
+
+      // ★ 追加：shopId を localStorage に保存（後で使う）
+      if (data.shopId) {
+        localStorage.setItem('last_shop_id', data.shopId);
+        localStorage.setItem('last_shop_plan', formData.plan || 'light');
       }
 
       // 決済リンクがあればリダイレクト
