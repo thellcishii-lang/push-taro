@@ -29,18 +29,25 @@ export async function GET(request: Request) {
       );
     }
 
-    const data = doc.data();
+        const data = doc.data();
     return NextResponse.json({
       success: true,
       shopId: doc.id,
       name: data?.name || '登録店舗',
       status: data?.status || 'pending_payment',
 
+      // ── 申込書用の情報（★追加） ──
+      email: data?.email || '',
+      address: data?.address || '',
+      phone: data?.phone || '',
+      invoiceNumber: data?.invoiceNumber || '',
+      bankAccount: data?.bankAccount || null,
+
       // ── クーポン情報（全種別）──
-      coupon: data?.coupon || null,                 // 初回クーポン
-      normalCoupon: data?.normalCoupon || null,     // 通常クーポン（STANDARD/PRO）
-      loyaltyCoupon: data?.loyaltyCoupon || null,   // 特別達成クーポン（STANDARD/PRO）
-      proCoupons: data?.proCoupons || null,         // PRO専用クーポン群
+      coupon: data?.coupon || null,
+      normalCoupon: data?.normalCoupon || null,
+      loyaltyCoupon: data?.loyaltyCoupon || null,
+      proCoupons: data?.proCoupons || null,
       scheduledCoupons: data?.scheduledCoupons || [],
 
       // ── アップグレード状態 ──
