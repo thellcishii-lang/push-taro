@@ -54,3 +54,7 @@ env:
     secret: INFOMAIL_PASS
     availability:
       - RUNTIME
+  - variable: NEXT_PUBLIC_APP_URL
+    value: https://push-taro.com
+    availability:
+      - RUNTIME
