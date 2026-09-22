@@ -45,6 +45,13 @@ function ApplicationContent() {
     }
   }, [type, router]);
 
+  useEffect(() => {
+    document.title = `${DOC_LABEL[type]} | Push-taro`;
+    return () => {
+      document.title = 'Push-taro';
+    };
+  }, [type]);
+
   if (!data) {
     return <div style={{ padding: 40, textAlign: 'center', fontFamily: 'sans-serif' }}>読み込み中...</div>;
   }
