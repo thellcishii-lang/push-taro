@@ -7,11 +7,11 @@ import '../print.css';
 type DocType = 'shop' | 'pro-shop' | 'affiliate' | 'affilishop' | 'agency';
 
 const STORAGE_KEY: Record<DocType, string> = {
-  shop: 'signup_data',
-  'pro-shop': 'signup_data',
-  affiliate: 'affiliate_signup_data',
-  affilishop: 'affilishop_signup_data',
-  agency: 'agency_signup_data',
+  shop: 'print_application_shop',
+  'pro-shop': 'print_application_pro-shop',
+  affiliate: 'print_application_affiliate',
+  affilishop: 'print_application_affilishop',
+  agency: 'print_application_agency',
 };
 
 const DOC_LABEL: Record<DocType, string> = {
@@ -31,7 +31,7 @@ function ApplicationContent() {
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem(STORAGE_KEY[type]);
+    const stored = localStorage.getItem(STORAGE_KEY[type]);
     if (!stored) {
       // データがなければ戻る
       alert('申込データが見つかりません。もう一度お申し込みください。');
