@@ -119,7 +119,7 @@ export default function PrintPreviewPage() {
           <span>{meta.sizeText}／{meta.pagesText}</span>
         </div>
         <div className="print-toolbar-actions">
-          <<button className="primary" onClick={handleDownload} disabled={downloading}>
+          <button className="primary" onClick={handleDownload} disabled={downloading}>
   {downloading ? '⏳ 生成中…' : '⬇️ 入稿用PDFをダウンロード'}
 </button>
         </div>
