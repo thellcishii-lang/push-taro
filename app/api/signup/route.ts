@@ -312,14 +312,14 @@ export async function POST(request: Request) {
     // ============================================================
     // 8. Square決済リンク生成
     // ============================================================
-    let paymentUrl: string;
+        let paymentUrl: string;
 
 if (plan === 'light') {
-  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_LIGHT;
+  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_LIGHT || '';
 } else if (plan === 'standard') {
-  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_STANDARD;
+  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_STANDARD || '';
 } else if (plan === 'pro') {
-  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_PRO;
+  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_PRO || '';
 } else {
   return NextResponse.json(
     { error: '不正なプランです。' },
