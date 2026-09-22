@@ -156,8 +156,12 @@ export async function POST(request: Request) {
       updatedAt: FieldValue.serverTimestamp(),
     };
 
-    const docRef = await db.collection('affiliates').add(affiliateData);
+        const docRef = await db.collection('affiliates').add(affiliateData);
     createdAffiliateId = docRef.id;
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
+    const applicationUrl = `${appUrl}/print/application?type=affiliate&affiliateId=${createdAffiliateId}`;
+    const termsUrl = `${appUrl}/print/terms?type=affiliate`;
 
     // ============================================================
     // 5. 申込者へのメール
@@ -191,6 +195,18 @@ export async function POST(request: Request) {
         <hr />
         <p>初回ログイン後、パスワードの変更をお勧めします。</p>
         <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/affiliate/dashboard" style="display:inline-block;padding:12px 24px;background:#ff4500;color:#fff;border-radius:6px;text-decoration:none;">アフィリエイトダッシュボードへ</a></p>
+        <hr />
+        <p><strong>📄 お申し込み内容の控え</strong></p>
+        <p>以下のリンクから、いつでも申込書・利用規約をダウンロードできます。</p>
+        <p>
+          <a href="${applicationUrl}" style="color:#3182ce;">📥 申込書をダウンロード（PDF）</a>
+        </p>
+        <p>
+          <a href="${termsUrl}" style="color:#3182ce;">📥 利用規約をダウンロード（PDF）</a>
+        </p>
+        <p style="font-size:12px; color:#94a3b8;">
+          ※上記リンクはご登録のメールアドレス宛にのみお送りしています。第三者と共有しないようご注意ください。
+        </p>
         <hr />
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
