@@ -143,7 +143,11 @@ try {
       updatedAt: FieldValue.serverTimestamp(),
     };
 
-    await db.collection('agencies').doc(userRecord.uid).set(agencyData);
+        await db.collection('agencies').doc(userRecord.uid).set(agencyData);
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
+    const applicationUrl = `${appUrl}/print/application?type=agency&agencyId=${userRecord.uid}`;
+    const termsUrl = `${appUrl}/print/terms?type=agency`;
 
     // 登録完了メール（パスワード含む）
     await sendEmail({
@@ -155,6 +159,19 @@ try {
         
         <p>審査完了後、ご案内メールをお送りいたします。</p>
         <p>審査完了まで今暫くお待ちくださいますようお願い申し上げます。</p>
+
+        <hr />
+        <p><strong>📄 お申し込み内容の控え</strong></p>
+        <p>以下のリンクから、いつでも申込書・利用規約をダウンロードできます。</p>
+        <p>
+          <a href="${applicationUrl}" style="color:#3182ce;">📥 申込書をダウンロード（PDF）</a>
+        </p>
+        <p>
+          <a href="${termsUrl}" style="color:#3182ce;">📥 利用規約をダウンロード（PDF）</a>
+        </p>
+        <p style="font-size:12px; color:#94a3b8;">
+          ※上記リンクはご登録のメールアドレス宛にのみお送りしています。第三者と共有しないようご注意ください。
+        </p>
         
         <hr />
         <p><strong>Push-taro.com</strong></p>
