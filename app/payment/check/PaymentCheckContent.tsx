@@ -44,18 +44,24 @@ export default function PaymentCheckContent() {
         // 🔑 【リダイレクト判定1】アップグレード未決済（pending_payment）
         // ============================================================
         if (data.upgradeStatus === 'pending_payment') {
-          const targetPlan = data.upgradeTargetPlan || data.targetPlan || 'standard';
-          let paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+  const targetPlan = data.upgradeTargetPlan || data.targetPlan || 'standard';
+  let paymentUrl = '';
 
-          if (targetPlan === 'standard') {
-            paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-          } else if (targetPlan === 'pro') {
-            paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-          }
+  if (targetPlan === 'standard') {
+    paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_STANDARD || '';
+  } else if (targetPlan === 'pro') {
+    paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_PRO || '';
+  }
 
-          window.location.href = paymentUrl;
-          return;
-        }
+  if (!paymentUrl) {
+    setErrorMessage('決済リンクが設定されていません。管理者にお問い合わせください。');
+    setLoading(false);
+    return;
+  }
+
+  window.location.href = paymentUrl;
+  return;
+}
 
         // ============================================================
         // 🔑 【優先判定】新規登録決済完了（active）のチェック
@@ -71,20 +77,26 @@ export default function PaymentCheckContent() {
         // 🔑 【リダイレクト判定2】新規登録未決済（pending_payment）
         // ============================================================
         if (data.status === 'pending_payment') {
-          const plan = data.plan || 'light';
-          let paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
+  const plan = data.plan || 'light';
+  let paymentUrl = '';
 
-          if (plan === 'light') {
-            paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-          } else if (plan === 'standard') {
-            paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-          } else if (plan === 'pro') {
-            paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-          }
+  if (plan === 'light') {
+    paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_LIGHT || '';
+  } else if (plan === 'standard') {
+    paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_STANDARD || '';
+  } else if (plan === 'pro') {
+    paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_PRO || '';
+  }
 
-          window.location.href = paymentUrl;
-          return;
-        }
+  if (!paymentUrl) {
+    setErrorMessage('決済リンクが設定されていません。管理者にお問い合わせください。');
+    setLoading(false);
+    return;
+  }
+
+  window.location.href = paymentUrl;
+  return;
+}
 
         // ============================================================
         // 🔑 【フォールバック】完了扱いにする
@@ -119,7 +131,7 @@ export default function PaymentCheckContent() {
     );
   }
 
-  if (isActive) {
+    if (isActive) {
     return (
       <div style={{ padding: '60px 20px', textAlign: 'center', maxWidth: 500, margin: '0 auto', fontFamily: 'sans-serif' }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
@@ -145,6 +157,59 @@ export default function PaymentCheckContent() {
         >
           管理画面へログインする
         </a>
+
+        {/* ★ ここから追加：申込書・利用規約のダウンロード */}
+        {shopId && (
+          <div style={{
+            marginTop: 32,
+            padding: '16px',
+            background: '#f8fafc',
+            borderRadius: '8px',
+            border: '1px solid #e2e8f0',
+            textAlign: 'left',
+          }}>
+            <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#4a5568', fontWeight: 700 }}>
+              📄 申込書・利用規約のダウンロード
+            </p>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <a
+                href={`/print/application?type=shop&shopId=${shopId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-block',
+                  padding: '8px 16px',
+                  background: '#e2e8f0',
+                  color: '#2d3748',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                }}
+              >
+                📥 申込書をダウンロード
+              </a>
+              <a
+                href={`/print/terms?type=shop`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-block',
+                  padding: '8px 16px',
+                  background: '#e2e8f0',
+                  color: '#2d3748',
+                  borderRadius: '6px',
+                  textDecoration: 'none',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                }}
+              >
+                📥 利用規約をダウンロード
+              </a>
+            </div>
+          </div>
+        )}
+
       </div>
     );
   }
