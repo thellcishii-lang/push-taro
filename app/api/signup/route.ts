@@ -341,6 +341,11 @@ if (!paymentUrl) {
     // ============================================================
     // 9. 申し込み受付メール送信
     // ============================================================
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
+    const printType = plan === 'pro' ? 'pro-shop' : 'shop';
+    const applicationUrl = `${appUrl}/print/application?type=${printType}&shopId=${shopId}`;
+    const termsUrl = `${appUrl}/print/terms?type=${printType}`;
+
     await sendEmail({
       to: normalizedEmail,
       subject: '【Push-taro】お申し込み受付のお知らせ（決済手続きのお願い）',
@@ -360,6 +365,22 @@ if (!paymentUrl) {
         <hr />
         <p>選択プラン: ${plan?.toUpperCase() || 'LIGHT'}</p>
         <hr />
+
+        <!-- ★ ここから追加：申込書・利用規約の控え -->
+        <p><strong>📄 お申し込み内容の控え</strong></p>
+        <p>以下のリンクから、いつでも申込書・利用規約をダウンロードできます。</p>
+        <p>
+          <a href="${applicationUrl}" style="color:#3182ce;">📥 申込書をダウンロード（PDF）</a>
+        </p>
+        <p>
+          <a href="${termsUrl}" style="color:#3182ce;">📥 利用規約をダウンロード（PDF）</a>
+        </p>
+        <p style="font-size:12px; color:#94a3b8;">
+          ※上記リンクはご登録のメールアドレス宛にのみお送りしています。第三者と共有しないようご注意ください。
+        </p>
+        <hr />
+        <!-- ★ ここまで追加 -->
+
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
         <p>〒357-0123 埼玉県飯能市中藤下郷23-21</p>
