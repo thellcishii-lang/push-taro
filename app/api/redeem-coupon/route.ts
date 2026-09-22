@@ -277,10 +277,6 @@ export async function POST(request: Request) {
       }
       couponTitle = shopData.proCoupons?.repeat?.title || '連続クーポン';
 
-      if (usage.repeatCouponUsedAt) {
-        return NextResponse.json({ error: '⚠️ この連続クーポンはすでに使用済みです！' }, { status: 400 });
-      }
-
       const repeat = shopData.proCoupons.repeat;
       const expireType = repeat.expireType || 'days';
       let activeUntil: Date | null = null;

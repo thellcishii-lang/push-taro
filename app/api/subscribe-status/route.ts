@@ -84,7 +84,6 @@ export async function GET(request: Request) {
 
     // ─── ステップアップ／連続クーポンが再有効化され、キャンペーンIDが変わっていたら進捗をリセット ───
     let stepUpIndex = usage.stepUpIndex || 0;
-    let repeatCouponUsedAt = usage.repeatCouponUsedAt || null;
     let repeatCouponActiveUntilRaw = usage.repeatCouponActiveUntil || null;
 
     let stepUpIndexUpdatedAt: any = usage.stepUpIndexUpdatedAt || null;
@@ -96,7 +95,6 @@ export async function GET(request: Request) {
 
     const repeatCampaignId = proCoupons.repeat?.campaignId || null;
     if (repeatCampaignId && usage.repeatCampaignId !== repeatCampaignId) {
-      repeatCouponUsedAt = null;
       repeatCouponActiveUntilRaw = null;
     }
 
@@ -127,7 +125,7 @@ export async function GET(request: Request) {
       stepUpEnabled: proCoupons.stepUp?.enabled === true,
       repeatEnabled: proCoupons.repeat?.enabled === true,
       repeatCouponActiveUntil: repeatActiveUntil,
-      repeatCouponUsed: Boolean(repeatCouponUsedAt),
+      repeatCouponUsed: false,
       birthdayNotifiedYear: usage.birthdayNotifiedYear || null,
       birthdayCouponUsed: String(usage.birthdayCouponUsedYear) === currentYear,
       dormantNotifiedAt,

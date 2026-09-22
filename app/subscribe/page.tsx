@@ -35,7 +35,6 @@ export default function SubscribePage() {
   const [stepUpIndex, setStepUpIndex] = useState(0);
   const [stepUpIndexAppearedAt, setStepUpIndexAppearedAt] = useState<string | null>(null);
   const [repeatCouponActiveUntil, setRepeatCouponActiveUntil] = useState<string | null>(null);
-  const [repeatCouponUsed, setRepeatCouponUsed] = useState(false);
   const [birthdayCouponAvailable, setBirthdayCouponAvailable] = useState(false);
   const [birthdayCouponUsed, setBirthdayCouponUsed] = useState(false);
   const [dormantCouponAvailable, setDormantCouponAvailable] = useState(false);
@@ -170,7 +169,6 @@ useEffect(() => {
             setStepUpIndex(data.stepUpIndex || 0);
             setStepUpIndexAppearedAt(data.stepUpIndexAppearedAt || null);
             setRepeatCouponActiveUntil(data.repeatCouponActiveUntil || null);
-            setRepeatCouponUsed(data.repeatCouponUsed === true);
             setBirthdayCouponAvailable(String(data.birthdayNotifiedYear) === String(new Date().getFullYear()));
             setBirthdayCouponUsed(data.birthdayCouponUsed === true);
             setDormantCouponAvailable(Boolean(data.dormantNotifiedAt));
@@ -261,7 +259,6 @@ useEffect(() => {
           setStepUpIndex(data.stepUpIndex || 0);
           setStepUpIndexAppearedAt(data.stepUpIndexAppearedAt || null);
           setRepeatCouponActiveUntil(data.repeatCouponActiveUntil || null);
-          setRepeatCouponUsed(data.repeatCouponUsed === true);
           setBirthdayCouponAvailable(String(data.birthdayNotifiedYear) === String(new Date().getFullYear()));
           setBirthdayCouponUsed(data.birthdayCouponUsed === true);
           setDormantCouponAvailable(Boolean(data.dormantNotifiedAt));
@@ -738,22 +735,15 @@ useEffect(() => {
   </div>
 )}
 {shopData?.proCoupons?.repeat?.enabled && !hiddenCouponTypes.includes(`repeat:${shopData.proCoupons.repeat.campaignId || 'legacy'}`) && (
-  <div style={{ background: repeatCouponUsed ? '#f1f5f9' : '#eff6ff', border: repeatCouponUsed ? '1px solid #cbd5e1' : '1px dashed #0ea5e9', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
+  <div style={{ background: '#eff6ff', border: '1px dashed #0ea5e9', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
     <span style={{ fontSize: '11px', background: '#0284c7', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>連続クーポン</span>
     <h3 style={{ margin: '6px 0 8px 0', color: '#0369a1' }}>🔄 {shopData.proCoupons.repeat.title || '連続クーポン'}</h3>
     {shopData.proCoupons.repeat.expireType === 'date' && shopData.proCoupons.repeat.expireDate && <p style={{ fontSize: '12px', color: '#64748b' }}>有効期限: {shopData.proCoupons.repeat.expireDate}</p>}
     {repeatCouponActiveUntil && <p style={{ fontSize: '12px', color: '#64748b' }}>今回の有効期限: {new Date(repeatCouponActiveUntil).toLocaleDateString('ja-JP')}</p>}
-    {repeatCouponUsed ? (
-      <div style={{ padding: '12px', background: '#e2e8f0', borderRadius: '6px', color: '#475569', fontSize: '14px', marginTop: '10px' }}>
-        <strong>✅ こちらのクーポンは使用済みです</strong>
-        <button type="button" onClick={() => hideCoupon(`repeat:${shopData.proCoupons.repeat.campaignId || 'legacy'}`)} style={{ display: 'block', margin: '10px auto 0', padding: '7px 12px', background: '#64748b', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>削除</button>
-      </div>
-    ) : <>
-      <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
-        <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'repeat', token: fcmToken })} size={150} />
-      </div>
-      <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
-    </>}
+    <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
+      <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'repeat', token: fcmToken })} size={150} />
+    </div>
+    <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
   </div>
 )}
 {shopData?.loyaltyCoupon?.enabled && loyaltyCouponAvailable && !hiddenCouponTypes.includes('loyalty') && (
