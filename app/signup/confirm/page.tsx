@@ -24,6 +24,15 @@ export default function SignupConfirmPage() {
     }
   }, [router]);
 
+  useEffect(() => {
+    if (!formData) return;
+    const type = formData.plan === 'pro' ? 'pro-shop' : 'shop';
+    localStorage.setItem(
+      `print_application_${type}`,
+      JSON.stringify(formData)
+    );
+  }, [formData]);
+
   const handleBack = () => {
   sessionStorage.setItem('went_to_confirm', 'true');
   router.push('/signup');
