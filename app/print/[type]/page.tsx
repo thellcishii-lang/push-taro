@@ -13,6 +13,36 @@ import BusinessCard from '@/components/print/BusinessCard';
 import Card from '@/components/print/Card';
 import '../print.css';
 
+// 既存の state の下に追加
+const [downloading, setDownloading] = useState(false);
+
+async function handleDownload() {
+  if (!data) return;
+  setDownloading(true);
+  try {
+    const res = await fetch('/api/print-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, data }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'PDF生成に失敗しました');
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${type}.pdf`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (e: any) {
+    alert(e.message || 'PDF生成に失敗しました');
+  } finally {
+    setDownloading(false);
+  }
+}
+
 const VALID_TYPES: PrintMaterialType[] = [
   'trifold', 'leaflet-a5', 'leaflet-a4', 'card', 'business-card',
 ];
@@ -89,10 +119,9 @@ export default function PrintPreviewPage() {
           <span>{meta.sizeText}／{meta.pagesText}</span>
         </div>
         <div className="print-toolbar-actions">
-          <button onClick={() => router.back()}>← 戻る</button>
-          <button className="primary" onClick={() => window.print()}>
-            🖨️ 印刷 / PDF保存
-          </button>
+          <<button className="primary" onClick={handleDownload} disabled={downloading}>
+  {downloading ? '⏳ 生成中…' : '⬇️ 入稿用PDFをダウンロード'}
+</button>
         </div>
       </div>
 
