@@ -136,7 +136,7 @@ export async function GET(request: Request) {
         let totalReward = 0;
         let totalBaseReward = 0;
         let totalPayment = 0;
-        const shopBreakdown: Array<{ shopId: string; shopName: string; plan: string; rate: number; payment: number; baseReward: number; reward: number }> = [];
+        const shopBreakdown: Array<{ shopId: string; shopName: string; plan: string; rate: number; effectiveRate: number; payment: number; baseReward: number; reward: number }> = [];
 
         for (const rel of targetRelations) {
           const { referredTenantId } = rel;
@@ -168,6 +168,7 @@ export async function GET(request: Request) {
           let shopPayment = 0;
           let shopBaseReward = 0;
           let shopReward = 0;
+          let shopEffectiveRate = 0;
           let oneTimeUsed = false;
 
           for (const histDoc of historyDocs) {
@@ -190,6 +191,7 @@ export async function GET(request: Request) {
 
               shopBaseReward += result.baseReward;
               shopReward += result.reward;
+              shopEffectiveRate = result.effectiveRate;
 
               if (result.reward > 0) {
                 const newRewardRef = db.collection('monthly_rewards').doc();
@@ -228,7 +230,7 @@ export async function GET(request: Request) {
             totalPayment += shopPayment;
             totalBaseReward += shopBaseReward;
             totalReward += shopReward;
-            shopBreakdown.push({ shopId: referredTenantId, shopName, plan, rate: baseRate, payment: shopPayment, baseReward: shopBaseReward, reward: shopReward });
+            shopBreakdown.push({ shopId: referredTenantId, shopName, plan, rate: baseRate, effectiveRate: shopEffectiveRate, payment: shopPayment, baseReward: shopBaseReward, reward: shopReward });
           }
         }
 
