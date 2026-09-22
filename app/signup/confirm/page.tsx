@@ -26,11 +26,7 @@ export default function SignupConfirmPage() {
 
   useEffect(() => {
     if (!formData) return;
-    const type = formData.plan === 'pro' ? 'pro-shop' : 'shop';
-    localStorage.setItem(
-      `print_application_${type}`,
-      JSON.stringify(formData)
-    );
+    localStorage.setItem('signup_data', JSON.stringify(formData));
   }, [formData]);
 
   const handleBack = () => {
