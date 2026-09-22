@@ -233,6 +233,13 @@ function TermsContent() {
   const type: TermsType = TYPE_CONFIG[typeParam] ? typeParam : 'shop';
   const terms = buildTerms(type);
 
+  useEffect(() => {
+    document.title = `${terms.title} | Push-taro`;
+    return () => {
+      document.title = 'Push-taro';
+    };
+  }, [terms.title]);
+
   return (
     <>
       <div className="print-toolbar no-print">
@@ -387,6 +394,7 @@ function TermsContent() {
 }
 
 export default function PrintTermsPage() {
+  
   return (
     <Suspense
       fallback={
