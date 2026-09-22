@@ -123,7 +123,7 @@ try {
       uid: userRecord.uid,
       companyName: businessType === 'corporation' ? companyName.trim() : null,
       ownerName: ownerName.trim(),
-      email: email.trim(),
+      email: normalizedEmail,
       phone: phone || '',
       address: address.trim(),
       businessType: businessType || 'corporation',
