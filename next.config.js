@@ -2,10 +2,8 @@
 const nextConfig = {
   // 🔥 ビルド時の静的生成を全体的に無効化
   output: 'standalone',
-
-  // 🔥 Puppeteer 系は Next.js のバンドルから除外（native module のため）
-  serverExternalPackages: ['puppeteer-core', '@sparticuz/chromium'],
-
+  
+  // 🔥 全てのページを動的に扱う（推奨）
   experimental: {
     // App RouterでのSSGを無効化
   },
