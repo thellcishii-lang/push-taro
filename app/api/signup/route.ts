@@ -316,15 +316,27 @@ export async function POST(request: Request) {
     // ============================================================
     // 8. Square決済リンク生成
     // ============================================================
-    let paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-    // プランごとにリンクを変えたい場合は環境変数を分ける
-    if (plan === 'light') {
-      paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-    } else if (plan === 'standard') {
-      paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-    } else if (plan === 'pro') {
-      paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || 'https://square.link/u/pORV1sXA';
-    }
+    let paymentUrl: string;
+
+if (plan === 'light') {
+  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_LIGHT;
+} else if (plan === 'standard') {
+  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_STANDARD;
+} else if (plan === 'pro') {
+  paymentUrl = process.env.NEXT_PUBLIC_SQUARE_LINK_PRO;
+} else {
+  return NextResponse.json(
+    { error: '不正なプランです。' },
+    { status: 400 }
+  );
+}
+
+if (!paymentUrl) {
+  return NextResponse.json(
+    { error: '決済リンクが設定されていません。' },
+    { status: 500 }
+  );
+}
 
     // ============================================================
     // 9. 申し込み受付メール送信
