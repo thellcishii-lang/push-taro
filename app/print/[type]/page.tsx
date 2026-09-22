@@ -69,6 +69,19 @@ if (error) {
   );
 }
 
+// ★ ここを追加（data がまだ null の間のローディング）
+if (!data) {
+  return (
+    <main style={{ padding: 40, textAlign: 'center', fontFamily: 'sans-serif' }}>
+      <p>読み込み中...</p>
+    </main>
+  );
+}
+
+const meta = PRINT_MATERIALS.find((m) => m.type === type)!;
+const props = { data };   // ← これで data は PartnerPrintData 型に絞られる
+// ...
+
 // ...以下、正常時の JSX return
 
   const meta = PRINT_MATERIALS.find((m) => m.type === type)!;
