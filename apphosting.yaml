@@ -1,8 +1,10 @@
 runConfig:
   cpu: 1
-  memoryMiB: 512
+  memoryMiB: 2048
   minInstances: 0
   maxInstances: 10
+  timeoutSeconds: 90
+  concurrency: 1
 
 buildConfig:
   commands:
