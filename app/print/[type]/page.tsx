@@ -24,7 +24,6 @@ export default function PrintPreviewPage() {
 
   const [data, setData] = useState<PartnerPrintData | null>(null);
   const [error, setError] = useState('');
-  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     if (!VALID_TYPES.includes(type)) {
@@ -53,33 +52,6 @@ export default function PrintPreviewPage() {
     });
     return () => unsub();
   }, [type, router]);
-
-  async function handleDownload() {
-    if (!data) return;
-    setDownloading(true);
-    try {
-      const res = await fetch('/api/print-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, data }),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'PDF生成に失敗しました');
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${type}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (e: any) {
-      alert(e.message || 'PDF生成に失敗しました');
-    } finally {
-      setDownloading(false);
-    }
-  }
 
   if (error) {
     return (
@@ -110,6 +82,7 @@ export default function PrintPreviewPage() {
 
   return (
     <div className="print-wrap">
+      {/* 画面上部のツールバー（印刷時は非表示） */}
       <div className="print-toolbar no-print">
         <div className="print-toolbar-info">
           <strong>{meta.label}</strong>
@@ -117,16 +90,17 @@ export default function PrintPreviewPage() {
         </div>
         <div className="print-toolbar-actions">
           <button onClick={() => router.back()}>← 戻る</button>
-          <button className="primary" onClick={handleDownload} disabled={downloading}>
-            {downloading ? '⏳ 生成中…' : '⬇️ 入稿用PDFをダウンロード'}
+          <button className="primary" onClick={() => window.print()}>
+            🖨️ 印刷 / PDF保存
           </button>
         </div>
       </div>
 
       <div className="print-note no-print">
-        💡 「入稿用PDFをダウンロード」を押すと、塗り足し3mm込みのPDFが落ちてきます。
+        💡 「PDFに保存」を選ぶと、東京カラー印刷にそのまま入稿できます（塗り足し3mm込み）。
       </div>
 
+      {/* 実際の印刷物 */}
       <div className="print-doc">
         {Template}
       </div>
