@@ -6,7 +6,6 @@ import { notifyAdmins } from '@/lib/error-notifier';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { getReferrerDashboardUrl } from '@/lib/referrer-dashboard';
 import {
-  AGENCY_RATE_OTHER,
   PRO_REFERRAL_RATE,
   AFFILIATE_RECURRING_RATE_FIRST_YEAR,
   AFFILISHOP_RATE_FIRST_YEAR,
@@ -219,14 +218,10 @@ export async function POST(request: Request) {
           referrerName = data.name || '紹介者';
 
           // role で判定（agency はこの時点では shops に残っている可能性もあるが、AGENCY- プレフィックスで先に処理済み）
-          if (data.role === 'agency') {
-            referrerType = 'agency';
-            rewardRate = (plan === 'pro') ? 0.30 : AGENCY_RATE_OTHER;
-          } else if (data.role === 'pro' || data.plan === 'pro') {
+          if (data.role === 'pro' || data.plan === 'pro') {
             referrerType = 'pro';
             rewardRate = PRO_REFERRAL_RATE;
           } else {
-            // 一般店舗は紹介報酬対象外
             referrerType = 'shop';
             rewardRate = 0;
           }
