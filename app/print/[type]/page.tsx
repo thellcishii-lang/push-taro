@@ -26,6 +26,12 @@ export default function PrintPreviewPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+
+    const m = PRINT_MATERIALS.find((x) => x.type === type);
+  if (m) document.title = `${m.label} | Push-taro`;
+  return () => { document.title = 'Push-taro'; };
+}, [type]);
+  
     if (!VALID_TYPES.includes(type)) {
       setError('不明なテンプレートです。');
       return;
