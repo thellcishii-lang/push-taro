@@ -273,12 +273,22 @@ useEffect(() => {
       }
     };
 
-    const intervalId = window.setInterval(refreshCouponStatus, 1000);
-    document.addEventListener('visibilitychange', refreshCouponStatus);
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        refreshCouponStatus();
+      }
+    }, 10_000);
 
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        refreshCouponStatus();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    
     return () => {
       window.clearInterval(intervalId);
-      document.removeEventListener('visibilitychange', refreshCouponStatus);
+      document.removeEventListener('visibilitychange', handleVisibility);
       unsubscribeMessage();
     };
   }, [shopId, fcmToken, isRegistered]);
