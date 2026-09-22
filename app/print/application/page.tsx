@@ -7,11 +7,11 @@ import '../print.css';
 type DocType = 'shop' | 'pro-shop' | 'affiliate' | 'affilishop' | 'agency';
 
 const STORAGE_KEY: Record<DocType, string> = {
-  shop: 'print_application_shop',
-  'pro-shop': 'print_application_pro-shop',
-  affiliate: 'print_application_affiliate',
-  affilishop: 'print_application_affilishop',
-  agency: 'print_application_agency',
+  shop: 'signup_data',
+  'pro-shop': 'signup_data',
+  affiliate: 'affiliate_signup_data',
+  affilishop: 'affilishop_signup_data',
+  agency: 'agency_signup_data',
 };
 
 const DOC_LABEL: Record<DocType, string> = {
@@ -25,15 +25,49 @@ const DOC_LABEL: Record<DocType, string> = {
 function ApplicationContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  const shopId = searchParams.get('shopId');
   const typeParam = (searchParams.get('type') || 'shop') as DocType;
   const type: DocType = STORAGE_KEY[typeParam] ? typeParam : 'shop';
 
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
+    // ============================================================
+    // 優先度1：shopId があれば API から取得（後からでもOK）
+    // ============================================================
+    if (shopId) {
+      fetch(`/api/shop-info?shopId=${encodeURIComponent(shopId)}`)
+        .then((res) => res.json())
+        .then((res) => {
+          if (res.success && res.shop) {
+            const shop = res.shop;
+            setData({
+              companyName: shop.name || '',
+              email: shop.email || '',
+              phone: shop.phone || '',
+              address: shop.address || '',
+              invoiceNumber: shop.invoiceNumber || '',
+              plan: shop.plan || 'light',
+              bankAccount: shop.bankAccount || null,
+            });
+          } else {
+            alert('申込データが見つかりません。');
+            router.push('/');
+          }
+        })
+        .catch(() => {
+          alert('通信エラーが発生しました。');
+          router.push('/');
+        });
+      return;
+    }
+
+    // ============================================================
+    // 優先度2：localStorage（同じブラウザ・申込直後のみ）
+    // ============================================================
     const stored = localStorage.getItem(STORAGE_KEY[type]);
     if (!stored) {
-      // データがなければ戻る
       alert('申込データが見つかりません。もう一度お申し込みください。');
       router.push('/');
       return;
@@ -43,8 +77,9 @@ function ApplicationContent() {
     } catch {
       router.push('/');
     }
-  }, [type, router]);
+  }, [shopId, type, router]);
 
+  // タブタイトル設定
   useEffect(() => {
     document.title = `${DOC_LABEL[type]} | Push-taro`;
     return () => {
@@ -182,7 +217,7 @@ function ApplicationContent() {
             </section>
 
             {/* 契約プラン（店舗申込のみ） */}
-            {typeParam === 'shop' || typeParam === 'pro-shop' ? (
+            {(typeParam === 'shop' || typeParam === 'pro-shop') && (
               <section className="pdf-section">
                 <h2 className="pdf-section-title">ご契約プラン</h2>
                 <table className="pdf-table">
@@ -202,7 +237,7 @@ function ApplicationContent() {
                   </tbody>
                 </table>
               </section>
-            ) : null}
+            )}
 
             {/* 振込先口座（必要な場合） */}
             {data.bankAccount && (
@@ -282,8 +317,13 @@ function ApplicationContent() {
           position: relative;
           z-index: 1;
         }
-        .pdf-logo-row { display: flex; align-items: center; gap: 8px; }
-        .pdf-logo-mark { width: 38px; height: 38px; flex-shrink: 0; }
+        .pdf-logo-row { display: flex; align-items: flex-start; gap: 8px; }
+        .pdf-logo-mark {
+          width: 38px;
+          height: 38px;
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
         .pdf-logo-text {
           font-size: 20pt; font-weight: 900;
           letter-spacing: -0.5px; line-height: 1;
