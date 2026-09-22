@@ -55,6 +55,35 @@ export default function PrintPreviewPage() {
   const [data, setData] = useState<PartnerPrintData | null>(null);
   const [error, setError] = useState('');
 
+  const [downloading, setDownloading] = useState(false);
+
+async function handleDownload() {
+  if (!data) return;
+  setDownloading(true);
+  try {
+    const res = await fetch('/api/print-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, data }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'PDF生成に失敗しました');
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${type}.pdf`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (e: any) {
+    alert(e.message || 'PDF生成に失敗しました');
+  } finally {
+    setDownloading(false);
+  }
+}
+
   useEffect(() => {
     if (!VALID_TYPES.includes(type)) {
       setError('不明なテンプレートです。');
