@@ -27,12 +27,16 @@ function ApplicationContent() {
   const router = useRouter();
 
   const shopId = searchParams.get('shopId');
+  const agencyId = searchParams.get('agencyId');
+  const affiliateId = searchParams.get('affiliateId');
+  const affilishopId = searchParams.get('affilishopId');
   const typeParam = (searchParams.get('type') || 'shop') as DocType;
   const type: DocType = STORAGE_KEY[typeParam] ? typeParam : 'shop';
 
   const [data, setData] = useState<any>(null);
 
-  useEffect(() => {
+  
+useEffect(() => {
     // ============================================================
     // 優先度1：shopId があれば API から取得（後からでもOK）
     // ============================================================
@@ -64,6 +68,30 @@ function ApplicationContent() {
     }
 
     // ============================================================
+    // 優先度1-b：agency / affiliate / affilishop は partner-info から取得
+    // ============================================================
+    if (agencyId || affiliateId || affilishopId) {
+      const partnerType = agencyId ? 'agency' : affiliateId ? 'affiliate' : 'affilishop';
+      const partnerId = agencyId || affiliateId || affilishopId;
+
+      fetch(`/api/partner-info?type=${partnerType}&id=${encodeURIComponent(partnerId!)}`)
+        .then((res) => res.json())
+        .then((res) => {
+          if (res.success && res.data) {
+            setData(res.data);
+          } else {
+            alert('申込データが見つかりません。');
+            router.push('/');
+          }
+        })
+        .catch(() => {
+          alert('通信エラーが発生しました。');
+          router.push('/');
+        });
+      return;
+    }
+
+    // ============================================================
     // 優先度2：localStorage（同じブラウザ・申込直後のみ）
     // ============================================================
     const stored = localStorage.getItem(STORAGE_KEY[type]);
@@ -77,7 +105,7 @@ function ApplicationContent() {
     } catch {
       router.push('/');
     }
-  }, [shopId, type, router]);
+  }, [shopId, agencyId, affiliateId, affilishopId, type, router]);
 
   // タブタイトル設定
   useEffect(() => {
