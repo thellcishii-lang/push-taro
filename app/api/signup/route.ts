@@ -6,6 +6,7 @@ import { notifyAdmins } from '@/lib/error-notifier';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { getReferrerDashboardUrl } from '@/lib/referrer-dashboard';
 import {
+  AGENCY_RATE_OTHER,
   PRO_REFERRAL_RATE,
   AFFILIATE_RECURRING_RATE_FIRST_YEAR,
   AFFILISHOP_RATE_FIRST_YEAR,
