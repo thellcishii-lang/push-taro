@@ -119,6 +119,10 @@ export async function POST(request: Request) {
 
     const docRef = await db.collection('affilishops').add(affilishopData);
 
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
+    const applicationUrl = `${appUrl}/print/application?type=affilishop&affilishopId=${docRef.id}`;
+    const termsUrl = `${appUrl}/print/terms?type=affilishop`;
+
     // 申込者への受付メール
     await sendEmail({
       to: normalizedEmail,
@@ -127,6 +131,18 @@ export async function POST(request: Request) {
         <h2>${ownerName} 様</h2>
         <p>この度はPush-taro affilishop（実店舗向けアフィリエイト）へのお申し込み、誠にありがとうございます。</p>
         <p>審査完了後、結果をメールにてご案内いたします。審査完了まで今暫くお待ちくださいますようお願い申し上げます。</p>
+        <hr />
+        <p><strong>📄 お申し込み内容の控え</strong></p>
+        <p>以下のリンクから、いつでも申込書・利用規約をダウンロードできます。</p>
+        <p>
+          <a href="${applicationUrl}" style="color:#3182ce;">📥 申込書をダウンロード（PDF）</a>
+        </p>
+        <p>
+          <a href="${termsUrl}" style="color:#3182ce;">📥 利用規約をダウンロード（PDF）</a>
+        </p>
+        <p style="font-size:12px; color:#94a3b8;">
+          ※上記リンクはご登録のメールアドレス宛にのみお送りしています。第三者と共有しないようご注意ください。
+        </p>
         <hr />
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
