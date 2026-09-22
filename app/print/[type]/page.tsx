@@ -25,56 +25,51 @@ export default function PrintPreviewPage() {
   const [data, setData] = useState<PartnerPrintData | null>(null);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-
-    const m = PRINT_MATERIALS.find((x) => x.type === type);
+ useEffect(() => {
+  const m = PRINT_MATERIALS.find((x) => x.type === type);
   if (m) document.title = `${m.label} | Push-taro`;
   return () => { document.title = 'Push-taro'; };
 }, [type]);
-  
-    if (!VALID_TYPES.includes(type)) {
-      setError('不明なテンプレートです。');
+
+useEffect(() => {                              // ← ★ この行を追加
+  if (!VALID_TYPES.includes(type)) {
+    setError('不明なテンプレートです。');
+    return;
+  }
+
+  const unsub = onAuthStateChanged(auth, async (u) => {
+    if (!u) {
+      router.push('/');
       return;
     }
-
-    const unsub = onAuthStateChanged(auth, async (u) => {
-      if (!u) {
-        router.push('/');
+    try {
+      const idToken = await u.getIdToken();
+      const res = await fetch('/api/print-materials', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (!res.ok) {
+        setError('パートナー情報の取得に失敗しました。');
         return;
       }
-      try {
-        const idToken = await u.getIdToken();
-        const res = await fetch('/api/print-materials', {
-          headers: { Authorization: `Bearer ${idToken}` },
-        });
-        if (!res.ok) {
-          setError('パートナー情報の取得に失敗しました。');
-          return;
-        }
-        setData(await res.json());
-      } catch {
-        setError('通信エラーが発生しました。');
-      }
-    });
-    return () => unsub();
-  }, [type, router]);
+      setData(await res.json());
+    } catch {
+      setError('通信エラーが発生しました。');
+    }
+  });
 
-  if (error) {
-    return (
-      <main style={{ padding: 40, textAlign: 'center', fontFamily: 'sans-serif' }}>
-        <p style={{ color: '#dc2626' }}>{error}</p>
-        <button onClick={() => router.back()}>← 戻る</button>
-      </main>
-    );
-  }
+  return () => unsub();
+}, [type, router]);
 
-  if (!data) {
-    return (
-      <main style={{ padding: 40, textAlign: 'center', fontFamily: 'sans-serif' }}>
-        <p>読み込み中...</p>
-      </main>
-    );
-  }
+if (error) {
+  return (
+    <main style={{ padding: 40, textAlign: 'center', fontFamily: 'sans-serif' }}>
+      <p style={{ color: '#dc2626' }}>{error}</p>
+      <button onClick={() => router.back()}>← 戻る</button>
+    </main>
+  );
+}
+
+// ...以下、正常時の JSX return
 
   const meta = PRINT_MATERIALS.find((m) => m.type === type)!;
 
