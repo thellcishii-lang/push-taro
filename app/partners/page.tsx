@@ -163,7 +163,7 @@ export default function ProgramsPage() {
               </ul>
 
               <Link href="/agency" className="cta-link">
-                資料請求する <i className="fas fa-arrow-right"></i>
+                今すぐ申し込み <i className="fas fa-arrow-right"></i>
               </Link>
             </div>
 
@@ -187,8 +187,8 @@ export default function ProgramsPage() {
                 <li><i className="fas fa-check-circle"></i> 管理画面から即時参加可能</li>
               </ul>
 
-              <Link href="/admin" className="cta-link outline">
-                管理画面から参加 <i className="fas fa-arrow-right"></i>
+              <Link href="/signup" className="cta-link outline">
+                PROプランで始める <i className="fas fa-arrow-right"></i>
               </Link>
             </div>
 
@@ -213,7 +213,7 @@ export default function ProgramsPage() {
               </ul>
 
               <Link href="/affiliate/signup" className="cta-link green">
-                今すぐ登録 <i className="fas fa-arrow-right"></i>
+                今すぐ登録する <i className="fas fa-arrow-right"></i>
               </Link>
             </div>
           </div>
@@ -401,19 +401,19 @@ export default function ProgramsPage() {
               <div className="icon">👑</div>
               <h4>代理店パートナー</h4>
               <div className="sub">審査あり｜最大収益</div>
-              <Link href="/agency" className="btn-small">資料請求する</Link>
+              <Link href="/agency" className="btn-small">今すぐ始める</Link>
             </div>
             <div className="item">
               <div className="icon">🤝</div>
               <h4>紹介制度</h4>
               <div className="sub">PRO限定｜実質無料</div>
-              <Link href="/admin" className="btn-small outline">管理画面から参加</Link>
+              <Link href="/sugnup" className="btn-small outline">PROプランで始める</Link>
             </div>
             <div className="item">
               <div className="icon">📢</div>
               <h4>アフィリエイト</h4>
               <div className="sub">誰でもOK｜0円スタート</div>
-              <Link href="/affiliate/signup" className="btn-small">今すぐ登録</Link>
+              <Link href="/affiliate/signup" className="btn-small">今すぐ登録する</Link>
             </div>
           </div>
 
