@@ -95,9 +95,9 @@ useEffect(() => {
     // 優先度2：localStorage（同じブラウザ・申込直後のみ）
     // ============================================================
     let stored = localStorage.getItem(STORAGE_KEY[type]);
-+   if (!stored) {
-+     stored = sessionStorage.getItem(STORAGE_KEY[type]);
-+   }
+     if (!stored) {
+      stored = sessionStorage.getItem(STORAGE_KEY[type]);
+　　   }
     if (!stored) {
       alert('申込データが見つかりません。もう一度お申し込みください。');
       router.push('/');
