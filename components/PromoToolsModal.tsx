@@ -20,11 +20,11 @@ interface Props {
 
 /* 各ツールの縮小倍率（モーダル内に収める） */
 const SCALE_BY_TYPE: Record<PrintMaterialType, number> = {
-  'trifold':       0.62,  // 297mm × 210mm
-  'leaflet-a4':    0.70,  // 210mm × 297mm
-  'leaflet-a5':    0.85,  // 148mm × 210mm
-  'card':          1.0,   // 91mm × 55mm
-  'business-card': 1.0,
+  'trifold':       0.52,  // A4ヨコ（297mm × 210mm）→ 画面幅に収める
+  'leaflet-a4':    0.48,  // A4（210mm × 297mm）→ 縦長なので小さめに
+  'leaflet-a5':    0.65,  // A5（148mm × 210mm）
+  'card':          1.0,   // 91mm × 55mm（実寸でOK）
+  'business-card': 1.0,   // 91mm × 55mm
 };
 
 export default function PromoToolsModal({ isOpen, onClose }: Props) {
@@ -90,14 +90,11 @@ export default function PromoToolsModal({ isOpen, onClose }: Props) {
         </div>
 
         {/* プレビュー */}
-        <div className="ptm-body">
+         <div className="ptm-body">
           <div className="ptm-preview-outer">
             <div
               className="ptm-preview-scaler"
-              style={{
-                transform: `scale(${scale})`,
-                transformOrigin: 'top center',
-              }}
+              style={{ zoom: scale } as React.CSSProperties}
             >
               {renderPreview()}
             </div>
@@ -231,22 +228,27 @@ export default function PromoToolsModal({ isOpen, onClose }: Props) {
            プレビュー
         ============================================================ */
         .ptm-body {
-          flex: 1;
-          overflow-y: auto;
-          overflow-x: hidden;
-          background: #e2e8f0;
-          padding: 32px 24px;
-        }
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #e2e8f0;
+  padding: 32px 24px;
+  display: flex;
+  justify-content: center;
+  /* min-height を指定して、内容が少なくてもある程度の高さを確保 */
+  min-height: 400px;
+}
         .ptm-preview-outer {
-          display: flex;
-          justify-content: center;
-          /* transform: scale() で縮小しても、親側で高さが残るように調整 */
-          width: 100%;
-        }
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  padding: 0 8px;
+}
         .ptm-preview-scaler {
-          transition: transform 0.2s;
-          /* 縮小後の幅でレイアウト計算されるように、transform-origin を top center に */
-        }
+  /* zoom がレイアウトごと縮小するので、transform関連は不要 */
+  display: inline-block;
+}
 
         /* print.css の .print-doc 内で余白が入るので、モーダル内では最小化 */
         .ptm-preview-scaler .print-doc {
@@ -254,8 +256,10 @@ export default function PromoToolsModal({ isOpen, onClose }: Props) {
           gap: 24px;
         }
         .ptm-preview-scaler .p-page {
-          box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-        }
+  overflow: visible;
+  height: auto;
+  min-height: 100%;
+}
 
         /* ============================================================
            フッター
