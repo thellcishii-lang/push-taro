@@ -87,12 +87,13 @@ const props = { data };   // ← これで data は PartnerPrintData 型に絞�
   const meta = PRINT_MATERIALS.find((m) => m.type === type)!;
 
   const props = { data };
-  const Template =
-    type === 'trifold' ? <TrifoldBrochure {...props} />
-    : type === 'leaflet-a5' ? <LeafletA5 {...props} />
-    : type === 'leaflet-a4' ? <LeafletA4 {...props} />
-    : type === 'card' ? <Card {...props} />
-    : <BusinessCard {...props} />;
+  const Template = (
+  type === 'trifold' ? <TrifoldBrochure {...props} />
+  : type === 'leaflet-a5' ? <LeafletA5 {...props} />
+  : type === 'leaflet-a4' ? <LeafletA4 {...props} />
+  : type === 'card' ? <Card {...props} />
+  : <BusinessCard {...props} />
+);
 
   return (
     <div className="print-wrap">
