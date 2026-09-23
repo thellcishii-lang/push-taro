@@ -238,11 +238,11 @@ export default function LeafletA5({ data }: Props) {
         /* ========== 裏 ========== */
         .a5-back {
           background: #fff;
-          padding: 12mm 12mm;
+          padding: 10mm 10mm;
           display: flex;
           flex-direction: column;
         }
-        .a5-sec { margin-bottom: 4mm; }
+        .a5-sec { margin-bottom: 3mm; }
         .a5-sec-title {
           font-size: 11pt; font-weight: 900; line-height: 1.4;
           letter-spacing: -0.3px; margin-bottom: 3mm;
@@ -256,7 +256,7 @@ export default function LeafletA5({ data }: Props) {
         .a5-feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5mm; }
         .a5-feature-item {
           background: #f8fafc; border-radius: 5px;
-          padding: 2mm; display: flex; align-items: center; gap: 1.8mm;
+          padding: 1.5mm; display: flex; align-items: center; gap: 1.8mm;
           border-left: 2px solid #64748b;
         }
         .a5-feature-item.is-std { border-left-color: #0284c7; }
