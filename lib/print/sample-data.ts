@@ -1,3 +1,4 @@
+// lib/print/sample-data.ts
 import type { PartnerPrintData } from './types';
 
 export const SAMPLE_DATA: PartnerPrintData = {
