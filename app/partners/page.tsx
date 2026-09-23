@@ -77,8 +77,8 @@ export default function ProgramsPage() {
             <a href="#programs" className="btn-primary">
               <i className="fas fa-arrow-right"></i> プログラムを比較する
             </a>
-            <a href="#cta-final" className="btn-secondary">
-              <i className="fas fa-file-alt"></i> 無料で資料請求
+            <a href="/" className="btn-secondary">
+              <i className="fas fa-file-alt"></i> Push-taroを詳しく見る
             </a>
           </div>
 
