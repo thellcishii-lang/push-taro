@@ -143,8 +143,6 @@ export default function SignupConfirmPage() {
             </a>
             <a
               href={`/print/terms?type=${plan === 'pro' ? 'pro-shop' : 'shop'}`}
-              target="_blank"
-              rel="noopener noreferrer"
               style={{ display: 'inline-block', padding: '6px 16px', background: '#e2e8f0', color: '#2d3748', borderRadius: '4px', textDecoration: 'none', fontSize: '13px' }}
             >
               📥 利用規約をダウンロード
