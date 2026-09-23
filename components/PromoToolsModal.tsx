@@ -257,8 +257,6 @@ export default function PromoToolsModal({ isOpen, onClose }: Props) {
         }
         .ptm-preview-scaler .p-page {
   overflow: visible;
-  height: auto;
-  min-height: 100%;
 }
 
         /* ============================================================
