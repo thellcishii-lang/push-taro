@@ -800,3 +800,16 @@
     display: none;
   }
 }
+
+/* ============================================================
+   /partners モバイル：タグラインを右寄せ
+============================================================ */
+@media (max-width: 768px) {
+  .programs-page .logo {
+    width: 100%;
+  }
+  .programs-page .logo small {
+    margin-left: auto !important;
+    margin-right: 0 !important;
+  }
+}
