@@ -137,8 +137,6 @@ export default function SignupConfirmPage() {
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
                         <a
               href={`/print/application?type=${plan === 'pro' ? 'pro-shop' : 'shop'}`}
-              target="_blank"
-              rel="noopener noreferrer"
               style={{ display: 'inline-block', padding: '6px 16px', background: '#e2e8f0', color: '#2d3748', borderRadius: '4px', textDecoration: 'none', fontSize: '13px' }}
             >
               📥 申込書をダウンロード
