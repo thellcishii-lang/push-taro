@@ -78,17 +78,29 @@
           font-size: 11px; font-weight: 600; color: var(--slate-500);
           letter-spacing: 0; margin-left: 8px;
         }
-        .nav-links { display: flex; gap: 28px; align-items: center; font-size: 14px; font-weight: 600; }
-        .nav-links a { color: var(--slate-600); transition: color 0.2s; }
-        .nav-links a:hover { color: var(--orange); }
-        .nav-cta {
-          background: var(--orange); color: #fff !important;
-          padding: 10px 22px; border-radius: 8px;
-          font-weight: 700; font-size: 14px;
-          box-shadow: 0 4px 12px rgba(255,69,0,0.25);
-          transition: all 0.2s;
-          display: inline-flex; align-items: center; gap: 6px;
-        }
+        .nav-links {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  flex-wrap: nowrap;
+}
+.nav-links a {
+  color: var(--slate-600);
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+.nav-links a:hover { color: var(--orange); }
+.nav-cta {
+  background: var(--orange); color: #fff !important;
+  padding: 10px 22px; border-radius: 8px;
+  font-weight: 700; font-size: 14px;
+  box-shadow: 0 4px 12px rgba(255,69,0,0.25);
+  transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 6px;
+  white-space: nowrap;
+}
         .nav-cta:hover {
           background: var(--orange-dark);
           transform: translateY(-1px);
@@ -1762,7 +1774,14 @@
         /* ============================================================
            RESPONSIVE
         ============================================================ */
-        @media (max-width: 900px) {
+         @media (max-width: 1024px) {
+  .nav-links { gap: 16px; }
+  .nav-links a { font-size: 13px; }
+  .nav-cta { font-size: 12px; padding: 8px 14px; }
+}
+
+
+@media (max-width: 900px) {
           .screen-grid { grid-template-columns: 1fr; gap: 40px; }
           .phone-mock { width: 260px; height: 540px; }
           .ba-grid { grid-template-columns: 1fr; gap: 20px; }
@@ -1923,3 +1942,62 @@
             opacity: 1; transform: none;
           }
         }
+/* ============================================================
+   セクション下の CTA ボタン行
+============================================================ */
+.section-cta-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 48px;
+}
+.section-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.section-cta-btn.primary {
+  background: linear-gradient(135deg, #ff4500, #f97316);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(255, 69, 0, 0.35);
+}
+.section-cta-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(255, 69, 0, 0.45);
+}
+.section-cta-btn.outline {
+  background: transparent;
+  color: #ff4500;
+  border: 2px solid #ff4500;
+}
+.section-cta-btn.outline:hover {
+  background: #ff4500;
+  color: #fff;
+}
+.section-cta-btn.primary-light {
+  background: #fff;
+  color: #ff4500;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+.section-cta-btn.primary-light:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+@media (max-width: 640px) {
+  .section-cta-row { flex-direction: column; gap: 12px; }
+  .section-cta-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 20px;
+    font-size: 14px;
+  }
+}
