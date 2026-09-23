@@ -1067,14 +1067,6 @@ export default function HomeClient() {
               <a href="/signup" className="price-cta pro-cta">PROで始める</a>
             </div>
           </div>
-           <div className="section-cta-row">
-            <a href="/partners" className="section-cta-btn primary-light">
-              👑 収益プログラムを詳しく見てみる
-              <svg className="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </a>
-          </div>
         </div>
       </section>
 
@@ -1156,6 +1148,14 @@ export default function HomeClient() {
                 <li>累計5,000円で振込申請</li>
               </ul>
             </div>
+          </div>
+           <div className="section-cta-row">
+            <a href="/partners" className="section-cta-btn primary-light">
+              👑 収益プログラムを詳しく見てみる
+              <svg className="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </a>
           </div>
         </div>
       </section>
