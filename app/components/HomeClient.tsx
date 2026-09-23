@@ -105,7 +105,7 @@ export default function HomeClient() {
             <a href="#pricing">料金</a>
             <a href="#programs">収益化</a>
             <a href="#faq">FAQ</a>
-            <a href="#cta" className="nav-cta">
+            <a href="/signup" className="nav-cta">
               今すぐ始める
               <svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none">
                 <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -466,6 +466,11 @@ export default function HomeClient() {
               );
             })}
           </div>
+           <div className="section-cta-row">
+           <a href="/guide" className="section-cta-btn outline">
+             📚 活用方法を見てみる
+           </a>
+         </div>
         </div>
       </section>
 
@@ -801,6 +806,21 @@ export default function HomeClient() {
               <span className="coupon-plan-tag">PRO ONLY</span>
             </div>
           </div>
+                     </div>
+
+          <div className="section-cta-row">
+            <a href="/signup" className="section-cta-btn primary">
+              今すぐ申し込む
+              <svg className="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </a>
+            <a href="/guide" className="section-cta-btn outline">
+              📚 活用方法を見てみる
+            </a>
+          </div>
+        </div>
+      </section>
         </div>
       </section>
 
@@ -1015,7 +1035,7 @@ export default function HomeClient() {
                 <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>即時配信・履歴管理</li>
                 <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>月間上限ゲージ表示</li>
               </ul>
-              <a href="#cta" className="price-cta light-cta">LIGHTで始める</a>
+              <a href="/signup" className="price-cta light-cta">LIGHTで始める</a>
             </div>
 
             <div className="price-card featured tilt-in" style={{ transitionDelay: '0.12s' }}>
@@ -1030,7 +1050,7 @@ export default function HomeClient() {
                 <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>開封率の確認</strong></li>
                 <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>拡大された配信枠（15,000通）</li>
               </ul>
-              <a href="#cta" className="price-cta std-cta">STANDARDで始める</a>
+              <a href="/signup" className="price-cta std-cta">STANDARDで始める</a>
             </div>
 
             <div className="price-card pro tilt-in" style={{ transitionDelay: '0.24s' }}>
@@ -1047,8 +1067,16 @@ export default function HomeClient() {
                 <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>予約配信・定期配信</strong></li>
                 <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>紹介報酬制度（最大10%）</strong></li>
               </ul>
-              <a href="#cta" className="price-cta pro-cta">PROで始める</a>
+              <a href="/signup" className="price-cta pro-cta">PROで始める</a>
             </div>
+          </div>
+           <div className="section-cta-row">
+            <a href="/partners" className="section-cta-btn primary-light">
+              👑 収益プログラムを詳しく見てみる
+              <svg className="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </a>
           </div>
         </div>
       </section>
@@ -1215,6 +1243,11 @@ export default function HomeClient() {
                 <p className="usecase-desc">来るだけで、買わなくともステップアップする仕組みを使い、特別クーポンでお得に買える仕組みにする。</p>
               </div>
             </div>
+          </div>
+           <div className="section-cta-row">
+            <a href="/guide" className="section-cta-btn outline">
+              📚 活用方法を見てみる
+            </a>
           </div>
         </div>
       </section>
@@ -1408,7 +1441,8 @@ export default function HomeClient() {
             <a href="/terms">利用規約</a>
             <a href="/privacy">プライバシーポリシー</a>
             <a href="/tokusho">特定商取引法に基づく表記</a>
-            <a href="/programs">収益化プログラム</a>
+            <a href="/partners">収益化プログラム</a>
+            <a href="/guide">活用ガイド</a>
             <a href="mailto:info@push-taro.com">お問い合わせ</a>
           </div>
 
