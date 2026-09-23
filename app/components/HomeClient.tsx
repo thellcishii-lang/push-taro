@@ -806,7 +806,6 @@ export default function HomeClient() {
               <span className="coupon-plan-tag">PRO ONLY</span>
             </div>
           </div>
-                     </div>
 
           <div className="section-cta-row">
             <a href="/signup" className="section-cta-btn primary">
