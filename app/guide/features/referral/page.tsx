@@ -1,30 +1,14 @@
 'use client';
 
 import Link from 'next/link';
+import BrandLogo from '@/components/BrandLogo';
 
 export default function ReferralFeature() {
   return (
     <>
       <nav className="g-nav">
         <div className="g-nav-inner">
-          <Link href="/" className="logo">
-            <svg className="logo-mark" viewBox="0 0 48 48" fill="none">
-              <defs>
-                <linearGradient id="refLogoGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="#ff6b6b" />
-                  <stop offset="100%" stopColor="#ff4500" />
-                </linearGradient>
-              </defs>
-              <circle cx="24" cy="24" r="23" fill="url(#refLogoGrad)" />
-              <path d="M24 8 L33 22 L28 22 L28 30 L20 30 L20 22 L15 22 Z" fill="#ffffff" />
-              <circle cx="24" cy="20" r="3" fill="#ff4500" opacity="0.5" />
-              <path d="M18 30 L14 38 L20 34 Z" fill="#ffffff" />
-              <path d="M30 30 L34 38 L28 34 Z" fill="#ffffff" />
-              <path d="M22 30 L24 40 L26 30 Z" fill="#fbbf24" />
-            </svg>
-            Push-taro<span>.</span>
-            <small>実店舗のためのPush通知CRM</small>
-          </Link>
+          <BrandLogo />
           <Link href="/signup" className="g-nav-cta">今すぐ申し込む →</Link>
         </div>
       </nav>
