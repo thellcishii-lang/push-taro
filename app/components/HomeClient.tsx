@@ -821,8 +821,6 @@ export default function HomeClient() {
           </div>
         </div>
       </section>
-        </div>
-      </section>
 
       {/* ============================================================
           HOW IT WORKS
