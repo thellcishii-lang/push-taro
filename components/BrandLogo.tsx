@@ -8,7 +8,6 @@ interface BrandLogoProps {
 export default function BrandLogo({ className = '' }: BrandLogoProps) {
   return (
     <>
-      {/* LP と同じ Inter を読み込む（重複してもブラウザ側でキャッシュされる） */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link
@@ -16,12 +15,33 @@ export default function BrandLogo({ className = '' }: BrandLogoProps) {
         rel="stylesheet"
       />
 
-      <Link href="/" className={`brand-logo ${className}`.trim()}>
+      <Link
+        href="/"
+        className={className}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          fontFamily:
+            "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans JP', sans-serif",
+          fontSize: '22px',
+          fontWeight: 900,
+          color: '#0f172a',
+          letterSpacing: '-0.5px',
+          textDecoration: 'none',
+          lineHeight: 1,
+          paddingTop: '4px',
+        }}
+      >
         <svg
-          className="brand-logo-mark"
           viewBox="0 0 48 48"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          style={{
+            width: '34px',
+            height: '34px',
+            flexShrink: 0,
+            marginRight: '8px',
+          }}
         >
           <defs>
             <linearGradient
@@ -44,77 +64,38 @@ export default function BrandLogo({ className = '' }: BrandLogoProps) {
           <path d="M22 30 L24 40 L26 30 Z" fill="#fbbf24" />
         </svg>
 
-        <span className="brand-logo-name">Push-taro</span>
-        <span className="brand-logo-dot">.</span>
-        <small className="brand-logo-tagline">
-          みんなの<span className="brand-logo-tagline-hl">プッシュ通知</span>
+        <span style={{ color: '#0f172a' }}>Push-taro</span>
+        <span style={{ color: '#ff4500', marginLeft: '1px' }}>.</span>
+        <small
+          style={{
+            fontSize: '14px',
+            fontWeight: 600,
+            color: '#0f172a',
+            letterSpacing: 0,
+            lineHeight: 1,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px',
+            margin: '0 0 0 40px',
+            padding: '4px',
+            border: 0,
+          }}
+          className="brand-logo-tagline"
+        >
+          みんなの
+          <span
+            style={{
+              color: '#ff4500',
+              fontSize: '22px',
+              fontWeight: 900,
+              letterSpacing: '-0.5px',
+              marginLeft: '2px',
+              paddingTop: '6px',
+            }}
+          >
+            プッシュ通知
+          </span>
         </small>
-
-        <style jsx global>{`
-          .brand-logo {
-            display: flex;
-            align-items: center;
-            /* ★ LP と同じく Inter を先頭に。日本語は Noto Sans JP へフォールバック */
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-              Roboto, 'Helvetica Neue', Arial, 'Noto Sans JP', sans-serif;
-            font-size: 22px;
-            font-weight: 900;
-            color: #0f172a;
-            letter-spacing: -0.5px;
-            text-decoration: none;
-            line-height: 1;
-            padding-top: 4px;
-          }
-          .brand-logo-mark {
-            width: 34px;
-            height: 34px;
-            flex-shrink: 0;
-            margin-right: 8px;
-          }
-          .brand-logo-name {
-            color: #0f172a;
-          }
-          .brand-logo-dot {
-            color: #ff4500;
-            margin-left: 1px;
-          }
-          .brand-logo-tagline {
-            font-size: 14px;
-            font-weight: 600;
-            color: #0f172a;
-            letter-spacing: 0;
-            line-height: 1;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            margin: 0 0 0 40px;
-            padding: 4px;
-            border: 0;
-          }
-          .brand-logo-tagline-hl {
-            color: #ff4500;
-            font-size: 22px;
-            font-weight: 900;
-            letter-spacing: -0.5px;
-            margin-left: 2px;
-            padding-top: 6px;
-          }
-          @media (max-width: 900px) {
-            .brand-logo-tagline {
-              display: none;
-            }
-          }
-          @media (max-width: 640px) {
-            .brand-logo {
-              font-size: 18px;
-            }
-            .brand-logo-mark {
-              width: 28px;
-              height: 28px;
-              margin-right: 6px;
-            }
-          }
-        `}</style>
       </Link>
     </>
   );
