@@ -893,7 +893,7 @@ export default function HomeClient() {
               <tbody>
                 <tr><td>プッシュ通知の配信</td><td className="col-pushtaro">✓ 全デバイス対応</td><td>✓</td><td>✓</td></tr>
                 <tr><td>クーポン機能</td><td className="col-pushtaro">✓ 7種類</td><td className="check-no">✗ なし</td><td>△ 手動配信のみ</td></tr>
-　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　<tr><td>クーポンの自動発行</td><td className="col-pushtaro">✓ 登録・来店・誕生日・休眠に連動</td><td className="check-no">✗ なし</td><td className="check-no">✗ なし</td></tr>
+<tr><td>クーポンの自動発行</td><td className="col-pushtaro">✓ 登録・来店・誕生日・休眠に連動</td><td className="check-no">✗ なし</td><td className="check-no">✗ なし</td></tr>
                 <tr><td>QRコード消込</td><td className="col-pushtaro">✓ 標準搭載</td><td className="check-no">✗</td><td>△ 別途開発必要</td></tr>
                 <tr><td>予約配信・定期配信</td><td className="col-pushtaro">✓</td><td>△ 有料オプション</td><td className="check-no">✗</td></tr>
                 <tr><td>誕生日・休眠復活の自動化</td><td className="col-pushtaro">✓</td><td className="check-no">✗</td><td className="check-no">✗</td></tr>

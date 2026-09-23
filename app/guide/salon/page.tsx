@@ -9,7 +9,7 @@ export default function SalonGuidePage() {
       {/* ヘッダー */}
       <nav className="s-nav">
         <div className="s-nav-inner">
-          <BrandLogo tagline="使い方ガイド" />
+          <BrandLogo />
           <Link href="/signup" className="s-nav-cta">今すぐ申し込む →</Link>
         </div>
       </nav>

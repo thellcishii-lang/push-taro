@@ -9,7 +9,7 @@ export default function MassageGuidePage() {
     <>
       <nav className="g-nav">
         <div className="g-nav-inner">
-          <BrandLogo tagline="使い方ガイド" />
+          <BrandLogo />
           <Link href="/signup" className="g-nav-cta">今すぐ申し込む →</Link>
         </div>
       </nav>
