@@ -378,13 +378,6 @@ export default function LeafletA5({ data }: Props) {
           line-height: 1.4;
         }
 
-        .a5-front,
-.a5-back {
-  height: 100%;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
 .a5-front-inner,
 .a5-back-inner {
   width: calc(100% / 0.9);
