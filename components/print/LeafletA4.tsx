@@ -68,6 +68,7 @@ export default function LeafletA4({ data }: Props) {
           <span className="a4-role">{roleLabel}</span>
           <span className="a4-year">2026</span>
         </div>
+      </div>
       </section>
 
       {/* ========== 裏 ========== */}
