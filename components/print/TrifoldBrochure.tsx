@@ -487,108 +487,108 @@ export default function TrifoldBrochure({ data }: Props) {
         .tf-free-ico { font-size: 12pt; line-height: 1; margin-bottom: 0.5mm; }
         .tf-free-text { font-size: 6.5pt; font-weight: 900; color: #7c2d12; line-height: 1.3; }
 
-        /* ========== 外側中：会社情報 ========== */
+         /* ========== 外側中：会社情報 ========== */
         .tf-back {
           background: #fafafa;
           border-right: 1px dashed #e2e8f0;
         }
         .tf-back-logo-row { display: flex; align-items: center; gap: 2mm; }
-        .tf-back-logo-mark { width: 8mm; height: 8mm; flex-shrink: 0; }
+        .tf-back-logo-mark { width: 9mm; height: 9mm; flex-shrink: 0; }
         .tf-back-logo {
-          font-size: 15pt; font-weight: 900; letter-spacing: -0.5px; line-height: 1;
+          font-size: 17pt; font-weight: 900; letter-spacing: -0.5px; line-height: 1;
         }
         .tf-back-logo span { color: #ff4500; }
         .tf-back-tagline {
-          font-size: 7pt; color: #64748b; font-weight: 700;
-          margin-top: 1mm; letter-spacing: 0.3px;
+          font-size: 7.5pt; color: #64748b; font-weight: 700;
+          margin-top: 1.5mm; letter-spacing: 0.3px;
         }
         .tf-back-spacer { flex: 1; }
 
         .tf-offer {
           background: #fff;
-          border: 1.5px dashed #ff4500;
-          border-radius: 8px;
-          padding: 2.5mm 2mm;
+          border: 2px dashed #ff4500;
+          border-radius: 10px;
+          padding: 3mm 2.5mm;
           text-align: center;
-          margin-bottom: 3mm;
+          margin-bottom: 4mm;
         }
         .tf-offer-badge {
           display: inline-block;
-          font-size: 5.5pt; font-weight: 900; letter-spacing: 1px;
-          padding: 0.5mm 2mm; border-radius: 6px;
+          font-size: 6pt; font-weight: 900; letter-spacing: 1.2px;
+          padding: 0.7mm 2.5mm; border-radius: 8px;
           background: linear-gradient(135deg, #ff4500, #f97316);
-          color: #fff; margin-bottom: 1.5mm;
+          color: #fff; margin-bottom: 2mm;
         }
         .tf-offer-title {
-          font-size: 8pt; font-weight: 900;
-          color: #0f172a; line-height: 1.35;
-          margin-bottom: 2mm;
+          font-size: 8.5pt; font-weight: 900;
+          color: #0f172a; line-height: 1.45;
+          margin-bottom: 2.5mm;
         }
         .tf-offer-title .accent { color: #ff4500; }
         .tf-offer-code {
           font-family: 'Courier New', monospace;
-          font-size: 12pt; font-weight: 900;
-          letter-spacing: 2px;
+          font-size: 14pt; font-weight: 900;
+          letter-spacing: 2.5px;
           color: #0f172a;
           background: #fff7ed;
-          border: 1.5px dashed #ff4500;
-          border-radius: 5px;
-          padding: 1.5mm 2mm;
-          margin: 0 auto 2mm;
+          border: 2px dashed #ff4500;
+          border-radius: 6px;
+          padding: 2mm 2.5mm;
+          margin: 0 auto 2.5mm;
           display: inline-block;
           min-width: 70%;
         }
         .tf-offer-qr {
           display: flex; justify-content: center;
-          margin-bottom: 1mm;
+          margin-bottom: 1.5mm;
         }
         .tf-offer-note {
-          font-size: 6pt; font-weight: 700;
-          color: #64748b; line-height: 1.3;
+          font-size: 6.5pt; font-weight: 700;
+          color: #64748b; line-height: 1.4;
         }
 
         .tf-contact {
-          padding-top: 2.5mm;
-          border-top: 1.5px solid #0f172a;
+          padding-top: 3mm;
+          border-top: 2px solid #0f172a;
         }
         .tf-back-message {
-          font-size: 7.5pt; color: #334155;
-          line-height: 1.6;
-          padding-bottom: 2mm; margin-bottom: 2mm;
+          font-size: 8pt; color: #334155;
+          line-height: 1.8;
+          padding-bottom: 3mm; margin-bottom: 3mm;
           border-bottom: 1px solid #e2e8f0;
         }
         .tf-back-message strong {
           display: block;
-          font-size: 8.5pt; font-weight: 900;
-          color: #0f172a; margin-bottom: 1mm;
+          font-size: 9.5pt; font-weight: 900;
+          color: #0f172a; margin-bottom: 1.5mm;
         }
         .tf-back-contact-label {
-          font-size: 6pt; font-weight: 900; letter-spacing: 1.5px;
-          color: #ff4500; margin-bottom: 1.5mm;
+          font-size: 6.5pt; font-weight: 900; letter-spacing: 2px;
+          color: #ff4500; margin-bottom: 2mm;
         }
-        .tf-back-company { font-size: 10pt; font-weight: 900; line-height: 1.3; }
-        .tf-back-owner { font-size: 8pt; color: #475569; margin: 0.5mm 0 2mm; }
-        .tf-back-info { border-top: 1px solid #e2e8f0; padding-top: 2mm; }
+        .tf-back-company { font-size: 11pt; font-weight: 900; line-height: 1.35; }
+        .tf-back-owner { font-size: 8.5pt; color: #475569; margin: 0.8mm 0 3mm; }
+        .tf-back-info { border-top: 1px solid #e2e8f0; padding-top: 2.5mm; }
         .tf-back-row {
-          display: grid; grid-template-columns: 10mm 1fr;
-          gap: 1.5mm; font-size: 7.5pt; padding: 0.8mm 0; align-items: baseline;
+          display: grid; grid-template-columns: 12mm 1fr;
+          gap: 2mm; font-size: 8pt; padding: 1mm 0; align-items: baseline;
         }
         .tf-back-key { font-weight: 900; color: #94a3b8; letter-spacing: 0.5px; }
-        .tf-back-val { color: #334155; overflow-wrap: anywhere; line-height: 1.4; }
+        .tf-back-val { color: #334155; overflow-wrap: anywhere; line-height: 1.5; }
         .tf-back-url {
-          margin-top: 2mm;
-          font-size: 7pt;
+          margin-top: 3mm;
+          font-size: 7.5pt;
           font-family: 'Courier New', monospace;
           font-weight: 900;
           color: #ff4500;
           text-align: center;
-          padding: 1.5mm;
+          padding: 1.8mm;
           background: #fff7ed;
           border: 1px solid #fed7aa;
-          border-radius: 5px;
+          border-radius: 6px;
           letter-spacing: 0.5px;
         }
-        .tf-back-foot { margin-top: 2mm; font-size: 5.5pt; color: #94a3b8; letter-spacing: 0.3px; text-align: center; }
+        .tf-back-foot { margin-top: 3mm; font-size: 6pt; color: #94a3b8; letter-spacing: 0.3px; text-align: center; }
 
         /* ========== 外側右：表紙 ========== */
         .tf-cover {
@@ -636,121 +636,121 @@ export default function TrifoldBrochure({ data }: Props) {
         /* ========== 内側左：喜んで頂ける ========== */
         .tf-philosophy { background: #fff; border-right: 1px dashed #e2e8f0; }
         .tf-philosophy-h {
-          font-size: 13pt; font-weight: 900;
-          line-height: 1.4; letter-spacing: -0.5px;
-          margin: 0 0 4mm; color: #0f172a;
+          font-size: 15pt; font-weight: 900;
+          line-height: 1.45; letter-spacing: -0.5px;
+          margin: 0 0 7mm; color: #0f172a;
         }
         .tf-philosophy-h .accent { color: #ff4500; }
-        .tf-philosophy-text { font-size: 8pt; color: #334155; line-height: 1.8; margin: 0 0 3mm; }
+        .tf-philosophy-text { font-size: 9pt; color: #334155; line-height: 2.1; margin: 0 0 5mm; }
         .tf-philosophy-text strong {
           color: #0f172a; font-weight: 900;
           background: linear-gradient(transparent 60%, #fed7aa 60%);
           padding: 0 1mm;
         }
         .tf-philosophy-quote {
-          margin: 4mm 0; padding: 3mm;
+          margin: 6mm 0; padding: 5mm;
           background: #fff7ed;
           border-left: 3px solid #ff4500;
-          border-radius: 0 6px 6px 0;
+          border-radius: 0 8px 8px 0;
         }
-        .tf-philosophy-quote-text { font-size: 9.5pt; font-weight: 900; color: #7c2d12; line-height: 1.5; margin: 0; }
+        .tf-philosophy-quote-text { font-size: 11pt; font-weight: 900; color: #7c2d12; line-height: 1.6; margin: 0; }
         .tf-philosophy-list {
-          list-style: none; padding: 0; margin: 4mm 0 0;
-          display: flex; flex-direction: column; gap: 2mm;
+          list-style: none; padding: 0; margin: 7mm 0 0;
+          display: flex; flex-direction: column; gap: 3mm;
         }
         .tf-philosophy-list li {
-          display: grid; grid-template-columns: 4mm 1fr;
-          gap: 2mm; align-items: flex-start;
-          font-size: 8pt; color: #334155; line-height: 1.6;
+          display: grid; grid-template-columns: 5mm 1fr;
+          gap: 3mm; align-items: flex-start;
+          font-size: 9pt; color: #334155; line-height: 1.8;
         }
         .tf-philosophy-list li::before {
           content: '✓'; color: #16a34a; font-weight: 900;
-          font-size: 10pt; text-align: center;
+          font-size: 11pt; text-align: center;
         }
 
-        /* ========== 内側中：雨の日 + Push-taro ========== */
+        /* ========== 内側中：雨の日 + Push-taro（圧縮版） ========== */
         .tf-rain {
           background: linear-gradient(180deg, #f0f9ff 0%, #fff 40%, #fffbf5 100%);
           border-right: 1px dashed #e2e8f0;
-          padding: 6mm 5mm;
+          padding: 8mm 7mm;
         }
         .tf-rain-h {
-          font-size: 10pt; font-weight: 900;
-          line-height: 1.3; letter-spacing: -0.4px;
-          margin: 0 0 1.5mm;
+          font-size: 11pt; font-weight: 900;
+          line-height: 1.35; letter-spacing: -0.4px;
+          margin: 0 0 2.5mm;
         }
         .tf-rain-h .accent { color: #0284c7; }
         .tf-rain-text {
-          font-size: 7pt; color: #334155;
-          line-height: 1.5; margin: 0 0 1.5mm;
+          font-size: 7.5pt; color: #334155;
+          line-height: 1.7; margin: 0 0 2mm;
         }
         .tf-rain-text strong { color: #0f172a; font-weight: 900; }
         .tf-rain-compare {
           display: flex; flex-direction: column;
-          gap: 1mm; margin: 1.5mm 0;
+          gap: 1.5mm; margin: 2mm 0;
         }
-        .tf-rain-card { padding: 1.5mm 2mm; border-radius: 4px; }
+        .tf-rain-card { padding: 2mm 2.5mm; border-radius: 5px; }
         .tf-rain-card.is-bad { background: #fef2f2; border: 1px solid #fecaca; }
         .tf-rain-card.is-good { background: #f0fdf4; border: 1px solid #86efac; }
         .tf-rain-card-label {
-          font-size: 5pt; font-weight: 900; letter-spacing: 0.5px;
-          margin-bottom: 0.5mm; display: inline-block;
-          padding: 0.3mm 1.5mm; border-radius: 4px; color: #fff;
+          font-size: 5.5pt; font-weight: 900; letter-spacing: 0.8px;
+          margin-bottom: 0.8mm; display: inline-block;
+          padding: 0.5mm 1.8mm; border-radius: 6px; color: #fff;
         }
         .tf-rain-card.is-bad .tf-rain-card-label { background: #dc2626; }
         .tf-rain-card.is-good .tf-rain-card-label { background: #16a34a; }
         .tf-rain-card-text {
-          font-size: 6.5pt; font-weight: 700;
-          line-height: 1.4; margin: 0;
+          font-size: 7pt; font-weight: 700;
+          line-height: 1.5; margin: 0;
         }
         .tf-rain-card.is-bad .tf-rain-card-text { color: #7f1d1d; }
         .tf-rain-card.is-good .tf-rain-card-text { color: #14532d; }
         .tf-rain-arrow {
           text-align: center; color: #0284c7;
-          font-size: 8pt; font-weight: 900;
+          font-size: 9pt; font-weight: 900;
           line-height: 1; margin: 0;
         }
         .tf-rain-conclusion {
-          margin-top: 1mm; padding: 2mm;
+          margin-top: 1.5mm; padding: 2.5mm;
           background: linear-gradient(135deg, #0284c7, #0369a1);
-          color: #fff; border-radius: 5px;
+          color: #fff; border-radius: 6px;
         }
         .tf-rain-conclusion-text {
-          font-size: 6.5pt; color: #e0f2fe;
-          line-height: 1.4; margin: 0; font-weight: 700;
+          font-size: 7pt; color: #e0f2fe;
+          line-height: 1.55; margin: 0; font-weight: 700;
         }
         .tf-rain-conclusion-text strong { color: #fff; font-weight: 900; }
 
         .tf-mid-divider {
-          margin: 2mm 0 1.5mm; padding-top: 1.5mm;
-          border-top: 1px dashed #fdba74;
-          font-size: 6pt; font-weight: 900;
-          letter-spacing: 1px; color: #ff4500; text-align: center;
+          margin: 3mm 0 2mm; padding-top: 2mm;
+          border-top: 1.5px dashed #fdba74;
+          font-size: 6.5pt; font-weight: 900;
+          letter-spacing: 1.5px; color: #ff4500; text-align: center;
         }
 
         .tf-solution { flex: 1; display: flex; flex-direction: column; }
         .tf-solution-h {
-          font-size: 10pt; font-weight: 900;
-          line-height: 1.3; letter-spacing: -0.4px;
-          margin: 0 0 1.5mm;
+          font-size: 11pt; font-weight: 900;
+          line-height: 1.35; letter-spacing: -0.4px;
+          margin: 0 0 2mm;
         }
         .tf-solution-h .accent { color: #ff4500; }
         .tf-solution-text {
-          font-size: 7pt; color: #334155;
-          line-height: 1.5; margin: 0 0 1.5mm;
+          font-size: 7.5pt; color: #334155;
+          line-height: 1.65; margin: 0 0 2mm;
         }
         .tf-solution-text strong { color: #0f172a; font-weight: 900; }
         .tf-solution-push {
-          background: #0f172a; border-radius: 5px; padding: 2mm;
+          background: #0f172a; border-radius: 6px; padding: 2.5mm;
           color: #fff; margin-top: auto;
         }
         .tf-solution-push-title {
-          font-size: 7pt; font-weight: 900;
-          line-height: 1.3; margin-bottom: 1mm;
+          font-size: 7.5pt; font-weight: 900;
+          line-height: 1.35; margin-bottom: 1.2mm;
         }
         .tf-solution-push-text {
-          font-size: 6pt; color: #cbd5e1;
-          line-height: 1.4; margin: 0;
+          font-size: 6.5pt; color: #cbd5e1;
+          line-height: 1.55; margin: 0;
         }
         .tf-solution-push-text strong { color: #fd7e5a; font-weight: 900; }
 
