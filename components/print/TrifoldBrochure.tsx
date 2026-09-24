@@ -776,6 +776,13 @@ export default function TrifoldBrochure({ data }: Props) {
         .tf-detail-name .badge.is-std { background: #0284c7; }
         .tf-detail-name .badge.is-pro { background: linear-gradient(135deg, #ff4500, #f97316); }
         .tf-detail-desc { font-size: 6.1pt; color: #64748b; line-height: 1.4; }
+         /* 印刷時の用紙サイズを明示（余白ゼロ） */
+     @media print {
+       @page {
+         size: 297mm 210mm;  /* 三つ折り = A4ヨコ */
+         margin: 0;
+       }
+     }
       `}</style>
     </>
   );
