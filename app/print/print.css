@@ -102,10 +102,10 @@
    印刷実行時
    ============================================================ */
 @media print {
-  @page {
-    size: A4;
-    margin: 0;
-  }
+  @page { margin: 0; }
+  @page page-a4v { size: 210mm 297mm; }
+  @page page-a5v { size: 148mm 210mm; }
+  @page page-a4h { size: 297mm 210mm; }
 
   html, body {
     margin: 0 !important;
