@@ -12,11 +12,11 @@ export default function TrifoldBrochure({ data }: Props) {
   const roleLabel = role === 'agency' ? 'AUTHORIZED AGENCY' : 'AFFILISHOP PARTNER';
 
   return (
-    <>
+    <div className="tf-container">
       {/* ============================================================
-          外側
+          1ページ目（外側）
           ============================================================ */}
-      <section className="p-page tf-page">
+      <section className="tf-page">
 
         {/* 左：紹介制度 + 価格 */}
         <div className="tf-panel tf-featprice">
@@ -217,9 +217,9 @@ export default function TrifoldBrochure({ data }: Props) {
       </section>
 
       {/* ============================================================
-          内側
+          2ページ目（内側）
           ============================================================ */}
-      <section className="p-page tf-page">
+      <section className="tf-page">
 
         {/* 左：喜んで頂ける */}
         <div className="tf-panel tf-philosophy">
@@ -353,9 +353,7 @@ export default function TrifoldBrochure({ data }: Props) {
       </section>
 
       <style jsx global>{`
-        /* ============================================================
-           三つ折り A4ヨコ（印刷完全最適化版）
-           ============================================================ */
+        /* 全体初期化 */
         *, *::before, *::after {
           box-sizing: border-box !important;
         }
@@ -368,6 +366,13 @@ export default function TrifoldBrochure({ data }: Props) {
           print-color-adjust: exact;
         }
 
+        .tf-container {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
         .tf-page {
           width: 297mm;
           height: 210mm;
@@ -377,6 +382,10 @@ export default function TrifoldBrochure({ data }: Props) {
           background: #fff;
           margin: 0 auto 10mm;
           overflow: hidden;
+          page-break-after: always;
+          break-after: page;
+          page-break-inside: avoid;
+          break-inside: avoid;
         }
 
         .tf-panel {
@@ -821,33 +830,43 @@ export default function TrifoldBrochure({ data }: Props) {
           line-height: 1.35;
         }
 
-        /* 印刷（PDF出力）専用設定（A4ヨコ・余白ゼロ・完全2ページ分離） */
+        /* 印刷（PDF出力）専用設定 */
         @media print {
           @page {
-            size: 297mm 210mm;
+            size: A4 landscape;
             margin: 0 !important;
           }
 
           html, body {
             width: 297mm !important;
-            height: 100% !important;
+            height: auto !important;
             background: #fff !important;
-            overflow: visible !important; /* overflow:hiddenを解除して2ページ目を出力 */
+            overflow: visible !important;
+          }
+
+          .tf-container {
+            display: block !important;
+            width: 297mm !important;
           }
 
           .tf-page {
             width: 297mm !important;
             height: 210mm !important;
+            max-height: 210mm !important;
             margin: 0 !important;
+            padding: 0 !important;
             border: none !important;
             box-shadow: none !important;
+            page-break-before: auto !important;
             page-break-after: always !important;
             break-after: page !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
+            display: grid !important;
+            grid-template-columns: 1fr 1fr 1fr !important;
           }
         }
       `}</style>
-    </>
+    </div>
   );
 }
