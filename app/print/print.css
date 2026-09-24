@@ -102,7 +102,6 @@
 @media print {
   @page {
     margin: 0;
-    size: A4 landscape;   /* ← auto → 明示的に指定 */
   }
 
   html, body {
