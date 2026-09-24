@@ -357,20 +357,26 @@ export default function TrifoldBrochure({ data }: Props) {
            三つ折り A4ヨコ
            ============================================================ */
         .tf-page {
-          width: 297mm;
-          height: 210mm;
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          box-sizing: border-box;
-        }
-        .tf-panel {
-          padding: 12mm 8mm;
-          position: relative;
-          overflow: hidden;
-          display: flex;
-          flex-direction: column;
-        }
+    width: 297mm;
+    height: 210mm;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    box-sizing: border-box;
+    background: #fff;
+    margin: 0 auto 10mm; /* 画面で見るとき用の余白 */
+    overflow: hidden;
+    page-break-after: always;
+    break-after: page;
+  }
 
+  .tf-panel {
+    padding: 12mm 8mm;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
         /* ========== 外側左：紹介制度 ========== */
         .tf-featprice {
           background: linear-gradient(180deg, #fffbf5 0%, #fff 100%);
@@ -805,20 +811,26 @@ export default function TrifoldBrochure({ data }: Props) {
 }
          /* 印刷時の用紙サイズを明示（余白ゼロ） */
      @media print {
-  @page {
-    size: 297mm 210mm;
-    margin: 0;
-  }
+    @page {
+      size: 297mm 210mm; /* A4横 */
+      margin: 0;         /* 用紙余白ゼロ */
+    }
 
-  /* 紙面より大きくして、余白を強制的に消す */
-  .tf-page {
-    width: 303mm !important;
-    height: 216mm !important;
-    min-height: 216mm !important;
-    margin: -3mm !important;   /* 中央に配置するためマイナスオフセット */
-    box-sizing: border-box;
-    overflow: hidden;
-  }
+    html, body {
+      width: 297mm;
+      height: 210mm;
+      background: #fff;
+    }
+
+    .tf-page {
+      width: 297mm !important;
+      height: 210mm !important;
+      margin: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+      page-break-after: always;
+      break-after: page;
+    }
      }
       `}</style>
     </>
