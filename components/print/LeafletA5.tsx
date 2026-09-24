@@ -168,6 +168,7 @@ export default function LeafletA5({ data }: Props) {
             <div className="a5-offer-side-note">QRを読み取って<br />今すぐお申し込み</div>
           </div>
         </div>
+        </div>
       </section>
 
       <style jsx global>{`
