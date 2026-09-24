@@ -354,7 +354,7 @@ export default function TrifoldBrochure({ data }: Props) {
 
       <style jsx global>{`
         /* ============================================================
-           三つ折り A4ヨコ（完全ジャストフィット版）
+           三つ折り A4ヨコ（印刷完全最適化版）
            ============================================================ */
         *, *::before, *::after {
           box-sizing: border-box !important;
@@ -370,21 +370,17 @@ export default function TrifoldBrochure({ data }: Props) {
 
         .tf-page {
           width: 297mm;
-          height: 209.5mm; /* ブラウザの端数丸めによるはみ出しを防ぐため0.5mm縮小 */
-          max-height: 209.5mm;
+          height: 210mm;
           display: grid;
           grid-template-columns: 1fr 1fr 1fr;
           box-sizing: border-box;
           background: #fff;
           margin: 0 auto 10mm;
           overflow: hidden;
-          page-break-after: always;
-          break-after: page;
-          break-inside: avoid;
         }
 
         .tf-panel {
-          padding: 10mm 7mm; /* 縦パディングを詰めて溢れ防止 */
+          padding: 10mm 7mm;
           position: relative;
           overflow: hidden;
           display: flex;
@@ -825,7 +821,7 @@ export default function TrifoldBrochure({ data }: Props) {
           line-height: 1.35;
         }
 
-        /* 印刷（PDF出力）専用設定（A4ヨコ・完全2ページ固定） */
+        /* 印刷（PDF出力）専用設定（A4ヨコ・余白ゼロ・完全2ページ分離） */
         @media print {
           @page {
             size: 297mm 210mm;
@@ -834,22 +830,21 @@ export default function TrifoldBrochure({ data }: Props) {
 
           html, body {
             width: 297mm !important;
-            height: 210mm !important;
+            height: 100% !important;
             background: #fff !important;
-            overflow: hidden !important;
+            overflow: visible !important; /* overflow:hiddenを解除して2ページ目を出力 */
           }
 
           .tf-page {
             width: 297mm !important;
-            height: 209.5mm !important;
-            max-height: 209.5mm !important;
+            height: 210mm !important;
             margin: 0 !important;
             border: none !important;
             box-shadow: none !important;
             page-break-after: always !important;
             break-after: page !important;
+            page-break-inside: avoid !important;
             break-inside: avoid !important;
-            overflow: hidden !important;
           }
         }
       `}</style>
