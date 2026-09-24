@@ -15,7 +15,6 @@ export default function LeafletA5({ data }: Props) {
     <>
       {/* ========== 表 ========== */}
       <section className="p-page a5-page a5-front">
-        <div className="a5-front-inner">
         <div className="a5-front-glow" />
         <div className="a5-front-top">
           <div className="a5-logo-row">
@@ -68,13 +67,10 @@ export default function LeafletA5({ data }: Props) {
           <span className="a5-role">{roleLabel}</span>
           <span className="a5-year">2026</span>
         </div>
-       </div> 
       </section>
 
       {/* ========== 裏 ========== */}
       <section className="p-page a5-page a5-back">
-        <div className="a5-back-inner">
-        {/* 機能 */}
         <div className="a5-sec">
           <h3 className="a5-sec-title">
             <span className="accent">すべてオンオフ可能。</span>
@@ -109,7 +105,6 @@ export default function LeafletA5({ data }: Props) {
           </div>
         </div>
 
-        {/* 価格 */}
         <div className="a5-sec" style={{ marginTop: '2mm' }}>
           <h3 className="a5-sec-title">
             <span className="accent">明快な3プラン。</span>
@@ -142,7 +137,6 @@ export default function LeafletA5({ data }: Props) {
           </div>
         </div>
 
-        {/* 会社情報 + QR */}
         <div className="a5-contact-row">
           <div>
             <div className="a5-contact-label">CONTACT</div>
@@ -168,16 +162,17 @@ export default function LeafletA5({ data }: Props) {
             <div className="a5-offer-side-note">QRを読み取って<br />今すぐお申し込み</div>
           </div>
         </div>
-        </div>
       </section>
 
       <style jsx global>{`
-        /* A5 */
         .a5-page {
           width: 148mm;
           height: 210mm;
           display: flex;
           flex-direction: column;
+          box-sizing: border-box;
+          overflow: hidden;
+          position: relative;
         }
 
         /* ========== 表 ========== */
@@ -185,9 +180,6 @@ export default function LeafletA5({ data }: Props) {
           background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
           color: #fff;
           padding: 16mm 13mm;
-          height: 100%;           
-          box-sizing: border-box; 
-          overflow: hidden;
         }
         .a5-front-glow {
           position: absolute; inset: 0;
@@ -246,11 +238,6 @@ export default function LeafletA5({ data }: Props) {
         .a5-back {
           background: #fff;
           padding: 10mm 10mm;
-          display: flex;
-          flex-direction: column;
-          height: 100%;           
-          box-sizing: border-box; 
-          overflow: hidden;
         }
         .a5-sec { margin-bottom: 3mm; }
         .a5-sec-title {
@@ -379,20 +366,12 @@ export default function LeafletA5({ data }: Props) {
           line-height: 1.4;
         }
 
-.a5-front-inner,
-.a5-back-inner {
-  width: calc(100% / 0.9);
-  height: calc(100% / 0.9);
-  transform: scale(0.9);
-  transform-origin: top left;
-}
-
         @media print {
-  @page {
-    size: 148mm 210mm;  /* A5タテ */
-    margin: 0;
-  }
-}
+          @page {
+            size: 148mm 210mm;
+            margin: 0;
+          }
+        }
       `}</style>
     </>
   );
