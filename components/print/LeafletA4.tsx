@@ -15,6 +15,7 @@ export default function LeafletA4({ data }: Props) {
     <>
       {/* ========== 表 ========== */}
       <section className="p-page a4-page a4-front">
+        <div className="a4-front-inner">
         <div className="a4-front-glow" />
         <div className="a4-front-top">
           <div className="a4-logo-row">
@@ -71,6 +72,7 @@ export default function LeafletA4({ data }: Props) {
 
       {/* ========== 裏 ========== */}
       <section className="p-page a4-page a4-back">
+        <div className="a4-back-inner">
         <div className="a4-back-head">
           <h2>「喜んで頂ける」を、<span className="accent">仕組み</span>にする。</h2>
           <p>良いサービス・商品が軸にあるのは大前提。それを伝える「仕組み」が、お客様との関係を強くします。</p>
@@ -257,6 +259,9 @@ export default function LeafletA4({ data }: Props) {
           background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
           color: #fff;
           padding: 22mm 20mm;
+          height: 100%;           
+          box-sizing: border-box; 
+          overflow: hidden;
         }
         .a4-front-glow {
           position: absolute; inset: 0;
@@ -317,8 +322,9 @@ export default function LeafletA4({ data }: Props) {
           padding: 13mm 15mm;
           display: flex;
           flex-direction: column;
-          height: 100%;
-          box-sizing: border-box;
+          height: 100%;           
+          box-sizing: border-box; 
+          overflow: hidden;
         }
         .a4-back-head {
           padding-bottom: 3.5mm;
@@ -582,6 +588,20 @@ export default function LeafletA4({ data }: Props) {
           color: #ff4500;
           letter-spacing: 0.3px;
         }
+        .a4-front,
+.a4-back {
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.a4-front-inner,
+.a4-back-inner {
+  width: calc(100% / 0.95);
+  height: calc(100% / 0.95);
+  transform: scale(0.95);
+  transform-origin: top left;
+}
         @media print {
   @page {
     size: 210mm 297mm;  /* A4タテ */
