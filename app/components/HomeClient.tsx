@@ -399,7 +399,7 @@ export default function HomeClient() {
 
           <p className="rain-lead reveal">
             日頃から<strong>仕組みを作る</strong>ことで、「行く理由」ができるんです。<br />
-            雨だから仕事に行くのをやめよう、とはならないように——<br />
+            雨だからコンサート行くのやめよう、仕事に行くのをやめよう、とはならないように——<br />
             <strong>そこに得する理由や楽しみがあれば、人は雨でも動きます。</strong>
           </p>
 
@@ -417,7 +417,7 @@ export default function HomeClient() {
               でもクーポンは<strong>受け身</strong>。サイトや来店で知ってもらうしか、伝える手段がない。
             </p>
             <p>
-              それを、<strong>メルマガの6倍の開封率</strong>を持つプッシュ通知で、<strong>動的に仕組み化</strong>する。
+              それを、<strong>メルマガの10倍の開封率</strong>を持つプッシュ通知で、<strong>動的に仕組み化</strong>する。
               お店に必要な機能だけを、自由に組み合わせて使えます。
             </p>
           </div>
@@ -437,13 +437,13 @@ export default function HomeClient() {
 
           <div className="feature-grid-11">
             {[
-              { ico: '📢', name: 'プッシュ通知', badges: ['all'], desc: 'お客様全員へ一斉配信。iPhone・Android・PC対応。メルマガの6倍の開封率。' },
+              { ico: '📢', name: 'プッシュ通知', badges: ['all'], desc: 'お客様全員へ一斉配信。iPhone・Android・PC対応。メルマガの10倍の開封率。' },
               { ico: '📱', name: 'QRコード登録', badges: ['all'], desc: '店頭POPに置くだけ。お客様はQRを読み取るだけ。アプリ不要で通知登録。' },
               { ico: '🎫', name: '初回クーポン', badges: ['all'], desc: '登録と同時に自動配布。新規顧客獲得と1回目の来店を促す。' },
-              { ico: '🎟️', name: '通常クーポン', badges: ['std', 'pro'], desc: '登録者が何度でも使える、常設クーポン。会員特典として運用。' },
+              { ico: '🎟️', name: '通常クーポン', badges: ['std', 'pro'], desc: '常設クーポン。会員特典として運用。' },
               { ico: '🏆', name: '特別達成クーポン', badges: ['std', 'pro'], desc: '指定回数クーポンを使うと、特別クーポンが出現する仕組み。' },
               { ico: '📊', name: '開封率の確認', badges: ['std', 'pro'], desc: '配信ごとの開封率を数値で確認。施策のPDCAを回せる。' },
-              { ico: '🐾', name: 'ステップアップクーポン', badges: ['pro'], desc: '来店ごとに、段階的に特典アップ。最大10段階まで設計可能。' },
+              { ico: '🐾', name: 'ステップアップクーポン', badges: ['pro'], desc: '来店ごとに、使うと次のステップに。最大10段階まで設計可能。' },
               { ico: '🔄', name: '連続クーポン', badges: ['pro'], desc: '消込と同時に、次回分のクーポンを自動発行。来店サイクルを短縮。' },
               { ico: '🎂', name: '記念日・誕生日クーポン', badges: ['pro'], desc: '年1回の特別な日に、自動でお祝いクーポンを配信。' },
               { ico: '💤', name: '休眠復活クーポン', badges: ['pro'], desc: '最終来店からN日経過した顧客に、自動で復帰クーポン。' },
@@ -535,7 +535,7 @@ export default function HomeClient() {
                     <div className="phone-coupon phone-coupon-normal">
                       <span className="phone-coupon-badge is-green">通常クーポン</span>
                       <div className="phone-coupon-title">🎟️ 会員様 10%OFF</div>
-                      <div className="phone-coupon-desc">いつでも何度でもご利用いただけます</div>
+                      <div className="phone-coupon-desc">いつでもご利用いただけます</div>
                       <div className="phone-coupon-qr">
                         <svg width="80" height="80" viewBox="0 0 21 21">
                           <rect width="21" height="21" fill="#fff"/>
@@ -698,7 +698,7 @@ export default function HomeClient() {
           <div className="section-header reveal">
             <span className="section-tag">Coupon System</span>
             <h2>7種類のクーポンで、来店サイクルを完全に設計</h2>
-            <p>「初回来店 → 習慣化 → ファン化 → 休眠復活」まで、すべてのフェーズに最適化されたクーポンを自動配信できます。</p>
+            <p>「初回来店 → 習慣化 → ファン化 → 休眠復活」まで、すべてのフェーズに最適化されたクーポンを配信できます。</p>
           </div>
 
           <div className="coupon-grid">
@@ -726,7 +726,7 @@ export default function HomeClient() {
                 </svg>
               </div>
               <h3>通常クーポン</h3>
-              <p>登録者全員が何度でも使える常設クーポン。LINE公式のような「友だち特典」をWebプッシュ通知で実現します。</p>
+              <p>登録者全員が使える常設クーポン。LINE公式のような「友だち特典」をWebプッシュ通知で実現します。</p>
               <span className="coupon-plan-tag">STANDARD / PRO</span>
             </div>
 
@@ -786,8 +786,8 @@ export default function HomeClient() {
                   <circle cx="17" cy="19" r="0.8" fill="#3b82f6" />
                 </svg>
               </div>
-              <h3>誕生日クーポン</h3>
-              <p>顧客の生年月日を登録しておくだけで、誕生日当日に自動でお祝い通知。特別感でファン化を加速させます。</p>
+              <h3>記念日、誕生日クーポン</h3>
+              <p>顧客の記念日や誕生日の月日を登録しておくだけで、誕生日当日に自動でお祝い通知。特別感でファン化を加速させます。</p>
               <span className="coupon-plan-tag">PRO ONLY</span>
             </div>
 
@@ -802,7 +802,7 @@ export default function HomeClient() {
                 </svg>
               </div>
               <h3>休眠復活クーポン</h3>
-              <p>「最終来店から60日経過した顧客」を自動抽出し、特別な復帰クーポンを配信。離反顧客の呼び戻しを仕組み化。</p>
+              <p>「最終来店から指定した日にちを経過した顧客」を自動抽出し、特別な復帰クーポンを配信。離反顧客の呼び戻しを仕組み化。</p>
               <span className="coupon-plan-tag">PRO ONLY</span>
             </div>
           </div>
@@ -880,7 +880,7 @@ export default function HomeClient() {
                 </svg>
               </div>
               <h4>通知を送信</h4>
-              <p>「雨の日割引」「新商品入荷」など、タイミングに合わせてプッシュ通知を送信。</p>
+              <p>「今日の日替わりランチ！」「新商品入荷」など、タイミングに合わせてプッシュ通知を送信。</p>
             </div>
           </div>
         </div>
@@ -939,11 +939,11 @@ export default function HomeClient() {
               <span className="ba-label before">BEFORE</span>
               <h3>導入前の店舗運営</h3>
               <div className="ba-list">
-                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#fecaca" /><path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" /></svg><span>チラシ・DMで集客するも、反応率が読めない</span></div>
-                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#fecaca" /><path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" /></svg><span>顧客名簿はExcelや紙でバラバラ管理</span></div>
+                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#fecaca" /><path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" /></svg><span>集客が新規も既存客も同じ仕組みの呼び込み</span></div>
+                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#fecaca" /><path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" /></svg><span>既存客への特別措置が手薄</span></div>
                 <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#fecaca" /><path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" /></svg><span>誕生日・休眠客への施策は手作業 or 未実施</span></div>
                 <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#fecaca" /><path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" /></svg><span>クーポン配布のたびにスタッフが手間を取られる</span></div>
-                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#fecaca" /><path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" /></svg><span>施策のPDCAが回らず、改善のサイクルが遅い</span></div>
+                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#fecaca" /><path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" /></svg><span>大切な既存客への施策が思うようにできない</span></div>
               </div>
               <div className="ba-metric">
                 <div className="ba-metric-value" style={{ fontSize: '17px', letterSpacing: 0, color: '#dc2626', fontWeight: 900, lineHeight: 1.4 }}>
@@ -963,11 +963,11 @@ export default function HomeClient() {
               <span className="ba-label after">AFTER</span>
               <h3>Push-taro導入後</h3>
               <div className="ba-list">
-                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#bbf7d0" /><path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>QRコードで顧客獲得が自動化・数値で見える化</span></div>
-                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#bbf7d0" /><path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>顧客情報を一元管理、セグメント配信が可能</span></div>
+                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#bbf7d0" /><path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>QRコードで勝手に既存客が登録</span></div>
+                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#bbf7d0" /><path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>既存客への特別配信が可能</span></div>
                 <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#bbf7d0" /><path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>誕生日・休眠復活クーポンが全自動で配信</span></div>
                 <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#bbf7d0" /><path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>QR読み取りで消込完了、スタッフの負担ゼロ</span></div>
-                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#bbf7d0" /><path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>ダッシュボードでPDCAが高速に回る</span></div>
+                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#bbf7d0" /><path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>思い通りの独自の施策が簡単に実現</span></div>
               </div>
               <div className="ba-metric">
                 <div className="ba-metric-value" style={{ fontSize: '17px', letterSpacing: 0, color: '#16a34a', fontWeight: 900, lineHeight: 1.4 }}>
@@ -1181,7 +1181,7 @@ export default function HomeClient() {
                   </svg>
                   飲食店・カフェ
                 </span>
-                <span className="usecase-plan">STANDARD</span>
+                <span className="usecase-plan">ALL PLAN</span>
               </div>
               <div className="usecase-body">
                 <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>毎日配信で顧客を取り込む</div>
@@ -1233,7 +1233,7 @@ export default function HomeClient() {
                   </svg>
                   アパレル・雑貨
                 </span>
-                <span className="usecase-plan">STANDARD</span>
+                <span className="usecase-plan">PRO</span>
               </div>
               <div className="usecase-body">
                 <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>クーポン活用で来店を増やす</div>
