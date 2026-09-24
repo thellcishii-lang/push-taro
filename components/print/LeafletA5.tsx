@@ -373,6 +373,7 @@ export default function LeafletA5({ data }: Props) {
     size: 148mm 210mm;  /* A5タテ */
     margin: 0;
   }
+}
       `}</style>
     </>
   );
