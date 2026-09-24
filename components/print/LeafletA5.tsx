@@ -181,6 +181,9 @@ export default function LeafletA5({ data }: Props) {
           background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
           color: #fff;
           padding: 16mm 13mm;
+          height: 100%;           
+          box-sizing: border-box; 
+          overflow: hidden;
         }
         .a5-front-glow {
           position: absolute; inset: 0;
@@ -241,6 +244,9 @@ export default function LeafletA5({ data }: Props) {
           padding: 10mm 10mm;
           display: flex;
           flex-direction: column;
+          height: 100%;           
+          box-sizing: border-box; 
+          overflow: hidden;
         }
         .a5-sec { margin-bottom: 3mm; }
         .a5-sec-title {
