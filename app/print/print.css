@@ -1,142 +1,148 @@
 /* ============================================================
-   Push-taro 印刷用CSS — PDF入稿版
-   - 塗り足し 3mm 込み
-   - トンボ付き
-   - 各面 = 1ページ
+   印刷プレビュー用CSS
    ============================================================ */
 
-*, *::before, *::after { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; background: #fff; }
+/* 画面表示時のプレビュー枠 */
+.print-wrap {
+  background: #e2e8f0;
+  min-height: 100vh;
+  padding: 0 0 60px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+}
 
-/* ---------- 画面プレビュー枠（PDFには出さない） ---------- */
 .print-toolbar {
-  position: sticky; top: 0; z-index: 100;
+  position: sticky;
+  top: 0;
+  z-index: 100;
   background: #fff;
   border-bottom: 1px solid #cbd5e1;
   padding: 12px 24px;
-  display: flex; justify-content: space-between; align-items: center;
-  gap: 16px; flex-wrap: wrap;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
-.print-toolbar-info strong { font-size: 15px; color: #0f172a; display: block; }
-.print-toolbar-info span   { font-size: 12px; color: #64748b; }
+
+.print-toolbar-info { display: flex; flex-direction: column; gap: 2px; }
+.print-toolbar-info strong { font-size: 15px; color: #0f172a; }
+.print-toolbar-info span { font-size: 12px; color: #64748b; }
+
+.print-toolbar-actions { display: flex; gap: 8px; }
 .print-toolbar-actions button {
-  padding: 9px 18px; border: 1px solid #cbd5e1; background: #fff;
-  border-radius: 6px; font-weight: 700; font-size: 13px; cursor: pointer;
+  padding: 9px 18px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
 }
 .print-toolbar-actions button.primary {
-  background: #ff4500; color: #fff; border-color: #ff4500;
-}
-.print-note {
-  max-width: 900px; margin: 16px auto 0; padding: 12px 18px;
-  background: #fff7ed; border: 1px solid #fdba74; border-radius: 8px;
-  font-size: 13px; color: #9a3412;
+  background: #ff4500;
+  color: #fff;
+  border-color: #ff4500;
 }
 
-.print-wrap {
-  background: #e2e8f0;
-  padding: 32px 16px 60px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-               "Noto Sans JP", sans-serif;
+.print-note {
+  max-width: 900px;
+  margin: 16px auto 0;
+  padding: 12px 18px;
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #9a3412;
 }
+
 .print-doc {
-  display: flex; flex-direction: column; align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 32px;
+  padding: 32px 16px;
 }
 
 /* ============================================================
-   ページ本体：塗り足し込みサイズ
+   印刷用ページ
    ============================================================ */
 .p-page {
-  position: relative;
   background: #fff;
+  position: relative;
   overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
   color: #0f172a;
-  box-shadow: 0 8px 32px rgba(0,0,0,.12); /* 画面のみ */
+  margin: 0;
+  padding: 0;
+  /* 各テンプレートで width/height を設定 */
 }
 
-/* 仕上がり線の内側（3mm） */
-.p-page__inner {
+.p-page img,
+.p-page svg,
+.p-page canvas { display: block; max-width: 100%; }
+
+/* 塗り足し領域 */
+.p-bleed {
   position: absolute;
-  inset: 3mm;
-  overflow: hidden;
-}
-
-/* --- 用紙サイズ修飾（塗り足し込み） --- */
-.p-page--a4v { width: 216mm; height: 303mm; }
-.p-page--a5v { width: 154mm; height: 216mm; }
-.p-page--a4h { width: 303mm; height: 216mm; }
-
-/* --- 三つ折り：3パネル --- */
-.p-page--a4h .p-page__inner {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-}
-.p-panel { position: relative; overflow: hidden; }
-
-/* 画面だけ折り位置に点線 */
-@media screen {
-  .p-page--a4h .p-panel + .p-panel {
-    border-left: 0.2mm dashed #cbd5e1;
-  }
+  inset: 0;
 }
 
 /* ============================================================
-   トンボ（塗り足し外側に描く）
+   トンボ（画面上のみ）
    ============================================================ */
 .crop-marks {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 100;
+  z-index: 10;
 }
-.crop-marks .cm {
-  position: absolute;
-  width: 6mm;
-  height: 6mm;
-}
-.crop-marks .cm::before,
-.crop-marks .cm::after {
-  content: "";
-  position: absolute;
-  background: #000;
-}
-/* 横線 */
-.crop-marks .cm::before {
-  width: 6mm; height: 0.15mm; top: 50%; left: 0;
-}
-/* 縦線 */
-.crop-marks .cm::after {
-  width: 0.15mm; height: 6mm; left: 50%; top: 0;
-}
-/* 四隅：仕上がり線の角に配置（= 3mm 内側） */
-.crop-marks .cm--tl { top: 3mm;    left: 3mm;    transform: translate(-50%, -50%); }
-.crop-marks .cm--tr { top: 3mm;    right: 3mm;   transform: translate(50%, -50%); }
-.crop-marks .cm--bl { bottom: 3mm; left: 3mm;    transform: translate(-50%, 50%); }
-.crop-marks .cm--br { bottom: 3mm; right: 3mm;   transform: translate(50%, 50%); }
 
 /* ============================================================
-   PDF生成時：画面UIを消す
+   印刷実行時
    ============================================================ */
 @media print {
-  .print-toolbar,
-  .print-note { display: none !important; }
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    height: auto !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .no-print { display: none !important; }
 
   .print-wrap {
     background: #fff !important;
     padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
   }
+
   .print-doc {
-    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
     gap: 0 !important;
+    display: block !important;
   }
+
   .p-page {
     box-shadow: none !important;
     margin: 0 !important;
-    break-before: page;
+    padding: 0 !important;
+  }
+
+  /* 2枚目以降は必ず新しいページに */
+  .p-page + .p-page {
     page-break-before: always;
+    break-before: page;
   }
-  .p-page:first-child {
-    break-before: auto;
-    page-break-before: auto;
-  }
+
+  .crop-marks { display: none; }
 }
