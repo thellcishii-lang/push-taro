@@ -244,6 +244,7 @@ export default function LeafletA4({ data }: Props) {
             </div>
           </div>
         </div>
+      </div>
       </section>
 
       <style jsx global>{`
@@ -589,12 +590,6 @@ export default function LeafletA4({ data }: Props) {
           color: #ff4500;
           letter-spacing: 0.3px;
         }
-        .a4-front,
-.a4-back {
-  height: 100%;
-  box-sizing: border-box;
-  overflow: hidden;
-}
 
 .a4-front-inner,
 .a4-back-inner {
