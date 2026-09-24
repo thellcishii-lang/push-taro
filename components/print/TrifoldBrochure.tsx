@@ -652,7 +652,7 @@ export default function TrifoldBrochure({ data }: Props) {
           font-size: 11pt; text-align: center;
         }
 
-                /* ========== 内側中：雨の日 + Push-taro（圧縮版） ========== */
+                 /* ========== 内側中：雨の日 + Push-taro（圧縮版） ========== */
         .tf-rain {
           background: linear-gradient(180deg, #f0f9ff 0%, #fff 40%, #fffbf5 100%);
           border-right: 1px dashed #e2e8f0;
