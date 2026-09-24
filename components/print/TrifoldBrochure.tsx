@@ -361,6 +361,7 @@ export default function TrifoldBrochure({ data }: Props) {
           height: 210mm;
           display: grid;
           grid-template-columns: 1fr 1fr 1fr;
+          box-sizing: border-box;
         }
         .tf-panel {
           padding: 12mm 8mm;
@@ -733,55 +734,87 @@ export default function TrifoldBrochure({ data }: Props) {
 
         /* ========== 内側右：機能一覧 ========== */
         .tf-detail {
-          background: linear-gradient(180deg, #fff 0%, #fffbf5 100%);
-          padding: 9mm 7mm;
-        }
-        .tf-detail-tag {
-          display: inline-block;
-          font-size: 7pt; font-weight: 900; letter-spacing: 1.5px;
-          padding: 1.2mm 3mm; border-radius: 10px;
-          background: linear-gradient(135deg, #ff4500, #f97316);
-          color: #fff; margin-bottom: 2.5mm; align-self: flex-start;
-        }
-        .tf-detail-h { font-size: 12pt; font-weight: 900; line-height: 1.35; letter-spacing: -0.4px; margin: 0 0 1.5mm; }
-        .tf-detail-h .accent { color: #ff4500; }
-        .tf-detail-sub { font-size: 7.5pt; color: #64748b; line-height: 1.6; margin: 0 0 3mm; }
-        .tf-detail-list {
-          display: flex; flex-direction: column;
-          gap: 1.3mm; flex: 1; margin-top: 3mm;
-        }
-        .tf-detail-item {
-          background: #fff; border: 1px solid #e2e8f0;
-          border-radius: 6px; padding: 1.6mm 2.2mm;
-          display: grid; grid-template-columns: 6.5mm 1fr;
-          gap: 1.8mm; align-items: flex-start;
-        }
-        .tf-detail-item.is-pro { border-left: 3px solid #ff4500; }
-        .tf-detail-item.is-std { border-left: 3px solid #0284c7; }
-        .tf-detail-item.is-all { border-left: 3px solid #64748b; }
-        .tf-detail-ico { font-size: 12pt; line-height: 1; text-align: center; margin-top: 0.2mm; }
-        .tf-detail-body { min-width: 0; }
-        .tf-detail-name {
-          font-size: 7.8pt; font-weight: 900;
-          color: #0f172a; margin-bottom: 0.4mm;
-          line-height: 1.3;
-          display: flex; align-items: center; gap: 1.2mm; flex-wrap: wrap;
-        }
-        .tf-detail-name .badge {
-          font-size: 4.8pt; font-weight: 900;
-          padding: 0.3mm 1.2mm; border-radius: 5px;
-          color: #fff; letter-spacing: 0.3px;
-        }
-        .tf-detail-name .badge.is-all { background: #64748b; }
-        .tf-detail-name .badge.is-std { background: #0284c7; }
-        .tf-detail-name .badge.is-pro { background: linear-gradient(135deg, #ff4500, #f97316); }
-        .tf-detail-desc { font-size: 6.1pt; color: #64748b; line-height: 1.4; }
+  background: linear-gradient(180deg, #fff 0%, #fffbf5 100%);
+  padding: 8mm 6mm;
+  display: flex;
+  flex-direction: column;
+}
+.tf-detail-tag {
+  display: inline-block;
+  font-size: 7pt; font-weight: 900; letter-spacing: 1.5px;
+  padding: 1.2mm 3mm; border-radius: 10px;
+  background: linear-gradient(135deg, #ff4500, #f97316);
+  color: #fff; margin-bottom: 2.5mm; align-self: flex-start;
+}
+.tf-detail-h {
+  font-size: 13pt; font-weight: 900;
+  line-height: 1.35; letter-spacing: -0.4px;
+  margin: 0 0 1.5mm;
+}
+.tf-detail-h .accent { color: #ff4500; }
+.tf-detail-sub {
+  font-size: 8pt; color: #64748b;
+  line-height: 1.6; margin: 0 0 4mm;
+}
+
+/* ここがポイント：全体を均等配分 */
+.tf-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5mm;
+  flex: 1;
+  justify-content: space-between;   /* ← 均等配分 */
+}
+.tf-detail-item {
+  background: #fff; border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 2mm 2.5mm;
+  display: grid;
+  grid-template-columns: 7mm 1fr;
+  gap: 2mm;
+  align-items: center;              /* ← 中央揃え */
+  flex: 1;                          /* ← 各アイテムを均等に */
+  min-height: 0;
+}
+.tf-detail-item.is-pro { border-left: 3px solid #ff4500; }
+.tf-detail-item.is-std { border-left: 3px solid #0284c7; }
+.tf-detail-item.is-all { border-left: 3px solid #64748b; }
+.tf-detail-ico {
+  font-size: 13pt;
+  line-height: 1;
+  text-align: center;
+}
+.tf-detail-body { min-width: 0; }
+.tf-detail-name {
+  font-size: 8.5pt; font-weight: 900;
+  color: #0f172a; margin-bottom: 0.5mm;
+  line-height: 1.3;
+  display: flex; align-items: center; gap: 1.5mm; flex-wrap: wrap;
+}
+.tf-detail-name .badge {
+  font-size: 5.5pt; font-weight: 900;
+  padding: 0.4mm 1.5mm; border-radius: 5px;
+  color: #fff; letter-spacing: 0.3px;
+}
+.tf-detail-name .badge.is-all { background: #64748b; }
+.tf-detail-name .badge.is-std { background: #0284c7; }
+.tf-detail-name .badge.is-pro { background: linear-gradient(135deg, #ff4500, #f97316); }
+.tf-detail-desc {
+  font-size: 6.8pt; color: #64748b;
+  line-height: 1.4;
+}
          /* 印刷時の用紙サイズを明示（余白ゼロ） */
      @media print {
-       @page {
-         size: 297mm 210mm;  /* 三つ折り = A4ヨコ */
-         margin: 0;
-       }
+  @page {
+    size: 297mm 210mm;
+    margin: 0;
+  }
+  /* ページ全体を紙面いっぱいに */
+  .tf-page {
+    width: 100vw;
+    height: 100vh;
+    min-height: 100vh;
+  }
      }
       `}</style>
     </>
