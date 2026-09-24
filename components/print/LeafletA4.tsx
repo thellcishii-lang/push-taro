@@ -245,6 +245,7 @@ export default function LeafletA4({ data }: Props) {
         .a4-page {
           width: 210mm;
           height: 297mm;
+          page: page-a4v;
           display: flex;
           flex-direction: column;
           box-sizing: border-box;
