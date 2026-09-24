@@ -582,6 +582,12 @@ export default function LeafletA4({ data }: Props) {
           color: #ff4500;
           letter-spacing: 0.3px;
         }
+        @media print {
+  @page {
+    size: 210mm 297mm;  /* A4タテ */
+    margin: 0;
+  }
+}
       `}</style>
     </>
   );
