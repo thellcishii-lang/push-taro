@@ -809,11 +809,15 @@ export default function TrifoldBrochure({ data }: Props) {
     size: 297mm 210mm;
     margin: 0;
   }
-  /* ページ全体を紙面いっぱいに */
+
+  /* 紙面より大きくして、余白を強制的に消す */
   .tf-page {
-    width: 100vw;
-    height: 100vh;
-    min-height: 100vh;
+    width: 303mm !important;
+    height: 216mm !important;
+    min-height: 216mm !important;
+    margin: -3mm !important;   /* 中央に配置するためマイナスオフセット */
+    box-sizing: border-box;
+    overflow: hidden;
   }
      }
       `}</style>
