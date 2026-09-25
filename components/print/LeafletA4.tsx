@@ -241,7 +241,7 @@ export default function LeafletA4({ data }: Props) {
       </section>
 
       <style jsx global>{`
-        /* A4 ページ本体：mm指定のみで高さを確定させる */
+        /* A4 ページ本体 */
         .a4-page {
           width: 210mm;
           height: 297mm;
@@ -257,10 +257,10 @@ export default function LeafletA4({ data }: Props) {
         .a4-front {
           background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
           color: #fff;
-          padding: 22mm 20mm;
-          flex: 1;             
-          min-height: 0;       
-          display: flex;       
+          padding: 18mm 20mm;   /* 22mm→18mm */
+          flex: 1;
+          min-height: 0;
+          display: flex;
           flex-direction: column;
         }
         .a4-front-glow {
@@ -272,7 +272,7 @@ export default function LeafletA4({ data }: Props) {
         .a4-front-top { display: flex; justify-content: space-between; align-items: flex-start; }
         .a4-logo-row { display: flex; align-items: center; gap: 3mm; }
         .a4-logo-mark { width: 13mm; height: 13mm; flex-shrink: 0; }
-        .a4-logo { font-size: 22pt; font-weight: 900; letter-spacing: -0.6px; line-height: 1; }
+        .a4-logo { font-size: 19pt; font-weight: 900; letter-spacing: -0.6px; line-height: 1; }   /* 22→19 */
         .a4-logo span { color: #ff4500; }
         .a4-badge {
           font-size: 8pt; font-weight: 900; letter-spacing: 1px;
@@ -282,34 +282,34 @@ export default function LeafletA4({ data }: Props) {
         }
         .a4-front-mid { flex: 1; display: flex; flex-direction: column; justify-content: center; }
         .a4-lead {
-          font-size: 12pt; color: #fd7e5a; font-weight: 900;
-          letter-spacing: 0.5px; margin-bottom: 7mm;
+          font-size: 10pt; color: #fd7e5a; font-weight: 900;   /* 12→10 */
+          letter-spacing: 0.5px; margin-bottom: 6mm;
           display: flex; align-items: center; gap: 4mm;
         }
         .a4-lead::before { content: ''; width: 10mm; height: 2px; background: #ff4500; display: inline-block; }
-        .a4-catch { font-size: 34pt; font-weight: 900; line-height: 1.3; letter-spacing: -1.6px; margin: 0 0 12mm; }
+        .a4-catch { font-size: 29pt; font-weight: 900; line-height: 1.3; letter-spacing: -1.4px; margin: 0 0 10mm; }  /* 34→29 */
         .a4-catch .accent { color: #fd7e5a; }
-        .a4-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; margin-bottom: 12mm; }
+        .a4-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; margin-bottom: 10mm; }
         .a4-stat {
           background: rgba(255,255,255,0.05);
           border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 12px; padding: 5mm 4mm; text-align: center;
+          border-radius: 12px; padding: 4mm 4mm; text-align: center;
         }
         .a4-stat-num {
-          font-size: 32pt; font-weight: 900; line-height: 0.9; letter-spacing: -1.5px;
+          font-size: 27pt; font-weight: 900; line-height: 0.9; letter-spacing: -1.3px;   /* 32→27 */
           background: linear-gradient(135deg, #ff4500, #fb923c);
           -webkit-background-clip: text; background-clip: text;
           -webkit-text-fill-color: transparent;
         }
-        .a4-stat-num span { font-size: 15pt; margin-left: 1mm; -webkit-text-fill-color: #fd7e5a; }
-        .a4-stat-label { font-size: 9pt; color: #94a3b8; font-weight: 700; margin-top: 2mm; line-height: 1.4; }
+        .a4-stat-num span { font-size: 13pt; margin-left: 1mm; -webkit-text-fill-color: #fd7e5a; }
+        .a4-stat-label { font-size: 8pt; color: #94a3b8; font-weight: 700; margin-top: 1.5mm; line-height: 1.4; }   /* 9→8 */
         .a4-sub {
-          font-size: 13pt; color: #cbd5e1; line-height: 2; margin: 0;
-          padding-top: 8mm; border-top: 1px solid rgba(255,255,255,0.15);
+          font-size: 11pt; color: #cbd5e1; line-height: 1.8; margin: 0;   /* 13,2→11,1.8 */
+          padding-top: 6mm; border-top: 1px solid rgba(255,255,255,0.15);
         }
         .a4-sub strong { color: #fff; font-weight: 900; }
         .a4-front-foot {
-          margin-top: auto; padding-top: 8mm;
+          margin-top: auto; padding-top: 6mm;
           border-top: 1px solid rgba(255,255,255,0.1);
           display: flex; justify-content: space-between; align-items: baseline;
         }
@@ -320,7 +320,7 @@ export default function LeafletA4({ data }: Props) {
         .a4-back {
           background: #fff;
           padding: 13mm 15mm;
-          flex: 1;              
+          flex: 1;
           min-height: 0;
         }
         .a4-back-head {
