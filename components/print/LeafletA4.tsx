@@ -258,6 +258,10 @@ export default function LeafletA4({ data }: Props) {
           background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
           color: #fff;
           padding: 22mm 20mm;
+          flex: 1;             
+          min-height: 0;       
+          display: flex;       
+          flex-direction: column;
         }
         .a4-front-glow {
           position: absolute; inset: 0;
@@ -316,6 +320,8 @@ export default function LeafletA4({ data }: Props) {
         .a4-back {
           background: #fff;
           padding: 13mm 15mm;
+          flex: 1;              
+          min-height: 0;
         }
         .a4-back-head {
           padding-bottom: 3.5mm;
@@ -570,13 +576,6 @@ export default function LeafletA4({ data }: Props) {
           font-size: 7pt;
           color: #ff4500;
           letter-spacing: 0.3px;
-        }
-
-        @media print {
-          @page {
-            size: 210mm 297mm;
-            margin: 0;
-          }
         }
       `}</style>
     </>
