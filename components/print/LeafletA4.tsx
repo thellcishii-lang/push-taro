@@ -244,7 +244,7 @@ export default function LeafletA4({ data }: Props) {
         /* A4 ページ本体：mm指定のみで高さを確定させる */
         .a4-page {
           width: 210mm;
-          height: 297mm;
+          height: 296.5mm;
           page: page-a4v;
           display: flex;
           flex-direction: column;
