@@ -103,9 +103,11 @@
    ============================================================ */
 @media print {
   @page { margin: 0; }
-  @page page-a4v { size: 210mm 297mm; }
-  @page page-a5v { size: 148mm 210mm; }
-  @page page-a4h { size: 297mm 210mm; }
+
+  /* ↓ margin: 0 を named page 側にも必ず書く */
+  @page page-a4v { size: 210mm 297mm; margin: 0; }
+  @page page-a5v { size: 148mm 210mm; margin: 0; }
+  @page page-a4h { size: 297mm 210mm; margin: 0; }
 
   html, body {
     margin: 0 !important;
@@ -136,9 +138,10 @@
     box-shadow: none !important;
     margin: 0 !important;
     padding: 0 !important;
+    /* 追加：念のため outline / border の描画を抑止 */
+    outline: none !important;
   }
 
-  /* 2枚目以降は必ず新しいページに */
   .p-page + .p-page {
     page-break-before: always;
     break-before: page;
