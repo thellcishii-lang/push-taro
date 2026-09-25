@@ -67,35 +67,17 @@ export default function BrandLogo({ className = '' }: BrandLogoProps) {
         <span style={{ color: '#0f172a' }}>Push-taro</span>
         <span style={{ color: '#ff4500', marginLeft: '1px' }}>.</span>
         <small
-          style={{
-            fontSize: '14px',
-            fontWeight: 600,
-            color: '#0f172a',
-            letterSpacing: 0,
-            lineHeight: 1,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '4px',
-            margin: '0 0 0 40px',
-            padding: '4px',
-            border: 0,
-          }}
-          className="brand-logo-tagline"
-        >
-          みんなの
-          <span
-            style={{
-              color: '#ff4500',
-              fontSize: '22px',
-              fontWeight: 900,
-              letterSpacing: '-0.5px',
-              marginLeft: '2px',
-              paddingTop: '6px',
-            }}
-          >
-            プッシュ通知
-          </span>
-        </small>
+  style={{
+    fontSize: '1２px',
+    fontWeight: 600,
+    color: '#64748b',
+    letterSpacing: 0,
+    lineHeight: 1.3,
+    margin: '0 0 0 8px',
+  }}
+>
+  実店舗のためのPush通知CRM
+</small>
       </Link>
     </>
   );
