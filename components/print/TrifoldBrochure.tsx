@@ -827,21 +827,10 @@ export default function TrifoldBrochure({ data }: Props) {
 
         /* 印刷（PDF出力）専用設定 */
         @media print {
-          @page {
-            size: A4 landscape;
-            margin: 0 !important;
-          }
-
-          html, body {
-            width: 297mm !important;
-            height: 100% !important;
-            background: #fff !important;
-          }
-
-          .tf-print-wrapper {
-            width: 297mm !important;
-            display: block !important;
-          }
+          @page page-a4h {
+    size: 297mm 210mm;
+    margin: 0;
+  }
 
           .tf-page {
             width: 297mm !important;
@@ -856,6 +845,8 @@ export default function TrifoldBrochure({ data }: Props) {
             break-after: page !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
+            page: page-a4h !important;    
+            overflow: hidden !important;
           }
         }
       `}</style>
