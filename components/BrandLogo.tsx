@@ -68,7 +68,7 @@ export default function BrandLogo({ className = '' }: BrandLogoProps) {
         <span style={{ color: '#ff4500', marginLeft: '1px' }}>.</span>
         <small
   style={{
-    fontSize: '1２px',
+    fontSize: '11.5px',
     fontWeight: 600,
     color: '#64748b',
     letterSpacing: 0,
