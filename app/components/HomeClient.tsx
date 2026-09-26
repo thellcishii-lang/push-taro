@@ -447,6 +447,117 @@ export default function HomeClient() {
         </div>
       </section>
 
+       {/* ============================================================
+    NEW：ポイント vs クーポン
+============================================================ */}
+<section className="section" id="why-coupon">
+  <div className="container">
+    <div className="section-header reveal">
+      <span className="section-tag">Coupon vs Points</span>
+      <h2>
+        「ポイント5倍」で、<br />
+        お客様は本当に動きますか？
+      </h2>
+      <p>
+        PayPay・クレカ・楽天ポイント——決済ポイントが当たり前の時代。<br />
+        お店独自のポイントカードは、もはや<strong>来店動機になりません</strong>。
+      </p>
+    </div>
+
+    <div className="cvp-compare reveal">
+      {/* ポイント側 */}
+      <div className="cvp-card is-points">
+        <span className="cvp-badge">ポイント</span>
+        <h4>貯めて、あとで使う</h4>
+        <ul className="cvp-list">
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" fill="#fecaca" />
+              <path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            <span>「本日ポイント5倍」→ <strong>その日は何ももらえない</strong></span>
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" fill="#fecaca" />
+              <path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            <span>「あの店はポイントつくから」→ わざわざ行かない</span>
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" fill="#fecaca" />
+              <path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            <span>PayPay・クレカ・楽天…と<strong>競合だらけ</strong></span>
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" fill="#fecaca" />
+              <path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            <span>財布もスマホも<strong>圧迫されるだけ</strong></span>
+          </li>
+        </ul>
+      </div>
+
+      {/* 矢印 */}
+      <div className="cvp-arrow">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+          <path d="M4 12h16M14 6l6 6-6 6" stroke="#ff4500" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
+
+      {/* クーポン側 */}
+      <div className="cvp-card is-coupon">
+        <span className="cvp-badge is-coupon">クーポン</span>
+        <h4>今すぐ、その場で使える</h4>
+        <ul className="cvp-list">
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" fill="#bbf7d0" />
+              <path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span>「本日から使えるクーポン」→ <strong>今日の会計が安くなる</strong></span>
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" fill="#bbf7d0" />
+              <path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span>「期限は今日まで」→ <strong>来店動機が生まれる</strong></span>
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" fill="#bbf7d0" />
+              <path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span><strong>決済ポイントと併用可能</strong>（ダブルでおトク）</span>
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" fill="#bbf7d0" />
+              <path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span>アプリ不要、<strong>QR1つで完結</strong></span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div className="cvp-conclusion reveal">
+      <h3>
+        お客様は、決済アプリでポイントを貯めつつ、<br />
+        Push-taroのクーポンで<strong>今夜の特典</strong>を受け取る。
+      </h3>
+      <p>
+        この「ダブルでおトク」な体験を、アプリのインストール不要で、<br />
+        QRコードを読み込むだけで提供できるのが、Push-taro です。
+      </p>
+    </div>
+  </div>
+</section>
+
       {/* ============================================================
           RAIN「雨の日」に、プッシュ通知は効きません
       ============================================================ */}
