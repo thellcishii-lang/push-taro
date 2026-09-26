@@ -143,7 +143,7 @@ export default function HomeClient() {
         <div className="hero-inner">
           <div className="hero-badge">
             <span className="dot"></span>
-            2026年9月 正式リリース予定・先行登録受付中
+            2026年9月 正式リリース・先行登録受付中
           </div>
           <h1>
             既存客のリピートを、<br />
@@ -206,7 +206,7 @@ export default function HomeClient() {
       <span className="section-tag">Real Knowledge × 35 Years</span>
       <h2>
         シニアナレッジマネージャーが<br />
-        35年の現場経験から導き出した、<br />
+        25年の現場経験から導き出した、<br />
         実店舗のための「本当に人が動く」システム。
       </h2>
       <p>
@@ -222,7 +222,7 @@ export default function HomeClient() {
         </p>
         <p>
           毎日10時の日替わりメニュー配信。<br />
-          夜の店の自動ボトル回収。<br />
+          夜のお店のボトルプッシュ。<br />
           「本日30個限定」の数量限定告知。
         </p>
         <p>
@@ -455,7 +455,7 @@ export default function HomeClient() {
     <div className="section-header reveal">
       <span className="section-tag">Real Use Cases</span>
       <h2>
-        35年の経験から生まれた、<br />
+        25年の経験から生まれた、<br />
         「本当に人が動く」施策ノウハウ
       </h2>
       <p>
@@ -470,7 +470,7 @@ export default function HomeClient() {
         <p>
           ランチ激戦区では、午前10時に日替わりメニューを配信するだけで、
           お客様の頭の中は今日のランチでいっぱいに。
-          「以前食べて気に入ったメニュー」なら、行きたくなる。
+          「以前食べて気に入ったメニュー」なら、さらに行きたくなる。
         </p>
       </div>
 
@@ -486,10 +486,10 @@ export default function HomeClient() {
 
       <div className="know-how-card tilt-in" style={{ transitionDelay: '0.16s' }}>
         <span className="know-how-badge">スナック・居酒屋</span>
-        <h3>夜の店の「自動ボトル回収」</h3>
+        <h3>夜の店の「ボトルプッシュ」</h3>
         <p>
-          常連客のボトルが空くタイミングで、自動でプッシュ通知。
-          「そろそろ新しいボトル入れませんか？」——
+          ビール１杯では今は惹きつけられない。
+          「本日、焼酎ボトル１本サービス！！」——
           現場の心理を突いた仕組み。
         </p>
       </div>
@@ -527,7 +527,7 @@ export default function HomeClient() {
 
     <div className="know-how-conclusion reveal">
       <p>
-        これらはすべて、<strong>シニアナレッジマネージャーが35年の現場経験から導き出した</strong>、<br />
+        これらはすべて、<strong>シニアナレッジマネージャーが25年の現場経験から導き出した</strong>、<br />
         実店舗で本当に効果が出る施策だけを厳選したものです。
       </p>
     </div>
