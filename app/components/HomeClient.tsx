@@ -237,7 +237,7 @@ export default function HomeClient() {
 
       <div className="story-flow reveal-right">
         <div className="story-step">
-          <div className="story-step-num">35</div>
+          <div className="story-step-num">25</div>
           <div className="story-step-text">
             <strong>年のビジネス管理・店舗経営の現場経験</strong>
             <span>机上の空論ではない、泥臭いリアル</span>
