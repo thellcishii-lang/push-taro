@@ -447,6 +447,93 @@ export default function HomeClient() {
         </div>
       </section>
 
+       {/* ============================================================
+    NEW：現場ノウハウ具体例
+============================================================ */}
+<section className="section section-alt" id="know-how">
+  <div className="container">
+    <div className="section-header reveal">
+      <span className="section-tag">Real Use Cases</span>
+      <h2>
+        35年の経験から生まれた、<br />
+        「本当に人が動く」施策ノウハウ
+      </h2>
+      <p>
+        机上の空論ではない、現場で実際に効果が出た具体例をご紹介します。
+      </p>
+    </div>
+
+    <div className="know-how-grid">
+      <div className="know-how-card tilt-in" style={{ transitionDelay: '0s' }}>
+        <span className="know-how-badge">飲食店・カフェ</span>
+        <h3>毎日10時の「日替わりランチ」配信</h3>
+        <p>
+          ランチ激戦区では、午前10時に日替わりメニューを配信するだけで、
+          お客様の頭の中は今日のランチでいっぱいに。
+          「以前食べて気に入ったメニュー」なら、行きたくなる。
+        </p>
+      </div>
+
+      <div className="know-how-card tilt-in" style={{ transitionDelay: '0.08s' }}>
+        <span className="know-how-badge">パン屋・ケーキ屋</span>
+        <h3>本日30個限定「生チョコ食パン15時から」</h3>
+        <p>
+          季節メニューやテスト新商品を、数量限定で告知。
+          メニュー開発の人気度チェックにも使える。
+          LIGHT / STANDARDプランでも十分効果が出る。
+        </p>
+      </div>
+
+      <div className="know-how-card tilt-in" style={{ transitionDelay: '0.16s' }}>
+        <span className="know-how-badge">スナック・居酒屋</span>
+        <h3>夜の店の「自動ボトル回収」</h3>
+        <p>
+          常連客のボトルが空くタイミングで、自動でプッシュ通知。
+          「そろそろ新しいボトル入れませんか？」——
+          現場の心理を突いた仕組み。
+        </p>
+      </div>
+
+      <div className="know-how-card tilt-in" style={{ transitionDelay: '0.24s' }}>
+        <span className="know-how-badge">自動車整備・スタンド</span>
+        <h3>「車検はいくら」を毎週配信</h3>
+        <p>
+          毎日では多すぎるが、毎週なら記憶に残る。
+          「あそこは安いな」と思ってもらえれば、
+          車検時期に真っ先に思い出される。
+        </p>
+      </div>
+
+      <div className="know-how-card tilt-in" style={{ transitionDelay: '0.32s' }}>
+        <span className="know-how-badge">全業種共通</span>
+        <h3>年間9回のキャンペーン設計</h3>
+        <p>
+          マクドナルド式の「定番メニュー + 季節メニュー」。
+          1年を4半期に分け、年末年始・バレンタイン・GW・ハロウィン・クリスマスを
+          被らないように配置。
+        </p>
+      </div>
+
+      <div className="know-how-card tilt-in" style={{ transitionDelay: '0.4s' }}>
+        <span className="know-how-badge">全業種共通</span>
+        <h3>「週2回まで」の黄金律</h3>
+        <p>
+          プッシュ通知は毎日送ると、お客様に通知OFFにされる。
+          週2回までが適正頻度。
+          この「配信頻度の常識」も、35年の経験から導き出された結論。
+        </p>
+      </div>
+    </div>
+
+    <div className="know-how-conclusion reveal">
+      <p>
+        これらはすべて、<strong>シニアナレッジマネージャーが35年の現場経験から導き出した</strong>、<br />
+        実店舗で本当に効果が出る施策だけを厳選したものです。
+      </p>
+    </div>
+  </div>
+</section>
+
       {/* ============================================================
           RAIN「雨の日」に、プッシュ通知は効きません
       ============================================================ */}
