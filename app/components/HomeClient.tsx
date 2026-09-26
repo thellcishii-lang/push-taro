@@ -103,7 +103,7 @@ export default function HomeClient() {
             <a href="#philosophy">思想</a>
             <a href="#features">機能</a>
             <a href="#pricing">料金</a>
-            <a href="#programs">収益化</a>
+            <a href="#partners">収益化</a>
             <a href="#faq">FAQ</a>
             <a href="/signup" className="nav-cta">
               今すぐ始める
@@ -1071,9 +1071,9 @@ export default function HomeClient() {
       </section>
 
       {/* ============================================================
-          REVENUE PROGRAMS
+          REVENUE PARTNERS
       ============================================================ */}
-      <section className="section section-dark" id="programs">
+      <section className="section section-dark" id="partners">
         <div className="container">
           <div className="section-header reveal">
             <span className="section-tag">Revenue Programs</span>
