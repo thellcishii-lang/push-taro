@@ -197,6 +197,81 @@ export default function HomeClient() {
         </div>
       </section>
 
+       {/* ============================================================
+    NEW：シニアナレッジマネージャーのストーリー
+============================================================ */}
+<section className="section story-section" id="story">
+  <div className="container">
+    <div className="section-header reveal">
+      <span className="section-tag">Real Knowledge × 35 Years</span>
+      <h2>
+        シニアナレッジマネージャーが<br />
+        35年の現場経験から導き出した、<br />
+        実店舗のための「本当に人が動く」システム。
+      </h2>
+      <p>
+        世の中の小難しいマーケティングツールに、現場のオーナーは疲弊しています。
+      </p>
+    </div>
+
+    <div className="story-wrap">
+      <div className="story-text reveal">
+        <p>
+          Push-taro は、長年のビジネス管理と店舗経営のリアルを、
+          <strong>システムに落とし込みました</strong>。
+        </p>
+        <p>
+          毎日10時の日替わりメニュー配信。<br />
+          夜の店の自動ボトル回収。<br />
+          「本日30個限定」の数量限定告知。
+        </p>
+        <p>
+          現場が<strong>「明日からすぐ使えて、確実に売上に繋がる」</strong>仕組みだけを厳選して設計。
+          データではなく、<strong>「人間の行動心理」</strong>をナレッジ化した仕組みです。
+        </p>
+        <div className="story-quote">
+          きれいごとのITツールに、<br />
+          騙されていませんか？
+        </div>
+      </div>
+
+      <div className="story-flow reveal-right">
+        <div className="story-step">
+          <div className="story-step-num">35</div>
+          <div className="story-step-text">
+            <strong>年のビジネス管理・店舗経営の現場経験</strong>
+            <span>机上の空論ではない、泥臭いリアル</span>
+          </div>
+        </div>
+        <div className="story-arrow">↓</div>
+        <div className="story-step">
+          <div className="story-step-num">📋</div>
+          <div className="story-step-text">
+            <strong>店舗心理と運用プロセスをナレッジ化</strong>
+            <span>「どう送ればリピートされるか」の設計図</span>
+          </div>
+        </div>
+        <div className="story-arrow">↓</div>
+        <div className="story-step">
+          <div className="story-step-num">⚙️</div>
+          <div className="story-step-text">
+            <strong>システムに実装、機能として厳選</strong>
+            <span>必要な機能だけを、迷わず使える形に</span>
+          </div>
+        </div>
+        <div className="story-arrow">↓</div>
+        <div className="story-step is-final">
+          <div className="story-step-num">🎯</div>
+          <div className="story-step-text">
+            <strong>現場が「明日から使える」リピーター獲得システム</strong>
+            <span>売上に直結する仕組みだけを標準搭載</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
       {/* ============================================================
           PHILOSOPHY「喜んで頂ける」を、仕組みにする
       ============================================================ */}
