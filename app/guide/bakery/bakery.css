@@ -1,0 +1,542 @@
+/* app/guide/bakery/bakery.css */
+.bakery-page {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+  color: #1e293b;
+  background: #f8fafc;
+  line-height: 1.7;
+}
+.bakery-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ナビ */
+.bakery-nav {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.bakery-nav-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.bakery-logo {
+  font-size: 20px;
+  font-weight: 900;
+  color: #0f172a;
+  text-decoration: none;
+}
+.bakery-logo span { color: #ff4500; }
+.bakery-nav-back {
+  font-size: 13px;
+  color: #64748b;
+  text-decoration: none;
+  font-weight: 700;
+}
+.bakery-nav-back:hover { color: #ff4500; }
+
+/* ヒーロー */
+.bakery-hero {
+  background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
+  color: #fff;
+  padding: 80px 24px 72px;
+  text-align: center;
+}
+.bakery-badge {
+  display: inline-block;
+  background: rgba(255,69,0,0.15);
+  color: #fd7e5a;
+  border: 1px solid rgba(255,69,0,0.35);
+  padding: 7px 18px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+.bakery-hero h1 {
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 900;
+  letter-spacing: -1.5px;
+  line-height: 1.15;
+  margin-bottom: 20px;
+}
+.bakery-lead {
+  font-size: 17px;
+  color: #cbd5e1;
+  max-width: 640px;
+  margin: 0 auto;
+  line-height: 1.9;
+}
+
+/* セクション */
+.bakery-section { padding: 72px 0; }
+.bakery-section-alt { background: #fff; }
+.bakery-section-dark {
+  background: linear-gradient(160deg, #0f172a, #1e293b);
+  color: #fff;
+}
+.bakery-section h2 {
+  font-size: clamp(24px, 3.5vw, 34px);
+  font-weight: 900;
+  letter-spacing: -0.8px;
+  text-align: center;
+  margin-bottom: 16px;
+  color: #0f172a;
+}
+.bakery-section-dark h2 { color: #fff; }
+.bakery-tag {
+  display: inline-block;
+  background: #fff7ed;
+  color: #ff4500;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  text-align: center;
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+.bakery-subtitle {
+  text-align: center;
+  color: #64748b;
+  font-size: 15px;
+  margin-bottom: 48px;
+}
+.bakery-subtitle-light { color: #94a3b8; }
+
+/* 2カラム */
+.bakery-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+  margin-top: 40px;
+}
+.bakery-text h3 {
+  font-size: 18px;
+  font-weight: 900;
+  color: #0f172a;
+  margin: 24px 0 10px;
+}
+.bakery-text h3:first-child { margin-top: 0; }
+.bakery-text p {
+  font-size: 14.5px;
+  color: #475569;
+  line-height: 1.9;
+  margin-bottom: 12px;
+}
+.bakery-text strong { color: #0f172a; font-weight: 900; }
+.bakery-highlight {
+  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  border: 2px solid #ff4500;
+  border-radius: 18px;
+  padding: 40px 32px;
+  text-align: center;
+}
+.bakery-highlight-icon {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+.bakery-highlight-text {
+  font-size: 18px;
+  font-weight: 800;
+  color: #7c2d12;
+  line-height: 1.7;
+}
+.bakery-highlight-text strong { color: #ff4500; }
+
+/* ケースカード */
+.bakery-case-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+.bakery-case-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 28px 24px;
+  position: relative;
+}
+.bakery-case-num {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 32px;
+  font-weight: 900;
+  color: #ffedd5;
+  line-height: 1;
+}
+.bakery-case-card h3 {
+  font-size: 17px;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 12px;
+  line-height: 1.4;
+  padding-right: 40px;
+}
+.bakery-case-card > p {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+.bakery-example {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 14px 16px;
+  border-left: 3px solid #ff4500;
+}
+.bakery-example-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #ff4500;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.bakery-example-title {
+  font-size: 13px;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+.bakery-example-body {
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.7;
+}
+
+/* 週次グリッド */
+.bakery-week-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.bakery-week-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 22px 20px;
+  text-align: center;
+}
+.bakery-week-day {
+  display: inline-block;
+  background: #ff4500;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 14px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+.bakery-week-theme {
+  font-size: 15px;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+.bakery-week-card p {
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* 季節リスト */
+.bakery-season-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.bakery-season-item {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+.bakery-season-when {
+  flex-shrink: 0;
+  background: #fff7ed;
+  color: #ff4500;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 8px;
+  min-width: 100px;
+  text-align: center;
+}
+.bakery-season-item h4 {
+  font-size: 16px;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+.bakery-season-item p {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.8;
+  margin: 0;
+  flex: 1;
+}
+.bakery-season-item strong { color: #0f172a; }
+.bakery-note {
+  margin-top: 24px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  border-left: 4px solid #ff4500;
+  border-radius: 0 12px 12px 0;
+  font-size: 14px;
+  color: #7c2d12;
+  line-height: 1.8;
+}
+
+/* ワークフロー */
+.bakery-workflow {
+  background: #fff;
+  border-radius: 18px;
+  padding: 32px 28px;
+  border: 1px solid #e2e8f0;
+}
+.bakery-workflow-step {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.bakery-workflow-num {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff4500, #f97316);
+  color: #fff;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(255,69,0,0.3);
+}
+.bakery-workflow-step.is-final .bakery-workflow-num {
+  background: #16a34a;
+  box-shadow: 0 4px 12px rgba(22,163,74,0.3);
+}
+.bakery-workflow-step strong {
+  font-size: 14.5px;
+  font-weight: 900;
+  color: #0f172a;
+  display: block;
+  margin-bottom: 2px;
+}
+.bakery-workflow-step p {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 0;
+}
+.bakery-workflow-arrow {
+  text-align: center;
+  color: #ff4500;
+  font-weight: 900;
+  font-size: 18px;
+  margin: 6px 0;
+}
+
+/* タイムライン */
+.bakery-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.bakery-timeline-item {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 20px;
+  position: relative;
+  padding-bottom: 32px;
+}
+.bakery-timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 39px;
+  top: 40px;
+  bottom: 0;
+  width: 2px;
+  background: rgba(255,69,0,0.3);
+}
+.bakery-timeline-item:last-child::before { display: none; }
+.bakery-timeline-time {
+  font-size: 16px;
+  font-weight: 900;
+  color: #fd7e5a;
+  text-align: center;
+  padding-top: 8px;
+}
+.bakery-timeline-content {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 18px 22px;
+}
+.bakery-timeline-content h4 {
+  font-size: 15px;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.bakery-timeline-content p {
+  font-size: 13.5px;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.7;
+}
+
+/* 黄金律 */
+.bakery-rule-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  margin-top: 40px;
+}
+.bakery-rule-card {
+  background: linear-gradient(180deg, #fff7ed 0%, #fff 100%);
+  border: 2px solid #ffedd5;
+  border-radius: 16px;
+  padding: 32px 26px;
+  text-align: center;
+}
+.bakery-rule-num {
+  font-size: 40px;
+  font-weight: 900;
+  color: #ff4500;
+  line-height: 1;
+  letter-spacing: -2px;
+  margin-bottom: 12px;
+}
+.bakery-rule-card h3 {
+  font-size: 17px;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+.bakery-rule-card p {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* FAQ */
+.bakery-faq {
+  max-width: 720px;
+  margin: 32px auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.bakery-faq-item {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.bakery-faq-item[open] { border-color: #ff4500; }
+.bakery-faq-item summary {
+  padding: 18px 24px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.bakery-faq-item summary::-webkit-details-marker { display: none; }
+.bakery-faq-item summary::after {
+  content: '＋';
+  color: #ff4500;
+  font-weight: 900;
+  font-size: 18px;
+}
+.bakery-faq-item[open] summary::after { content: '−'; }
+.bakery-faq-item > p {
+  padding: 0 24px 20px;
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.85;
+  margin: 0;
+}
+
+/* CTA */
+.bakery-cta {
+  background: linear-gradient(160deg, #0f172a, #1e293b);
+  padding: 80px 24px;
+  text-align: center;
+  color: #fff;
+}
+.bakery-cta h2 {
+  font-size: clamp(24px, 3.5vw, 34px);
+  font-weight: 900;
+  letter-spacing: -0.8px;
+  margin-bottom: 16px;
+}
+.bakery-cta > .bakery-container > p {
+  font-size: 15px;
+  color: #94a3b8;
+  margin-bottom: 32px;
+}
+.bakery-cta-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.bakery-cta-btn {
+  display: inline-block;
+  padding: 15px 36px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 15px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.bakery-cta-btn.primary {
+  background: linear-gradient(135deg, #ff4500, #f97316);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(255,69,0,0.4);
+}
+.bakery-cta-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(255,69,0,0.5);
+}
+.bakery-cta-btn.outline {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.bakery-cta-btn.outline:hover { background: rgba(255,255,255,0.15); }
+
+/* レスポンシブ */
+@media (max-width: 768px) {
+  .bakery-two-col { grid-template-columns: 1fr; gap: 32px; }
+  .bakery-timeline-item { grid-template-columns: 60px 1fr; gap: 14px; }
+  .bakery-timeline-item::before { left: 29px; }
+  .bakery-season-item { flex-direction: column; gap: 12px; }
+  .bakery-season-when { min-width: auto; }
+}
