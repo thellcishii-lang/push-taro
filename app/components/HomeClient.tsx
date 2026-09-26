@@ -203,7 +203,7 @@ export default function HomeClient() {
 <section className="section story-section" id="story">
   <div className="container">
     <div className="section-header reveal">
-      <span className="section-tag">Real Knowledge × 35 Years</span>
+      <span className="section-tag">Real Knowledge × 25 Years</span>
       <h2>
         シニアナレッジマネージャーが<br />
         25年の現場経験から導き出した、<br />
