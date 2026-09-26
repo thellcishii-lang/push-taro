@@ -447,93 +447,6 @@ export default function HomeClient() {
         </div>
       </section>
 
-       {/* ============================================================
-    NEW：現場ノウハウ具体例
-============================================================ */}
-<section className="section section-alt" id="know-how">
-  <div className="container">
-    <div className="section-header reveal">
-      <span className="section-tag">Real Use Cases</span>
-      <h2>
-        25年の経験から生まれた、<br />
-        「本当に人が動く」施策ノウハウ
-      </h2>
-      <p>
-        机上の空論ではない、現場で実際に効果が出た具体例をご紹介します。
-      </p>
-    </div>
-
-    <div className="know-how-grid">
-      <div className="know-how-card tilt-in" style={{ transitionDelay: '0s' }}>
-        <span className="know-how-badge">飲食店・カフェ</span>
-        <h3>毎日10時の「日替わりランチ」配信</h3>
-        <p>
-          ランチ激戦区では、午前10時に日替わりメニューを配信するだけで、
-          お客様の頭の中は今日のランチでいっぱいに。
-          「以前食べて気に入ったメニュー」なら、さらに行きたくなる。
-        </p>
-      </div>
-
-      <div className="know-how-card tilt-in" style={{ transitionDelay: '0.08s' }}>
-        <span className="know-how-badge">パン屋・ケーキ屋</span>
-        <h3>本日30個限定「生チョコ食パン15時から」</h3>
-        <p>
-          季節メニューやテスト新商品を、数量限定で告知。
-          メニュー開発の人気度チェックにも使える。
-          LIGHT / STANDARDプランでも十分効果が出る。
-        </p>
-      </div>
-
-      <div className="know-how-card tilt-in" style={{ transitionDelay: '0.16s' }}>
-        <span className="know-how-badge">スナック・居酒屋</span>
-        <h3>夜の店の「ボトルプッシュ」</h3>
-        <p>
-          ビール１杯では今は惹きつけられない。
-          「本日、焼酎ボトル１本サービス！！」——
-          現場の心理を突いた仕組み。
-        </p>
-      </div>
-
-      <div className="know-how-card tilt-in" style={{ transitionDelay: '0.24s' }}>
-        <span className="know-how-badge">自動車整備・スタンド</span>
-        <h3>「車検はいくら」を毎週配信</h3>
-        <p>
-          毎日では多すぎるが、毎週なら記憶に残る。
-          「あそこは安いな」と思ってもらえれば、
-          車検時期に真っ先に思い出される。
-        </p>
-      </div>
-
-      <div className="know-how-card tilt-in" style={{ transitionDelay: '0.32s' }}>
-        <span className="know-how-badge">全業種共通</span>
-        <h3>年間9回のキャンペーン設計</h3>
-        <p>
-          マクドナルド式の「定番メニュー + 季節メニュー」。
-          1年を4半期に分け、年末年始・バレンタイン・GW・ハロウィン・クリスマスを
-          被らないように配置。
-        </p>
-      </div>
-
-      <div className="know-how-card tilt-in" style={{ transitionDelay: '0.4s' }}>
-        <span className="know-how-badge">全業種共通</span>
-        <h3>「週2回まで」の黄金律</h3>
-        <p>
-          プッシュ通知は毎日送ると、お客様に通知OFFにされる。
-          週2回までが適正頻度。
-          この「配信頻度の常識」も、35年の経験から導き出された結論。
-        </p>
-      </div>
-    </div>
-
-    <div className="know-how-conclusion reveal">
-      <p>
-        これらはすべて、<strong>シニアナレッジマネージャーが25年の現場経験から導き出した</strong>、<br />
-        実店舗で本当に効果が出る施策だけを厳選したものです。
-      </p>
-    </div>
-  </div>
-</section>
-
       {/* ============================================================
           RAIN「雨の日」に、プッシュ通知は効きません
       ============================================================ */}
@@ -1322,94 +1235,149 @@ export default function HomeClient() {
         </div>
       </section>
 
-      {/* ============================================================
-          USE CASES
-      ============================================================ */}
-      <section className="section">
-        <div className="container">
-          <div className="section-header reveal">
-            <span className="section-tag">Use Cases</span>
-            <h2>導入シーン別の活用イメージ</h2>
-            <p>業種を問わず、あらゆる実店舗でご活用いただけます。</p>
-          </div>
+     {/* ============================================================
+    USE CASES（拡張版）
+============================================================ */}
+<section className="section section-alt" id="usecases">
+  <div className="container">
+    <div className="section-header reveal">
+      <span className="section-tag">Real Use Cases × 25 Years</span>
+      <h2>
+        <strong>25年の現場経験</strong>から導き出した、<br />
+        「本当に人が動く」活用ノウハウ
+      </h2>
+      <p>机上の空論ではない、現場で実際に効果が出た具体例をご紹介します。</p>
+    </div>
 
-          <div className="usecase-grid">
-            <div className="usecase-card tilt-in-left" style={{ transitionDelay: '0s' }}>
-              <div className="usecase-header">
-                <span className="usecase-industry">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M5 11h14a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2z" fill="#475569" />
-                    <path d="M3 11l3-6h12l3 6" stroke="#475569" strokeWidth="1.5" strokeLinejoin="round" fill="none" />
-                  </svg>
-                  飲食店・カフェ
-                </span>
-                <span className="usecase-plan">ALL PLAN</span>
-              </div>
-              <div className="usecase-body">
-                <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>毎日配信で顧客を取り込む</div>
-                <p className="usecase-desc">ランチ激戦区では、日替わりランチの今日のメニューを毎日１０時に発信！数量限定なども発信に入れるなど</p>
-              </div>
-            </div>
-
-            <div className="usecase-card tilt-in-right" style={{ transitionDelay: '0.08s' }}>
-              <div className="usecase-header">
-                <span className="usecase-industry">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M8 3v6a4 4 0 004 4v8M12 3v10" stroke="#475569" strokeWidth="2" strokeLinecap="round" />
-                    <circle cx="18" cy="7" r="3" stroke="#475569" strokeWidth="2" fill="none" />
-                    <path d="M21 10c-2 0-3 1-3 3v8" stroke="#475569" strokeWidth="2" strokeLinecap="round" fill="none" />
-                  </svg>
-                  小売店・雑貨屋
-                </span>
-                <span className="usecase-plan">PRO</span>
-              </div>
-              <div className="usecase-body">
-                <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>クーポン活用で来店率を上げる</div>
-                <p className="usecase-desc">連続クーポンとステップアップクーポン、さらに特別達成クーポンで来れば来るほどお得がもらえる仕組みで来店率を上げる。</p>
-              </div>
-            </div>
-
-            <div className="usecase-card tilt-in-left" style={{ transitionDelay: '0.16s' }}>
-              <div className="usecase-header">
-                <span className="usecase-industry">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 3c-2 0-3 2-3 4 0 3 3 5 3 8 0 3-3 5-3 5s5-1 6-4 0-6 0-6 3 1 3 4c0 2-1 4-1 4s3-2 3-6c0-5-4-9-8-9z" fill="#475569" />
-                  </svg>
-                  エステ・リラク
-                </span>
-                <span className="usecase-plan">PRO</span>
-              </div>
-              <div className="usecase-body">
-                <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>クーポン活用で来店を促す</div>
-                <p className="usecase-desc">クーポンについてる期間を設定しステップアップと特別達成の組み合わせで通う動機を楽しみに変える</p>
-              </div>
-            </div>
-
-            <div className="usecase-card tilt-in-right" style={{ transitionDelay: '0.24s' }}>
-              <div className="usecase-header">
-                <span className="usecase-industry">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 3l-2 7h10l-2-7" stroke="#475569" strokeWidth="2" strokeLinejoin="round" fill="none" />
-                    <path d="M4 10h16l-1 10a1 1 0 01-1 1H6a1 1 0 01-1-1L4 10z" fill="#475569" />
-                    <circle cx="9" cy="7" r="1" fill="#475569" />
-                  </svg>
-                  アパレル・雑貨
-                </span>
-                <span className="usecase-plan">PRO</span>
-              </div>
-              <div className="usecase-body">
-                <div className="usecase-title" style={{ fontSize: '17px', marginBottom: '12px' }}>クーポン活用で来店を増やす</div>
-                <p className="usecase-desc">来るだけで、買わなくともステップアップする仕組みを使い、特別クーポンでお得に買える仕組みにする。</p>
-              </div>
-            </div>
-          </div>
-           <div className="section-cta-row">
-            <a href="/guide" className="section-cta-btn outline">
-              📚 活用方法を見てみる
-            </a>
-          </div>
+    <div className="usecase-grid">
+      {/* 飲食店・カフェ */}
+      <div className="usecase-card tilt-in-left" style={{ transitionDelay: '0s' }}>
+        <div className="usecase-header">
+          <span className="usecase-industry">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M5 11h14a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2z" fill="#475569" />
+              <path d="M3 11l3-6h12l3 6" stroke="#475569" strokeWidth="1.5" strokeLinejoin="round" fill="none" />
+            </svg>
+            飲食店・カフェ
+          </span>
+          <span className="usecase-plan">ALL PLAN</span>
         </div>
-      </section>
+        <div className="usecase-body">
+          <div className="usecase-title">毎日10時の「日替わりランチ」配信</div>
+          <p className="usecase-desc">
+            ランチ激戦区では、午前10時に日替わりメニューを配信するだけで、お客様の頭の中は今日のランチでいっぱいに。「以前食べて気に入ったメニュー」なら、さらに行きたくなる。
+          </p>
+        </div>
+      </div>
+
+      {/* パン屋・ケーキ屋 */}
+      <div className="usecase-card tilt-in-right" style={{ transitionDelay: '0.08s' }}>
+        <div className="usecase-header">
+          <span className="usecase-industry">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M8 3v6a4 4 0 004 4v8M12 3v10" stroke="#475569" strokeWidth="2" strokeLinecap="round" />
+              <circle cx="18" cy="7" r="3" stroke="#475569" strokeWidth="2" fill="none" />
+            </svg>
+            パン屋・ケーキ屋
+          </span>
+          <span className="usecase-plan">ALL PLAN</span>
+        </div>
+        <div className="usecase-body">
+          <div className="usecase-title">本日30個限定「生チョコ食パン15時から」</div>
+          <p className="usecase-desc">
+            季節メニューやテスト新商品を数量限定で告知。メニュー開発の人気度チェックにも使える。LIGHT / STANDARDプランでも十分効果が出る。
+          </p>
+        </div>
+      </div>
+
+      {/* スナック・居酒屋 */}
+      <div className="usecase-card tilt-in-left" style={{ transitionDelay: '0.16s' }}>
+        <div className="usecase-header">
+          <span className="usecase-industry">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 3c-2 0-3 2-3 4 0 3 3 5 3 8 0 3-3 5-3 5s5-1 6-4 0-6 0-6 3 1 3 4c0 2-1 4-1 4s3-2 3-6c0-5-4-9-8-9z" fill="#475569" />
+            </svg>
+            スナック・居酒屋
+          </span>
+          <span className="usecase-plan">ALL PLAN</span>
+        </div>
+        <div className="usecase-body">
+          <div className="usecase-title">夜のお店の「ボトルプッシュ」</div>
+          <p className="usecase-desc">
+            ビール1杯では今は惹きつけられない。「本日、焼酎ボトル1本サービス！！」——現場の心理を突いた仕組み。
+          </p>
+        </div>
+      </div>
+
+      {/* 自動車整備 */}
+      <div className="usecase-card tilt-in-right" style={{ transitionDelay: '0.24s' }}>
+        <div className="usecase-header">
+          <span className="usecase-industry">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M9 3l-2 7h10l-2-7" stroke="#475569" strokeWidth="2" strokeLinejoin="round" fill="none" />
+              <path d="M4 10h16l-1 10a1 1 0 01-1 1H6a1 1 0 01-1-1L4 10z" fill="#475569" />
+            </svg>
+            自動車整備・スタンド
+          </span>
+          <span className="usecase-plan">ALL PLAN</span>
+        </div>
+        <div className="usecase-body">
+          <div className="usecase-title">「車検はいくら」を毎週配信</div>
+          <p className="usecase-desc">
+            毎日では多すぎるが、毎週なら記憶に残る。「あそこは安いな」と思ってもらえれば、車検時期に真っ先に思い出される。
+          </p>
+        </div>
+      </div>
+
+      {/* 小売店・エステ */}
+      <div className="usecase-card tilt-in-left" style={{ transitionDelay: '0.32s' }}>
+        <div className="usecase-header">
+          <span className="usecase-industry">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <circle cx="18" cy="7" r="3" stroke="#475569" strokeWidth="2" fill="none" />
+            </svg>
+            小売店・エステ・アパレル
+          </span>
+          <span className="usecase-plan">PRO</span>
+        </div>
+        <div className="usecase-body">
+          <div className="usecase-title">クーポン活用で来店サイクルを設計</div>
+          <p className="usecase-desc">
+            連続クーポン + ステップアップクーポン + 特別達成クーポンを組み合わせ、来れば来るほどお得になる仕組みで来店率を上げる。
+          </p>
+        </div>
+      </div>
+
+      {/* 全業種共通 */}
+      <div className="usecase-card tilt-in-right" style={{ transitionDelay: '0.4s' }}>
+        <div className="usecase-header">
+          <span className="usecase-industry">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="7" height="7" rx="1" fill="#475569" />
+              <rect x="14" y="3" width="7" height="7" rx="1" fill="#475569" />
+              <rect x="3" y="14" width="7" height="7" rx="1" fill="#475569" />
+            </svg>
+            全業種共通
+          </span>
+          <span className="usecase-plan">PRO</span>
+        </div>
+        <div className="usecase-body">
+          <div className="usecase-title">年間9回のキャンペーン設計 + 週2回の黄金律</div>
+          <p className="usecase-desc">
+            マクドナルド式の「定番 + 季節」。1年を4半期に分け、年末年始・バレンタイン・GW・ハロウィン・クリスマスを被らないように配置。プッシュ通知は週2回までが適正頻度。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div className="know-how-conclusion reveal">
+      <p>
+        これらはすべて、<strong>シニアナレッジマネージャーが25年の現場経験から導き出した</strong>、<br />
+        実店舗で本当に効果が出る施策だけを厳選したものです。
+      </p>
+    </div>
+  </div>
+</section>
 
       {/* ============================================================
           SECURITY
