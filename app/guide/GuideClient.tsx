@@ -1,0 +1,156 @@
+'use client';
+
+import Link from 'next/link';
+import BrandLogo from '@/components/BrandLogo';
+import './guide.css';
+
+export default function GuideClient() {
+  return (
+    <>
+      <nav className="g-nav">
+        <div className="g-nav-inner">
+          <BrandLogo />
+          <Link href="/signup" className="g-nav-cta">今すぐ申し込む →</Link>
+        </div>
+      </nav>
+
+      <main className="g-main">
+        <div className="g-hero">
+          <span className="g-badge">Guide</span>
+          <h1>活用ガイド</h1>
+          <p>
+            Push-taroの機能を「どう使うか」から、業種ごとの「具体的な運用」まで、
+            実店舗のリピート施策に必要なノウハウを徹底解説します。
+          </p>
+        </div>
+
+        {/* ① 機能別ガイド */}
+        <section className="g-sec">
+          <div className="g-sec-head">
+            <span className="g-sec-num">1</span>
+            <div>
+              <h2>🔧 機能別ガイド</h2>
+              <p>「この機能は何ができるの？」から始める</p>
+            </div>
+          </div>
+
+          <div className="g-feature-grid">
+            <Link href="/guide/features/push-notification" className="g-feature-card">
+              <span className="g-feature-icon">📢</span>
+              <div className="g-feature-info"><h4>プッシュ通知</h4><p>一斉配信・画像付き通知・リンク遷移</p></div>
+              <span className="g-feature-tag is-all">全プラン</span>
+            </Link>
+            <Link href="/guide/features/coupon-first" className="g-feature-card">
+              <span className="g-feature-icon">🎫</span>
+              <div className="g-feature-info"><h4>初回クーポン</h4><p>新規顧客の獲得と来店動機</p></div>
+              <span className="g-feature-tag is-all">全プラン</span>
+            </Link>
+            <Link href="/guide/features/coupon-normal" className="g-feature-card">
+              <span className="g-feature-icon">🎟️</span>
+              <div className="g-feature-info"><h4>通常クーポン</h4><p>何度でも使える常設クーポン</p></div>
+              <span className="g-feature-tag is-std">STANDARD+</span>
+            </Link>
+            <Link href="/guide/features/coupon-loyalty" className="g-feature-card">
+              <span className="g-feature-icon">🏆</span>
+              <div className="g-feature-info"><h4>特別達成クーポン</h4><p>N回来店で解放、常連化を促進</p></div>
+              <span className="g-feature-tag is-std">STANDARD+</span>
+            </Link>
+            <Link href="/guide/features/coupon-stepup" className="g-feature-card">
+              <span className="g-feature-icon">🐾</span>
+              <div className="g-feature-info"><h4>ステップアップクーポン</h4><p>段階的に特典アップ</p></div>
+              <span className="g-feature-tag is-pro">PRO</span>
+            </Link>
+            <Link href="/guide/features/coupon-repeat" className="g-feature-card">
+              <span className="g-feature-icon">🔄</span>
+              <div className="g-feature-info"><h4>連続クーポン</h4><p>消込と同時に次回分を即時発行</p></div>
+              <span className="g-feature-tag is-pro">PRO</span>
+            </Link>
+            <Link href="/guide/features/coupon-birthday" className="g-feature-card">
+              <span className="g-feature-icon">🎂</span>
+              <div className="g-feature-info"><h4>記念日・誕生日クーポン</h4><p>年1回の特別クーポンを自動配信</p></div>
+              <span className="g-feature-tag is-pro">PRO</span>
+            </Link>
+            <Link href="/guide/features/coupon-dormant" className="g-feature-card">
+              <span className="g-feature-icon">💤</span>
+              <div className="g-feature-info"><h4>休眠復活クーポン</h4><p>離反顧客を自動で呼び戻す</p></div>
+              <span className="g-feature-tag is-pro">PRO</span>
+            </Link>
+            <Link href="/guide/features/qr-acquisition" className="g-feature-card">
+              <span className="g-feature-icon">📱</span>
+              <div className="g-feature-info"><h4>QRコード顧客獲得</h4><p>店頭POPから顧客リストを自動構築</p></div>
+              <span className="g-feature-tag is-all">全プラン</span>
+            </Link>
+            <Link href="/guide/features/scheduled-push" className="g-feature-card">
+              <span className="g-feature-icon">📅</span>
+              <div className="g-feature-info"><h4>予約配信・定期配信</h4><p>日時指定で自動配信</p></div>
+              <span className="g-feature-tag is-pro">PRO</span>
+            </Link>
+            <Link href="/guide/features/referral" className="g-feature-card">
+              <span className="g-feature-icon">🤝</span>
+              <div className="g-feature-info"><h4>紹介報酬</h4><p>他店舗を紹介で毎月10%還元</p></div>
+              <span className="g-feature-tag is-pro">PRO</span>
+            </Link>
+          </div>
+        </section>
+
+        {/* ② 業種別ガイド */}
+        <section className="g-sec">
+          <div className="g-sec-head">
+            <span className="g-sec-num">2</span>
+            <div><h2>🏪 業種別ガイド</h2><p>あなたの業種に合わせた活用方法</p></div>
+          </div>
+          <div className="g-grid">
+            {/* ★ NEW：パン屋（追加） */}
+            <Link href="/guide/bakery" className="g-card is-new">
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">🥐</span>
+              <h4>パン屋・ベーカリー</h4>
+              <p>数量限定告知・焼き立て配信・テスト販売</p>
+            </Link>
+
+            <Link href="/guide/salon" className="g-card"><span className="g-card-icon">💇</span><h4>美容室・サロン</h4><p>3回来店で定着する仕組み</p></Link>
+            <Link href="/guide/cafe" className="g-card"><span className="g-card-icon">☕</span><h4>飲食店・カフェ</h4><p>雨の日割引・常連客のファン化</p></Link>
+            <Link href="/guide/massage" className="g-card"><span className="g-card-icon">💆</span><h4>マッサージ・エステ</h4><p>来店サイクルの可視化</p></Link>
+            <Link href="/guide/apparel" className="g-card"><span className="g-card-icon">👕</span><h4>アパレル・雑貨</h4><p>新商品入荷・セール告知</p></Link>
+            <Link href="/guide/izakaya" className="g-card"><span className="g-card-icon">🍺</span><h4>バー・居酒屋</h4><p>グループ利用と常連の習慣化</p></Link>
+            <Link href="/guide/ramen" className="g-card"><span className="g-card-icon">🍜</span><h4>ラーメン店</h4><p>限定メニューとリピート施策</p></Link>
+            <Link href="/guide/sushi" className="g-card"><span className="g-card-icon">🍣</span><h4>寿司店</h4><p>記念日利用と旬のネタ</p></Link>
+            <Link href="/guide/snack" className="g-card"><span className="g-card-icon">🍸</span><h4>スナック・パブ</h4><p>常連客と紹介の仕組み</p></Link>
+          </div>
+        </section>
+
+        {/* ③ テーマ別ガイド */}
+        <section className="g-sec">
+          <div className="g-sec-head">
+            <span className="g-sec-num">3</span>
+            <div><h2>🎯 テーマ別ガイド</h2><p>目的から逆引きで探す</p></div>
+          </div>
+          <div className="g-grid">
+            <Link href="/guide/themes/new-customer" className="g-card"><span className="g-card-icon">🆕</span><h4>新規顧客の獲得</h4><p>QRコードと初回クーポンで顧客リスト構築</p></Link>
+            <Link href="/guide/themes/repeat" className="g-card"><span className="g-card-icon">🔄</span><h4>リピート施策</h4><p>3回来店で定着する仕組み</p></Link>
+            <Link href="/guide/themes/dormant" className="g-card"><span className="g-card-icon">💤</span><h4>休眠顧客の復活</h4><p>離反客を自動で呼び戻す</p></Link>
+            <Link href="/guide/themes/birthday" className="g-card"><span className="g-card-icon">🎂</span><h4>記念日・誕生日</h4><p>年1回の特別クーポン</p></Link>
+          </div>
+        </section>
+
+        {/* ④ 運用ノウハウ */}
+        <section className="g-sec">
+          <div className="g-sec-head">
+            <span className="g-sec-num">4</span>
+            <div><h2>📚 運用ノウハウ</h2><p>安全な運用と成功事例</p></div>
+          </div>
+          <div className="g-grid">
+            <Link href="/guide/ng-actions" className="g-card"><span className="g-card-icon">⚠️</span><h4>NG行為集</h4><p>炎上・離反を招く行為</p></Link>
+            <Link href="/guide/case-studies" className="g-card"><span className="g-card-icon">📈</span><h4>導入事例</h4><p>成果を出した店舗の事例</p></Link>
+          </div>
+        </section>
+
+        <div className="g-cta">
+          <h3>あなたの店舗でも、はじめてみませんか？</h3>
+          <p>配信無制限・7種のクーポン自動配信。<br />Push-taroなら、リピート施策のすべてが1つに。</p>
+          <Link href="/signup" className="g-cta-btn">無料相談・資料請求 →</Link>
+        </div>
+      </main>
+    </>
+  );
+}
