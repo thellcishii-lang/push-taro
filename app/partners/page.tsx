@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PromoToolsModal from '@/components/PromoToolsModal';
-import './programs.css';
+import './partners.css';
 
 /* ============================================================
    スクロール出現フック
