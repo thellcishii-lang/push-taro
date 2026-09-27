@@ -106,9 +106,7 @@ export default function PartnersClient() {
         </div>
       </nav>
 
-      {/* ============================================================
-          ヒーロー
-      ============================================================ */}
+      {/* ヒーロー */}
       <section className="hero">
         <div className="hero-bg" />
         <div className="container">
@@ -154,9 +152,7 @@ export default function PartnersClient() {
         </div>
       </section>
 
-      {/* ============================================================
-          市場の成長性
-      ============================================================ */}
+      {/* 市場の成長性 */}
       <section className="section section-alt">
         <div className="container">
           <div className="section-title reveal">
@@ -165,33 +161,31 @@ export default function PartnersClient() {
             <p>実店舗のDXニーズが高まる中、Webプッシュ通知はメルマガを超える新たな顧客接点として急成長しています。</p>
           </div>
           <div className="market-grid">
-  <div className="market-card tilt-in">
-    <div className="number">
-      ~<span className="count-up num-main" data-count="6">6</span><span className="num-suffix">倍</span>
-    </div>
-    <p>メルマガ比の開封率</p>
-  </div>
-  <div className="market-card tilt-in" style={{ transitionDelay: '0.08s' }}>
-    <div className="number">
-      <span className="count-up num-main" data-count="94">94</span><span className="num-suffix">%</span>
-    </div>
-    <p>日本のスマートフォン普及率</p>
-  </div>
-  <div className="market-card tilt-in" style={{ transitionDelay: '0.16s' }}>
-    <div className="number">2026.9</div>
-    <p>Push-taro サービス開始</p>
-  </div>
-  <div className="market-card tilt-in" style={{ transitionDelay: '0.24s' }}>
-    <div className="number">今</div>
-    <p>先行者利益を掴む絶好のチャンス</p>
-  </div>
-</div>
+            <div className="market-card tilt-in">
+              <div className="number">
+                ~<span className="count-up num-main" data-count="6">6</span><span className="num-suffix">倍</span>
+              </div>
+              <p>メルマガ比の開封率</p>
+            </div>
+            <div className="market-card tilt-in" style={{ transitionDelay: '0.08s' }}>
+              <div className="number">
+                <span className="count-up num-main" data-count="94">94</span><span className="num-suffix">%</span>
+              </div>
+              <p>日本のスマートフォン普及率</p>
+            </div>
+            <div className="market-card tilt-in" style={{ transitionDelay: '0.16s' }}>
+              <div className="number">2026.9</div>
+              <p>Push-taro サービス開始</p>
+            </div>
+            <div className="market-card tilt-in" style={{ transitionDelay: '0.24s' }}>
+              <div className="number">今</div>
+              <p>先行者利益を掴む絶好のチャンス</p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ============================================================
-          3つの収益化プログラム
-      ============================================================ */}
+      {/* 3つの収益化プログラム */}
       <section className="section" id="programs">
         <div className="container">
           <div className="section-title reveal">
@@ -268,9 +262,7 @@ export default function PartnersClient() {
         </div>
       </section>
 
-      {/* ============================================================
-          紹介店舗の階段と収益
-      ============================================================ */}
+      {/* 紹介店舗の階段と収益 */}
       <section className="section section-dark">
         <div className="container">
           <div className="section-title reveal">
@@ -279,7 +271,6 @@ export default function PartnersClient() {
             <p>200店舗で45%の世界へ。積み上がるストック収益の全貌をご覧ください。</p>
           </div>
 
-          {/* 階段図 */}
           <div className="stages-visual reveal">
             <div className="stage-block is-1">
               <div className="stage-num">〜100店舗</div>
@@ -300,7 +291,6 @@ export default function PartnersClient() {
             </div>
           </div>
 
-          {/* Bテーブル：累計店舗別 */}
           <div className="section-subtitle reveal">
             <h3>累計店舗数と報酬額の目安</h3>
             <p>LIGHT / STANDARD 契約店舗が加わると、さらに上乗せされます。</p>
@@ -334,7 +324,6 @@ export default function PartnersClient() {
             ※ インボイス番号をお持ちでない場合は、税抜金額でのお支払いとなります。
           </p>
 
-          {/* Cテーブル：ロードマップ */}
           <div className="section-subtitle reveal" style={{ marginTop: '64px' }}>
             <h3>5年間のロードマップ（例）</h3>
             <p>1年目100店舗、2年目200店舗——積み上がるストック収益のイメージ。</p>
@@ -369,9 +358,7 @@ export default function PartnersClient() {
         </div>
       </section>
 
-      {/* ============================================================
-          比較表
-      ============================================================ */}
+      {/* 比較表 */}
       <section className="section section-alt">
         <div className="container">
           <div className="section-title reveal">
@@ -402,9 +389,7 @@ export default function PartnersClient() {
         </div>
       </section>
 
-      {/* ============================================================
-          競合比較
-      ============================================================ */}
+      {/* 競合比較 */}
       <section className="section">
         <div className="container">
           <div className="section-title reveal">
@@ -453,9 +438,7 @@ export default function PartnersClient() {
         </div>
       </section>
 
-      {/* ============================================================
-          携帯代理店との比較
-      ============================================================ */}
+      {/* 携帯代理店との比較 */}
       <section className="section section-alt">
         <div className="container">
           <div className="section-title reveal">
@@ -474,46 +457,14 @@ export default function PartnersClient() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td><strong>収益源</strong></td>
-                  <td>キャリア手数料＋端末販売</td>
-                  <td className="col-pushtaro">紹介店舗の月額×30〜45%</td>
-                </tr>
-                <tr>
-                  <td><strong>収益の持続性</strong></td>
-                  <td>契約解除時に返還義務あり</td>
-                  <td className="col-pushtaro">紹介店舗が契約継続する限り永続</td>
-                </tr>
-                <tr>
-                  <td><strong>初期投資</strong></td>
-                  <td>数千万円規模＋数年毎のリニューアル</td>
-                  <td className="col-pushtaro"><strong>¥300,000</strong>（キャンペーン）＋月額¥30,000</td>
-                </tr>
-                <tr>
-                  <td><strong>在庫リスク</strong></td>
-                  <td>端末仕入れ・在庫負担あり</td>
-                  <td className="col-pushtaro"><strong>ゼロ</strong>（デジタル商材）</td>
-                </tr>
-                <tr>
-                  <td><strong>人件費</strong></td>
-                  <td>店舗スタッフ必須</td>
-                  <td className="col-pushtaro"><strong>不要</strong>（1人で運営可能）</td>
-                </tr>
-                <tr>
-                  <td><strong>テナント費</strong></td>
-                  <td>駅前・モール内の高額賃料</td>
-                  <td className="col-pushtaro"><strong>不要</strong>（在宅・兼業OK）</td>
-                </tr>
-                <tr>
-                  <td><strong>キャリア施策変更リスク</strong></td>
-                  <td>手数料体系が毎年見直し・業績に影響</td>
-                  <td className="col-pushtaro"><strong>なし</strong>（自社サービス）</td>
-                </tr>
-                <tr className="is-highlight">
-                  <td><strong>収益水準</strong></td>
-                  <td>月商300〜400万円で手残り月30万円程度</td>
-                  <td className="col-pushtaro">300店舗で<strong>月122万円</strong>（経費ほぼゼロ）</td>
-                </tr>
+                <tr><td><strong>収益源</strong></td><td>キャリア手数料＋端末販売</td><td className="col-pushtaro">紹介店舗の月額×30〜45%</td></tr>
+                <tr><td><strong>収益の持続性</strong></td><td>契約解除時に返還義務あり</td><td className="col-pushtaro">紹介店舗が契約継続する限り永続</td></tr>
+                <tr><td><strong>初期投資</strong></td><td>数千万円規模＋数年毎のリニューアル</td><td className="col-pushtaro"><strong>¥300,000</strong>（キャンペーン）＋月額¥30,000</td></tr>
+                <tr><td><strong>在庫リスク</strong></td><td>端末仕入れ・在庫負担あり</td><td className="col-pushtaro"><strong>ゼロ</strong>（デジタル商材）</td></tr>
+                <tr><td><strong>人件費</strong></td><td>店舗スタッフ必須</td><td className="col-pushtaro"><strong>不要</strong>（1人で運営可能）</td></tr>
+                <tr><td><strong>テナント費</strong></td><td>駅前・モール内の高額賃料</td><td className="col-pushtaro"><strong>不要</strong>（在宅・兼業OK）</td></tr>
+                <tr><td><strong>キャリア施策変更リスク</strong></td><td>手数料体系が毎年見直し・業績に影響</td><td className="col-pushtaro"><strong>なし</strong>（自社サービス）</td></tr>
+                <tr className="is-highlight"><td><strong>収益水準</strong></td><td>月商300〜400万円で手残り月30万円程度</td><td className="col-pushtaro">300店舗で<strong>月122万円</strong>（経費ほぼゼロ）</td></tr>
               </tbody>
             </table>
           </div>
@@ -539,9 +490,7 @@ export default function PartnersClient() {
         </div>
       </section>
 
-      {/* ============================================================
-          ストックビジネス比較
-      ============================================================ */}
+      {/* ストックビジネス比較 */}
       <section className="section">
         <div className="container">
           <div className="section-title reveal">
@@ -563,46 +512,11 @@ export default function PartnersClient() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td><strong>🏠 不動産賃貸</strong></td>
-                  <td>数千万円〜</td>
-                  <td>家賃収入</td>
-                  <td>空室・滞納・修繕</td>
-                  <td>管理会社に委託可</td>
-                  <td>永続的（物件依存）</td>
-                </tr>
-                <tr>
-                  <td><strong>📱 携帯販売代理店</strong></td>
-                  <td>数千万円</td>
-                  <td>月30万円程度</td>
-                  <td>キャリア施策変更・契約解除返還</td>
-                  <td>店舗・スタッフ必須</td>
-                  <td>契約継続中のみ</td>
-                </tr>
-                <tr>
-                  <td><strong>📹 YouTube/ブログ</strong></td>
-                  <td>ほぼゼロ</td>
-                  <td>数千円〜数十万円</td>
-                  <td>アルゴリズム変動・収益単価下落</td>
-                  <td>◎ 完全自動</td>
-                  <td>コンテンツ依存</td>
-                </tr>
-                <tr>
-                  <td><strong>🏋️ ジム・スクール</strong></td>
-                  <td>数百万円〜</td>
-                  <td>会費収入</td>
-                  <td>会員離反・競合参入</td>
-                  <td>運営スタッフ必須</td>
-                  <td>会員継続中のみ</td>
-                </tr>
-                <tr>
-                  <td><strong>📚 オンライン講座</strong></td>
-                  <td>制作コスト</td>
-                  <td>販売依存（フロー型）</td>
-                  <td>陳腐化・模倣</td>
-                  <td>◎ 完全自動</td>
-                  <td>一時的</td>
-                </tr>
+                <tr><td><strong>🏠 不動産賃貸</strong></td><td>数千万円〜</td><td>家賃収入</td><td>空室・滞納・修繕</td><td>管理会社に委託可</td><td>永続的（物件依存）</td></tr>
+                <tr><td><strong>📱 携帯販売代理店</strong></td><td>数千万円</td><td>月30万円程度</td><td>キャリア施策変更・契約解除返還</td><td>店舗・スタッフ必須</td><td>契約継続中のみ</td></tr>
+                <tr><td><strong>📹 YouTube/ブログ</strong></td><td>ほぼゼロ</td><td>数千円〜数十万円</td><td>アルゴリズム変動・収益単価下落</td><td>◎ 完全自動</td><td>コンテンツ依存</td></tr>
+                <tr><td><strong>🏋️ ジム・スクール</strong></td><td>数百万円〜</td><td>会費収入</td><td>会員離反・競合参入</td><td>運営スタッフ必須</td><td>会員継続中のみ</td></tr>
+                <tr><td><strong>📚 オンライン講座</strong></td><td>制作コスト</td><td>販売依存（フロー型）</td><td>陳腐化・模倣</td><td>◎ 完全自動</td><td>一時的</td></tr>
                 <tr className="is-pushtaro">
                   <td><strong>👑 Push-taro代理店</strong></td>
                   <td><strong>¥300,000</strong></td>
@@ -624,9 +538,7 @@ export default function PartnersClient() {
         </div>
       </section>
 
-      {/* ============================================================
-          収益シミュレーション
-      ============================================================ */}
+      {/* 収益シミュレーション */}
       <section className="section section-alt">
         <div className="container">
           <div className="section-title reveal">
@@ -660,9 +572,7 @@ export default function PartnersClient() {
         </div>
       </section>
 
-      {/* ============================================================
-          販促ツール
-      ============================================================ */}
+      {/* 販促ツール */}
       <section className="section" id="promo-tools">
         <div className="container">
           <div className="section-title reveal">
@@ -671,10 +581,8 @@ export default function PartnersClient() {
             <p>会社名・紹介コード入りの販促ツールが、管理画面からすぐにダウンロードできます。</p>
           </div>
 
-          {/* 浮遊モックアップ */}
           <div className="promo-overview reveal">
             <div className="promo-overview-inner">
-              {/* 三つ折り（外側） - 主役 */}
               <div className="ov-item ov-trifold">
                 <div className="ov-tf-panel ov-l">
                   <span className="ov-tag">REWARD PROGRAM</span>
@@ -724,7 +632,6 @@ export default function PartnersClient() {
                 </div>
               </div>
 
-              {/* A4チラシ */}
               <div className="ov-item ov-a4">
                 <div className="ov-a4-front">
                   <div className="ov-a4-logo"><div className="ov-a4-mark"></div><div className="ov-a4-name">Push-taro<span>.</span></div></div>
@@ -738,7 +645,6 @@ export default function PartnersClient() {
                 </div>
               </div>
 
-              {/* 名刺 */}
               <div className="ov-item ov-card">
                 <div className="ov-card-top">
                   <div className="ov-card-mark"></div>
@@ -748,7 +654,6 @@ export default function PartnersClient() {
                 <div className="ov-card-sub">実店舗のためのPush通知CRM</div>
               </div>
 
-              {/* A5 */}
               <div className="ov-item ov-a5">
                 <div className="ov-a5-mark"></div>
                 <div className="ov-a5-name">Push-taro<span>.</span></div>
@@ -773,9 +678,7 @@ export default function PartnersClient() {
         </div>
       </section>
 
-      {/* ============================================================
-          FAQ
-      ============================================================ */}
+      {/* FAQ */}
       <section className="section section-alt">
         <div className="container">
           <div className="section-title reveal">
@@ -799,9 +702,7 @@ export default function PartnersClient() {
         </div>
       </section>
 
-      {/* ============================================================
-          最終CTA
-      ============================================================ */}
+      {/* 最終CTA */}
       <section className="cta-final" id="cta-final">
         <div className="container">
           <h2 className="reveal">今すぐ始めて、<br />ストック収益を手に入れよう</h2>
@@ -836,14 +737,10 @@ export default function PartnersClient() {
         </div>
       </section>
 
-      {/* ============================================================
-          フッター
-      ============================================================ */}
+      {/* フッター（2カラム） */}
       <footer className="footer">
         <div className="container">
           <div className="footer-grid">
-
-            {/* ① ブランド */}
             <div className="footer-brand">
               <div className="footer-logo">
                 <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
@@ -872,43 +769,39 @@ export default function PartnersClient() {
               </div>
             </div>
 
-            {/* ② リンク：サービス */}
-            <div className="footer-col">
-              <h4 className="footer-col-title">サービス</h4>
-              <ul className="footer-col-list">
-                <li><Link href="/">Push-taro トップ</Link></li>
-                <li><Link href="/partners">代理店パートナー募集</Link></li>
-                <li><Link href="/signup">PROプランで始める</Link></li>
-                <li><Link href="/affiliate/signup">アフィリエイト登録</Link></li>
-              </ul>
-            </div>
+            <div className="footer-links-wrap">
+              <div className="footer-col">
+                <h4 className="footer-col-title">サービス</h4>
+                <ul className="footer-col-list">
+                  <li><Link href="/">Push-taro トップ</Link></li>
+                  <li><Link href="/partners">代理店パートナー募集</Link></li>
+                  <li><Link href="/signup">PROプランで始める</Link></li>
+                  <li><Link href="/affiliate/signup">アフィリエイト登録</Link></li>
+                </ul>
+              </div>
 
-            {/* ③ リンク：活用ガイド */}
-            <div className="footer-col">
-              <h4 className="footer-col-title">活用ガイド</h4>
-              <ul className="footer-col-list">
-                <li><Link href="/guide">ガイドTOP</Link></li>
-                <li><Link href="/guide/features">機能別ガイド</Link></li>
-                <li><Link href="/guide/case-studies">導入事例</Link></li>
-                <li><Link href="/guide/ng-actions">NG行為集</Link></li>
-                <li><Link href="/torisetsu">取扱説明書</Link></li>
-              </ul>
-            </div>
+              <div className="footer-col">
+                <h4 className="footer-col-title">活用ガイド</h4>
+                <ul className="footer-col-list">
+                  <li><Link href="/guide">ガイドTOP</Link></li>
+                  <li><Link href="/guide/features">機能別ガイド</Link></li>
+                  <li><Link href="/guide/bakery">パン屋・ベーカリー</Link></li>
+                  <li><Link href="/guide/case-studies">導入事例</Link></li>
+                </ul>
+              </div>
 
-            {/* ④ リンク：法務・サポート */}
-            <div className="footer-col">
-              <h4 className="footer-col-title">サポート</h4>
-              <ul className="footer-col-list">
-                <li><Link href="/terms">利用規約</Link></li>
-                <li><Link href="/privacy">プライバシーポリシー</Link></li>
-                <li><Link href="/tokusho">特定商取引法</Link></li>
-                <li><a href="mailto:info@push-taro.com">お問い合わせ</a></li>
-              </ul>
+              <div className="footer-col">
+                <h4 className="footer-col-title">サポート</h4>
+                <ul className="footer-col-list">
+                  <li><Link href="/terms">利用規約</Link></li>
+                  <li><Link href="/privacy">プライバシーポリシー</Link></li>
+                  <li><Link href="/tokusho">特定商取引法</Link></li>
+                  <li><a href="mailto:info@push-taro.com">お問い合わせ</a></li>
+                </ul>
+              </div>
             </div>
-
           </div>
 
-          {/* コピーライト */}
           <div className="footer-bottom">
             <p className="footer-copy">
               &copy; 2026 Push-taro All Rights Reserved. ｜ 運営：the合同会社
@@ -920,7 +813,6 @@ export default function PartnersClient() {
         </div>
       </footer>
 
-      {/* モーダル */}
       <PromoToolsModal
         isOpen={promoModalOpen}
         onClose={() => setPromoModalOpen(false)}
