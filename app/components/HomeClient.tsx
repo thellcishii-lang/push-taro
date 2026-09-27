@@ -1643,7 +1643,7 @@ export default function HomeClient() {
             </svg>
           </a>
           <div className="cta-note">
-            ※ 2026年9月 正式リリース予定。現在、先行登録受付中です。
+            ※ 2026年9月 正式リリース。先行登録受付中です。
           </div>
         </div>
       </section>
