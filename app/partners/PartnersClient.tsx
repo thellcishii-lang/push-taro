@@ -78,7 +78,7 @@ export default function PartnersClient() {
   const [promoModalOpen, setPromoModalOpen] = useState(false);
 
   return (
-    <div className="programs-page">
+    <div className="partners-page">
       {/* ナビゲーション */}
       <nav className="navbar">
         <div className="container">
@@ -112,7 +112,7 @@ export default function PartnersClient() {
         <div className="container">
           <div className="hero-badge reveal">
             <span className="dot"></span>
-            2026年9月サービス開始予定・先行登録受付中
+            2026年9月サービス開始・先行登録受付中
           </div>
           <h1 className="reveal">
             みんなで広げる、<br />
@@ -138,7 +138,7 @@ export default function PartnersClient() {
             </div>
             <div className="hero-stat tilt-in" style={{ transitionDelay: '0.1s' }}>
               <div className="hero-stat-num"><span className="count-up" data-count="500">500</span><small>店舗〜</small></div>
-              <div className="hero-stat-label">最大月額報酬 約221万円</div>
+              <div className="hero-stat-label">最大年間報酬 約2,650万円</div>
             </div>
             <div className="hero-stat tilt-in" style={{ transitionDelay: '0.2s' }}>
               <div className="hero-stat-num"><span className="count-up" data-count="45">45</span><small>%</small></div>
@@ -730,14 +730,14 @@ export default function PartnersClient() {
           </div>
 
           <div className="footnote">
-            <i className="fas fa-clock"></i> Push-taroは <strong>2026年9月</strong> サービス開始予定です。<br />
+            <i className="fas fa-clock"></i> Push-taroは <strong>2026年9月</strong> サービス開始です。<br />
             現在は事前登録を受け付けております。{' '}
             <a href="mailto:info@push-taro.com" style={{ color: '#fb923c', textDecoration: 'underline' }}>お問い合わせ</a>
           </div>
         </div>
       </section>
 
-      {/* フッター（2カラム） */}
+      {/* フッター */}
       <footer className="footer">
         <div className="container">
           <div className="footer-grid">
@@ -765,7 +765,7 @@ export default function PartnersClient() {
               </p>
               <div className="footer-badge">
                 <span className="footer-badge-dot"></span>
-                2026年9月 サービス開始予定
+                2026年9月 サービス開始
               </div>
             </div>
 
@@ -785,7 +785,6 @@ export default function PartnersClient() {
                 <ul className="footer-col-list">
                   <li><Link href="/guide">ガイドTOP</Link></li>
                   <li><Link href="/guide/features">機能別ガイド</Link></li>
-                  <li><Link href="/guide/bakery">パン屋・ベーカリー</Link></li>
                   <li><Link href="/guide/case-studies">導入事例</Link></li>
                 </ul>
               </div>
