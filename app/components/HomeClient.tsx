@@ -203,7 +203,7 @@ export default function HomeClient() {
 <section className="section story-section" id="story">
   <div className="container">
     <div className="section-header reveal">
-      <span className="section-tag">Real Knowledge × 25 Years</span>
+      <span className="section-tag">Real Knowledge</span>
       <h2>
         実際の現場から導き出した、<br />
         実店舗のための「本当に人が動く」システム。
@@ -1351,7 +1351,7 @@ export default function HomeClient() {
 <section className="section section-alt" id="usecases">
   <div className="container">
     <div className="section-header reveal">
-      <span className="section-tag">Real Use Cases × 25 Years</span>
+      <span className="section-tag">Real Use Cases </span>
       <h2>
         <strong>実店舗運営</strong>から導き出した、<br />
         「本当に人が動く」活用ノウハウ
