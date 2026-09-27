@@ -165,23 +165,27 @@ export default function PartnersClient() {
             <p>実店舗のDXニーズが高まる中、Webプッシュ通知はメルマガを超える新たな顧客接点として急成長しています。</p>
           </div>
           <div className="market-grid">
-            <div className="market-card tilt-in">
-              <div className="number">~6<span>倍</span></div>
-              <p>メルマガ比の開封率</p>
-            </div>
-            <div className="market-card tilt-in" style={{ transitionDelay: '0.08s' }}>
-              <div className="number">94<span>%</span></div>
-              <p>日本のスマートフォン普及率</p>
-            </div>
-            <div className="market-card tilt-in" style={{ transitionDelay: '0.16s' }}>
-              <div className="number">2026.9</div>
-              <p>Push-taro サービス開始</p>
-            </div>
-            <div className="market-card tilt-in" style={{ transitionDelay: '0.24s' }}>
-              <div className="number">今</div>
-              <p>先行者利益を掴む絶好のチャンス</p>
-            </div>
-          </div>
+  <div className="market-card tilt-in">
+    <div className="number">
+      ~<span className="count-up num-main" data-count="6">6</span><span className="num-suffix">倍</span>
+    </div>
+    <p>メルマガ比の開封率</p>
+  </div>
+  <div className="market-card tilt-in" style={{ transitionDelay: '0.08s' }}>
+    <div className="number">
+      <span className="count-up num-main" data-count="94">94</span><span className="num-suffix">%</span>
+    </div>
+    <p>日本のスマートフォン普及率</p>
+  </div>
+  <div className="market-card tilt-in" style={{ transitionDelay: '0.16s' }}>
+    <div className="number">2026.9</div>
+    <p>Push-taro サービス開始</p>
+  </div>
+  <div className="market-card tilt-in" style={{ transitionDelay: '0.24s' }}>
+    <div className="number">今</div>
+    <p>先行者利益を掴む絶好のチャンス</p>
+  </div>
+</div>
         </div>
       </section>
 
