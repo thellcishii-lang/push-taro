@@ -1742,36 +1742,6 @@
         }
 
         /* ============================================================
-           FOOTER
-        ============================================================ */
-        .footer {
-          background: #0f172a;
-          color: var(--slate-400);
-          text-align: center;
-          padding: 48px 24px 32px;
-          font-size: 13px;
-          border-top: 1px solid rgba(255,255,255,0.06);
-        }
-        .footer-logo {
-          display: inline-flex; align-items: center; gap: 8px;
-          font-size: 20px; font-weight: 900; color: #fff;
-          margin-bottom: 8px;
-        }
-        .footer-links {
-          display: flex; justify-content: center; gap: 24px;
-          flex-wrap: wrap; margin: 20px 0 24px;
-        }
-        .footer-links a {
-          color: var(--slate-400); transition: color 0.2s;
-        }
-        .footer-links a:hover { color: #fff; }
-        .footer-copy {
-          font-size: 12px; color: var(--slate-500);
-          padding-top: 24px;
-          border-top: 1px solid rgba(255,255,255,0.06);
-        }
-
-        /* ============================================================
            RESPONSIVE
         ============================================================ */
          @media (max-width: 1024px) {
@@ -2320,5 +2290,153 @@
   }
   .cvp-arrow {
     transform: rotate(90deg);
+  }
+}
+
+/* ============================================================
+   FOOTER（partners と統一・2カラム）
+============================================================ */
+.footer {
+  background: #0f172a;
+  color: #94a3b8;
+  padding: 64px 0 32px;
+  font-size: 13px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: left;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 64px;
+  margin-bottom: 48px;
+  align-items: start;
+}
+
+/* 左：ブランド */
+.footer-brand {
+  max-width: 320px;
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+}
+.footer-logo svg {
+  flex-shrink: 0;
+  display: block;
+}
+.footer-logo > span {
+  color: #fff;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+}
+.footer-logo .dot {
+  color: #ff4500;
+  margin-left: 1px;
+}
+
+.footer-desc {
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.8;
+  margin: 0 0 20px;
+}
+
+.footer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255, 69, 0, 0.12);
+  border: 1px solid rgba(255, 69, 0, 0.3);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fd7e5a;
+}
+.footer-badge-dot {
+  width: 6px;
+  height: 6px;
+  background: #22c55e;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #22c55e;
+}
+
+/* 右：3列のリンク */
+.footer-links-wrap {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+.footer-col-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.5px;
+  margin: 0 0 16px;
+}
+
+.footer-col-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-col-list a {
+  font-size: 13px;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-col-list a:hover {
+  color: #fff;
+}
+
+/* 下部：コピーライト */
+.footer-bottom {
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-copy,
+.footer-address {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* レスポンシブ */
+@media (max-width: 900px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+@media (max-width: 600px) {
+  .footer-links-wrap {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
