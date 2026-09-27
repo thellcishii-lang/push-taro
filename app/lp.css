@@ -1741,6 +1741,44 @@
           font-size: 13px; color: #64748b;
         }
 
+　　　　　　　　　　　　　　　　/* ============================================================
+   FINAL CTA：ボタンペア
+============================================================ */
+.cta-final-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.cta-final-actions .btn-primary,
+.cta-final-actions .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 36px;
+  font-size: 16px;
+  font-weight: 800;
+  text-decoration: none;
+  border-radius: 10px;
+  transition: all 0.25s;
+}
+
+/* レスポンシブ */
+@media (max-width: 640px) {
+  .cta-final-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .cta-final-actions .btn-primary,
+  .cta-final-actions .btn-secondary {
+    width: 100%;
+  }
+}
+
         /* ============================================================
            RESPONSIVE
         ============================================================ */
