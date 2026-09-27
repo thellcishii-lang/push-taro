@@ -151,6 +151,37 @@ const faqJsonLd = {
 };
 
 const howToJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: 'Push-taroの導入方法',
+  totalTime: 'PT10M',
+  step: [
+    {
+      '@type': 'HowToStep',
+      position: 1,
+      name: 'アカウント作成',
+      text: 'メールアドレスと店舗情報を入力して申し込み。決済完了で即時利用開始。',
+    },
+    {
+      '@type': 'HowToStep',
+      position: 2,
+      name: 'クーポン設定',
+      text: '管理画面でクーポンのタイトル・説明・有効期限を設定。',
+    },
+    {
+      '@type': 'HowToStep',
+      position: 3,
+      name: '店頭にQR設置',
+      text: '管理画面で生成されたQRコードをPOPに印刷して店頭に設置。',
+    },
+    {
+      '@type': 'HowToStep',
+      position: 4,
+      name: '通知を送信',
+      text: 'タイミングに合わせてプッシュ通知を送信。',
+    },
+  ],
+};
   const breadcrumbJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
