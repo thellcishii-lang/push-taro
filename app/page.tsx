@@ -7,40 +7,37 @@ import './lp.css';
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 
 export const metadata: Metadata = {
-  title:
-    '既存客のリピートを"プッシュ通知×CRM"で仕組化｜実店舗のためのPush-taro',
+  title: '店舗・テナント向け プッシュ通知 × クーポンアプリ｜Push-taro',
   description:
-    'Push-taroは、実店舗のリピート施策を「プッシュ通知 × CRM」で自動化するSaaS。7種類のクーポン自動配信・QR消込・休眠復活・誕生日配信を標準搭載。月額1,980円〜、従量課金なし。',
+    '店舗・テナント向けのプッシュ通知アプリ。店舗リピーター育成のためのクーポン自動配信・QR消込・休眠復活を標準搭載。LIGHT/STANDARDは登録数無制限、PROは配信数無制限。月額1,980円〜。',
   keywords: [
-    'プッシュ通知',
-    'CRM',
-    '実店舗',
-    'リピート施策',
-    'クーポン配信',
-    '店舗集客',
-    '休眠復活クーポン',
-    'LINE公式代替',
+    '店舗 プッシュ通知',
+    'テナント プッシュ通知',
+    '店舗クーポンアプリ',
+    '店舗プッシュ通知アプリ',
+    'プッシュ通知アプリ 無制限',
+    '店舗リピーター',
+    '店舗リピート',
+    'テナントリピーター',
+    'プッシュ通知 CRM',
+    '実店舗 集客',
     'Push-taro',
   ],
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     locale: 'ja_JP',
-    title: '既存客のリピートを"プッシュ通知×CRM"で仕組化｜Push-taro',
-    // ★ 33文字 → 88文字に拡張
+    title: '店舗・テナント向け プッシュ通知 × クーポンアプリ｜Push-taro',
     description:
-      '実店舗のリピート施策を「プッシュ通知×CRM」で自動化するSaaS。7種類のクーポン自動配信・QR消込・休眠復活・誕生日配信を標準搭載。月額1,980円〜、従量課金なし。',
+      '店舗リピーター育成のためのクーポン自動配信・QR消込・休眠復活を標準搭載。月額1,980円〜、従量課金なし。',
     url: '/',
     siteName: 'Push-taro',
-    // ★ images は書かない（opengraph-image.tsx が自動検出）
   },
   twitter: {
     card: 'summary_large_image',
-    title: '既存客のリピートを"プッシュ通知×CRM"で仕組化｜Push-taro',
-    // ★ 26文字 → 72文字に拡張
+    title: '店舗・テナント向け プッシュ通知 × クーポンアプリ｜Push-taro',
     description:
-      '実店舗のリピート施策を「プッシュ通知×CRM」で自動化。7種類のクーポン自動配信・QR消込・休眠復活を標準搭載。月額1,980円〜。',
-    // ★ images は書かない
+      '店舗リピーター育成のためのクーポン自動配信・QR消込・休眠復活を標準搭載。月額1,980円〜。',
   },
   robots: {
     index: true,
