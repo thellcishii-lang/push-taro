@@ -26,22 +26,27 @@ export default function ContactClient() {
     e.preventDefault();
     setSending(true);
 
-    // メール送信（mailtoで一旦対応。後でAPI化推奨）
-    const subject = encodeURIComponent(`【お問い合わせ】${formData.category} - ${formData.name}様`);
-    const body = encodeURIComponent(
-      `お名前: ${formData.name}\n` +
-      `メール: ${formData.email}\n` +
-      `会社名: ${formData.company || '未記入'}\n` +
-      `お問い合わせ種別: ${formData.category}\n\n` +
-      `【お問い合わせ内容】\n${formData.message}`
-    );
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
 
-    window.location.href = `mailto:info@push-taro.com?subject=${subject}&body=${body}`;
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || '送信に失敗しました');
+        setSending(false);
+        return;
+      }
 
-    setTimeout(() => {
-      setSending(false);
       setSubmitted(true);
-    }, 800);
+    } catch (error) {
+      console.error(error);
+      alert('送信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -172,8 +177,8 @@ export default function ContactClient() {
               </button>
 
               <p className="c-note">
-                ※ 送信ボタンを押すと、お使いのメールソフトが起動します。<br />
-                ※ 2〜3営業日以内にご返信いたします。
+                ※ 2〜3営業日以内にご返信いたします。<br />
+                ※ 迷惑メールフォルダもご確認ください。
               </p>
             </form>
           )}
