@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700;14..32,800;14..32,900&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
 
-.programs-page * {
+.partners-page * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-.programs-page {
+.partners-page {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   color: #1e293b;
   background: #f8fafc;
@@ -15,7 +15,7 @@
   min-height: 100vh;
 }
 
-.programs-page .container {
+.partners-page .container {
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 24px;
@@ -24,7 +24,7 @@
 /* ============================================================
    ナビゲーション
 ============================================================ */
-.programs-page .navbar {
+.partners-page .navbar {
   background: rgba(255, 255, 255, 0.9);
   border-bottom: 1px solid #e2e8f0;
   padding: 16px 0;
@@ -34,14 +34,14 @@
   backdrop-filter: blur(8px);
 }
 
-.programs-page .navbar .container {
+.partners-page .navbar .container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
 }
 
-.programs-page .logo {
+.partners-page .logo {
   display: flex;
   align-items: center;
   font-size: 22px;
@@ -53,19 +53,19 @@
   padding-top: 4px;
 }
 
-.programs-page .logo-mark {
+.partners-page .logo-mark {
   width: 34px;
   height: 34px;
   flex-shrink: 0;
   margin-right: 8px;
 }
 
-.programs-page .logo span {
+.partners-page .logo span {
   color: #ff4500;
   margin-left: 1px;
 }
 
-.programs-page .logo small {
+.partners-page .logo small {
   font-size: 14px;
   font-weight: 600;
   color: #0f172a;
@@ -78,7 +78,7 @@
   border: 0;
 }
 
-.programs-page .logo small span {
+.partners-page .logo small span {
   color: #ff4500;
   font-size: 22px;
   font-weight: 900;
@@ -86,7 +86,7 @@
   margin-left: 2px;
 }
 
-.programs-page .nav-cta {
+.partners-page .nav-cta {
   background: #ff4500;
   color: #fff;
   padding: 10px 24px;
@@ -98,7 +98,7 @@
   box-shadow: 0 2px 8px rgba(255, 69, 0, 0.25);
 }
 
-.programs-page .nav-cta:hover {
+.partners-page .nav-cta:hover {
   background: #e03e00;
   transform: translateY(-1px);
 }
@@ -106,7 +106,7 @@
 /* ============================================================
    ヒーロー
 ============================================================ */
-.programs-page .hero {
+.partners-page .hero {
   padding: 80px 0 60px;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: #fff;
@@ -115,7 +115,7 @@
   overflow: hidden;
 }
 
-.programs-page .hero-bg {
+.partners-page .hero-bg {
   position: absolute;
   inset: 0;
   background:
@@ -123,9 +123,9 @@
     radial-gradient(circle at 20% 80%, rgba(49,130,206,0.18), transparent 55%);
   pointer-events: none;
 }
-.programs-page .hero .container { position: relative; z-index: 1; }
+.partners-page .hero .container { position: relative; z-index: 1; }
 
-.programs-page .hero-badge {
+.partners-page .hero-badge {
   display: inline-block;
   background: rgba(255, 69, 0, 0.2);
   color: #fd7e5a;
@@ -138,7 +138,7 @@
   margin-bottom: 24px;
 }
 
-.programs-page .hero h1 {
+.partners-page .hero h1 {
   font-size: clamp(36px, 5vw, 56px);
   font-weight: 900;
   letter-spacing: -1.5px;
@@ -146,14 +146,14 @@
   margin-bottom: 20px;
 }
 
-.programs-page .hero h1 .highlight {
+.partners-page .hero h1 .highlight {
   background: linear-gradient(135deg, #ff4500, #fb923c);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.programs-page .hero p {
+.partners-page .hero p {
   font-size: 18px;
   color: #94a3b8;
   max-width: 700px;
@@ -161,7 +161,7 @@
   line-height: 1.8;
 }
 
-.programs-page .hero-cta-group {
+.partners-page .hero-cta-group {
   display: flex;
   justify-content: center;
   gap: 16px;
@@ -169,7 +169,7 @@
   margin-bottom: 48px;
 }
 
-.programs-page .btn-primary {
+.partners-page .btn-primary {
   background: #ff4500;
   color: #fff;
   padding: 16px 40px;
@@ -184,13 +184,13 @@
   box-shadow: 0 4px 16px rgba(255, 69, 0, 0.35);
 }
 
-.programs-page .btn-primary:hover {
+.partners-page .btn-primary:hover {
   background: #e03e00;
   transform: translateY(-2px);
   box-shadow: 0 6px 24px rgba(255, 69, 0, 0.45);
 }
 
-.programs-page .btn-secondary {
+.partners-page .btn-secondary {
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
   padding: 16px 40px;
@@ -204,40 +204,40 @@
   transition: all 0.2s;
 }
 
-.programs-page .btn-secondary:hover {
+.partners-page .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.15);
   transform: translateY(-2px);
 }
 
 /* ヒーロー統計 */
-.programs-page .hero-stats {
+.partners-page .hero-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
   max-width: 900px;
   margin: 40px auto 0;
 }
-.programs-page .hero-stat {
+.partners-page .hero-stat {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 14px;
   padding: 18px 14px;
   backdrop-filter: blur(4px);
 }
-.programs-page .hero-stat-num {
+.partners-page .hero-stat-num {
   font-size: 30px;
   font-weight: 900;
   color: #fff;
   line-height: 1.1;
   letter-spacing: -1px;
 }
-.programs-page .hero-stat-num small {
+.partners-page .hero-stat-num small {
   font-size: 13px;
   font-weight: 600;
   color: #94a3b8;
   margin-left: 4px;
 }
-.programs-page .hero-stat-label {
+.partners-page .hero-stat-label {
   font-size: 12px;
   color: #94a3b8;
   margin-top: 6px;
@@ -247,20 +247,36 @@
 /* ============================================================
    セクション共通
 ============================================================ */
-.programs-page .section {
+.partners-page .section {
   padding: 72px 0;
 }
 
-.programs-page .section-alt {
+.partners-page .section-alt {
   background: #ffffff;
 }
 
-.programs-page .section-title {
+/* ★ section-dark（累計店舗テーブルの視認性修正） */
+.partners-page .section-dark {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #fff;
+}
+.partners-page .section-dark .section-title h2 {
+  color: #fff;
+}
+.partners-page .section-dark .section-title p {
+  color: #94a3b8;
+}
+.partners-page .section-dark .section-title .tag {
+  background: rgba(255, 69, 0, 0.15);
+  color: #fd7e5a;
+}
+
+.partners-page .section-title {
   text-align: center;
   margin-bottom: 48px;
 }
 
-.programs-page .section-title h2 {
+.partners-page .section-title h2 {
   font-size: clamp(28px, 3.5vw, 38px);
   font-weight: 800;
   letter-spacing: -0.5px;
@@ -268,14 +284,14 @@
   margin-bottom: 12px;
 }
 
-.programs-page .section-title p {
+.partners-page .section-title p {
   color: #64748b;
   font-size: 16px;
   max-width: 600px;
   margin: 0 auto;
 }
 
-.programs-page .section-title .tag {
+.partners-page .section-title .tag {
   display: inline-block;
   background: #fff7ed;
   color: #ff4500;
@@ -290,13 +306,13 @@
 /* ============================================================
    市場の成長性（カウントアップ付き）
 ============================================================ */
-.programs-page .market-grid {
+.partners-page .market-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 24px;
 }
 
-.programs-page .market-card {
+.partners-page .market-card {
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
@@ -305,20 +321,20 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
-.programs-page .market-card .number {
+.partners-page .market-card .number {
   font-size: 40px;
   font-weight: 900;
   color: #ff4500;
   line-height: 1.1;
 }
 
-.programs-page .market-card .number span {
+.partners-page .market-card .number span {
   font-size: 18px;
   font-weight: 600;
   color: #1e293b;
 }
 
-.programs-page .market-card .number .num-main {
+.partners-page .market-card .number .num-main {
   font-size: 40px;
   font-weight: 900;
   color: #ff4500;
@@ -326,14 +342,14 @@
   letter-spacing: -1.5px;
   display: inline-block;
 }
-.programs-page .market-card .number .num-suffix {
+.partners-page .market-card .number .num-suffix {
   font-size: 18px;
   font-weight: 600;
   color: #1e293b;
   margin-left: 2px;
 }
 
-.programs-page .market-card p {
+.partners-page .market-card p {
   font-size: 14px;
   color: #475569;
   margin-top: 8px;
@@ -343,14 +359,14 @@
 /* ============================================================
    3つのプログラムカード
 ============================================================ */
-.programs-page .program-grid {
+.partners-page .program-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 30px;
   margin-top: 16px;
 }
 
-.programs-page .program-card {
+.partners-page .program-card {
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 16px;
@@ -362,12 +378,12 @@
   flex-direction: column;
 }
 
-.programs-page .program-card:hover {
+.partners-page .program-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
 }
 
-.programs-page .program-card .badge {
+.partners-page .program-card .badge {
   position: absolute;
   top: -10px;
   right: 20px;
@@ -380,27 +396,27 @@
   letter-spacing: 0.5px;
 }
 
-.programs-page .program-card .badge.blue { background: #2563eb; }
-.programs-page .program-card .badge.green { background: #16a34a; }
+.partners-page .program-card .badge.blue { background: #2563eb; }
+.partners-page .program-card .badge.green { background: #16a34a; }
 
-.programs-page .program-card .emoji-big {
+.partners-page .program-card .emoji-big {
   font-size: 36px;
   margin-bottom: 12px;
 }
 
-.programs-page .program-card h3 {
+.partners-page .program-card h3 {
   font-size: 20px;
   font-weight: 800;
   margin-bottom: 6px;
 }
 
-.programs-page .program-card .sub {
+.partners-page .program-card .sub {
   font-size: 13px;
   color: #64748b;
   margin-bottom: 16px;
 }
 
-.programs-page .program-card .price-table {
+.partners-page .program-card .price-table {
   background: #f8fafc;
   border-radius: 10px;
   padding: 16px;
@@ -408,7 +424,7 @@
   border: 1px solid #e2e8f0;
 }
 
-.programs-page .program-card .price-table .row {
+.partners-page .program-card .price-table .row {
   display: flex;
   justify-content: space-between;
   padding: 6px 0;
@@ -416,19 +432,19 @@
   border-bottom: 1px dashed #e2e8f0;
 }
 
-.programs-page .program-card .price-table .row:last-child { border-bottom: none; }
-.programs-page .program-card .price-table .row .label { color: #475569; }
-.programs-page .program-card .price-table .row .value { font-weight: 700; color: #0f172a; }
-.programs-page .program-card .price-table .row .value.highlight { color: #ff4500; }
+.partners-page .program-card .price-table .row:last-child { border-bottom: none; }
+.partners-page .program-card .price-table .row .label { color: #475569; }
+.partners-page .program-card .price-table .row .value { font-weight: 700; color: #0f172a; }
+.partners-page .program-card .price-table .row .value.highlight { color: #ff4500; }
 
-.programs-page .program-card .features {
+.partners-page .program-card .features {
   list-style: none;
   padding: 0;
   margin: 12px 0 20px;
   flex-grow: 1;
 }
 
-.programs-page .program-card .features li {
+.partners-page .program-card .features li {
   font-size: 14px;
   padding: 6px 0;
   display: flex;
@@ -437,13 +453,13 @@
   color: #334155;
 }
 
-.programs-page .program-card .features li i {
+.partners-page .program-card .features li i {
   color: #22c55e;
   font-size: 14px;
   width: 18px;
 }
 
-.programs-page .program-card .cta-link {
+.partners-page .program-card .cta-link {
   display: block;
   text-align: center;
   background: #ff4500;
@@ -456,25 +472,25 @@
   margin-top: auto;
 }
 
-.programs-page .program-card .cta-link:hover { background: #e03e00; }
+.partners-page .program-card .cta-link:hover { background: #e03e00; }
 
-.programs-page .program-card .cta-link.outline {
+.partners-page .program-card .cta-link.outline {
   background: transparent;
   color: #ff4500;
   border: 2px solid #ff4500;
 }
-.programs-page .program-card .cta-link.outline:hover {
+.partners-page .program-card .cta-link.outline:hover {
   background: #ff4500;
   color: #fff;
 }
 
-.programs-page .program-card .cta-link.green { background: #16a34a; }
-.programs-page .program-card .cta-link.green:hover { background: #15803d; }
+.partners-page .program-card .cta-link.green { background: #16a34a; }
+.partners-page .program-card .cta-link.green:hover { background: #15803d; }
 
 /* ============================================================
    紹介店舗の階段
 ============================================================ */
-.programs-page .stages-visual {
+.partners-page .stages-visual {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -483,7 +499,7 @@
   margin: 40px auto 60px;
   max-width: 900px;
 }
-.programs-page .stage-block {
+.partners-page .stage-block {
   flex: 1;
   min-width: 180px;
   background: rgba(255,255,255,0.05);
@@ -493,19 +509,19 @@
   text-align: center;
   transition: all 0.3s;
 }
-.programs-page .stage-block.is-3 {
+.partners-page .stage-block.is-3 {
   background: linear-gradient(160deg, rgba(255,69,0,0.2), rgba(255,69,0,0.08));
   border-color: #ff4500;
   box-shadow: 0 20px 48px rgba(255,69,0,0.2);
 }
-.programs-page .stage-num {
+.partners-page .stage-num {
   font-size: 12px;
   color: #94a3b8;
   font-weight: 800;
   letter-spacing: 1px;
   margin-bottom: 8px;
 }
-.programs-page .stage-rate {
+.partners-page .stage-rate {
   font-size: 42px;
   font-weight: 900;
   line-height: 1;
@@ -515,42 +531,40 @@
   background-clip: text;
   letter-spacing: -2px;
 }
-.programs-page .stage-rate span {
+.partners-page .stage-rate span {
   font-size: 22px;
   -webkit-text-fill-color: #fd7e5a;
 }
-.programs-page .stage-label {
+.partners-page .stage-label {
   font-size: 11px;
   color: #cbd5e1;
   font-weight: 700;
   margin-top: 8px;
 }
-.programs-page .stage-arrow {
+.partners-page .stage-arrow {
   color: #ff4500;
   font-size: 28px;
   font-weight: 900;
 }
 
-.programs-page .section-subtitle {
+.partners-page .section-subtitle {
   text-align: center;
   margin-bottom: 24px;
 }
-.programs-page .section-subtitle h3 {
+.partners-page .section-subtitle h3 {
   font-size: 20px;
   font-weight: 900;
   color: #fff;
   letter-spacing: -0.5px;
   margin-bottom: 6px;
 }
-.programs-page .section-subtitle p {
+.partners-page .section-subtitle p {
   font-size: 13px;
   color: #94a3b8;
 }
 
-/* ============================================================
-   累計店舗テーブル（視認性改善版）
-============================================================ */
-.programs-page .stages-table-wrap {
+/* ★ 累計店舗テーブル（視認性改善版） */
+.partners-page .stages-table-wrap {
   overflow-x: auto;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -559,28 +573,28 @@
   margin-bottom: 16px;
 }
 
-.programs-page .stages-table {
+.partners-page .stages-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
   min-width: 600px;
 }
 
-.programs-page .stages-table th,
-.programs-page .stages-table td {
+.partners-page .stages-table th,
+.partners-page .stages-table td {
   padding: 14px 20px;
   text-align: left;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.programs-page .stages-table thead th {
+.partners-page .stages-table thead th {
   background: rgba(255, 255, 255, 0.12);
   font-weight: 800;
   color: #ffffff;
   font-size: 13px;
   border-bottom: 2px solid rgba(255, 255, 255, 0.15);
 }
-.programs-page .stages-table thead th small {
+.partners-page .stages-table thead th small {
   font-size: 10px;
   color: #94a3b8;
   font-weight: 600;
@@ -588,29 +602,29 @@
   margin-top: 2px;
 }
 
-.programs-page .stages-table tbody td {
+.partners-page .stages-table tbody td {
   color: #e2e8f0;
   font-weight: 700;
 }
 
-.programs-page .stages-table tbody tr:hover td {
+.partners-page .stages-table tbody tr:hover td {
   background: rgba(255, 255, 255, 0.04);
 }
 
-.programs-page .stages-table tbody tr.is-highlight td {
+.partners-page .stages-table tbody tr.is-highlight td {
   background: rgba(255, 69, 0, 0.25);
   color: #ffffff;
   font-weight: 900;
 }
-.programs-page .stages-table tbody tr.is-highlight td:first-child {
+.partners-page .stages-table tbody tr.is-highlight td:first-child {
   color: #fd7e5a;
 }
 
-.programs-page .stages-table tbody tr:last-child td {
+.partners-page .stages-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-.programs-page .stages-note {
+.partners-page .stages-note {
   font-size: 12px;
   color: #94a3b8;
   line-height: 1.9;
@@ -618,7 +632,7 @@
   margin-top: 12px;
 }
 
-.programs-page .stages-cta {
+.partners-page .stages-cta {
   text-align: center;
   margin-top: 40px;
 }
@@ -626,7 +640,7 @@
 /* ============================================================
    比較表
 ============================================================ */
-.programs-page .compare-table-wrap {
+.partners-page .compare-table-wrap {
   overflow-x: auto;
   margin: 24px 0;
   border-radius: 12px;
@@ -634,14 +648,14 @@
   background: #fff;
 }
 
-.programs-page .compare-table {
+.partners-page .compare-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
   min-width: 600px;
 }
 
-.programs-page .compare-table th {
+.partners-page .compare-table th {
   background: #f1f5f9;
   padding: 16px 20px;
   text-align: left;
@@ -650,20 +664,20 @@
   border-bottom: 2px solid #e2e8f0;
 }
 
-.programs-page .compare-table td {
+.partners-page .compare-table td {
   padding: 14px 20px;
   border-bottom: 1px solid #e2e8f0;
   color: #334155;
 }
 
-.programs-page .compare-table tr:last-child td { border-bottom: none; }
+.partners-page .compare-table tr:last-child td { border-bottom: none; }
 
-.programs-page .compare-table .check {
+.partners-page .compare-table .check {
   color: #22c55e;
   font-weight: 700;
 }
 
-.programs-page .compare-table .highlight-cell {
+.partners-page .compare-table .highlight-cell {
   background: #fff7ed;
   font-weight: 700;
 }
@@ -671,14 +685,14 @@
 /* ============================================================
    競合比較
 ============================================================ */
-.programs-page .competitor-grid {
+.partners-page .competitor-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 24px;
   margin-top: 16px;
 }
 
-.programs-page .competitor-card {
+.partners-page .competitor-card {
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
@@ -686,90 +700,90 @@
   text-align: center;
 }
 
-.programs-page .competitor-card .name {
+.partners-page .competitor-card .name {
   font-size: 20px;
   font-weight: 800;
   margin-bottom: 4px;
 }
 
-.programs-page .competitor-card .name.push-taro { color: #ff4500; }
+.partners-page .competitor-card .name.push-taro { color: #ff4500; }
 
-.programs-page .competitor-card .tagline {
+.partners-page .competitor-card .tagline {
   font-size: 13px;
   color: #64748b;
   margin-bottom: 16px;
 }
 
-.programs-page .competitor-card .feature-list {
+.partners-page .competitor-card .feature-list {
   text-align: left;
   list-style: none;
   padding: 0;
   font-size: 14px;
 }
 
-.programs-page .competitor-card .feature-list li {
+.partners-page .competitor-card .feature-list li {
   padding: 6px 0;
   border-bottom: 1px solid #f1f5f9;
   display: flex;
   justify-content: space-between;
 }
 
-.programs-page .competitor-card .feature-list li:last-child { border-bottom: none; }
-.programs-page .competitor-card .feature-list .val { font-weight: 700; }
-.programs-page .competitor-card .feature-list .val.yes { color: #22c55e; }
-.programs-page .competitor-card .feature-list .val.no { color: #94a3b8; }
-.programs-page .competitor-card .feature-list .val.best { color: #ff4500; }
+.partners-page .competitor-card .feature-list li:last-child { border-bottom: none; }
+.partners-page .competitor-card .feature-list .val { font-weight: 700; }
+.partners-page .competitor-card .feature-list .val.yes { color: #22c55e; }
+.partners-page .competitor-card .feature-list .val.no { color: #94a3b8; }
+.partners-page .competitor-card .feature-list .val.best { color: #ff4500; }
 
 /* ============================================================
    携帯代理店比較
 ============================================================ */
-.programs-page .mobile-compare-wrap {
+.partners-page .mobile-compare-wrap {
   overflow-x: auto;
   border-radius: 14px;
   border: 1px solid #e2e8f0;
   background: #fff;
   box-shadow: 0 12px 32px rgba(0,0,0,0.05);
 }
-.programs-page .mobile-compare-table {
+.partners-page .mobile-compare-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
   min-width: 720px;
 }
-.programs-page .mobile-compare-table th,
-.programs-page .mobile-compare-table td {
+.partners-page .mobile-compare-table th,
+.partners-page .mobile-compare-table td {
   padding: 16px 20px;
   text-align: left;
   border-bottom: 1px solid #e2e8f0;
   vertical-align: top;
 }
-.programs-page .mobile-compare-table thead th {
+.partners-page .mobile-compare-table thead th {
   background: #f8fafc;
   font-weight: 900;
   color: #0f172a;
   font-size: 13px;
   border-bottom: 2px solid #e2e8f0;
 }
-.programs-page .mobile-compare-table thead th.col-mobile { color: #64748b; }
-.programs-page .mobile-compare-table thead th.col-pushtaro {
+.partners-page .mobile-compare-table thead th.col-mobile { color: #64748b; }
+.partners-page .mobile-compare-table thead th.col-pushtaro {
   background: linear-gradient(135deg, #fff7ed, #ffedd5);
   color: #ff4500;
 }
-.programs-page .mobile-compare-table tbody tr:last-child td { border-bottom: none; }
-.programs-page .mobile-compare-table td.col-pushtaro {
+.partners-page .mobile-compare-table tbody tr:last-child td { border-bottom: none; }
+.partners-page .mobile-compare-table td.col-pushtaro {
   background: #fffbf5;
   font-weight: 800;
   color: #0f172a;
 }
-.programs-page .mobile-compare-table tr.is-highlight td {
+.partners-page .mobile-compare-table tr.is-highlight td {
   background: #fff7ed;
 }
-.programs-page .mobile-compare-table tr.is-highlight td:first-child {
+.partners-page .mobile-compare-table tr.is-highlight td:first-child {
   color: #ff4500;
   font-weight: 900;
 }
 
-.programs-page .mobile-compare-conclusion {
+.partners-page .mobile-compare-conclusion {
   text-align: center;
   margin-top: 40px;
   padding: 32px;
@@ -777,48 +791,48 @@
   border-radius: 16px;
   color: #fff;
 }
-.programs-page .mobile-compare-conclusion h3 {
+.partners-page .mobile-compare-conclusion h3 {
   font-size: 22px;
   font-weight: 900;
   letter-spacing: -0.5px;
   margin-bottom: 12px;
 }
-.programs-page .mobile-compare-conclusion p {
+.partners-page .mobile-compare-conclusion p {
   font-size: 14px;
   color: #cbd5e1;
   line-height: 2;
 }
-.programs-page .mobile-compare-conclusion strong {
+.partners-page .mobile-compare-conclusion strong {
   color: #fd7e5a;
   font-weight: 900;
 }
 
-.programs-page .mobile-compare-highlight {
+.partners-page .mobile-compare-highlight {
   margin-top: 24px;
 }
-.programs-page .highlight-card {
+.partners-page .highlight-card {
   padding: 32px;
   background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
   border: 2px solid #86efac;
   border-radius: 16px;
 }
-.programs-page .highlight-icon {
+.partners-page .highlight-icon {
   font-size: 36px;
   margin-bottom: 12px;
 }
-.programs-page .highlight-card h4 {
+.partners-page .highlight-card h4 {
   font-size: 18px;
   font-weight: 900;
   color: #166534;
   letter-spacing: -0.4px;
   margin-bottom: 12px;
 }
-.programs-page .highlight-card p {
+.partners-page .highlight-card p {
   font-size: 14px;
   color: #166534;
   line-height: 1.9;
 }
-.programs-page .highlight-card strong {
+.partners-page .highlight-card strong {
   color: #14532d;
   background: #fef3c7;
   padding: 2px 8px;
@@ -829,43 +843,43 @@
 /* ============================================================
    ストックビジネス比較
 ============================================================ */
-.programs-page .stock-compare-wrap {
+.partners-page .stock-compare-wrap {
   overflow-x: auto;
   border-radius: 14px;
   border: 1px solid #e2e8f0;
   background: #fff;
   box-shadow: 0 12px 32px rgba(0,0,0,0.05);
 }
-.programs-page .stock-compare-table {
+.partners-page .stock-compare-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13.5px;
   min-width: 900px;
 }
-.programs-page .stock-compare-table th,
-.programs-page .stock-compare-table td {
+.partners-page .stock-compare-table th,
+.partners-page .stock-compare-table td {
   padding: 14px 16px;
   text-align: left;
   border-bottom: 1px solid #e2e8f0;
   vertical-align: top;
 }
-.programs-page .stock-compare-table thead th {
+.partners-page .stock-compare-table thead th {
   background: #f8fafc;
   font-weight: 900;
   color: #0f172a;
   font-size: 12.5px;
   border-bottom: 2px solid #e2e8f0;
 }
-.programs-page .stock-compare-table tbody tr:last-child td { border-bottom: none; }
-.programs-page .stock-compare-table tr.is-pushtaro td {
+.partners-page .stock-compare-table tbody tr:last-child td { border-bottom: none; }
+.partners-page .stock-compare-table tr.is-pushtaro td {
   background: linear-gradient(135deg, #fff7ed, #ffedd5);
   color: #0f172a;
   font-weight: 900;
   border-bottom: 2px solid #fed7aa;
 }
-.programs-page .stock-compare-table tr.is-pushtaro td:first-child { color: #ff4500; }
+.partners-page .stock-compare-table tr.is-pushtaro td:first-child { color: #ff4500; }
 
-.programs-page .stock-compare-note {
+.partners-page .stock-compare-note {
   text-align: center;
   margin-top: 32px;
   padding: 28px;
@@ -873,12 +887,12 @@
   border-radius: 16px;
   color: #fff;
 }
-.programs-page .stock-compare-note p {
+.partners-page .stock-compare-note p {
   font-size: 15px;
   color: #cbd5e1;
   line-height: 1.9;
 }
-.programs-page .stock-compare-note strong {
+.partners-page .stock-compare-note strong {
   color: #fd7e5a;
   font-weight: 900;
 }
@@ -886,14 +900,14 @@
 /* ============================================================
    収益シミュレーション
 ============================================================ */
-.programs-page .sim-wrap {
+.partners-page .sim-wrap {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 24px;
   margin-top: 16px;
 }
 
-.programs-page .sim-card {
+.partners-page .sim-card {
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
@@ -901,32 +915,32 @@
   border-top: 4px solid #ff4500;
 }
 
-.programs-page .sim-card h4 {
+.partners-page .sim-card h4 {
   font-size: 16px;
   font-weight: 800;
   margin-bottom: 4px;
 }
 
-.programs-page .sim-card .desc {
+.partners-page .sim-card .desc {
   font-size: 13px;
   color: #64748b;
   margin-bottom: 16px;
 }
 
-.programs-page .sim-card .amount {
+.partners-page .sim-card .amount {
   font-size: 32px;
   font-weight: 900;
   color: #ff4500;
   margin-bottom: 4px;
 }
 
-.programs-page .sim-card .amount span {
+.partners-page .sim-card .amount span {
   font-size: 16px;
   font-weight: 600;
   color: #1e293b;
 }
 
-.programs-page .sim-card .note {
+.partners-page .sim-card .note {
   font-size: 13px;
   color: #475569;
   background: #f1f5f9;
@@ -938,17 +952,17 @@
 /* ============================================================
    販促ツール（浮遊モックアップ）
 ============================================================ */
-.programs-page .promo-overview {
+.partners-page .promo-overview {
   position: relative;
   padding: 40px 0 20px;
 }
-.programs-page .promo-overview-inner {
+.partners-page .promo-overview-inner {
   position: relative;
   height: 520px;
   max-width: 900px;
   margin: 0 auto;
 }
-.programs-page .ov-item {
+.partners-page .ov-item {
   position: absolute;
   background: #fff;
   border-radius: 8px;
@@ -956,13 +970,13 @@
   overflow: hidden;
   transition: transform 0.3s, box-shadow 0.3s;
 }
-.programs-page .ov-item:hover {
+.partners-page .ov-item:hover {
   transform: rotate(0deg) translateY(-12px) scale(1.03) !important;
   z-index: 100 !important;
   box-shadow: 0 36px 90px rgba(0,0,0,0.28);
 }
 
-.programs-page .ov-trifold {
+.partners-page .ov-trifold {
   width: 480px;
   height: 340px;
   left: 50%;
@@ -973,7 +987,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
 }
-.programs-page .ov-tf-panel {
+.partners-page .ov-tf-panel {
   padding: 18px 12px;
   font-size: 8px;
   line-height: 1.4;
@@ -981,20 +995,20 @@
   display: flex;
   flex-direction: column;
 }
-.programs-page .ov-tf-panel.ov-l {
+.partners-page .ov-tf-panel.ov-l {
   background: linear-gradient(180deg, #fffbf5, #fff);
   border-right: 1px dashed #e2e8f0;
 }
-.programs-page .ov-tf-panel.ov-m {
+.partners-page .ov-tf-panel.ov-m {
   background: #fafafa;
   border-right: 1px dashed #e2e8f0;
 }
-.programs-page .ov-tf-panel.ov-r {
+.partners-page .ov-tf-panel.ov-r {
   background: linear-gradient(160deg, #0f172a, #1e293b);
   color: #fff;
 }
 
-.programs-page .ov-tag {
+.partners-page .ov-tag {
   display: inline-block;
   font-size: 6px;
   font-weight: 900;
@@ -1005,44 +1019,44 @@
   align-self: flex-start;
   margin-bottom: 6px;
 }
-.programs-page .ov-h {
+.partners-page .ov-h {
   font-size: 11px;
   font-weight: 900;
   line-height: 1.3;
   margin-bottom: 5px;
 }
-.programs-page .ov-h span { color: #ff4500; }
-.programs-page .ov-text {
+.partners-page .ov-h span { color: #ff4500; }
+.partners-page .ov-text {
   font-size: 7px;
   color: #64748b;
   line-height: 1.5;
   margin-bottom: 8px;
 }
-.programs-page .ov-refbox {
+.partners-page .ov-refbox {
   background: linear-gradient(160deg, #0f172a, #1e293b);
   border-radius: 6px;
   padding: 8px;
   color: #fff;
 }
-.programs-page .ov-refbox-title {
+.partners-page .ov-refbox-title {
   font-size: 8px;
   font-weight: 900;
   margin-bottom: 6px;
   line-height: 1.3;
 }
-.programs-page .ov-refbox-title span { color: #fd7e5a; }
-.programs-page .ov-refbox-row {
+.partners-page .ov-refbox-title span { color: #fd7e5a; }
+.partners-page .ov-refbox-row {
   display: flex;
   justify-content: space-between;
   padding: 3px 0;
   border-bottom: 1px dashed rgba(255,255,255,0.15);
   font-size: 7px;
 }
-.programs-page .ov-refbox-row:last-of-type { border-bottom: none; }
-.programs-page .ov-refbox-row span { color: #cbd5e1; }
-.programs-page .ov-refbox-row strong { font-weight: 900; }
-.programs-page .ov-refbox-row strong.hl { color: #fd7e5a; }
-.programs-page .ov-refbox-conclusion {
+.partners-page .ov-refbox-row:last-of-type { border-bottom: none; }
+.partners-page .ov-refbox-row span { color: #cbd5e1; }
+.partners-page .ov-refbox-row strong { font-weight: 900; }
+.partners-page .ov-refbox-row strong.hl { color: #fd7e5a; }
+.partners-page .ov-refbox-conclusion {
   margin-top: 5px;
   padding: 4px;
   background: linear-gradient(135deg, #ff4500, #f97316);
@@ -1052,30 +1066,30 @@
   font-weight: 900;
 }
 
-.programs-page .ov-back-logo {
+.partners-page .ov-back-logo {
   display: flex;
   align-items: center;
   gap: 4px;
   margin-bottom: 4px;
 }
-.programs-page .ov-back-mark {
+.partners-page .ov-back-mark {
   width: 14px;
   height: 14px;
   border-radius: 50%;
   background: linear-gradient(135deg, #ff6b6b, #ff4500);
 }
-.programs-page .ov-back-name {
+.partners-page .ov-back-name {
   font-size: 11px;
   font-weight: 900;
 }
-.programs-page .ov-back-name span { color: #ff4500; }
-.programs-page .ov-back-tag {
+.partners-page .ov-back-name span { color: #ff4500; }
+.partners-page .ov-back-tag {
   font-size: 6px;
   color: #64748b;
   font-weight: 700;
   margin-bottom: 8px;
 }
-.programs-page .ov-offer {
+.partners-page .ov-offer {
   background: #fff;
   border: 1.5px dashed #ff4500;
   border-radius: 5px;
@@ -1083,7 +1097,7 @@
   text-align: center;
   margin-bottom: 6px;
 }
-.programs-page .ov-offer-badge {
+.partners-page .ov-offer-badge {
   display: inline-block;
   font-size: 5px;
   font-weight: 900;
@@ -1093,14 +1107,14 @@
   color: #fff;
   margin-bottom: 4px;
 }
-.programs-page .ov-offer-title {
+.partners-page .ov-offer-title {
   font-size: 7px;
   font-weight: 900;
   line-height: 1.3;
   margin-bottom: 4px;
 }
-.programs-page .ov-offer-title span { color: #ff4500; }
-.programs-page .ov-offer-code {
+.partners-page .ov-offer-title span { color: #ff4500; }
+.partners-page .ov-offer-code {
   font-family: monospace;
   font-size: 9px;
   font-weight: 900;
@@ -1111,82 +1125,82 @@
   padding: 3px;
   margin-bottom: 4px;
 }
-.programs-page .ov-qr {
+.partners-page .ov-qr {
   width: 40px;
   height: 40px;
   margin: 0 auto 3px;
   background: repeating-linear-gradient(45deg, #0f172a, #0f172a 3px, #fff 3px, #fff 6px);
   border-radius: 3px;
 }
-.programs-page .ov-contact {
+.partners-page .ov-contact {
   padding-top: 6px;
   border-top: 1.5px solid #0f172a;
 }
-.programs-page .ov-contact-label {
+.partners-page .ov-contact-label {
   font-size: 5px;
   font-weight: 900;
   letter-spacing: 1.5px;
   color: #ff4500;
   margin-bottom: 3px;
 }
-.programs-page .ov-contact-company {
+.partners-page .ov-contact-company {
   font-size: 9px;
   font-weight: 900;
   margin-bottom: 2px;
 }
-.programs-page .ov-contact-owner {
+.partners-page .ov-contact-owner {
   font-size: 7px;
   color: #475569;
   margin-bottom: 4px;
 }
-.programs-page .ov-contact-info {
+.partners-page .ov-contact-info {
   font-size: 6px;
   color: #334155;
   line-height: 1.5;
 }
 
-.programs-page .ov-cover-top {
+.partners-page .ov-cover-top {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
 }
-.programs-page .ov-cover-logo {
+.partners-page .ov-cover-logo {
   display: flex;
   align-items: center;
   gap: 3px;
 }
-.programs-page .ov-cover-mark {
+.partners-page .ov-cover-mark {
   width: 12px;
   height: 12px;
   border-radius: 50%;
   background: linear-gradient(135deg, #ff6b6b, #ff4500);
 }
-.programs-page .ov-cover-name {
+.partners-page .ov-cover-name {
   font-size: 10px;
   font-weight: 900;
 }
-.programs-page .ov-cover-name span { color: #ff4500; }
-.programs-page .ov-cover-mid {
+.partners-page .ov-cover-name span { color: #ff4500; }
+.partners-page .ov-cover-mid {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
-.programs-page .ov-cover-lead {
+.partners-page .ov-cover-lead {
   font-size: 6px;
   color: #fd7e5a;
   font-weight: 900;
   margin-bottom: 6px;
 }
-.programs-page .ov-cover-catch {
+.partners-page .ov-cover-catch {
   font-size: 14px;
   font-weight: 900;
   line-height: 1.3;
   letter-spacing: -0.5px;
 }
-.programs-page .ov-cover-catch span { color: #fd7e5a; }
+.partners-page .ov-cover-catch span { color: #fd7e5a; }
 
-.programs-page .ov-a4 {
+.partners-page .ov-a4 {
   width: 200px;
   height: 280px;
   right: 0;
@@ -1194,7 +1208,7 @@
   transform: rotate(6deg);
   z-index: 5;
 }
-.programs-page .ov-a4-front {
+.partners-page .ov-a4-front {
   width: 100%;
   height: 100%;
   background: linear-gradient(160deg, #0f172a, #1e293b);
@@ -1203,66 +1217,66 @@
   display: flex;
   flex-direction: column;
 }
-.programs-page .ov-a4-logo {
+.partners-page .ov-a4-logo {
   display: flex;
   align-items: center;
   gap: 5px;
   margin-bottom: 16px;
 }
-.programs-page .ov-a4-mark {
+.partners-page .ov-a4-mark {
   width: 18px;
   height: 18px;
   border-radius: 50%;
   background: linear-gradient(135deg, #ff6b6b, #ff4500);
 }
-.programs-page .ov-a4-name { font-size: 13px; font-weight: 900; }
-.programs-page .ov-a4-name span { color: #ff4500; }
-.programs-page .ov-a4-lead {
+.partners-page .ov-a4-name { font-size: 13px; font-weight: 900; }
+.partners-page .ov-a4-name span { color: #ff4500; }
+.partners-page .ov-a4-lead {
   font-size: 7px;
   color: #fd7e5a;
   font-weight: 900;
   margin-bottom: 8px;
 }
-.programs-page .ov-a4-catch {
+.partners-page .ov-a4-catch {
   font-size: 17px;
   font-weight: 900;
   line-height: 1.3;
   letter-spacing: -0.5px;
   margin-bottom: auto;
 }
-.programs-page .ov-a4-catch span { color: #fd7e5a; }
-.programs-page .ov-a4-stats {
+.partners-page .ov-a4-catch span { color: #fd7e5a; }
+.partners-page .ov-a4-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 4px;
   margin-top: auto;
 }
-.programs-page .ov-a4-stats > div {
+.partners-page .ov-a4-stats > div {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 5px;
   padding: 5px 2px;
   text-align: center;
 }
-.programs-page .ov-a4-stats strong {
+.partners-page .ov-a4-stats strong {
   display: block;
   font-size: 13px;
   font-weight: 900;
   color: #fd7e5a;
   line-height: 1;
 }
-.programs-page .ov-a4-stats strong small {
+.partners-page .ov-a4-stats strong small {
   font-size: 8px;
   margin-left: 1px;
 }
-.programs-page .ov-a4-stats span {
+.partners-page .ov-a4-stats span {
   font-size: 6px;
   color: #94a3b8;
   display: block;
   margin-top: 2px;
 }
 
-.programs-page .ov-card {
+.partners-page .ov-card {
   width: 180px;
   height: 108px;
   left: 20px;
@@ -1275,36 +1289,36 @@
   display: flex;
   flex-direction: column;
 }
-.programs-page .ov-card-top {
+.partners-page .ov-card-top {
   display: flex;
   align-items: center;
   gap: 5px;
   margin-bottom: auto;
 }
-.programs-page .ov-card-mark {
+.partners-page .ov-card-mark {
   width: 14px;
   height: 14px;
   border-radius: 50%;
   background: linear-gradient(135deg, #ff6b6b, #ff4500);
 }
-.programs-page .ov-card-name {
+.partners-page .ov-card-name {
   font-size: 11px;
   font-weight: 900;
 }
-.programs-page .ov-card-name span { color: #ff4500; }
-.programs-page .ov-card-catch {
+.partners-page .ov-card-name span { color: #ff4500; }
+.partners-page .ov-card-catch {
   font-size: 10px;
   font-weight: 900;
   line-height: 1.35;
   margin-bottom: 4px;
 }
-.programs-page .ov-card-catch span { color: #fd7e5a; }
-.programs-page .ov-card-sub {
+.partners-page .ov-card-catch span { color: #fd7e5a; }
+.partners-page .ov-card-sub {
   font-size: 6px;
   color: #94a3b8;
 }
 
-.programs-page .ov-a5 {
+.partners-page .ov-a5 {
   width: 130px;
   height: 184px;
   right: 60px;
@@ -1317,40 +1331,40 @@
   display: flex;
   flex-direction: column;
 }
-.programs-page .ov-a5-mark {
+.partners-page .ov-a5-mark {
   width: 16px;
   height: 16px;
   border-radius: 50%;
   background: linear-gradient(135deg, #ff6b6b, #ff4500);
   margin-bottom: 6px;
 }
-.programs-page .ov-a5-name {
+.partners-page .ov-a5-name {
   font-size: 11px;
   font-weight: 900;
   margin-bottom: 12px;
 }
-.programs-page .ov-a5-name span { color: #ff4500; }
-.programs-page .ov-a5-catch {
+.partners-page .ov-a5-name span { color: #ff4500; }
+.partners-page .ov-a5-catch {
   font-size: 12px;
   font-weight: 900;
   line-height: 1.35;
   letter-spacing: -0.3px;
   margin-top: auto;
 }
-.programs-page .ov-a5-catch span { color: #fd7e5a; }
+.partners-page .ov-a5-catch span { color: #fd7e5a; }
 
-.programs-page .promo-caption {
+.partners-page .promo-caption {
   text-align: center;
   margin-top: 24px;
   font-size: 13px;
   color: #64748b;
   line-height: 1.8;
 }
-.programs-page .promo-caption strong {
+.partners-page .promo-caption strong {
   color: #0f172a;
   font-weight: 900;
 }
-.programs-page .promo-cta {
+.partners-page .promo-cta {
   text-align: center;
   margin-top: 32px;
 }
@@ -1358,7 +1372,7 @@
 /* ============================================================
    FAQ
 ============================================================ */
-.programs-page .faq-list {
+.partners-page .faq-list {
   max-width: 800px;
   margin: 0 auto;
   display: flex;
@@ -1366,14 +1380,14 @@
   gap: 12px;
 }
 
-.programs-page .faq-item {
+.partners-page .faq-item {
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   overflow: hidden;
 }
 
-.programs-page .faq-question {
+.partners-page .faq-question {
   width: 100%;
   padding: 18px 24px;
   background: none;
@@ -1389,18 +1403,18 @@
   transition: background 0.2s;
 }
 
-.programs-page .faq-question:hover { background: #f8fafc; }
+.partners-page .faq-question:hover { background: #f8fafc; }
 
-.programs-page .faq-question i {
+.partners-page .faq-question i {
   transition: transform 0.3s;
   color: #ff4500;
 }
 
-.programs-page .faq-item.active .faq-question i {
+.partners-page .faq-item.active .faq-question i {
   transform: rotate(180deg);
 }
 
-.programs-page .faq-answer {
+.partners-page .faq-answer {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease, padding 0.3s ease;
@@ -1410,7 +1424,7 @@
   line-height: 1.7;
 }
 
-.programs-page .faq-item.active .faq-answer {
+.partners-page .faq-item.active .faq-answer {
   max-height: 300px;
   padding: 0 24px 24px;
 }
@@ -1418,20 +1432,20 @@
 /* ============================================================
    最終CTA
 ============================================================ */
-.programs-page .cta-final {
+.partners-page .cta-final {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: #fff;
   text-align: center;
   padding: 72px 0 64px;
 }
 
-.programs-page .cta-final h2 {
+.partners-page .cta-final h2 {
   font-size: clamp(28px, 3vw, 38px);
   font-weight: 800;
   margin-bottom: 12px;
 }
 
-.programs-page .cta-final p {
+.partners-page .cta-final p {
   color: #94a3b8;
   font-size: 16px;
   margin-bottom: 32px;
@@ -1440,7 +1454,7 @@
   margin-right: auto;
 }
 
-.programs-page .cta-final .grid {
+.partners-page .cta-final .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
@@ -1448,31 +1462,31 @@
   margin: 0 auto;
 }
 
-.programs-page .cta-final .grid .item {
+.partners-page .cta-final .grid .item {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   padding: 24px 20px;
 }
 
-.programs-page .cta-final .grid .item .icon {
+.partners-page .cta-final .grid .item .icon {
   font-size: 28px;
   margin-bottom: 8px;
 }
 
-.programs-page .cta-final .grid .item h4 {
+.partners-page .cta-final .grid .item h4 {
   font-size: 16px;
   font-weight: 700;
   margin-bottom: 4px;
 }
 
-.programs-page .cta-final .grid .item .sub {
+.partners-page .cta-final .grid .item .sub {
   font-size: 12px;
   color: #94a3b8;
   margin-bottom: 12px;
 }
 
-.programs-page .cta-final .grid .item .btn-small {
+.partners-page .cta-final .grid .item .btn-small {
   display: inline-block;
   background: #ff4500;
   color: #fff;
@@ -1484,18 +1498,18 @@
   transition: all 0.2s;
 }
 
-.programs-page .cta-final .grid .item .btn-small:hover { background: #e03e00; }
+.partners-page .cta-final .grid .item .btn-small:hover { background: #e03e00; }
 
-.programs-page .cta-final .grid .item .btn-small.outline {
+.partners-page .cta-final .grid .item .btn-small.outline {
   background: transparent;
   border: 1px solid #fff;
 }
-.programs-page .cta-final .grid .item .btn-small.outline:hover {
+.partners-page .cta-final .grid .item .btn-small.outline:hover {
   background: #fff;
   color: #0f172a;
 }
 
-.programs-page .cta-final .footnote {
+.partners-page .cta-final .footnote {
   margin-top: 32px;
   font-size: 13px;
   color: #64748b;
@@ -1504,9 +1518,9 @@
 }
 
 /* ============================================================
-   フッター（2カラム・PC最適化）
+   フッター（2カラム）
 ============================================================ */
-.programs-page .footer {
+.partners-page .footer {
   background: #0f172a;
   color: #94a3b8;
   padding: 64px 0 32px;
@@ -1515,7 +1529,7 @@
   text-align: left;
 }
 
-.programs-page .footer-grid {
+.partners-page .footer-grid {
   display: grid;
   grid-template-columns: 1fr 2fr;
   gap: 64px;
@@ -1523,12 +1537,9 @@
   align-items: start;
 }
 
-/* 左：ブランド */
-.programs-page .footer-brand {
-  max-width: 320px;
-}
+.partners-page .footer-brand { max-width: 320px; }
 
-.programs-page .footer-logo {
+.partners-page .footer-logo {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1538,29 +1549,29 @@
   color: #fff;
   line-height: 1;
 }
-.programs-page .footer-logo svg {
+.partners-page .footer-logo svg {
   flex-shrink: 0;
   display: block;
 }
-.programs-page .footer-logo > span {
+.partners-page .footer-logo > span {
   color: #fff;
   line-height: 1;
   display: inline-flex;
   align-items: center;
 }
-.programs-page .footer-logo .dot {
+.partners-page .footer-logo .dot {
   color: #ff4500;
   margin-left: 1px;
 }
 
-.programs-page .footer-desc {
+.partners-page .footer-desc {
   font-size: 13px;
   color: #94a3b8;
   line-height: 1.8;
   margin: 0 0 20px;
 }
 
-.programs-page .footer-badge {
+.partners-page .footer-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -1572,7 +1583,7 @@
   font-weight: 700;
   color: #fd7e5a;
 }
-.programs-page .footer-badge-dot {
+.partners-page .footer-badge-dot {
   width: 6px;
   height: 6px;
   background: #22c55e;
@@ -1580,14 +1591,13 @@
   box-shadow: 0 0 6px #22c55e;
 }
 
-/* 右：3列のリンク */
-.programs-page .footer-links-wrap {
+.partners-page .footer-links-wrap {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 40px;
 }
 
-.programs-page .footer-col-title {
+.partners-page .footer-col-title {
   font-size: 13px;
   font-weight: 800;
   color: #fff;
@@ -1595,7 +1605,7 @@
   margin: 0 0 16px;
 }
 
-.programs-page .footer-col-list {
+.partners-page .footer-col-list {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -1604,18 +1614,15 @@
   gap: 10px;
 }
 
-.programs-page .footer-col-list a {
+.partners-page .footer-col-list a {
   font-size: 13px;
   color: #94a3b8;
   text-decoration: none;
   transition: color 0.2s;
 }
-.programs-page .footer-col-list a:hover {
-  color: #fff;
-}
+.partners-page .footer-col-list a:hover { color: #fff; }
 
-/* 下部：コピーライト */
-.programs-page .footer-bottom {
+.partners-page .footer-bottom {
   padding-top: 24px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
@@ -1625,8 +1632,8 @@
   gap: 12px;
 }
 
-.programs-page .footer-copy,
-.programs-page .footer-address {
+.partners-page .footer-copy,
+.partners-page .footer-address {
   font-size: 12px;
   color: #64748b;
   margin: 0;
@@ -1636,14 +1643,14 @@
    レスポンシブ
 ============================================================ */
 @media (max-width: 900px) {
-  .programs-page .promo-overview-inner {
+  .partners-page .promo-overview-inner {
     height: auto;
     display: flex;
     flex-direction: column;
     gap: 20px;
     align-items: center;
   }
-  .programs-page .ov-item {
+  .partners-page .ov-item {
     position: relative;
     left: auto !important;
     right: auto !important;
@@ -1654,51 +1661,51 @@
     width: 100%;
     max-width: 480px;
   }
-  .programs-page .ov-trifold {
+  .partners-page .ov-trifold {
     width: 100%;
     max-width: 480px;
     height: 340px;
   }
-  .programs-page .footer-grid {
+  .partners-page .footer-grid {
     grid-template-columns: 1fr;
     gap: 40px;
   }
 }
 
 @media (max-width: 768px) {
-  .programs-page .hero { padding: 60px 0 40px; }
-  .programs-page .section { padding: 48px 0; }
-  .programs-page .program-grid { grid-template-columns: 1fr; }
-  .programs-page .sim-wrap { grid-template-columns: 1fr; }
-  .programs-page .cta-final .grid { grid-template-columns: 1fr; }
-  .programs-page .compare-table { font-size: 12px; min-width: 500px; }
-  .programs-page .compare-table th,
-  .programs-page .compare-table td { padding: 10px 12px; }
-  .programs-page .nav-cta { padding: 8px 16px; font-size: 12px; }
-  .programs-page .logo { font-size: 18px; }
+  .partners-page .hero { padding: 60px 0 40px; }
+  .partners-page .section { padding: 48px 0; }
+  .partners-page .program-grid { grid-template-columns: 1fr; }
+  .partners-page .sim-wrap { grid-template-columns: 1fr; }
+  .partners-page .cta-final .grid { grid-template-columns: 1fr; }
+  .partners-page .compare-table { font-size: 12px; min-width: 500px; }
+  .partners-page .compare-table th,
+  .partners-page .compare-table td { padding: 10px 12px; }
+  .partners-page .nav-cta { padding: 8px 16px; font-size: 12px; }
+  .partners-page .logo { font-size: 18px; }
 }
 
 @media (max-width: 768px) {
-  .programs-page .nav-cta { display: none; }
-  .programs-page .logo { width: 100%; }
-  .programs-page .logo small {
+  .partners-page .nav-cta { display: none; }
+  .partners-page .logo { width: 100%; }
+  .partners-page .logo small {
     margin-left: auto !important;
     margin-right: 0 !important;
   }
 }
 
 @media (max-width: 640px) {
-  .programs-page .stages-visual { gap: 8px; }
-  .programs-page .stage-block { min-width: 120px; padding: 16px 12px; }
-  .programs-page .stage-rate { font-size: 32px; }
-  .programs-page .stage-arrow { display: none; }
-  .programs-page .ov-trifold { height: 280px; }
-  .programs-page .ov-tf-panel { padding: 12px 8px; font-size: 7px; }
-  .programs-page .footer-links-wrap {
+  .partners-page .stages-visual { gap: 8px; }
+  .partners-page .stage-block { min-width: 120px; padding: 16px 12px; }
+  .partners-page .stage-rate { font-size: 32px; }
+  .partners-page .stage-arrow { display: none; }
+  .partners-page .ov-trifold { height: 280px; }
+  .partners-page .ov-tf-panel { padding: 12px 8px; font-size: 7px; }
+  .partners-page .footer-links-wrap {
     grid-template-columns: 1fr 1fr;
     gap: 24px;
   }
-  .programs-page .footer-bottom {
+  .partners-page .footer-bottom {
     flex-direction: column;
     align-items: flex-start;
   }
