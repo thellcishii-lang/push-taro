@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { GoogleAnalytics } from '@next/third-parties/google';   // ★ 追加①
 
 export const dynamic = 'force-dynamic';
 
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={{ margin: 0, background: '#fafafa' }}>
         {children}
       </body>
+      <GoogleAnalytics gaId="G-QCJH31R4FJ" />   {/* ★ 追加② */}
     </html>
   );
 }
