@@ -76,15 +76,6 @@ export default function ContactClient() {
 
         <div className="c-content">
 
-          {/* お急ぎの方 */}
-          <div className="c-callout">
-            <span className="c-callout-icon">💡</span>
-            <div>
-              <strong>お急ぎの方は、メールで直接ご連絡ください</strong>
-              <p><a href="mailto:info@push-taro.com">info@push-taro.com</a></p>
-            </div>
-          </div>
-
           {/* フォーム */}
           {submitted ? (
             <div className="c-success">
