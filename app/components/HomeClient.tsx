@@ -101,7 +101,6 @@ export default function HomeClient() {
             <small>実店舗のためのPush通知CRM</small>
           </a>
           <div className="nav-links">
-            <a href="#philosophy">思想</a>
             <a href="#features">機能</a>
             <a href="#pricing">料金</a>
             <a href="#partners">収益化</a>
@@ -217,13 +216,13 @@ export default function HomeClient() {
     <div className="story-wrap">
       <div className="story-text reveal">
         <p>
-          Push-taro は、長年のビジネス管理と店舗経営のリアルを、
+          Push-taro は、ビジネス管理と店舗経営のリアルを、
           <strong>システムに落とし込みました</strong>。
         </p>
         <p>
           毎日10時の日替わりメニュー配信。<br />
-          夜のお店のボトルプッシュ。<br />
-          「本日30個限定」の数量限定告知。
+          「本日30個限定」の数量限定告知。<br />
+          夜のお店のボトルプッシュ。
         </p>
         <p>
           現場が<strong>「明日からすぐ使えて、確実に売上に繋がる」</strong>仕組みだけを厳選して設計。
@@ -548,7 +547,7 @@ export default function HomeClient() {
     <div className="cvp-conclusion reveal">
       <h3>
         お客様は、決済アプリでポイントを貯めつつ、<br />
-        Push-taroのクーポンで<strong>今夜の特典</strong>を受け取る。
+        Push-taroのクーポンで<strong>今すぐ使える特典</strong>を受け取る。
       </h3>
       <p>
         この「ダブルでおトク」な体験を、アプリのインストール不要で、<br />
