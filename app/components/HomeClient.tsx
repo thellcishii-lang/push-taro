@@ -1637,7 +1637,7 @@ export default function HomeClient() {
             まずはお気軽に、無料相談・資料請求から。
           </p>
           <a href="/signup" className="btn-primary">
-            今すぐ申し込む（無料相談・簡単登録）
+            今すぐ申し込む
             <svg className="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
