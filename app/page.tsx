@@ -151,6 +151,18 @@ const faqJsonLd = {
 };
 
 const howToJsonLd = {
+  const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'ホーム',
+      item: appUrl,
+    },
+  ],
+};
   '@context': 'https://schema.org',
   '@type': 'HowTo',
   name: 'Push-taroの導入方法',
