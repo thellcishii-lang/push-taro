@@ -1627,25 +1627,33 @@ export default function HomeClient() {
         </svg>
 
         <div className="cta-final-inner reveal">
-          <h2>
-            お客様に喜んで頂ける、<br />
-            お店づくりを、一緒に。
-          </h2>
-          <p>
-            Push-taroは、実店舗の「喜んで頂ける仕組み」を<br />
-            プッシュ通知 × CRM で自動化するプラットフォームです。<br />
-            まずはお気軽に、無料相談・資料請求から。
-          </p>
-          <a href="/signup" className="btn-primary">
-            今すぐ申し込む
-            <svg className="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </a>
-          <div className="cta-note">
-            ※ 2026年9月 正式リリース。先行登録受付中です。
-          </div>
-        </div>
+  <h2>
+    お客様に喜んで頂ける、<br />
+    お店づくりを、一緒に。
+  </h2>
+  <p>
+    Push-taroは、実店舗の「喜んで頂ける仕組み」を<br />
+    プッシュ通知 × CRM で自動化するプラットフォームです。<br />
+    まずはお気軽に、無料相談・資料請求から。
+  </p>
+
+  {/* ★ ボタンペアに変更 */}
+  <div className="cta-final-actions">
+    <a href="/signup" className="btn-primary">
+      👑 今すぐ申し込む
+      <svg className="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </a>
+    <a href="/contact" className="btn-secondary">
+      📩 まずはご相談
+    </a>
+  </div>
+
+  <div className="cta-note">
+    ※ 2026年9月 正式リリース。現在、先行登録受付中です。
+  </div>
+</div>
       </section>
 
       {/* ============================================================
