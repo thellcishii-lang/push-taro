@@ -205,8 +205,7 @@ export default function HomeClient() {
     <div className="section-header reveal">
       <span className="section-tag">Real Knowledge × 25 Years</span>
       <h2>
-        シニアナレッジマネージャーが<br />
-        25年の現場経験から導き出した、<br />
+        実際の現場から導き出した、<br />
         実店舗のための「本当に人が動く」システム。
       </h2>
       <p>
@@ -237,9 +236,9 @@ export default function HomeClient() {
 
       <div className="story-flow reveal-right">
         <div className="story-step">
-          <div className="story-step-num">25</div>
+          <div className="story-step-num">１</div>
           <div className="story-step-text">
-            <strong>年のビジネス管理・店舗経営の現場経験</strong>
+            <strong>実際の店舗から導き出した</strong>
             <span>机上の空論ではない、泥臭いリアル</span>
           </div>
         </div>
@@ -247,7 +246,7 @@ export default function HomeClient() {
         <div className="story-step">
           <div className="story-step-num">📋</div>
           <div className="story-step-text">
-            <strong>店舗心理と運用プロセスをナレッジ化</strong>
+            <strong>顧客心理と運用プロセスをナレッジ化</strong>
             <span>「どう送ればリピートされるか」の設計図</span>
           </div>
         </div>
@@ -1354,7 +1353,7 @@ export default function HomeClient() {
     <div className="section-header reveal">
       <span className="section-tag">Real Use Cases × 25 Years</span>
       <h2>
-        <strong>25年の現場経験</strong>から導き出した、<br />
+        <strong>実店舗運営</strong>から導き出した、<br />
         「本当に人が動く」活用ノウハウ
       </h2>
       <p>机上の空論ではない、現場で実際に効果が出た具体例をご紹介します。</p>
@@ -1483,8 +1482,8 @@ export default function HomeClient() {
 
     <div className="know-how-conclusion reveal">
       <p>
-        これらはすべて、<strong>シニアナレッジマネージャーが25年の現場経験から導き出した</strong>、<br />
-        実店舗で本当に効果が出る施策だけを厳選したものです。
+        これらはすべて、<strong>実店舗で本当に効果が出る施策</strong>、<br />
+        だけを厳選したものです。
       </p>
     </div>
   </div>
