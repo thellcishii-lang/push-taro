@@ -185,6 +185,43 @@ export default function PartnersClient() {
         </div>
       </section>
 
+       {/* ============================================================
+    緊急告知：加盟金キャンペーン
+============================================================ */}
+<section className="urgency-section">
+  <div className="container">
+    <div className="urgency-box reveal">
+      <div className="urgency-label">🔥 先着15社限定</div>
+      <h2 className="urgency-title">
+        加盟金 <span className="urgency-old">¥1,000,000</span>
+        <span className="urgency-new">¥300,000</span>
+      </h2>
+      <p className="urgency-text">
+        加盟金は<strong>100万円（税別）</strong>。<br />
+        先行パートナー第1期生として、<strong>先着15社に限り30万円（税別）</strong>でご案内中。<br />
+        <strong>15社に達し次第、順次価格を引き上げ、最終的に100万円となります。</strong>
+      </p>
+      <div className="urgency-slots">
+        <div className="urgency-slots-label">現在の受付状況</div>
+        <div className="urgency-slots-bar">
+          <div className="urgency-slots-fill" style={{ width: '40%' }}></div>
+        </div>
+        <div className="urgency-slots-text">
+          <span>残り <strong>9社</strong>（6社 申込済み）</span>
+          <span>※ 2026年9月末時点</span>
+        </div>
+      </div>
+      <a href="#cta-final" className="urgency-cta">
+        👑 30万円で申し込む（先着順）
+        <i className="fas fa-arrow-right"></i>
+      </a>
+      <p className="urgency-note">
+        ※ 加盟金は税別です。15社到達後は、順次価格が上昇します。
+      </p>
+    </div>
+  </div>
+</section>
+
       {/* 3つの収益化プログラム */}
       <section className="section" id="programs">
         <div className="container">
@@ -201,7 +238,7 @@ export default function PartnersClient() {
               <h3>代理店パートナー</h3>
               <div className="sub">法人・事業者向け｜最大級のストック収益</div>
               <div className="price-table">
-                <div className="row"><span className="label">加盟金（キャンペーン）</span><span className="value highlight">¥300,000</span></div>
+                <div className="row"><span className="label">加盟金（先着15社限定）</span><span className="value highlight">¥300,000<small style={{ textDecoration: 'line-through', color: '#94a3b8', marginLeft: '6px', fontSize: '12px' }}>¥1,000,000</small></span></div>
                 <div className="row"><span className="label">月額費用</span><span className="value">¥30,000</span></div>
                 <div className="row"><span className="label">PRO紹介報酬</span><span className="value highlight">30% → 45%</span></div>
                 <div className="row"><span className="label">Standard/Light紹介報酬</span><span className="value highlight">18%</span></div>
