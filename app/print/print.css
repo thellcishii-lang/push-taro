@@ -149,3 +149,8 @@
 
   .crop-marks { display: none; }
 }
+
+{/* LeafletA4.tsx */}
+<section className="p-page a4-page a4-front page-a4v">
+...
+<section className="p-page a4-page a4-back page-a4v">
