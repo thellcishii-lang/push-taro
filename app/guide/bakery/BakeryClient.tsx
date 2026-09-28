@@ -207,19 +207,8 @@ export default function BakeryClient() {
             </div>
           </div>
 
-          {/* ========== 8. 導入事例 ========== */}
-          <h2><span className="num">8</span>導入事例</h2>
-          <div className="g-card">
-            <h4>📍 東京都 ベーカリー A様</h4>
-            <p style={{ marginBottom: 12 }}>
-              <strong>導入前：</strong>平日14時〜17時の売上 30%<br />
-              <strong>導入後：</strong>平日14時〜17時の売上 <strong style={{ color: '#16a34a' }}>65%</strong>
-            </p>
-            <p>「15時から生チョコ食パン30個限定」を毎日配信。午後のアイドルタイムが、一番の売上時間に。</p>
-          </div>
-
           {/* ========== 9. FAQ ========== */}
-          <h2><span className="num">9</span>よくあるご質問</h2>
+          <h2><span className="num">8</span>よくあるご質問</h2>
           <div className="g-faq">
             <details className="g-faq-item">
               <summary>パン屋のプッシュ通知は毎日送ってもいいですか？</summary>
