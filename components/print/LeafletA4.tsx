@@ -248,15 +248,24 @@ export default function LeafletA4({ data }: Props) {
         .a4-page {
           width: 210mm;
           height: 297mm;
+          box-sizing: border-box;
           display: flex;
           flex-direction: column;
         }
+        /* 内部のすべての要素にも border-box を強制 */
+.a4-page *,
+.a4-page *::before,
+.a4-page *::after {
+  box-sizing: border-box;
+}
 
         /* ========== 表 ========== */
         .a4-front {
           background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
           color: #fff;
           padding: 22mm 20mm;
+          height: 100%;
+          box-sizing: border-box;
         }
         .a4-front-glow {
           position: absolute; inset: 0;
