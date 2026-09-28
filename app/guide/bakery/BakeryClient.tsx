@@ -267,7 +267,7 @@ export default function BakeryClient() {
           <div className="g-cta">
             <h3>パン屋のリピート施策を、仕組みに。</h3>
             <p>「本日30個限定」「焼き立て」の即時配信で、常連客を育てましょう。</p>
-            <Link href="/signup" className="g-cta-btn">無料相談・資料請求 →</Link>
+            <Link href="/contact" className="g-cta-btn">無料相談 →</Link>
           </div>
 
         </div>
