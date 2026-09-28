@@ -835,8 +835,8 @@ export default function TrifoldBrochure({ data }: Props) {
 
           .tf-page {
             width: 297mm !important;
-            height: 2１０mm !important; /* 縦幅に余裕（安全域）を持たせて絶対溢れさせない */
-            max-height: 2１０mm !important;
+            height: 209.8mm !important; /* 縦幅に余裕（安全域）を持たせて絶対溢れさせない */
+            max-height: 209.8mm !important;
             margin: 0 !important;
             padding: 0 !important;
             box-shadow: none !important;
