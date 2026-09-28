@@ -354,24 +354,25 @@ export default function TrifoldBrochure({ data }: Props) {
 
       <style jsx global>{`
         /* 全体初期化 */
-        *, *::before, *::after {
-          box-sizing: border-box !important;
-        }
+        /* 全体初期化 */
+　　　　　　　　　　　　　*, *::before, *::after {
+              box-sizing: border-box !important;
+　　　　　　　　　　　　　　　　　　　　　　　　　　}
 
-        html, body {
-          margin: 0 !important;
-          padding: 0 !important;
-          background: #e2e8f0;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-        }
+　　　　　　　　　　　　　　　html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #e2e8f0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+　　　　　　　　　　　　　　　　　　}
 
-        .tf-print-wrapper {
-          width: 100%;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
+　　　　　　　　　　　　　　　.tf-print-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+　　　　　　　　　　　　　　　　　　}
 
         .tf-page {
           width: 297mm;
