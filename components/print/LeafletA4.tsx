@@ -202,6 +202,7 @@ export default function LeafletA4({ data }: Props) {
 
             <div className="a4-divider" />
 
+            {/* SPECIAL OFFER */}
             <div className="a4-offer">
               <div className="a4-offer-badge">SPECIAL OFFER</div>
               <div className="a4-offer-title">
@@ -216,6 +217,7 @@ export default function LeafletA4({ data }: Props) {
               <div className="a4-offer-note">QRを読み取って、今すぐお申し込み</div>
             </div>
 
+            {/* 申込の流れ */}
             <div className="a4-flow">
               <div className="a4-flow-title">お申し込みの流れ</div>
               <ol>
@@ -226,6 +228,7 @@ export default function LeafletA4({ data }: Props) {
               </ol>
             </div>
 
+            {/* 会社情報 */}
             <div className="a4-contact">
               <div className="a4-contact-label">CONTACT</div>
               <div className="a4-contact-company">{companyName}</div>
@@ -241,15 +244,12 @@ export default function LeafletA4({ data }: Props) {
       </section>
 
       <style jsx global>{`
-        /* A4 ページ本体 */
+        /* A4 */
         .a4-page {
           width: 210mm;
-          height: 296.5mm;
+          height: 297mm;
           display: flex;
           flex-direction: column;
-          box-sizing: border-box;
-          overflow: hidden;
-          position: relative;
         }
 
         /* ========== 表 ========== */
@@ -340,9 +340,8 @@ export default function LeafletA4({ data }: Props) {
           grid-template-columns: 1fr 1fr;
           gap: 7mm;
           flex: 1;
-          min-height: 0;
         }
-        .a4-col { display: flex; flex-direction: column; gap: 3mm; min-height: 0; }
+        .a4-col { display: flex; flex-direction: column; gap: 3mm; }
         .a4-col-left {
           padding-right: 7mm;
           border-right: 1px dashed #e2e8f0;
@@ -375,6 +374,7 @@ export default function LeafletA4({ data }: Props) {
         }
         .a4-divider { height: 1px; background: #e2e8f0; }
 
+        /* 機能リスト */
         .a4-feature-list { display: flex; flex-direction: column; gap: 1.2mm; }
         .a4-feature-item {
           background: #fff; border: 1px solid #e2e8f0;
@@ -404,6 +404,7 @@ export default function LeafletA4({ data }: Props) {
           line-height: 1.4; margin-left: 5.5mm;
         }
 
+        /* 紹介制度 */
         .a4-refbox {
           background: linear-gradient(160deg, #0f172a, #1e293b);
           border-radius: 6px; padding: 2.8mm;
@@ -433,6 +434,7 @@ export default function LeafletA4({ data }: Props) {
         }
         .a4-refbox-conclusion strong { display: block; font-size: 8.8pt; margin-bottom: 0.2mm; }
 
+        /* 価格 */
         .a4-price-list { display: flex; flex-direction: column; gap: 1.3mm; margin: 1.2mm 0 2mm; }
         .a4-price-item {
           background: #fff; border: 1px solid #e2e8f0;
@@ -461,6 +463,7 @@ export default function LeafletA4({ data }: Props) {
         .a4-perk-ico { font-size: 10pt; line-height: 1; }
         .a4-perk-text { font-size: 6.5pt; font-weight: 900; color: #7c2d12; line-height: 1.3; }
 
+        /* SPECIAL OFFER */
         .a4-offer {
           background: #fff;
           border: 2px dashed #ff4500;
@@ -495,12 +498,16 @@ export default function LeafletA4({ data }: Props) {
           display: inline-block;
           min-width: 60%;
         }
-        .a4-offer-qr { display: flex; justify-content: center; margin-bottom: 1.5mm; }
+        .a4-offer-qr {
+          display: flex; justify-content: center;
+          margin-bottom: 1.5mm;
+        }
         .a4-offer-note {
           font-size: 6pt; font-weight: 700;
           color: #64748b; line-height: 1.4;
         }
 
+        /* 申込の流れ */
         .a4-flow {
           margin-top: 1.5mm;
           padding: 2.5mm 3mm;
@@ -544,6 +551,7 @@ export default function LeafletA4({ data }: Props) {
           flex-shrink: 0;
         }
 
+        /* 会社情報 */
         .a4-contact {
           margin-top: auto;
           padding-top: 3mm;
