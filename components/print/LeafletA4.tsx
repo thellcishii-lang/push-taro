@@ -573,11 +573,23 @@ export default function LeafletA4({ data }: Props) {
         }
 
         @media print {
-          @page {
-            size: 210mm 297mm;
-            margin: 0;
-          }
-        }
+  .tf-page {
+    width: 297mm !important;
+    height: 210mm !important;
+    max-height: 210mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: row !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page: page-a4h !important;
+    overflow: hidden !important;
+  }
+}
       `}</style>
     </>
   );
