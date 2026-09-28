@@ -148,7 +148,7 @@ export default function GuideClient() {
         <div className="g-cta">
           <h3>あなたの店舗でも、はじめてみませんか？</h3>
           <p>配信無制限・7種のクーポン自動配信。<br />Push-taroなら、リピート施策のすべてが1つに。</p>
-          <Link href="/contact" className="g-cta-btn">無料相談・資料請求 →</Link>
+          <Link href="/contact" className="g-cta-btn">無料相談 →</Link>
         </div>
       </main>
     </>
