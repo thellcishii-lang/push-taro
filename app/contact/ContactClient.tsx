@@ -178,7 +178,7 @@ export default function ContactClient() {
           <div className="c-faq-link">
             <h3>よくあるご質問</h3>
             <p>お問い合わせ前に、こちらもご確認ください。</p>
-            <Link href="/guide/faq" className="c-faq-btn">
+            <Link href="/#faq" className="c-faq-btn">
               FAQ を見る →
             </Link>
           </div>
