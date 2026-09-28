@@ -14,7 +14,7 @@ export default function LeafletA4({ data }: Props) {
   return (
     <>
       {/* ========== 表 ========== */}
-      <section className="p-page a4-page a4-front">
+      <section className="p-page a4-page a4-front page-a4v">
         <div className="a4-front-glow" />
         <div className="a4-front-top">
           <div className="a4-logo-row">
