@@ -241,11 +241,10 @@ export default function LeafletA4({ data }: Props) {
       </section>
 
       <style jsx global>{`
-        /* A4 ページ本体：mm指定のみで高さを確定させる */
+        /* A4 ページ本体 */
         .a4-page {
           width: 210mm;
           height: 296.5mm;
-          page: page-a4v;
           display: flex;
           flex-direction: column;
           box-sizing: border-box;
@@ -316,6 +315,10 @@ export default function LeafletA4({ data }: Props) {
         .a4-back {
           background: #fff;
           padding: 13mm 15mm;
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          box-sizing: border-box;
         }
         .a4-back-head {
           padding-bottom: 3.5mm;
@@ -571,25 +574,6 @@ export default function LeafletA4({ data }: Props) {
           color: #ff4500;
           letter-spacing: 0.3px;
         }
-
-        @media print {
-  .tf-page {
-    width: 297mm !important;
-    height: 210mm !important;
-    max-height: 210mm !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    box-shadow: none !important;
-    display: flex !important;
-    flex-direction: row !important;
-    page-break-after: always !important;
-    break-after: page !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-    page: page-a4h !important;
-    overflow: hidden !important;
-  }
-}
       `}</style>
     </>
   );
