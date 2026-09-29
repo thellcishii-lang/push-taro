@@ -777,7 +777,7 @@ export default function PartnersClient() {
       <section className="section">
         <div className="container">
           <div className="section-title reveal">
-            <span className="tag">STOCK BUSINESS</span>
+            <span className="tag">COMPARISON BUSINESS</span>
             <h2>他のストックビジネスとの比較</h2>
             <p>不動産・携帯代理店・サブスク——数あるストックビジネスの中で、Push-taro代理店が選ばれる理由。</p>
           </div>
