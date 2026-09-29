@@ -7,7 +7,7 @@ const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 export const metadata: Metadata = {
   title: '実店舗のためのプッシュ通知 活用ガイド｜業種別・機能別｜Push-taro',
   description:
-    '実店舗のプッシュ通知・CRM活用ガイド。パン屋・飲食店・カフェ・美容サロンなど業種別の実践マニュアルと、クーポン・休眠復活・誕生日配信などの機能別ガイドを網羅。25年の現場経験から導いたノウハウを公開。',
+    '実店舗のプッシュ通知・CRM活用ガイド。パン屋・飲食店・カフェ・美容サロンなど業種別の実践マニュアルと、クーポン・休眠復活・誕生日配信などの機能別ガイドを網羅。現場から導いたノウハウを公開。',
   keywords: [
     '実店舗 プッシュ通知',
     'プッシュ通知 活用',
@@ -27,14 +27,14 @@ export const metadata: Metadata = {
     locale: 'ja_JP',
     title: '実店舗のためのプッシュ通知 活用ガイド｜Push-taro',
     description:
-      '業種別・機能別の実践マニュアル。25年の現場経験から導いたノウハウを公開。',
+      '業種別・機能別の実践マニュアル。現場から導いたノウハウを公開。',
     url: '/guide',
     siteName: 'Push-taro',
   },
   twitter: {
     card: 'summary_large_image',
     title: '実店舗のためのプッシュ通知 活用ガイド｜Push-taro',
-    description: '業種別・機能別の実践マニュアル。25年の現場経験から導いたノウハウ。',
+    description: '業種別・機能別の実践マニュアル。現場から導いたノウハウ。',
   },
   robots: {
     index: true,
@@ -68,7 +68,7 @@ const collectionJsonLd = {
   '@type': 'CollectionPage',
   name: '実店舗のためのプッシュ通知 活用ガイド',
   description:
-    '業種別・機能別の実践マニュアル。25年の現場経験から導いたノウハウを公開。',
+    '業種別・機能別の実践マニュアル。現場から導いたノウハウを公開。',
   url: `${appUrl}/guide`,
   inLanguage: 'ja-JP',
   publisher: { '@id': `${appUrl}/#organization` },
