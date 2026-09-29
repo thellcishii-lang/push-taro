@@ -13,6 +13,7 @@ import { db as localDb, exportHistoryToJSON, PushHistory } from '../../lib/db';
 import { QRCodeSVG } from 'qrcode.react';
 import ImageUploader from '../../components/ImageUploader';
 import { Html5Qrcode } from 'html5-qrcode';
+import ShopPopSection from '@/components/print/ShopPopSection';
 
 export default function ProShopPage() {
   const router = useRouter();
@@ -1031,6 +1032,8 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
             <button onClick={handleSaveSettings} disabled={saving} style={{ marginTop: '20px', padding: '12px 20px', background: saveSuccess ? '#4CAF50' : saving ? '#cccccc' : '#2196F3', color: '#fff', border: 'none', borderRadius: '4px', cursor: saving ? 'wait' : 'pointer', fontSize: '16px', fontWeight: 'bold' }}>
               {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 基本設定を保存'}
             </button>
+            {/* ★ 追加：店頭ポップ */}
+            <ShopPopSection shopId={shopId} />
           </div>
 
           {/* 退会エリア */}
