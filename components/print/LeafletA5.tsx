@@ -371,30 +371,9 @@ export default function LeafletA5({ data }: Props) {
            印刷時のみ：A5 の内容を 210mm に収める
            ============================================================ */
         @media print {
-          /* 表 */
-          .a5-front { padding: 12mm 11mm; }
-          .a5-lead { margin-bottom: 4mm; }
-          .a5-catch { font-size: 24pt; margin-bottom: 5mm; }
-          .a5-stats { margin-bottom: 5mm; }
-          .a5-sub {
-            font-size: 9pt;
-            line-height: 1.75;
-            padding-top: 4mm;
+          .a5-page {
+            zoom: 0.85;
           }
-          .a5-front-foot { padding-top: 4mm; }
-
-          /* 裏 */
-          .a5-back { padding: 7mm 9mm; }
-          .a5-sec { margin-bottom: 2mm; }
-          .a5-sec-title { margin-bottom: 2mm; font-size: 10pt; }
-          .a5-feature-grid { gap: 1mm; }
-          .a5-feature-item { padding: 1.2mm; }
-          .a5-price-list { gap: 1mm; }
-          .a5-price-item { padding: 1.4mm 2mm; }
-          .a5-perks { margin-top: 1.5mm; gap: 1.5mm; }
-          .a5-perk { padding: 1.5mm 1mm; }
-          .a5-contact-row { padding-top: 3mm; }
-          .a5-offer-side { padding: 2mm; }
         }
       `}</style>
     </>
