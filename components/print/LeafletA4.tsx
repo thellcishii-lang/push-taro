@@ -324,273 +324,103 @@ export default function LeafletA4({ data }: Props) {
         .a4-year { font-size: 9pt; color: #64748b; font-weight: 700; }
 
         /* ========== 裏 ========== */
-        .a4-back {
-          background: #fff;
-          padding: 13mm 15mm;
-        }
-        .a4-back-head {
-          padding-bottom: 3.5mm;
-          border-bottom: 2px solid #0f172a;
-          margin-bottom: 4.5mm;
-          flex-shrink: 0;
-        }
-        .a4-back-head h2 {
-          font-size: 15pt; font-weight: 900;
-          line-height: 1.35; letter-spacing: -0.5px;
-        }
-        .a4-back-head h2 .accent { color: #ff4500; }
-        .a4-back-head p {
-          font-size: 8.5pt; color: #64748b;
-          line-height: 1.6; margin-top: 1.8mm;
-        }
-        .a4-columns {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 7mm;
-          flex: 1;
-          min-height: 0;
-        }
-        .a4-col { display: flex; flex-direction: column; gap: 3mm; }
-        .a4-col-left {
-          padding-right: 7mm;
-          border-right: 1px dashed #e2e8f0;
-        }
-        .a4-sec { display: flex; flex-direction: column; }
-        .a4-sec-title {
-          font-size: 10.5pt; font-weight: 900;
-          line-height: 1.35; letter-spacing: -0.4px;
-          margin-bottom: 2.2mm;
-          display: flex; align-items: center; gap: 2.2mm;
-        }
-        .a4-sec-num {
-          display: inline-flex; align-items: center; justify-content: center;
-          width: 6mm; height: 6mm;
-          background: linear-gradient(135deg, #ff4500, #f97316);
-          color: #fff; border-radius: 5px;
-          font-size: 8pt; font-weight: 900;
-          flex-shrink: 0;
-        }
-        .a4-sec-text {
-          font-size: 8pt; color: #334155;
-          line-height: 1.75; margin: 0 0 1.8mm;
-        }
-        .a4-sec-text strong { color: #0f172a; font-weight: 900; }
-        .a4-quote {
-          background: #fff7ed; border-left: 3px solid #ff4500;
-          border-radius: 0 6px 6px 0; padding: 2.5mm 3mm;
-          font-size: 9.5pt; font-weight: 900; color: #7c2d12;
-          line-height: 1.5; margin: 2mm 0 0;
-        }
-        .a4-divider { height: 1px; background: #e2e8f0; }
+.a4-back {
+  background: #fff;
+  padding: 10mm 14mm;          /* 13mm 15mm → 10mm 14mm */
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.a4-back-head {
+  padding-bottom: 2.5mm;       /* 3.5mm → 2.5mm */
+  border-bottom: 2px solid #0f172a;
+  margin-bottom: 3mm;          /* 4.5mm → 3mm */
+  flex-shrink: 0;
+}
+.a4-back-head h2 {
+  font-size: 13pt;             /* 15pt → 13pt */
+  font-weight: 900;
+  line-height: 1.3;
+  letter-spacing: -0.5px;
+}
+.a4-back-head p {
+  font-size: 8pt;              /* 8.5pt → 8pt */
+  color: #64748b;
+  line-height: 1.5;            /* 1.6 → 1.5 */
+  margin-top: 1.2mm;
+}
+.a4-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6mm;                    /* 7mm → 6mm */
+  flex: 1;
+  min-height: 0;
+}
+.a4-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2mm;                    /* 3mm → 2mm */
+  min-height: 0;
+}
+.a4-col-left {
+  padding-right: 6mm;          /* 7mm → 6mm */
+  border-right: 1px dashed #e2e8f0;
+}
 
-        /* 機能リスト */
-        .a4-feature-list { display: flex; flex-direction: column; gap: 1.2mm; }
-        .a4-feature-item {
-          background: #fff; border: 1px solid #e2e8f0;
-          border-radius: 5px; padding: 1.7mm 2.2mm;
-          border-left: 3px solid #64748b;
-        }
-        .a4-feature-item.is-std { border-left-color: #0284c7; }
-        .a4-feature-item.is-pro { border-left-color: #ff4500; }
-        .a4-feature-item.is-all { border-left-color: #64748b; }
-        .a4-feature-head { display: flex; align-items: center; gap: 1.6mm; }
-        .a4-feature-ico { font-size: 10.5pt; line-height: 1; }
-        .a4-feature-name {
-          font-size: 7.8pt; font-weight: 900; color: #0f172a;
-          line-height: 1.25;
-          display: flex; align-items: center; gap: 1.2mm; flex-wrap: wrap;
-        }
-        .a4-feature-name .badge {
-          font-size: 4.8pt; font-weight: 900;
-          padding: 0.3mm 1.2mm; border-radius: 4px;
-          color: #fff; letter-spacing: 0.3px;
-        }
-        .a4-feature-name .badge.is-all { background: #64748b; }
-        .a4-feature-name .badge.is-std { background: #0284c7; }
-        .a4-feature-name .badge.is-pro { background: linear-gradient(135deg, #ff4500, #f97316); }
-        .a4-feature-desc {
-          font-size: 6.3pt; color: #64748b;
-          line-height: 1.4; margin-left: 5.5mm;
-        }
+/* 機能リスト（1件あたりを圧縮） */
+.a4-feature-list { display: flex; flex-direction: column; gap: 1mm; }  /* 1.2mm → 1mm */
+.a4-feature-item {
+  background: #fff; border: 1px solid #e2e8f0;
+  border-radius: 5px; padding: 1.3mm 2mm;   /* 1.7mm 2.2mm → 1.3mm 2mm */
+  border-left: 3px solid #64748b;
+}
+.a4-feature-name { font-size: 7.3pt; }     /* 7.8pt → 7.3pt */
+.a4-feature-desc {
+  font-size: 5.8pt;                        /* 6.3pt → 5.8pt */
+  line-height: 1.3;                        /* 1.4 → 1.3 */
+  margin-left: 5.5mm;
+}
 
-        /* 紹介制度 */
-        .a4-refbox {
-          background: linear-gradient(160deg, #0f172a, #1e293b);
-          border-radius: 6px; padding: 2.8mm;
-          color: #fff; margin: 1.5mm 0 0;
-        }
-        .a4-refbox-title {
-          font-size: 8.2pt; font-weight: 900;
-          line-height: 1.35; margin-bottom: 2.2mm;
-        }
-        .a4-refbox-title .accent { color: #fd7e5a; }
-        .a4-refbox-grid {
-          display: grid; grid-template-columns: repeat(3, 1fr);
-          gap: 1.2mm; margin-bottom: 2.2mm;
-        }
-        .a4-refbox-item {
-          text-align: center; padding: 1.6mm 1mm;
-          background: rgba(255,255,255,0.05); border-radius: 5px;
-        }
-        .a4-refbox-label { font-size: 5.2pt; color: #cbd5e1; font-weight: 700; margin-bottom: 0.5mm; }
-        .a4-refbox-value { font-size: 9pt; font-weight: 900; color: #fff; letter-spacing: -0.2px; }
-        .a4-refbox-value.accent { color: #fd7e5a; }
-        .a4-refbox-conclusion {
-          padding: 1.6mm;
-          background: linear-gradient(135deg, #ff4500, #f97316);
-          border-radius: 5px; text-align: center;
-          font-size: 6.8pt; font-weight: 900; line-height: 1.4;
-        }
-        .a4-refbox-conclusion strong { display: block; font-size: 8.8pt; margin-bottom: 0.2mm; }
+/* セクション見出し・本文をやや圧縮 */
+.a4-sec-title { font-size: 10pt; margin-bottom: 1.8mm; }  /* 10.5pt, 2.2mm → */
+.a4-sec-text  { font-size: 7.6pt; line-height: 1.65; margin-bottom: 1.4mm; }
 
-        /* 価格 */
-        .a4-price-list { display: flex; flex-direction: column; gap: 1.3mm; margin: 1.2mm 0 2mm; }
-        .a4-price-item {
-          background: #fff; border: 1px solid #e2e8f0;
-          border-radius: 5px; padding: 1.8mm 2.2mm;
-          display: flex; justify-content: space-between; align-items: baseline;
-          position: relative;
-        }
-        .a4-price-item.is-pro { border: 2px solid #ff4500; background: #fffbf5; }
-        .a4-price-recommend {
-          position: absolute; top: -1.6mm; right: 2.2mm;
-          font-size: 4.8pt; font-weight: 900;
-          padding: 0.4mm 1.4mm;
-          background: #ff4500; color: #fff;
-          border-radius: 7px; letter-spacing: 0.3px;
-        }
-        .a4-price-name { font-size: 8pt; font-weight: 900; letter-spacing: 0.5px; color: #64748b; }
-        .a4-price-item.is-pro .a4-price-name { color: #ff4500; }
-        .a4-price-value { font-size: 10.5pt; font-weight: 900; color: #0f172a; letter-spacing: -0.3px; }
-        .a4-price-value span { font-size: 5.8pt; font-weight: 600; color: #64748b; margin-left: 0.4mm; }
-        .a4-perks { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5mm; }
-        .a4-perk {
-          background: #fff7ed; border: 1px solid #fed7aa;
-          border-radius: 5px; padding: 1.5mm;
-          display: flex; align-items: center; gap: 1.5mm;
-        }
-        .a4-perk-ico { font-size: 10pt; line-height: 1; }
-        .a4-perk-text { font-size: 6.5pt; font-weight: 900; color: #7c2d12; line-height: 1.3; }
+/* 紹介ボックス */
+.a4-refbox { padding: 2.4mm; }             /* 2.8mm → 2.4mm */
+.a4-refbox-title { font-size: 7.8pt; margin-bottom: 1.8mm; }
+.a4-refbox-grid { margin-bottom: 1.8mm; }
+.a4-refbox-item { padding: 1.3mm 0.8mm; }
+.a4-refbox-conclusion { padding: 1.4mm; font-size: 6.4pt; }
+.a4-refbox-conclusion strong { font-size: 8.2pt; }
 
-        /* SPECIAL OFFER */
-        .a4-offer {
-          background: #fff;
-          border: 2px dashed #ff4500;
-          border-radius: 8px;
-          padding: 3mm 2.5mm;
-          text-align: center;
-          margin-top: 1.5mm;
-        }
-        .a4-offer-badge {
-          display: inline-block;
-          font-size: 5.5pt; font-weight: 900; letter-spacing: 1px;
-          padding: 0.7mm 2.5mm; border-radius: 8px;
-          background: linear-gradient(135deg, #ff4500, #f97316);
-          color: #fff; margin-bottom: 2mm;
-        }
-        .a4-offer-title {
-          font-size: 9pt; font-weight: 900;
-          color: #0f172a; line-height: 1.4;
-          margin-bottom: 2mm;
-        }
-        .a4-offer-title .accent { color: #ff4500; }
-        .a4-offer-code {
-          font-family: 'Courier New', monospace;
-          font-size: 14pt; font-weight: 900;
-          letter-spacing: 2.5px;
-          color: #0f172a;
-          background: #fff7ed;
-          border: 2px dashed #ff4500;
-          border-radius: 6px;
-          padding: 1.8mm 2.5mm;
-          margin: 0 auto 2mm;
-          display: inline-block;
-          min-width: 60%;
-        }
-        .a4-offer-qr {
-          display: flex; justify-content: center;
-          margin-bottom: 1.5mm;
-        }
-        .a4-offer-note {
-          font-size: 6pt; font-weight: 700;
-          color: #64748b; line-height: 1.4;
-        }
+/* 価格 */
+.a4-price-list { gap: 1.1mm; margin: 1mm 0 1.6mm; }
+.a4-price-item { padding: 1.5mm 2mm; }
+.a4-price-value { font-size: 10pt; }
 
-        /* 申込の流れ */
-        .a4-flow {
-          margin-top: 1.5mm;
-          padding: 2.5mm 3mm;
-          background: #f8fafc;
-          border-radius: 6px;
-          border-left: 3px solid #0f172a;
-        }
-        .a4-flow-title {
-          font-size: 7pt; font-weight: 900;
-          color: #0f172a; letter-spacing: 0.5px;
-          margin-bottom: 1.5mm;
-        }
-        .a4-flow ol {
-          list-style: none;
-          padding: 0; margin: 0;
-          display: flex; flex-direction: column;
-          gap: 0.8mm;
-          counter-reset: item;
-        }
-        .a4-flow ol li {
-          display: flex;
-          align-items: baseline;
-          gap: 1.8mm;
-          font-size: 6.8pt;
-          font-weight: 700;
-          color: #334155;
-          line-height: 1.4;
-        }
-        .a4-flow ol li::before {
-          content: counter(item);
-          counter-increment: item;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 3.5mm; height: 3.5mm;
-          background: linear-gradient(135deg, #ff4500, #f97316);
-          color: #fff;
-          border-radius: 50%;
-          font-size: 5.5pt;
-          font-weight: 900;
-          flex-shrink: 0;
-        }
+/* SPECIAL OFFER（ここが最大の圧縮ポイント） */
+.a4-offer {
+  padding: 2.2mm 2mm;                      /* 3mm 2.5mm → 2.2mm 2mm */
+  margin-top: 1mm;
+}
+.a4-offer-badge { font-size: 5pt; margin-bottom: 1.2mm; padding: 0.5mm 2mm; }
+.a4-offer-title { font-size: 8pt; line-height: 1.3; margin-bottom: 1.5mm; }
+.a4-offer-code { font-size: 12pt; padding: 1.4mm 2mm; margin-bottom: 1.5mm; letter-spacing: 2px; }
+.a4-offer-qr  { margin-bottom: 1mm; }
+.a4-offer-note { font-size: 5.6pt; }
 
-        /* 会社情報 */
-        .a4-contact {
-          margin-top: auto;
-          padding-top: 3mm;
-          border-top: 2px solid #0f172a;
-        }
-        .a4-contact-label {
-          font-size: 6pt; font-weight: 900; letter-spacing: 2px;
-          color: #ff4500; margin-bottom: 1.2mm;
-        }
-        .a4-contact-company {
-          font-size: 9.5pt; font-weight: 900;
-          color: #0f172a; line-height: 1.3;
-          margin-bottom: 0.6mm;
-        }
-        .a4-contact-owner {
-          font-size: 7.5pt; color: #475569;
-          margin-bottom: 1.5mm;
-        }
-        .a4-contact-info {
-          font-size: 6.5pt; color: #334155;
-          line-height: 1.6;
-        }
-        .a4-contact-url {
-          margin-top: 1.5mm;
-          font-family: 'Courier New', monospace;
-          font-weight: 900;
-          font-size: 7pt;
-          color: #ff4500;
-          letter-spacing: 0.3px;
-        }
+/* 申込の流れ */
+.a4-flow { padding: 2mm 2.5mm; margin-top: 1mm; }
+.a4-flow-title { font-size: 6.6pt; margin-bottom: 1mm; }
+.a4-flow ol li { font-size: 6.3pt; gap: 1.5mm; }
+
+/* CONTACT */
+.a4-contact { padding-top: 2mm; margin-top: 1mm; }
+.a4-contact-label { font-size: 5.6pt; margin-bottom: 0.8mm; }
+.a4-contact-company { font-size: 9pt; margin-bottom: 0.4mm; }
+.a4-contact-owner { font-size: 7pt; margin-bottom: 1mm; }
+.a4-contact-info { font-size: 6pt; line-height: 1.5; }
+.a4-contact-url { font-size: 6.6pt; margin-top: 1mm; }
 
         /* ============================================================
            印刷時のみ：丸め誤差で1ページ溢れるのを防ぐ
