@@ -325,63 +325,83 @@ export default function HomeClient() {
         </div>
       </section>
 
-      {/* ============================================================
-          PROBLEM
-      ============================================================ */}
-      <section className="section">
-        <div className="container">
-          <div className="section-header reveal">
-            <span className="section-tag">Problem</span>
-            <h2>こんな「店舗経営の悩み」を抱えていませんか？</h2>
-            <p>多くの店舗オーナー様が、集客の不安定さとリピート施策のコストに直面しています。</p>
-          </div>
+     {/* ============================================================
+    PROBLEM
+============================================================ */}
+<section className="section">
+  <div className="container">
+    <div className="section-header reveal">
+      <span className="section-tag">Problem</span>
+      <h2>こんな「店舗経営の悩み」を抱えていませんか？</h2>
+      <p>多くの店舗オーナー様が、集客の不安定さとリピート施策のコストに直面しています。</p>
+    </div>
 
-          <div className="problem-grid">
-            <div className="problem-card tilt-in" style={{ transitionDelay: '0s' }}>
-              <div className="problem-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M3 17l6-6 4 4 8-8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M14 7h7v7" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <h3>リピート率の頭打ち</h3>
-              <p>一度来店されたお客様の再来店につながる有効な導線がなく、一見客頼みの集客から抜け出せない。</p>
-            </div>
-            <div className="problem-card tilt-in" style={{ transitionDelay: '0.1s' }}>
-              <div className="problem-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M6 16a4 4 0 010-8 5 5 0 019.9-1.5A4.5 4.5 0 0118 16H6z" stroke="#dc2626" strokeWidth="2" strokeLinejoin="round" />
-                  <path d="M8 20l-1 2M12 20l-1 2M16 20l-1 2" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </div>
-              <h3>集客のコントロール不足</h3>
-              <p>雨天や平日の閑散期など、「今すぐお客様を呼びたい」タイミングでピンポイントにアプローチできない。</p>
-            </div>
-            <div className="problem-card tilt-in" style={{ transitionDelay: '0.2s' }}>
-              <div className="problem-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <circle cx="10" cy="10" r="6" stroke="#dc2626" strokeWidth="2" />
-                  <path d="M10 7v3M10 13v.01" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M16 14l4 4M16 18l4-4" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </div>
-              <h3>従量課金のコスト肥大化</h3>
-              <p>既存のツールは配信数が増えるほど料金が跳ね上がり、積極的なコミュニケーションが打てない。</p>
-            </div>
-            <div className="problem-card tilt-in" style={{ transitionDelay: '0.3s' }}>
-              <div className="problem-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="5" width="8" height="10" rx="1.5" stroke="#dc2626" strokeWidth="2" />
-                  <rect x="13" y="9" width="8" height="10" rx="1.5" stroke="#dc2626" strokeWidth="2" />
-                  <path d="M7 3h10M7 21h10" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </div>
-              <h3>顧客情報がバラバラ</h3>
-              <p>来店履歴・クーポン利用・誕生日情報が一元管理できず、セグメント配信や施策のPDCAが回らない。</p>
-            </div>
-          </div>
+    <div className="problem-grid">
+      {/* ① リピート率の頭打ち */}
+      <div className="problem-card tilt-in" style={{ transitionDelay: '0s' }}>
+        <div className="problem-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M3 17l6-6 4 4 8-8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M14 7h7v7" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </div>
-      </section>
+        <h3>リピート率の頭打ち</h3>
+        <p>一度来店されたお客様の再来店につながる有効な導線がなく、一見客頼みの集客から抜け出せない。</p>
+      </div>
+
+      {/* ② 集客のコントロール不足 */}
+      <div className="problem-card tilt-in" style={{ transitionDelay: '0.1s' }}>
+        <div className="problem-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M6 16a4 4 0 010-8 5 5 0 019.9-1.5A4.5 4.5 0 0118 16H6z" stroke="#dc2626" strokeWidth="2" strokeLinejoin="round" />
+            <path d="M8 20l-1 2M12 20l-1 2M16 20l-1 2" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </div>
+        <h3>集客のコントロール不足</h3>
+        <p>雨天や平日の閑散期など、「今すぐお客様を呼びたい」タイミングでピンポイントにアプローチできない。</p>
+      </div>
+
+      {/* ③ ★ NEW：リターンの見込めないSNS投稿 */}
+      <div className="problem-card tilt-in" style={{ transitionDelay: '0.2s' }}>
+        <div className="problem-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <rect x="5" y="5" width="14" height="14" rx="3" stroke="#dc2626" strokeWidth="2" />
+            <circle cx="12" cy="12" r="3.5" stroke="#dc2626" strokeWidth="2" />
+            <circle cx="17" cy="7" r="0.8" fill="#dc2626" />
+          </svg>
+        </div>
+        <h3>リターンの見込めないSNS投稿</h3>
+        <p>インスタなどの投稿で、リターンが大して見込めないのに、何かしないとという気持ちで疲れるだけで集客に繋がらない。</p>
+      </div>
+
+      {/* ④ 従量課金のコスト肥大化 */}
+      <div className="problem-card tilt-in" style={{ transitionDelay: '0.3s' }}>
+        <div className="problem-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <circle cx="10" cy="10" r="6" stroke="#dc2626" strokeWidth="2" />
+            <path d="M10 7v3M10 13v.01" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
+            <path d="M16 14l4 4M16 18l4-4" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </div>
+        <h3>従量課金のコスト肥大化</h3>
+        <p>既存のツールは配信数が増えるほど料金が跳ね上がり、積極的なコミュニケーションが打てない。</p>
+      </div>
+
+      {/* ⑤ 顧客情報がバラバラ */}
+      <div className="problem-card tilt-in" style={{ transitionDelay: '0.4s' }}>
+        <div className="problem-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="5" width="8" height="10" rx="1.5" stroke="#dc2626" strokeWidth="2" />
+            <rect x="13" y="9" width="8" height="10" rx="1.5" stroke="#dc2626" strokeWidth="2" />
+            <path d="M7 3h10M7 21h10" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </div>
+        <h3>顧客情報がバラバラ</h3>
+        <p>来店履歴・クーポン利用・誕生日情報が一元管理できず、セグメント配信や施策のPDCAが回らない。</p>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* ============================================================
           CAC 新規客獲得コスト
