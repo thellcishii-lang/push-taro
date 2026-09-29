@@ -1006,55 +1006,140 @@ export default function HomeClient() {
         </div>
       </section>
 
-   {/* ============================================================
-    NEW：登録のしやすさ × LINE比較
+  {/* ============================================================
+    SIGNUP & SETUP（顧客登録 × 店舗導入）
 ============================================================ */}
-<section className="section section-alt" id="easy-signup">
+<section className="section section-alt" id="signup-setup">
   <div className="container">
     <div className="section-header reveal">
-      <span className="section-tag">Easy Signup × Price</span>
+      <span className="section-tag">Easy Signup × Easy Setup</span>
       <h2>
-        登録のしやすさは、<br />
-        LINEの友達追加レベル。
+        顧客登録も店舗導入も、<br />
+        どちらもシンプル。
       </h2>
       <p>
-        アプリのダウンロードは不要。QRコードを読み取って、SMS認証だけ。<br />
-        なのに、価格はLINE公式の半分以下。
+        アプリのダウンロード不要。QRコードを読み取って、SMS認証だけ。<br />
+        店舗オーナー様も、最短10分で運用開始できます。
       </p>
     </div>
 
-    {/* 登録ステップ */}
-    <div className="signup-steps reveal">
-      <div className="signup-step">
-        <div className="signup-step-num">1</div>
-        <div className="signup-step-icon">📱</div>
-        <h3>QRコードを読み取る</h3>
-        <p>店頭POPのQRをカメラで読み取るだけ</p>
-      </div>
-      <div className="signup-step-arrow">→</div>
-      <div className="signup-step">
-        <div className="signup-step-num">2</div>
-        <div className="signup-step-icon">🏠</div>
-        <h3>ホーム画面に追加</h3>
-        <p>iPhoneのみ。Androidは自動で完了</p>
-      </div>
-      <div className="signup-step-arrow">→</div>
-      <div className="signup-step">
-        <div className="signup-step-num">3</div>
-        <div className="signup-step-icon">📲</div>
-        <h3>SMS認証</h3>
-        <p>電話番号に届くコードを入力するだけ</p>
-      </div>
-      <div className="signup-step-arrow">→</div>
-      <div className="signup-step is-final">
-        <div className="signup-step-num">✅</div>
-        <div className="signup-step-icon">🎉</div>
-        <h3>登録完了</h3>
-        <p>所要時間：約30秒</p>
+    {/* 難関メッセージ */}
+    <div className="signup-barrier reveal">
+      <div className="signup-barrier-icon">🚪</div>
+      <div className="signup-barrier-body">
+        <h3>Push通知の最大の難関は、<br />「受け取ってもらう」こと。</h3>
+        <p>
+          アプリのダウンロード、LINE登録、ホーム画面への追加——<br />
+          お客様に何らかのアクションをしてもらわないと、通知は届きません。<br />
+          <strong>この最初のハードルを、いかに低くするかが勝負です。</strong>
+        </p>
       </div>
     </div>
 
-    {/* 比較表 */}
+    {/* 2つのフロー並列 */}
+    <div className="signup-flow-wrap reveal">
+
+      {/* 顧客側 */}
+      <div className="signup-flow-col is-customer">
+        <div className="signup-flow-head">
+          <span className="signup-flow-badge">お客様側</span>
+          <h3>QRを読み取って、30秒。</h3>
+          <p>全プランに「QRコード + 初回クーポン」標準搭載</p>
+        </div>
+
+        <div className="signup-flow-steps">
+          <div className="signup-flow-step">
+            <div className="signup-flow-num">1</div>
+            <div className="signup-flow-icon">📱</div>
+            <div className="signup-flow-text">
+              <strong>QRコードを読み取る</strong>
+              <span>店頭POPのQRをカメラで読み取るだけ</span>
+            </div>
+          </div>
+          <div className="signup-flow-step">
+            <div className="signup-flow-num">2</div>
+            <div className="signup-flow-icon">🏠</div>
+            <div className="signup-flow-text">
+              <strong>ホーム画面に追加</strong>
+              <span>iPhoneのみ。Androidは自動で完了</span>
+            </div>
+          </div>
+          <div className="signup-flow-step">
+            <div className="signup-flow-num">3</div>
+            <div className="signup-flow-icon">📲</div>
+            <div className="signup-flow-text">
+              <strong>SMS認証</strong>
+              <span>電話番号に届くコードを入力</span>
+            </div>
+          </div>
+          <div className="signup-flow-step is-final">
+            <div className="signup-flow-num">✅</div>
+            <div className="signup-flow-icon">🎉</div>
+            <div className="signup-flow-text">
+              <strong>登録完了 + 初回クーポンGET</strong>
+              <span>その場で「10〜20%OFF」が受け取れる</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="signup-flow-note">
+          <strong>「ホーム画面に追加で10%OFF」</strong><br />
+          これだけで、お客様の登録ハードルは一気に下がります。
+        </div>
+      </div>
+
+      {/* 店舗側 */}
+      <div className="signup-flow-col is-owner">
+        <div className="signup-flow-head">
+          <span className="signup-flow-badge">店舗オーナー側</span>
+          <h3>登録から運用まで、10分。</h3>
+          <p>専門知識ゼロ。ITが苦手でも大丈夫。</p>
+        </div>
+
+        <div className="signup-flow-steps">
+          <div className="signup-flow-step">
+            <div className="signup-flow-num">1</div>
+            <div className="signup-flow-icon">👤</div>
+            <div className="signup-flow-text">
+              <strong>アカウント作成</strong>
+              <span>メールアドレスと店舗情報を入力</span>
+            </div>
+          </div>
+          <div className="signup-flow-step">
+            <div className="signup-flow-num">2</div>
+            <div className="signup-flow-icon">🎫</div>
+            <div className="signup-flow-text">
+              <strong>クーポン設定</strong>
+              <span>タイトル・説明・有効期限を管理画面で</span>
+            </div>
+          </div>
+          <div className="signup-flow-step">
+            <div className="signup-flow-num">3</div>
+            <div className="signup-flow-icon">🖨️</div>
+            <div className="signup-flow-text">
+              <strong>店頭にQR設置</strong>
+              <span>生成されたQRをPOPに印刷するだけ</span>
+            </div>
+          </div>
+          <div className="signup-flow-step is-final">
+            <div className="signup-flow-num">📢</div>
+            <div className="signup-flow-icon">🚀</div>
+            <div className="signup-flow-text">
+              <strong>通知を送信</strong>
+              <span>「本日の日替わりランチ！」を即配信</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="signup-flow-note">
+          <strong>アカウント作成から最短10分。</strong><br />
+          決済完了で、即時利用開始できます。
+        </div>
+      </div>
+
+    </div>
+
+    {/* LINE比較 */}
     <div className="signup-compare reveal">
       <h3 className="signup-compare-title">
         「登録の手軽さ」と「コスト」で見る、3つの選択肢
@@ -1155,71 +1240,6 @@ export default function HomeClient() {
     </div>
   </div>
 </section>
-
-      {/* ============================================================
-          HOW IT WORKS
-      ============================================================ */}
-      <section className="section section-alt">
-        <div className="container">
-          <div className="section-header reveal">
-            <span className="section-tag">How it works</span>
-            <h2>導入はたったの4ステップ</h2>
-            <p>専門知識ゼロ。ITが苦手な店舗オーナー様でも、最短10分で運用を開始できます。</p>
-          </div>
-
-          <div className="steps">
-            <div className="step">
-              <div className="step-icon">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="#ff4500" strokeWidth="2" strokeLinecap="round" fill="none" />
-                  <circle cx="12" cy="7" r="4" stroke="#ff4500" strokeWidth="2" fill="none" />
-                  <path d="M19 3v4M17 5h4" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </div>
-              <h4>アカウント作成</h4>
-              <p>メールアドレスと店舗情報を入力して申し込み。決済完了で即時利用開始。</p>
-            </div>
-            <div className="step">
-              <div className="step-icon">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                  <path d="M3 10a2 2 0 010-4V4a1 1 0 011-1h16a1 1 0 011 1v2a2 2 0 010 4v2a2 2 0 010 4v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2a2 2 0 010-4v-2z" fill="#ff4500" />
-                  <circle cx="12" cy="12" r="2" fill="#fff" />
-                </svg>
-              </div>
-              <h4>クーポン設定</h4>
-              <p>管理画面でクーポンのタイトル・説明・有効期限を設定。画像もアップロード可能。</p>
-            </div>
-            <div className="step">
-              <div className="step-icon">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="3" width="7" height="7" rx="1" fill="#ff4500" />
-                  <rect x="14" y="3" width="7" height="7" rx="1" fill="#ff4500" />
-                  <rect x="3" y="14" width="7" height="7" rx="1" fill="#ff4500" />
-                  <rect x="5" y="5" width="3" height="3" fill="#fff" />
-                  <rect x="16" y="5" width="3" height="3" fill="#fff" />
-                  <rect x="5" y="16" width="3" height="3" fill="#fff" />
-                  <rect x="14" y="14" width="3" height="3" fill="#ff4500" />
-                  <rect x="18" y="14" width="3" height="3" fill="#ff4500" />
-                  <rect x="14" y="18" width="3" height="3" fill="#ff4500" />
-                  <rect x="18" y="18" width="3" height="3" fill="#ff4500" />
-                </svg>
-              </div>
-              <h4>店頭にQR設置</h4>
-              <p>管理画面で生成されたQRコードをPOPに印刷して店頭に設置するだけ。</p>
-            </div>
-            <div className="step">
-              <div className="step-icon">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                  <path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8z" fill="#ff4500" />
-                  <path d="M13.7 20a2 2 0 01-3.4 0" stroke="#e03e00" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-                </svg>
-              </div>
-              <h4>通知を送信</h4>
-              <p>「今日の日替わりランチ！」「新商品入荷」など、タイミングに合わせてプッシュ通知を送信。</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ============================================================
           COMPARISON
