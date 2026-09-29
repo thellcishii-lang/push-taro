@@ -366,7 +366,6 @@ export default function LeafletA5({ data }: Props) {
           color: #64748b;
           line-height: 1.4;
         }
-        }
       `}</style>
     </>
   );
