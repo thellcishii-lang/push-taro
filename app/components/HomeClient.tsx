@@ -1006,6 +1006,156 @@ export default function HomeClient() {
         </div>
       </section>
 
+   {/* ============================================================
+    NEW：登録のしやすさ × LINE比較
+============================================================ */}
+<section className="section section-alt" id="easy-signup">
+  <div className="container">
+    <div className="section-header reveal">
+      <span className="section-tag">Easy Signup × Price</span>
+      <h2>
+        登録のしやすさは、<br />
+        LINEの友達追加レベル。
+      </h2>
+      <p>
+        アプリのダウンロードは不要。QRコードを読み取って、SMS認証だけ。<br />
+        なのに、価格はLINE公式の半分以下。
+      </p>
+    </div>
+
+    {/* 登録ステップ */}
+    <div className="signup-steps reveal">
+      <div className="signup-step">
+        <div className="signup-step-num">1</div>
+        <div className="signup-step-icon">📱</div>
+        <h3>QRコードを読み取る</h3>
+        <p>店頭POPのQRをカメラで読み取るだけ</p>
+      </div>
+      <div className="signup-step-arrow">→</div>
+      <div className="signup-step">
+        <div className="signup-step-num">2</div>
+        <div className="signup-step-icon">🏠</div>
+        <h3>ホーム画面に追加</h3>
+        <p>iPhoneのみ。Androidは自動で完了</p>
+      </div>
+      <div className="signup-step-arrow">→</div>
+      <div className="signup-step">
+        <div className="signup-step-num">3</div>
+        <div className="signup-step-icon">📲</div>
+        <h3>SMS認証</h3>
+        <p>電話番号に届くコードを入力するだけ</p>
+      </div>
+      <div className="signup-step-arrow">→</div>
+      <div className="signup-step is-final">
+        <div className="signup-step-num">✅</div>
+        <div className="signup-step-icon">🎉</div>
+        <h3>登録完了</h3>
+        <p>所要時間：約30秒</p>
+      </div>
+    </div>
+
+    {/* 比較表 */}
+    <div className="signup-compare reveal">
+      <h3 className="signup-compare-title">
+        「登録の手軽さ」と「コスト」で見る、3つの選択肢
+      </h3>
+
+      <div className="signup-compare-grid">
+        {/* LINE公式 */}
+        <div className="signup-compare-card is-line">
+          <span className="signup-compare-badge">LINE公式</span>
+          <h4>登録は簡単だが、コストが重い</h4>
+          <ul className="signup-compare-list">
+            <li><span className="signup-compare-icon">✅</span>友達追加は超簡単</li>
+            <li><span className="signup-compare-icon">⚠️</span>配信数で料金が跳ね上がる</li>
+            <li><span className="signup-compare-icon">⚠️</span>機能拡張で上位プラン必須</li>
+          </ul>
+          <div className="signup-compare-pricing">
+            <div className="signup-compare-row">
+              <span>5,000通</span>
+              <strong>¥5,000</strong>
+            </div>
+            <div className="signup-compare-row is-highlight">
+              <span>25,000通プラン</span>
+              <strong>¥25,000〜</strong>
+            </div>
+          </div>
+        </div>
+
+        {/* Push-taro LIGHT */}
+        <div className="signup-compare-card">
+          <span className="signup-compare-badge is-pushtaro">Push-taro LIGHT</span>
+          <h4>LINEに近い手軽さ、半分以下の価格</h4>
+          <ul className="signup-compare-list">
+            <li><span className="signup-compare-icon">✅</span>QR＋SMS認証で30秒</li>
+            <li><span className="signup-compare-icon">✅</span>アプリ不要</li>
+            <li><span className="signup-compare-icon">✅</span>従量課金なし</li>
+          </ul>
+          <div className="signup-compare-pricing">
+            <div className="signup-compare-row">
+              <span>5,000通</span>
+              <strong className="is-price">¥1,980</strong>
+            </div>
+            <div className="signup-compare-row is-highlight">
+              <span>LINE比較</span>
+              <strong className="is-price">約 1/2.5</strong>
+            </div>
+          </div>
+        </div>
+
+        {/* Push-taro STANDARD */}
+        <div className="signup-compare-card is-recommend">
+          <span className="signup-compare-badge is-recommend">Push-taro STANDARD</span>
+          <h4>LINEの3倍送れて、価格は2/3</h4>
+          <ul className="signup-compare-list">
+            <li><span className="signup-compare-icon">✅</span>15,000通/月</li>
+            <li><span className="signup-compare-icon">✅</span>通常クーポン・特別達成クーポン</li>
+            <li><span className="signup-compare-icon">✅</span>開封率の確認</li>
+          </ul>
+          <div className="signup-compare-pricing">
+            <div className="signup-compare-row">
+              <span>15,000通</span>
+              <strong className="is-price">¥3,800</strong>
+            </div>
+            <div className="signup-compare-row is-highlight">
+              <span>LINEの3倍送れて</span>
+              <strong className="is-price">約 2/3 の価格</strong>
+            </div>
+          </div>
+        </div>
+
+        {/* Push-taro PRO */}
+        <div className="signup-compare-card is-pro">
+          <span className="signup-compare-badge is-pro">Push-taro PRO</span>
+          <h4>登録者5万人でも配信無制限</h4>
+          <ul className="signup-compare-list">
+            <li><span className="signup-compare-icon">✅</span>配信無制限</li>
+            <li><span className="signup-compare-icon">✅</span>全機能解放</li>
+            <li><span className="signup-compare-icon">✅</span>記念日・誕生日クーポン</li>
+          </ul>
+          <div className="signup-compare-pricing">
+            <div className="signup-compare-row">
+              <span>配信無制限</span>
+              <strong className="is-price">¥10,000</strong>
+            </div>
+            <div className="signup-compare-row is-highlight">
+              <span>LINEの上位プラン比較</span>
+              <strong className="is-price">約 1/2.5</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="signup-compare-conclusion">
+        <p>
+          <strong>「登録のしやすさはLINE並み、価格はLINE以下。」</strong><br />
+          そして、Push-taroならではの機能が、リピート施策の幅を広げます。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
       {/* ============================================================
           HOW IT WORKS
       ============================================================ */}
