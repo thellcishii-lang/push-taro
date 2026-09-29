@@ -96,7 +96,7 @@ export default function LeafletA4({ data }: Props) {
               <h3 className="a4-sec-title"><span className="a4-sec-num">2</span>Push-taroで仕組みづくり。</h3>
               <p className="a4-sec-text">
                 クーポンは<strong>受け身</strong>。サイトや来店で知ってもらうしか、伝える手段がない。
-                それを、<strong>メルマガの6倍の開封率</strong>を持つプッシュ通知で、<strong>動的に仕組み化</strong>する。
+                それを、<strong>メルマガの10倍の開封率</strong>を持つプッシュ通知で、<strong>動的に仕組み化</strong>する。
               </p>
             </div>
 
