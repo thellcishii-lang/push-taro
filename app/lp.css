@@ -2478,3 +2478,247 @@
     align-items: flex-start;
   }
 }
+
+/* ============================================================
+   EASY SIGNUP × LINE比較
+============================================================ */
+.signup-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 0 auto 64px;
+  max-width: 1000px;
+}
+
+.signup-step {
+  flex: 1;
+  min-width: 160px;
+  background: #fff;
+  border: 2px solid var(--slate-200);
+  border-radius: 16px;
+  padding: 24px 16px;
+  text-align: center;
+  position: relative;
+  transition: all 0.25s;
+}
+.signup-step:hover {
+  border-color: var(--orange);
+  box-shadow: 0 12px 32px rgba(255,69,0,0.08);
+  transform: translateY(-4px);
+}
+.signup-step.is-final {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border-color: #86efac;
+}
+
+.signup-step-num {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, var(--orange), #f97316);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 13px;
+  box-shadow: 0 4px 12px rgba(255,69,0,0.3);
+}
+.signup-step.is-final .signup-step-num {
+  background: #16a34a;
+}
+
+.signup-step-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+.signup-step h3 {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--slate-900);
+  margin-bottom: 6px;
+}
+.signup-step p {
+  font-size: 12px;
+  color: var(--slate-500);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.signup-step-arrow {
+  color: var(--orange);
+  font-size: 24px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+/* 比較グリッド */
+.signup-compare {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.signup-compare-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--slate-900);
+  margin-bottom: 32px;
+  letter-spacing: -0.5px;
+}
+
+.signup-compare-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.signup-compare-card {
+  background: #fff;
+  border: 2px solid var(--slate-200);
+  border-radius: 18px;
+  padding: 28px 24px;
+  position: relative;
+  transition: all 0.25s;
+}
+.signup-compare-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.06);
+}
+.signup-compare-card.is-line {
+  border-color: #06c755;
+  background: linear-gradient(180deg, #f0fdf4 0%, #fff 100%);
+}
+.signup-compare-card.is-recommend {
+  border-color: var(--blue);
+  box-shadow: 0 12px 32px rgba(49,130,206,0.1);
+}
+.signup-compare-card.is-pro {
+  border-color: var(--orange);
+  background: linear-gradient(180deg, #fffbf5 0%, #fff 100%);
+  box-shadow: 0 12px 32px rgba(255,69,0,0.1);
+}
+
+.signup-compare-badge {
+  position: absolute;
+  top: -12px;
+  left: 20px;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 4px 14px;
+  border-radius: 20px;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+.signup-compare-badge { background: #06c755; }
+.signup-compare-badge.is-pushtaro { background: #64748b; }
+.signup-compare-badge.is-recommend { background: var(--blue); }
+.signup-compare-badge.is-pro { background: linear-gradient(135deg, var(--orange), #f97316); }
+
+.signup-compare-card h4 {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--slate-900);
+  margin: 12px 0 16px;
+  line-height: 1.4;
+}
+
+.signup-compare-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.signup-compare-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--slate-600);
+  line-height: 1.6;
+}
+.signup-compare-icon {
+  flex-shrink: 0;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.signup-compare-pricing {
+  border-top: 1px dashed var(--slate-200);
+  padding-top: 16px;
+}
+.signup-compare-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px 0;
+  font-size: 13px;
+  color: var(--slate-600);
+}
+.signup-compare-row strong {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--slate-900);
+  letter-spacing: -0.5px;
+}
+.signup-compare-row strong.is-price {
+  color: var(--orange);
+}
+.signup-compare-row.is-highlight {
+  border-top: 1px solid var(--slate-100);
+  margin-top: 4px;
+  padding-top: 10px;
+}
+
+.signup-compare-conclusion {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px 36px;
+  background: linear-gradient(160deg, #0f172a, #1e293b);
+  border-radius: 18px;
+  text-align: center;
+  color: #fff;
+}
+.signup-compare-conclusion p {
+  font-size: 15px;
+  color: #cbd5e1;
+  line-height: 1.9;
+  margin: 0;
+}
+.signup-compare-conclusion strong {
+  color: #fd7e5a;
+  font-weight: 900;
+}
+
+/* レスポンシブ */
+@media (max-width: 900px) {
+  .signup-steps {
+    flex-direction: column;
+    gap: 24px;
+  }
+  .signup-step {
+    width: 100%;
+    max-width: 320px;
+  }
+  .signup-step-arrow {
+    transform: rotate(90deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .signup-compare-grid {
+    grid-template-columns: 1fr;
+  }
+  .signup-compare-conclusion {
+    padding: 24px 20px;
+  }
+}
