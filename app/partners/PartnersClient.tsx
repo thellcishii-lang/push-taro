@@ -262,17 +262,138 @@ export default function PartnersClient() {
         </div>
       </div>
     </div>
+  </div>
+</section>
 
-    {/* ブロック6：Push-taroの位置づけ */}
-    <div className="stock-basics-conclusion reveal">
+   {/* ============================================================
+    Push-taro代理店の強み
+============================================================ */}
+<section className="section stock-strength-section" id="strength">
+  <div className="container">
+    <div className="section-title reveal">
+      <span className="tag">STRENGTH</span>
+      <h2>
+        だから、Push-taroの代理店は、<br />
+        <span className="accent">「売りやすい」</span>。
+      </h2>
+      <p>他のSaaS代理店にはない、明確な強みがあります。</p>
+    </div>
+
+    {/* 強み① リスクゼロ */}
+    <div className="strength-block reveal">
+      <div className="strength-block-head">
+        <span className="strength-block-num">01</span>
+        <div>
+          <h3>在庫ゼロ・ノルマなし・アフターリスクゼロ</h3>
+          <p>始めるのも、続けるのも、リスクがありません。</p>
+        </div>
+      </div>
+      <div className="strength-block-grid">
+        <div className="strength-item">
+          <div className="strength-item-icon">📦</div>
+          <h4>在庫ゼロ</h4>
+          <p>デジタル商材なので、仕入れも保管も不要</p>
+        </div>
+        <div className="strength-item">
+          <div className="strength-item-icon">🎯</div>
+          <h4>ノルマなし</h4>
+          <p>販売ノルマは一切なし。1件から始められる</p>
+        </div>
+        <div className="strength-item">
+          <div className="strength-item-icon">🛠️</div>
+          <h4>アフターリスクゼロ</h4>
+          <p>導入後のサポートは、管理画面の取説と簡単な操作で完結</p>
+        </div>
+      </div>
+      <div className="strength-block-note">
+        <strong>導入してもらったら、あとは質問を受けるだけ。</strong><br />
+        使い方はシンプルで、取扱説明も管理画面からいつでも確認可能。ほぼアフターの手間がかかりません。
+      </div>
+    </div>
+
+    {/* 強み② 売りやすい */}
+    <div className="strength-block reveal">
+      <div className="strength-block-head">
+        <span className="strength-block-num">02</span>
+        <div>
+          <h3>「売りやすい」には、明確な理由がある</h3>
+          <p>顧客リピートツールとして、圧倒的な条件が揃っています。</p>
+        </div>
+      </div>
+      <div className="strength-reasons">
+        <div className="strength-reason">
+          <div className="strength-reason-icon">💡</div>
+          <div>
+            <h4>店舗の「永遠のテーマ」を解決</h4>
+            <p>既存客への告知・リピート施策は、どの店舗も弱い。そこへの解決策として、刺さりやすい。</p>
+          </div>
+        </div>
+        <div className="strength-reason">
+          <div className="strength-reason-icon">💰</div>
+          <div>
+            <h4>リピートツールでは破格の価格</h4>
+            <p>導入費用0円、最高でも月額10,000円。しかも縛りなし。他社では考えられない条件。</p>
+          </div>
+        </div>
+        <div className="strength-reason">
+          <div className="strength-reason-icon">⚡</div>
+          <div>
+            <h4>安いだけじゃない</h4>
+            <p>プッシュ通知・クーポン・CRM機能を本格搭載。価格に見合わない、圧倒的な機能群。</p>
+          </div>
+        </div>
+        <div className="strength-reason">
+          <div className="strength-reason-icon">🏆</div>
+          <div>
+            <h4>この仕様の代理店制度は、他にほぼ存在しない</h4>
+            <p>「この価格」「この機能」「この条件」を兼ね備えた代理店制度は、他に探してもありません。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* 強み③ やることはシンプル */}
+    <div className="strength-block reveal">
+      <div className="strength-block-head">
+        <span className="strength-block-num">03</span>
+        <div>
+          <h3>やることは、シンプル。</h3>
+          <p>新規顧客を開拓して、積み上げていくだけ。</p>
+        </div>
+      </div>
+      <div className="strength-simple">
+        <div className="strength-simple-main">
+          <div className="strength-simple-icon">📈</div>
+          <p>
+            <strong>新規顧客開拓 → 紹介 → 契約 → 積み上げ</strong><br />
+            ストック型なので、一度紹介した店舗が契約を続ける限り、毎月報酬が積み上がります。
+          </p>
+        </div>
+        <div className="strength-simple-sub">
+          <span className="strength-simple-badge">卸業者様へ</span>
+          <p>
+            <strong>通常業務に合わせるだけ。</strong><br />
+            既存のお取引先に、新サービスとしてPush-taroをご紹介いただくだけで、簡単に顧客獲得が見込めます。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* 結論 */}
+    <div className="strength-conclusion reveal">
       <h3>
-        だから、Push-taro は<br />
-        <span className="accent">代理店事業としてのサブスク</span> を選びました。
+        在庫ゼロ・ノルマなし・アフターリスクゼロ。<br />
+        この条件で、<span className="accent">新規顧客を開拓するだけ。</span>
       </h3>
       <p>
-        プッシュ通知サービスは、ネットからの導入がほとんど。<br />
-        「導入して、上手に使いこなせるか不安」——そんな声に応えるのが、Push-taro の代理店モデルです。
+        Push-taroの代理店は、<strong>「売りやすさ」と「続けやすさ」</strong>の両方を備えた、稀有なビジネスモデルです。
       </p>
+      <div className="strength-conclusion-cta">
+        <a href="#cta-final" className="btn-primary">
+          代理店パートナーに申し込む
+          <i className="fas fa-arrow-right"></i>
+        </a>
+      </div>
     </div>
   </div>
 </section>
