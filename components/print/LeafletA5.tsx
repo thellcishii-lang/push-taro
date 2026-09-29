@@ -372,7 +372,7 @@ export default function LeafletA5({ data }: Props) {
            ============================================================ */
         @media print {
           .a5-page {
-            zoom: 0.997;
+            zoom: 0.99９;
           }
         }
       `}</style>
