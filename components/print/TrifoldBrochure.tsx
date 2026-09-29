@@ -295,7 +295,7 @@ export default function TrifoldBrochure({ data }: Props) {
               しかしクーポンは<strong>受け身</strong>。サイトや来店で知ってもらうしか、伝える手段がないのです。
             </p>
             <p className="tf-solution-text">
-              それを、<strong>メルマガの6倍の開封率</strong>を持つプッシュ通知で、<strong>動的に仕組み化</strong>する。
+              それを、<strong>メルマガの10倍の開封率</strong>を持つプッシュ通知で、<strong>動的に仕組み化</strong>する。
             </p>
             <div className="tf-solution-push">
               <div className="tf-solution-push-title">Push-taro ができること</div>
