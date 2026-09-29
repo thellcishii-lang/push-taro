@@ -14,7 +14,7 @@ export default function LeafletA4({ data }: Props) {
   return (
     <>
       {/* ========== 表 ========== */}
-      <section className="p-page a4-page a4-front page-a4v">
+      <section className="p-page a4-page a4-front">
         <div className="a4-front-glow" />
         <div className="a4-front-top">
           <div className="a4-logo-row">
@@ -244,21 +244,26 @@ export default function LeafletA4({ data }: Props) {
       </section>
 
       <style jsx global>{`
-        /* A4 */
+        /* ============================================================
+           A4ページ（named page で 210mm x 297mm を強制）
+           ============================================================ */
         .a4-page {
+          position: relative;
           width: 210mm;
           height: 297mm;
           box-sizing: border-box;
           display: flex;
           flex-direction: column;
+          overflow: hidden;
+          page: page-a4v;
         }
-        /* 内部のすべての要素にも border-box を強制 */
-　　　　　　　　　　　　　　　　.a4-page {
-  width: 210mm;
-  height: 297mm;
-  display: flex;
-  flex-direction: column;
-}
+        /* 内部の全要素に border-box を継承させる */
+        .a4-page *,
+        .a4-page *::before,
+        .a4-page *::after {
+          box-sizing: border-box;
+        }
+
         /* ========== 表 ========== */
         .a4-front {
           background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
@@ -322,10 +327,6 @@ export default function LeafletA4({ data }: Props) {
         .a4-back {
           background: #fff;
           padding: 13mm 15mm;
-          display: flex;
-          flex-direction: column;
-          height: 100%;
-          box-sizing: border-box;
         }
         .a4-back-head {
           padding-bottom: 3.5mm;
@@ -347,6 +348,7 @@ export default function LeafletA4({ data }: Props) {
           grid-template-columns: 1fr 1fr;
           gap: 7mm;
           flex: 1;
+          min-height: 0;
         }
         .a4-col { display: flex; flex-direction: column; gap: 3mm; }
         .a4-col-left {
@@ -588,6 +590,17 @@ export default function LeafletA4({ data }: Props) {
           font-size: 7pt;
           color: #ff4500;
           letter-spacing: 0.3px;
+        }
+
+        /* ============================================================
+           印刷時のみ：丸め誤差で1ページ溢れるのを防ぐ
+           ============================================================ */
+        @media print {
+          .a4-page {
+            height: 296.9mm !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+          }
         }
       `}</style>
     </>
