@@ -152,6 +152,131 @@ export default function PartnersClient() {
         </div>
       </section>
 
+     {/* ============================================================
+    ストックビジネスとは
+============================================================ */}
+<section className="section stock-basics-section" id="stock-basics">
+  <div className="container">
+    <div className="section-title reveal">
+      <span className="tag">STOCK BUSINESS</span>
+      <h2>そもそも、ストックビジネスとは？</h2>
+      <p>「ネットワークビジネス？」「怪しい？」——そう誤解されがちですが、まったく別物です。</p>
+    </div>
+
+    {/* ブロック1：定義 */}
+    <div className="stock-basics-def reveal">
+      <div className="stock-basics-def-card">
+        <div className="stock-basics-def-icon">📊</div>
+        <h3>毎月、解約されるまで永続的に収入が得られるビジネスモデル</h3>
+        <p>
+          近年よく目にする<strong>「サブスク」</strong>は、まさにストックビジネスです。<br />
+          元々は<strong>携帯電話・家賃</strong>などが代表例で、1度契約したら、毎月解約されるまで永続的に収入が続きます。
+        </p>
+      </div>
+    </div>
+
+    {/* ブロック2：積み上がる仕組み */}
+    <div className="stock-basics-flow reveal">
+      <h3 className="stock-basics-flow-title">増えた分が、毎月積み上がっていく</h3>
+      <div className="stock-basics-flow-grid">
+        <div className="stock-basics-flow-item">
+          <div className="stock-basics-flow-label">初月</div>
+          <div className="stock-basics-flow-main">新規 3件</div>
+          <div className="stock-basics-flow-result">報酬 3件分</div>
+        </div>
+        <div className="stock-basics-flow-arrow">→</div>
+        <div className="stock-basics-flow-item">
+          <div className="stock-basics-flow-label">2ヶ月目</div>
+          <div className="stock-basics-flow-main">新規 5件</div>
+          <div className="stock-basics-flow-result">3件 + 5件 = <strong>8件分</strong></div>
+        </div>
+        <div className="stock-basics-flow-arrow">→</div>
+        <div className="stock-basics-flow-item is-final">
+          <div className="stock-basics-flow-label">3ヶ月目</div>
+          <div className="stock-basics-flow-main">新規 7件</div>
+          <div className="stock-basics-flow-result">8件 + 7件 = <strong>15件分</strong></div>
+        </div>
+      </div>
+      <p className="stock-basics-flow-note">
+        このように、<strong>解約されるまで積み上がっていく</strong>のが、ストックビジネスの素晴らしいところ。
+      </p>
+    </div>
+
+    {/* ブロック3：最大の強み */}
+    <div className="stock-basics-merit reveal">
+      <div className="stock-basics-merit-inner">
+        <div className="stock-basics-merit-icon">💪</div>
+        <h3>最大の強みは、<br />「毎月ゼロスタートではない」こと。</h3>
+        <p>
+          通常の営業は、常に新規獲得が基本。既存顧客からの紹介を得ても、基本的には<strong>毎月ゼロからのスタート</strong>です。<br /><br />
+          一方、ストックビジネスは<strong>積み上げ式</strong>。1件あたりの月額報酬は少なくても、解約されるまで永続的に続き、
+          <strong>長くやればやるほど、積み上げが大きくなる</strong>——努力がそのまま残っていくビジネスモデルです。
+        </p>
+      </div>
+    </div>
+
+    {/* ブロック4：落とし穴 */}
+    <div className="stock-basics-risk reveal">
+      <div className="stock-basics-risk-head">
+        <span className="stock-basics-risk-badge">⚠️ 落とし穴</span>
+        <h3>拡大するほど、経費が増える</h3>
+      </div>
+      <p>
+        商品を仕入れて使わせる、物理的なサービスを提供する場合——<br />
+        <strong>メンテナンス費用、物理的なハードル、会員数増加への対応</strong>など、増える分だけ負担も増えていきます。
+      </p>
+      <div className="stock-basics-risk-example">
+        <div className="stock-basics-risk-row">
+          <span>利益が <strong>2倍</strong> に増える</span>
+          <span>→</span>
+          <span>メンテナンス費用が <strong>3倍</strong> にかかる可能性</span>
+        </div>
+      </div>
+      <p className="stock-basics-risk-note">
+        これは、1件あたりの月額収益が少ないストックビジネスにおいて、とても重要な課題です。
+      </p>
+    </div>
+
+    {/* ブロック5：BtoCの限界 → BtoBの可能性 */}
+    <div className="stock-basics-btob reveal">
+      <h3 className="stock-basics-btob-title">
+        BtoCのサブスクは、<br />
+        <span className="accent">流行り廃りが早く、設備投資が重い。</span>
+      </h3>
+      <div className="stock-basics-btob-compare">
+        <div className="stock-basics-btob-card is-btoc">
+          <span className="stock-basics-btob-badge">BtoC の難しさ</span>
+          <ul>
+            <li>ジム・エステなどは<strong>新規設備導入が毎年必要</strong>なケースも</li>
+            <li>広告費をかけないと<strong>人が集まらない</strong></li>
+            <li>軌道に乗る前に<strong>流行りが変わる</strong></li>
+          </ul>
+        </div>
+        <div className="stock-basics-btob-card is-btob">
+          <span className="stock-basics-btob-badge">BtoB の可能性</span>
+          <ul>
+            <li>商売の目的で使うものを<strong>サブスクで提供</strong></li>
+            <li>POSレジ・コピー機のような<strong>業務インフラ</strong></li>
+            <li>代理店事業として提供しているサービスは<strong>非常に少ない</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    {/* ブロック6：Push-taroの位置づけ */}
+    <div className="stock-basics-conclusion reveal">
+      <h3>
+        だから、Push-taro は<br />
+        <span className="accent">代理店事業としてのサブスク</span> を選びました。
+      </h3>
+      <p>
+        プッシュ通知サービスは、ネットからの導入がほとんど。<br />
+        「導入して、上手に使いこなせるか不安」——そんな声に応えるのが、Push-taro の代理店モデルです。
+      </p>
+    </div>
+  </div>
+</section>
+
       {/* 市場の成長性 */}
       <section className="section section-alt">
         <div className="container">
