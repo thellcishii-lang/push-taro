@@ -30,3 +30,19 @@ export interface PrintMaterialMeta {
   sizeText: string;
   pagesText: string;
 }
+// ============================================================
+// 店頭ポップ用データ（店舗側）
+// ============================================================
+export interface ShopPopData {
+  shopId: string;
+  shopName: string;
+  subscribeUrl: string;
+  plan: 'light' | 'standard' | 'pro';
+
+  /** 初回クーポン（有効時のみ表示） */
+  firstCoupon?: {
+    enabled: boolean;
+    title?: string;
+    description?: string;
+  };
+}
