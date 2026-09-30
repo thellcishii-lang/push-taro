@@ -1033,7 +1033,7 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
               {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 基本設定を保存'}
             </button>
             {/* ★ 追加：店頭ポップ */}
-            <ShopPopSection shopId={shopId} />
+            <ShopPopSection shopId={shopId} returnTo="/pro-shop" />
           </div>
 
           {/* 退会エリア */}
