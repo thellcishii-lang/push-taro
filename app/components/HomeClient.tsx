@@ -1,18 +1,15 @@
-// app/page.tsx
-// Push-taro ランディングページ
 'use client';
 
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { faqs } from '../data/faq';
 
-
 /* ============================================================
    スクロール出現フック
    ============================================================ */
 function useScrollReveal() {
   useEffect(() => {
-   if (typeof document === 'undefined') return;
+    if (typeof document === 'undefined') return;
     const selectors = [
       '.reveal', '.reveal-left', '.reveal-right',
       '.tilt-in', '.tilt-in-left', '.tilt-in-right',
@@ -97,604 +94,582 @@ export default function HomeClient() {
               <path d="M30 30 L34 38 L28 34 Z" fill="#ffffff" />
               <path d="M22 30 L24 40 L26 30 Z" fill="#fbbf24" />
             </svg>
-            Push-taro<span>.</span>
+            Push-taro<span className="dot">.</span>
             <small>実店舗のためのPush通知CRM</small>
           </a>
           <div className="nav-links">
+            <a href="#why-now">なぜ今</a>
+            <a href="#philosophy">思想</a>
             <a href="#features">機能</a>
+            <a href="#interface">画面</a>
+            <a href="#comparison">他社比較</a>
             <a href="#pricing">料金</a>
-            <a href="#partners">収益化</a>
-            <a href="#faq">FAQ</a>
-            <a href="/signup" className="nav-cta">
-              今すぐ始める
-              <svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </a>
+            <Link href="/signup" className="nav-cta">今すぐ始める</Link>
           </div>
         </div>
       </nav>
 
-           {/* ============================================================
+      {/* ============================================================
           HERO
       ============================================================ */}
       <section className="hero">
-        <svg className="hero-bg-svg" viewBox="0 0 1400 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="heroGlow1" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#ff4500" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#ff4500" stopOpacity="0" />
-            </radialGradient>
-            <radialGradient id="heroGlow2" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#3182ce" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="#3182ce" stopOpacity="0" />
-            </radialGradient>
-            <pattern id="dotPattern" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-              <circle cx="2" cy="2" r="1.2" fill="white" opacity="0.08" />
-            </pattern>
-          </defs>
-          <rect width="1400" height="800" fill="url(#dotPattern)" />
-          <circle cx="1150" cy="120" r="320" fill="url(#heroGlow1)" />
-          <circle cx="180" cy="650" r="280" fill="url(#heroGlow2)" />
-          <path d="M0 700 Q 350 620 700 700 T 1400 700" stroke="#ff4500" strokeWidth="1" fill="none" opacity="0.15" />
-          <path d="M0 720 Q 350 640 700 720 T 1400 720" stroke="#ff4500" strokeWidth="1" fill="none" opacity="0.08" />
-        </svg>
-
         <div className="hero-inner">
-          <div className="hero-badge">
-            <span className="dot"></span>
+          <div className="hero-badge reveal">
+            <span className="dot-live"></span>
             2026年9月 正式リリース・先行登録受付中
           </div>
-          <h1>
-            既存客のリピートを、<br />
-            <span className="gradient-text">&quot;プッシュ通知 × CRM&quot;</span> で仕組化。
+          <h1 className="reveal" style={{ transitionDelay: '0.1s' }}>
+            実店舗のリピートを、<br />
+            <span className="gradient">&quot;プッシュ通知 × CRM&quot;</span> で仕組化。
           </h1>
-          <p className="hero-lead">
-            良いサービス、良い商品。それだけでは、お客様には伝わりません。<br />
-            <strong style={{ color: '#fff', fontWeight: 900 }}>「喜んで頂ける仕組み」</strong>が、お店とお客様を、もっと強く繋ぎます。<br />
-            プッシュ通知 × CRM で、実店舗のリピート施策に必要なすべてを1つに。
+          <p className="hero-lead reveal" style={{ transitionDelay: '0.2s' }}>
+            高機能なマーケティングツールは、<br />
+            使いこなすために専門チームが必要です。<br />
+            <strong>Push-taroは、違います。</strong><br />
+            全員に同じ施策から始めて、<br />
+            来てくれる人に、感謝をカタチに。
           </p>
-          <div className="hero-cta-group">
-            <a href="/signup" className="btn-primary">
+          <div className="hero-cta reveal" style={{ transitionDelay: '0.3s' }}>
+            <Link href="/signup" className="btn-primary">
               今すぐ申し込む
-              <svg className="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-            </a>
-            <a href="#features" className="btn-secondary">
-              <svg className="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
-                <path d="M12 8v4l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              機能を詳しく見る
-            </a>
+            </Link>
+            <a href="#why-now" className="btn-secondary">なぜ今なのか見る</a>
           </div>
-
           <div className="hero-stats">
-            <div className="hero-stat float tilt-in">
-              <div className="hero-stat-number">
-                最大<span className="count-up" data-count="10">10</span><small>倍</small>
-              </div>
+            <div className="hero-stat tilt-in float">
+              <div className="hero-stat-num">最大<span className="count-up" data-count="10">10</span><small>倍</small></div>
               <div className="hero-stat-label">メルマガ比 開封率</div>
             </div>
-            <div className="hero-stat float tilt-in" style={{ transitionDelay: '0.1s' }}>
-              <div className="hero-stat-number">
-                <span className="count-up" data-count="7">7</span><small>種類</small>
-              </div>
+            <div className="hero-stat tilt-in float" style={{ transitionDelay: '0.1s' }}>
+              <div className="hero-stat-num"><span className="count-up" data-count="7">7</span><small>種類</small></div>
               <div className="hero-stat-label">クーポン自動配信</div>
             </div>
-            <div className="hero-stat float tilt-in" style={{ transitionDelay: '0.2s' }}>
-              <div className="hero-stat-number">無制限</div>
+            <div className="hero-stat tilt-in float" style={{ transitionDelay: '0.2s' }}>
+              <div className="hero-stat-num">無制限</div>
               <div className="hero-stat-label">PROプラン配信数</div>
             </div>
-            <div className="hero-stat float tilt-in" style={{ transitionDelay: '0.3s' }}>
-              <div className="hero-stat-number">
-                <span className="count-up" data-count="3">3</span><small>種</small>
-              </div>
+            <div className="hero-stat tilt-in float" style={{ transitionDelay: '0.3s' }}>
+              <div className="hero-stat-num"><span className="count-up" data-count="3">3</span><small>種</small></div>
               <div className="hero-stat-label">収益化プログラム</div>
             </div>
           </div>
         </div>
       </section>
 
-       {/* ============================================================
-    NEW：シニアナレッジマネージャーのストーリー
-============================================================ */}
-<section className="section story-section" id="story">
-  <div className="container">
-    <div className="section-header reveal">
-      <span className="section-tag">Real Knowledge</span>
-      <h2>
-        実際の現場から導き出した、<br />
-        実店舗のための「本当に人が動く」システム。
-      </h2>
-      <p>
-        世の中の小難しいマーケティングツールに、現場のオーナーは疲弊しています。
-      </p>
-    </div>
-
-    <div className="story-wrap">
-      <div className="story-text reveal">
-        <p>
-          Push-taro は、ビジネス管理と店舗経営のリアルを、
-          <strong>システムに落とし込みました</strong>。
-        </p>
-        <p>
-          毎日10時の日替わりメニュー配信。<br />
-          「本日30個限定」の数量限定告知。<br />
-          夜のお店のボトルプッシュ。
-        </p>
-        <p>
-          現場が<strong>「明日からすぐ使えて、確実に売上に繋がる」</strong>仕組みだけを厳選して設計。
-          データではなく、<strong>「人間の行動心理」</strong>をナレッジ化した仕組みです。
-        </p>
-        <div className="story-quote">
-          きれいごとのITツールに、<br />
-          騙されていませんか？
-        </div>
-      </div>
-
-      <div className="story-flow reveal-right">
-        <div className="story-step">
-          <div className="story-step-num">１</div>
-          <div className="story-step-text">
-            <strong>実際の店舗から導き出した</strong>
-            <span>机上の空論ではない、泥臭いリアル</span>
+      {/* ============================================================
+          WHY NOW
+      ============================================================ */}
+      <section className="section" id="why-now">
+        <div className="container">
+          <div className="section-header reveal">
+            <span className="section-tag">Why Now</span>
+            <h2>なぜ、今、プッシュ通知なのか。</h2>
+            <p>2023年、iPhoneがWebアプリのプッシュ通知に対応。<br />これで国内のスマホ全般で使えるようになりました。</p>
+          </div>
+          <div className="timeline">
+            <div className="timeline-item tilt-in">
+              <div className="timeline-year">2015</div>
+              <div className="timeline-content">
+                <h4>Android、プッシュ通知に対応</h4>
+                <p>Androidは早くからWebアプリのプッシュ通知をサポートしていました。ただ、iPhoneユーザーには届きませんでした。</p>
+              </div>
+            </div>
+            <div className="timeline-item is-highlight tilt-in" style={{ transitionDelay: '0.1s' }}>
+              <div className="timeline-year">2023</div>
+              <div className="timeline-content">
+                <h4>iPhone、Webアプリのプッシュ通知に対応</h4>
+                <p>iOS 16.4以降で、ホーム画面に追加したWebアプリがプッシュ通知を受け取れるように。これでiPhoneユーザーにも届けられるようになりました。</p>
+              </div>
+            </div>
+            <div className="timeline-item is-final tilt-in" style={{ transitionDelay: '0.2s' }}>
+              <div className="timeline-year">NOW</div>
+              <div className="timeline-content">
+                <h4>国内のスマホ全般で、プッシュ通知が可能に</h4>
+                <p>iPhone・Android、どちらのユーザーにも、Webアプリから直接お得を届けられる時代になりました。</p>
+              </div>
+            </div>
+          </div>
+          <div className="why-now-compare">
+            <div className="why-now-card is-corporate tilt-in-left">
+              <h4>🏢 大手企業は、すでに活用中</h4>
+              <p>プッシュ通知の開封率の高さをいち早く理解し、Webサイトからの通知をどんどん増やしています。</p>
+            </div>
+            <div className="why-now-card is-shop tilt-in-right">
+              <h4>🏪 実店舗では、まだ普及率が低い</h4>
+              <p>この恩恵を、実店舗はまだ上手に使えていません。<br />だからこそ、今がチャンスです。</p>
+            </div>
           </div>
         </div>
-        <div className="story-arrow">↓</div>
-        <div className="story-step">
-          <div className="story-step-num">📋</div>
-          <div className="story-step-text">
-            <strong>顧客心理と運用プロセスをナレッジ化</strong>
-            <span>「どう送ればリピートされるか」の設計図</span>
-          </div>
-        </div>
-        <div className="story-arrow">↓</div>
-        <div className="story-step">
-          <div className="story-step-num">⚙️</div>
-          <div className="story-step-text">
-            <strong>システムに実装、機能として厳選</strong>
-            <span>必要な機能だけを、迷わず使える形に</span>
-          </div>
-        </div>
-        <div className="story-arrow">↓</div>
-        <div className="story-step is-final">
-          <div className="story-step-num">🎯</div>
-          <div className="story-step-text">
-            <strong>現場が「明日から使える」リピーター獲得システム</strong>
-            <span>売上に直結する仕組みだけを標準搭載</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+      </section>
 
       {/* ============================================================
-          PHILOSOPHY「喜んで頂ける」を、仕組みにする
+          WHY COUPON
       ============================================================ */}
-      <section className="section section-alt" id="philosophy">
+      <section className="section section-alt" id="why-coupon">
+        <div className="container">
+          <div className="section-header reveal">
+            <span className="section-tag">Why Coupon</span>
+            <h2>プッシュ通知だけでは、<br />効果は出ません。</h2>
+            <p>大事なのは、「お得」とセットで届けること。</p>
+          </div>
+          <div className="why-coupon-flow">
+            <div className="wc-step tilt-in">
+              <div className="wc-num">1</div>
+              <div className="wc-icon">📢</div>
+              <h4>プッシュ通知が届く</h4>
+              <p>ホーム画面に、直接メッセージが届きます。メールやLINEより、圧倒的に見られます。</p>
+            </div>
+            <div className="wc-arrow">→</div>
+            <div className="wc-step is-highlight tilt-in" style={{ transitionDelay: '0.1s' }}>
+              <div className="wc-num">2</div>
+              <div className="wc-icon">🎁</div>
+              <h4>「お得」がないと、削除される</h4>
+              <p>ただのお知らせでは、お客様はホーム画面から削除してしまいます。だからクーポンとセットが必要です。</p>
+            </div>
+            <div className="wc-arrow">→</div>
+            <div className="wc-step is-final tilt-in" style={{ transitionDelay: '0.2s' }}>
+              <div className="wc-num">3</div>
+              <div className="wc-icon">🎯</div>
+              <h4>来店・リピートに繋がる</h4>
+              <p>「今すぐ使えるクーポン」なら、来店の理由になります。リピートにも自然と繋がります。</p>
+            </div>
+          </div>
+          <div className="before-after">
+            <div className="ba-col is-before tilt-in-left">
+              <h4>❌ Before</h4>
+              <ul>
+                <li>チラシ・DMを打っても、効果が見えない</li>
+                <li>一度来たお客様が、再来店しない</li>
+                <li>クーポンアプリは重くて、登録されない</li>
+              </ul>
+            </div>
+            <div className="ba-col is-after tilt-in-right">
+              <h4>✅ After</h4>
+              <ul>
+                <li>QRを読み取るだけで、お客様が登録</li>
+                <li>来店ごとに、次のクーポンが自動配信</li>
+                <li>「喜んで頂ける仕組み」が、自然に回り出す</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          PHILOSOPHY
+      ============================================================ */}
+      <section className="section" id="philosophy">
         <div className="container">
           <div className="section-header reveal">
             <span className="section-tag">Philosophy</span>
-            <h2>「喜んで頂ける」を、<br />仕組みにする。</h2>
-            <p>良いサービス、良い商品。それだけでは、伝わりません。</p>
+            <h2>実店舗に、<br />本当に必要なものだけ。</h2>
+            <p>大手マーケティングツールの真似ではなく、<br />実店舗のリアルに合わせた設計です。</p>
           </div>
-
-          <div className="philosophy-wrap">
-            <div className="philosophy-text reveal">
-              <p>
-                提供するサービス、取り扱う商品——<br />
-                それらが基本として軸にあるのは、もちろん大前提です。
-              </p>
-              <p>
-                しかし、<strong>それらをお客様に喜んで頂けるようにする「仕組み」があるかないか</strong>で、結果は大きく変わります。
-              </p>
-              <p>
-                どんなに素晴らしいサービスや商品があっても、仕組みがなければ既存のお客様には伝わりません。逆に、喜んで頂ける仕組みがあれば、お客様は<strong>もっと利用してくれる</strong>ようになります。
-              </p>
-              <div className="philosophy-quote">
-                そして、それこそが<span style={{ color: '#ff4500' }}>口コミ</span>となり、<br />
-                新規のお客様へと繋がっていく。
-              </div>
-            </div>
-
-            <div className="philosophy-flow reveal-right">
-              <div className="philosophy-step">
-                <div className="philosophy-step-num">1</div>
-                <div className="philosophy-step-text">良いサービス・商品がある</div>
-              </div>
-              <div className="philosophy-arrow">↓</div>
-              <div className="philosophy-step">
-                <div className="philosophy-step-num">2</div>
-                <div className="philosophy-step-text">それを伝える「仕組み」がある</div>
-              </div>
-              <div className="philosophy-arrow">↓</div>
-              <div className="philosophy-step">
-                <div className="philosophy-step-num">3</div>
-                <div className="philosophy-step-text">既存客がもっと利用してくれる</div>
-              </div>
-              <div className="philosophy-arrow">↓</div>
-              <div className="philosophy-step is-final">
-                <div className="philosophy-step-num">🎉</div>
-                <div className="philosophy-step-text">口コミが生まれ、新規へ繋がる</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-     {/* ============================================================
-    PROBLEM
-============================================================ */}
-<section className="section">
-  <div className="container">
-    <div className="section-header reveal">
-      <span className="section-tag">Problem</span>
-      <h2>こんな「店舗経営の悩み」を抱えていませんか？</h2>
-      <p>多くの店舗オーナー様が、集客の不安定さとリピート施策のコストに直面しています。</p>
-    </div>
-
-    <div className="problem-grid">
-      {/* ① リピート率の頭打ち */}
-      <div className="problem-card tilt-in" style={{ transitionDelay: '0s' }}>
-        <div className="problem-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-            <path d="M3 17l6-6 4 4 8-8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M14 7h7v7" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-        <h3>リピート率の頭打ち</h3>
-        <p>一度来店されたお客様の再来店につながる有効な導線がなく、一見客頼みの集客から抜け出せない。</p>
-      </div>
-
-      {/* ② 集客のコントロール不足 */}
-      <div className="problem-card tilt-in" style={{ transitionDelay: '0.1s' }}>
-        <div className="problem-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-            <path d="M6 16a4 4 0 010-8 5 5 0 019.9-1.5A4.5 4.5 0 0118 16H6z" stroke="#dc2626" strokeWidth="2" strokeLinejoin="round" />
-            <path d="M8 20l-1 2M12 20l-1 2M16 20l-1 2" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        </div>
-        <h3>集客のコントロール不足</h3>
-        <p>雨天や平日の閑散期など、「今すぐお客様を呼びたい」タイミングでピンポイントにアプローチできない。</p>
-      </div>
-
-      {/* ③ ★ NEW：リターンの見込めないSNS投稿 */}
-      <div className="problem-card tilt-in" style={{ transitionDelay: '0.2s' }}>
-        <div className="problem-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-            <rect x="5" y="5" width="14" height="14" rx="3" stroke="#dc2626" strokeWidth="2" />
-            <circle cx="12" cy="12" r="3.5" stroke="#dc2626" strokeWidth="2" />
-            <circle cx="17" cy="7" r="0.8" fill="#dc2626" />
-          </svg>
-        </div>
-        <h3>リターンの見込めないSNS投稿</h3>
-        <p>インスタなどの投稿で、リターンが大して見込めないのに、何かしないとという気持ちで疲れるだけで集客に繋がらない。</p>
-      </div>
-
-      {/* ④ 従量課金のコスト肥大化 */}
-      <div className="problem-card tilt-in" style={{ transitionDelay: '0.3s' }}>
-        <div className="problem-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-            <circle cx="10" cy="10" r="6" stroke="#dc2626" strokeWidth="2" />
-            <path d="M10 7v3M10 13v.01" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
-            <path d="M16 14l4 4M16 18l4-4" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        </div>
-        <h3>従量課金のコスト肥大化</h3>
-        <p>既存のツールは配信数が増えるほど料金が跳ね上がり、積極的なコミュニケーションが打てない。</p>
-      </div>
-
-      {/* ⑤ 顧客情報がバラバラ */}
-      <div className="problem-card tilt-in" style={{ transitionDelay: '0.4s' }}>
-        <div className="problem-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="5" width="8" height="10" rx="1.5" stroke="#dc2626" strokeWidth="2" />
-            <rect x="13" y="9" width="8" height="10" rx="1.5" stroke="#dc2626" strokeWidth="2" />
-            <path d="M7 3h10M7 21h10" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        </div>
-        <h3>顧客情報がバラバラ</h3>
-        <p>来店履歴・クーポン利用・誕生日情報が一元管理できず、セグメント配信や施策のPDCAが回らない。</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-      {/* ============================================================
-          CAC 新規客獲得コスト
-      ============================================================ */}
-      <section className="section section-dark" id="cac">
-        <div className="container">
-          <div className="section-header">
-            <span className="section-tag">Customer Acquisition Cost</span>
-            <h2>新規客1人を獲得するのに、<br />いくらかかっていますか？</h2>
+          <div className="philosophy-statement reveal">
+            <span className="quote-mark">&quot;</span>
+            <h3>
+              セグメント配信（顧客を属性ごとに分けて配信すること）・<br />
+              高度な分析・A/Bテスト——<br />
+              それらを実店舗で使いこなすには、<br />
+              専門のマーケティングチームが不可欠です。
+            </h3>
             <p>
-              新規集客は「広告」と「口コミ」と言われますが、実際には<strong style={{ color: '#fff' }}>どれだけ広告を出せるか</strong>に絞られがちです。<br />
-              業種ごとの「新規顧客1人あたりの平均獲得単価」をご覧ください。
+              適当に使っても、効果は限定的。<br />
+              数十万〜数百万の顧客を抱えるECサイトならともかく、<br />
+              数百〜数千人の顧客を相手にする実店舗では、<br />
+              <strong>費用対効果が合いません。</strong>
             </p>
           </div>
-
-          <div className="cac-grid">
-            <div className="cac-card">
-              <div className="cac-icon">🍽️</div>
-              <div className="cac-industry">カフェ・飲食店・外食産業</div>
-              <div className="cac-value">¥5,000〜</div>
-              <div className="cac-unit">／ 新規客1人</div>
+          <div className="philosophy-compare">
+            <div className="pc-card is-wrong tilt-in-left">
+              <span className="pc-badge">業界の「間違い」</span>
+              <h4>大手ツールがやってること</h4>
+              <ul className="pc-list">
+                <li><span className="ico">✕</span><span>専門マーケターが何時間もかけて設計</span></li>
+                <li><span className="ico">✕</span><span>年齢・性別・来店頻度で顧客を細かく分類</span></li>
+                <li><span className="ico">✕</span><span>PDCA（計画・実行・確認・改善のサイクル）を毎月回す前提</span></li>
+                <li><span className="ico">✕</span><span>実店舗では「なんであの人だけ？」と差別になりかねない</span></li>
+                <li><span className="ico">✕</span><span>効果のない通知を打ち続けて、ホーム画面から削除される</span></li>
+              </ul>
             </div>
-            <div className="cac-card">
-              <div className="cac-icon">💇</div>
-              <div className="cac-industry">美容サロン</div>
-              <div className="cac-value">¥15,000〜</div>
-              <div className="cac-unit">／ 新規客1人</div>
+            <div className="pc-card is-right tilt-in-right">
+              <span className="pc-badge">Push-taroの「正解」</span>
+              <h4>実店舗に本当に必要なこと</h4>
+              <ul className="pc-list">
+                <li><span className="ico">◎</span><span>まず、<strong>全員に同じ施策</strong>ができること</span></li>
+                <li><span className="ico">◎</span><span>その上で、<strong>来てくれる人への感謝</strong>をカタチに</span></li>
+                <li><span className="ico">◎</span><span>特別な知識も、マーケティング専任チームも、必要ありません</span></li>
+                <li><span className="ico">◎</span><span>シンプルだからこそ、<strong>続けられる</strong></span></li>
+                <li><span className="ico">◎</span><span>「差別」ではなく「お返し」としての仕組み</span></li>
+              </ul>
             </div>
-            <div className="cac-card">
-              <div className="cac-icon">💆</div>
-              <div className="cac-industry">マッサージ・エステ</div>
-              <div className="cac-value">¥20,000〜</div>
-              <div className="cac-unit">／ 新規客1人</div>
-            </div>
-            <div className="cac-card">
-              <div className="cac-icon">💪</div>
-              <div className="cac-industry">フィットネス・ジム</div>
-              <div className="cac-value">¥10,000〜</div>
-              <div className="cac-unit">／ 新規客1人</div>
-            </div>
-            <div className="cac-card">
-              <div className="cac-icon">📚</div>
-              <div className="cac-industry">スクール・塾</div>
-              <div className="cac-value">¥10,000〜</div>
-              <div className="cac-unit">／ 新規客1人</div>
-            </div>
-          </div>
-
-          <div className="cac-balance reveal">
-            <div className="cac-balance-title">
-              この広告費を<span style={{ color: '#fd7e5a' }}>新規</span>に使うか、<br />
-              <span style={{ color: '#fd7e5a' }}>既存客</span>に還元するか。
-            </div>
-            <p className="cac-balance-text">
-              この<strong>天秤</strong>が、とても大切です。<br />
-              既存のお客様は、既に貴店を<strong>気に入ってくれている</strong>。<br />
-              だからこそ、大切にしたい。<br />
-              <strong>「お客様に喜んで頂ける」</strong>ということは、<br />
-              <strong>既存客に喜んで頂ける</strong>ことと深く繋がっています。
-            </p>
           </div>
         </div>
       </section>
 
-       {/* ============================================================
-    NEW：ポイント vs クーポン
-============================================================ */}
-<section className="section" id="why-coupon">
-  <div className="container">
-    <div className="section-header reveal">
-      <span className="section-tag">Coupon vs Points</span>
-      <h2>
-        「ポイント5倍」で、<br />
-        お客様は本当に動きますか？
-      </h2>
-      <p>
-        PayPay・クレカ・楽天ポイント——決済ポイントが当たり前の時代。<br />
-        お店独自のポイントカードは、もはや<strong>来店動機になりません</strong>。
-      </p>
-    </div>
-
-    <div className="cvp-compare reveal">
-      {/* ポイント側 */}
-      <div className="cvp-card is-points">
-        <span className="cvp-badge">ポイント</span>
-        <h4>貯めて、あとで使う</h4>
-        <ul className="cvp-list">
-          <li>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" fill="#fecaca" />
-              <path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-            <span>「本日ポイント5倍」→ <strong>その日は何ももらえない</strong></span>
-          </li>
-          <li>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" fill="#fecaca" />
-              <path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-            <span>「あの店はポイントつくから」→ わざわざ行かない</span>
-          </li>
-          <li>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" fill="#fecaca" />
-              <path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-            <span>PayPay・クレカ・楽天…と<strong>競合だらけ</strong></span>
-          </li>
-          <li>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" fill="#fecaca" />
-              <path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-            <span>財布もスマホも<strong>圧迫されるだけ</strong></span>
-          </li>
-        </ul>
-      </div>
-
-      {/* 矢印 */}
-      <div className="cvp-arrow">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-          <path d="M4 12h16M14 6l6 6-6 6" stroke="#ff4500" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
-
-      {/* クーポン側 */}
-      <div className="cvp-card is-coupon">
-        <span className="cvp-badge is-coupon">クーポン</span>
-        <h4>今すぐ、その場で使える</h4>
-        <ul className="cvp-list">
-          <li>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" fill="#bbf7d0" />
-              <path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span>「本日から使えるクーポン」→ <strong>今日の会計が安くなる</strong></span>
-          </li>
-          <li>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" fill="#bbf7d0" />
-              <path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span>「期限は今日まで」→ <strong>来店動機が生まれる</strong></span>
-          </li>
-          <li>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" fill="#bbf7d0" />
-              <path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span><strong>決済ポイントと併用可能</strong>（ダブルでおトク）</span>
-          </li>
-          <li>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" fill="#bbf7d0" />
-              <path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span>アプリ不要、<strong>QR1つで完結</strong></span>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <div className="cvp-conclusion reveal">
-      <h3>
-        お客様は、決済アプリでポイントを貯めつつ、<br />
-        Push-taroのクーポンで<strong>今すぐ使える特典</strong>を受け取る。
-      </h3>
-      <p>
-        この「ダブルでおトク」な体験を、アプリのインストール不要で、<br />
-        QRコードを読み込むだけで提供できるのが、Push-taro です。
-      </p>
-    </div>
-  </div>
-</section>
+      {/* ============================================================
+          GUIDE PROMO（既存客の囲い込みに変更）
+      ============================================================ */}
+      <section className="guide-promo">
+        <div className="container">
+          <div className="guide-promo-card reveal">
+            <div className="guide-promo-left">
+              <span className="guide-promo-tag">📖 深く読みたい方へ</span>
+              <h2 className="guide-promo-title">
+                「既存客への囲い込みについて」<br />
+                じっくり解説しています。
+              </h2>
+              <p className="guide-promo-text">
+                なぜ既存客の囲い込みが必要なのか。<br />
+                本質を理解して、内容を整理する。<br />
+                ポイントでは動かない、その本質。
+              </p>
+              <ul className="guide-promo-list">
+                <li>売上が頭打ちになる、本当の原因</li>
+                <li>2つの課題の、正しい分け方</li>
+                <li>「囲い込み」ではなく「楽しんでもらう」</li>
+              </ul>
+              <Link href="/guide/why-push-taro" className="guide-promo-btn">
+                詳しく読む
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+            </div>
+            <div className="guide-promo-right">
+              <div className="guide-promo-mock">
+                <div className="guide-promo-mock-head"></div>
+                <div className="guide-promo-mock-bar" style={{ width: '90%' }}></div>
+                <div className="guide-promo-mock-bar" style={{ width: '75%' }}></div>
+                <div className="guide-promo-mock-bar" style={{ width: '85%' }}></div>
+                <div className="guide-promo-mock-bar is-highlight" style={{ width: '60%' }}></div>
+                <div className="guide-promo-mock-bar" style={{ width: '80%' }}></div>
+                <div className="guide-promo-mock-bar" style={{ width: '70%' }}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ============================================================
-          RAIN「雨の日」に、プッシュ通知は効きません
+          SETUP
       ============================================================ */}
-      <section className="section" id="rain">
+      <section className="section section-alt" id="setup">
         <div className="container">
           <div className="section-header reveal">
-            <span className="section-tag">Why Push-taro</span>
-            <h2>「雨の日」に、<br />プッシュ通知は効きません。</h2>
-            <p>よく聞く「雨の日に来店が減る」「今日は暇だから」——。この状況で通知を送っても、ほぼ効きません。</p>
+            <span className="section-tag">Easy Setup</span>
+            <h2>導入は、想像よりずっと簡単。</h2>
+            <p>専門知識は一切不要。<br />QRコードを印刷して貼るだけで、今日から始められます。</p>
           </div>
-
-          <div className="rain-compare reveal">
-            <div className="rain-card is-bad">
-              <span className="rain-badge is-bad">NG例</span>
-              <h4>「本日は20%オフです！」</h4>
-              <p>雨の日は流動数が少ない。早く帰りたい。行く理由にならない。</p>
-            </div>
-            <div className="rain-arrow">↓</div>
-            <div className="rain-card is-good">
-              <span className="rain-badge is-good">OK例</span>
-              <h4>「クーポンの期日が今日まで」</h4>
-              <p>得する理由・楽しみがあると、人は雨でも動く。</p>
+          <div className="setup-barrier reveal">
+            <div className="setup-barrier-icon">🚪</div>
+            <div className="setup-barrier-body">
+              <h3>プッシュ通知の最大の難関は、<br />「受け取ってもらう」こと。</h3>
+              <p>
+                アプリのダウンロード、LINE登録、ホーム画面への追加——<br />
+                お客様に何らかのアクションをしてもらわないと、通知は届きません。<br />
+                <strong>この最初のハードルを、いかに低くするかが勝負です。</strong>
+              </p>
             </div>
           </div>
-
-          <p className="rain-lead reveal">
-            日頃から<strong>仕組みを作る</strong>ことで、「行く理由」ができるんです。<br />
-            雨だからコンサート行くのやめよう、仕事に行くのをやめよう、とはならないように——<br />
-            <strong>そこに得する理由や楽しみがあれば、人は雨でも動きます。</strong>
-          </p>
-
-          <div className="rain-conclusion reveal">
-            <h3>「喜ばれる仕組み」を作る。</h3>
-            <p>いつの間にか「雨なのに客足が途絶えない店」が、できあがります。</p>
+          <div className="setup-flow-wrap">
+            <div className="setup-col is-customer reveal-left">
+              <div className="setup-head">
+                <span className="setup-badge">お客様側</span>
+                <h3>QRを読み取って、30秒。</h3>
+                <p>全プランに「QRコード + 初回クーポン」標準搭載</p>
+              </div>
+              <div className="setup-steps">
+                <div className="setup-step">
+                  <div className="setup-num">1</div>
+                  <div className="setup-text">
+                    <strong>QRコードを読み取る</strong>
+                    <span>店頭POPのQRをカメラで読み取るだけ</span>
+                  </div>
+                </div>
+                <div className="setup-step">
+                  <div className="setup-num">2</div>
+                  <div className="setup-text">
+                    <strong>ホーム画面に追加（iPhoneのみ）</strong>
+                    <span>Androidは自動で完了</span>
+                  </div>
+                </div>
+                <div className="setup-step">
+                  <div className="setup-num">3</div>
+                  <div className="setup-text">
+                    <strong>SMS認証</strong>
+                    <span>電話番号に届くコードを入力</span>
+                  </div>
+                </div>
+                <div className="setup-step is-final">
+                  <div className="setup-num">✓</div>
+                  <div className="setup-text">
+                    <strong>登録完了 + 初回クーポンGET</strong>
+                    <span>その場で「10〜20%OFF」が受け取れる</span>
+                  </div>
+                </div>
+              </div>
+              <div className="setup-note">
+                <strong>「ホーム画面に追加で10%OFF」</strong><br />
+                これだけで、お客様の登録ハードルは一気に下がります。
+              </div>
+            </div>
+            <div className="setup-col is-owner reveal-right">
+              <div className="setup-head">
+                <span className="setup-badge">店舗オーナー側</span>
+                <h3>登録から運用まで、10分。</h3>
+                <p>専門知識ゼロ。ITが苦手でも大丈夫。</p>
+              </div>
+              <div className="setup-steps">
+                <div className="setup-step">
+                  <div className="setup-num">1</div>
+                  <div className="setup-text">
+                    <strong>アカウント作成</strong>
+                    <span>メールアドレスと店舗情報を入力</span>
+                  </div>
+                </div>
+                <div className="setup-step">
+                  <div className="setup-num">2</div>
+                  <div className="setup-text">
+                    <strong>クーポン設定</strong>
+                    <span>タイトル・説明・有効期限を管理画面で</span>
+                  </div>
+                </div>
+                <div className="setup-step">
+                  <div className="setup-num">3</div>
+                  <div className="setup-text">
+                    <strong>店頭ポップを印刷</strong>
+                    <span>管理画面から、A4/A5ポップを印刷するだけ</span>
+                  </div>
+                </div>
+                <div className="setup-step is-final">
+                  <div className="setup-num">✓</div>
+                  <div className="setup-text">
+                    <strong>通知を送信</strong>
+                    <span>「本日の日替わりランチ！」を即配信</span>
+                  </div>
+                </div>
+              </div>
+              <div className="setup-note">
+                <strong>アカウント作成から最短10分。</strong><br />
+                決済完了で、即時利用開始できます。
+              </div>
+            </div>
           </div>
 
-          <div className="solution-arrow reveal">↓</div>
-
-          <div className="solution-block reveal">
-            <h3>だから、<span style={{ color: '#ff4500' }}>Push-taro</span> です。</h3>
-            <p>
-              「クーポンだけでいいじゃん？」そう思われるかもしれません。<br />
-              でもクーポンは<strong>受け身</strong>。サイトや来店で知ってもらうしか、伝える手段がない。
-            </p>
-            <p>
-              それを、<strong>メルマガの10倍の開封率</strong>を持つプッシュ通知で、<strong>動的に仕組み化</strong>する。
-              お店に必要な機能だけを、自由に組み合わせて使えます。
-            </p>
+          {/* 店頭ポップ（STANDARD / PRO バッジ追加） */}
+          <div className="qr-pop-section reveal">
+            <div className="qr-pop-head">
+              <span className="tag">NEW FEATURE</span>
+              <div className="qr-pop-plan-badges">
+                <span className="qr-pop-plan-badge is-std">STANDARD</span>
+                <span className="qr-pop-plan-badge is-pro">PRO</span>
+              </div>
+              <h3>店頭ポップを、管理画面から印刷するだけ。</h3>
+              <p>レジ横・カウンター・テーブルに置くだけで、お客様が自分から登録してくれます。</p>
+            </div>
+            <div className="qr-pop-body">
+              <div className="qr-pop-visual">
+                <div className="pop-a4">
+                  <div className="pop-shop">Patisserie Taro</div>
+                  <div className="pop-lead">＼ スマホで読み取るだけ ／</div>
+                  <div className="pop-catch">
+                    お得な情報を<br />
+                    <span className="accent">プッシュ通知</span>で<br />
+                    お届けします
+                  </div>
+                  <div className="pop-qr"></div>
+                  <div className="pop-perk">
+                    <span className="pop-perk-badge">初回限定</span>
+                    <div className="pop-perk-title">🎁 初回限定 10%OFF</div>
+                  </div>
+                </div>
+                <div className="pop-a5">
+                  <div className="pop-shop">Patisserie Taro</div>
+                  <div className="pop-lead">＼ スマホで読み取るだけ ／</div>
+                  <div className="pop-catch">
+                    お得な情報を<br />
+                    <span className="accent">プッシュ通知</span>で<br />
+                    お届けします
+                  </div>
+                  <div className="pop-qr"></div>
+                  <div className="pop-perk">
+                    <span className="pop-perk-badge">初回限定</span>
+                    <div className="pop-perk-title">🎁 初回限定 10%OFF</div>
+                  </div>
+                </div>
+              </div>
+              <div className="qr-pop-content">
+                <div className="qr-pop-feature">
+                  <div className="qr-pop-feature-icon">🖨️</div>
+                  <div className="qr-pop-feature-body">
+                    <h4>A4 / A5、2サイズから選べる</h4>
+                    <p>レジ横に立てるA4、カウンターに置くA5。店舗の状況に合わせて、ぴったりのサイズを印刷できます。</p>
+                  </div>
+                </div>
+                <div className="qr-pop-feature">
+                  <div className="qr-pop-feature-icon">✨</div>
+                  <div className="qr-pop-feature-body">
+                    <h4>店舗名とQRコード入り</h4>
+                    <p>お客様はQRを読み取るだけ。アプリ不要、30秒で通知登録が完了します。</p>
+                  </div>
+                </div>
+                <div className="qr-pop-feature">
+                  <div className="qr-pop-feature-icon">🎁</div>
+                  <div className="qr-pop-feature-body">
+                    <h4>初回クーポンが設定されていれば、自動で表示</h4>
+                    <p>「登録するとお得」ではなく、<strong>「登録すると、今すぐお得」</strong>。その場で特典が得られるから、登録率が爆発的に上がります。</p>
+                  </div>
+                </div>
+                <div className="qr-pop-highlight">
+                  <strong>「今日、これ使えます」が最強の登録動機。</strong>
+                  <p>
+                    お会計時に「これ、今日使えるから登録するとお得ですよ」と一言添えるだけ。<br />
+                    未来のお得ではなく、<strong>目の前のお得</strong>が、お客様の背中を押します。
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ============================================================
-          FEATURES（11機能）
+          FEATURES
       ============================================================ */}
-      <section className="section section-alt" id="features">
+      <section className="section" id="features">
         <div className="container">
           <div className="section-header reveal">
             <span className="section-tag">Features</span>
-            <h2>すべてオンオフ可能。<br />必要な機能だけを、選べる。</h2>
-            <p>お店に必要な分だけ、組み合わせて使えます。11のコア機能を標準搭載。</p>
+            <h2>機能は、段階的に使えばいい。</h2>
+            <p>最初から全部を使いこなす必要はありません。<br />まずは「全員に配る」から始めて、少しずつ育てていきましょう。</p>
           </div>
 
-          <div className="feature-grid-11">
-            {[
-              { ico: '📢', name: 'プッシュ通知', badges: ['all'], desc: 'お客様全員へ一斉配信。iPhone・Android・PC対応。メルマガの10倍の開封率。' },
-              { ico: '📱', name: 'QRコード登録', badges: ['all'], desc: '店頭POPに置くだけ。お客様はQRを読み取るだけ。アプリ不要で通知登録。' },
-              { ico: '🎫', name: '初回クーポン', badges: ['all'], desc: '登録と同時に自動配布。新規顧客獲得と1回目の来店を促す。' },
-              { ico: '🎟️', name: '通常クーポン', badges: ['std', 'pro'], desc: '常設クーポン。会員特典として運用。' },
-              { ico: '🏆', name: '特別達成クーポン', badges: ['std', 'pro'], desc: '指定回数クーポンを使うと、特別クーポンが出現する仕組み。' },
-              { ico: '📊', name: '開封率の確認', badges: ['std', 'pro'], desc: '配信ごとの開封率を数値で確認。施策のPDCAを回せる。' },
-              { ico: '🐾', name: 'ステップアップクーポン', badges: ['pro'], desc: '来店ごとに、使うと次のステップに。最大10段階まで設計可能。' },
-              { ico: '🔄', name: '連続クーポン', badges: ['pro'], desc: '消込と同時に、次回分のクーポンを自動発行。来店サイクルを短縮。' },
-              { ico: '🎂', name: '記念日・誕生日クーポン', badges: ['pro'], desc: '年1回の特別な日に、自動でお祝いクーポンを配信。' },
-              { ico: '💤', name: '休眠復活クーポン', badges: ['pro'], desc: '最終来店からN日経過した顧客に、自動で復帰クーポン。' },
-              { ico: '📅', name: '予約配信・定期配信', badges: ['pro'], desc: '毎週金曜18時、毎月1日など、指定日時に自動送信。' },
-            ].map((f, i) => {
-              const cls = f.badges.includes('pro') ? 'is-pro' : f.badges.includes('std') ? 'is-std' : 'is-all';
-              return (
-                <div key={f.name} className={`feature-card-11 tilt-in ${cls}`} style={{ transitionDelay: `${i * 0.05}s` }}>
-                  <div className="feature-card-11-top">
-                    <span className="feature-card-11-ico">{f.ico}</span>
-                    <div className="feature-card-11-badges">
-                      {f.badges.includes('all') && <span className="badge is-all">全プラン</span>}
-                      {f.badges.includes('std') && <span className="badge is-std">STANDARD</span>}
-                      {f.badges.includes('pro') && <span className="badge is-pro">PRO</span>}
-                    </div>
-                  </div>
-                  <h3>{f.name}</h3>
-                  <p>{f.desc}</p>
-                </div>
-              );
-            })}
+          <div className="feature-group">
+            <div className="feature-group-head reveal">
+              <span className="feature-group-num">1</span>
+              <div>
+                <h3>まず、全員に配る機能</h3>
+                <p>最初に使うのはこれだけ。難しく考えず、今日から始められます。</p>
+              </div>
+              <span className="feature-group-tag is-all">全プラン</span>
+            </div>
+            <div className="feature-cards">
+              <div className="feature-card tilt-in">
+                <div className="feature-card-icon">📢</div>
+                <h4>プッシュ通知</h4>
+                <p>登録したお客様全員に、一斉に通知を配信。開封率（送った通知が、どれくらい見られたかの割合）はメルマガの約10倍。</p>
+              </div>
+              <div className="feature-card tilt-in" style={{ transitionDelay: '0.05s' }}>
+                <div className="feature-card-icon">📱</div>
+                <h4>QRコード登録</h4>
+                <p>店頭ポップのQRを読み取るだけ。アプリ不要、30秒で登録完了。</p>
+              </div>
+              <div className="feature-card tilt-in" style={{ transitionDelay: '0.1s' }}>
+                <div className="feature-card-icon">🎫</div>
+                <h4>初回クーポン</h4>
+                <p>登録と同時に自動配布。「今すぐ使える」特典で、登録率が上がります。</p>
+              </div>
+              <div className="feature-card tilt-in" style={{ transitionDelay: '0.15s' }}>
+                <div className="feature-card-icon">🖨️</div>
+                <h4>店頭ポップ印刷</h4>
+                <p>A4 / A5を管理画面から印刷。レジ横に置くだけで、お客様が自分から登録。</p>
+              </div>
+            </div>
           </div>
-           <div className="section-cta-row">
-           <a href="/guide" className="section-cta-btn outline">
-             📚 活用方法を見てみる
-           </a>
-         </div>
+
+          <div className="feature-group">
+            <div className="feature-group-head reveal">
+              <span className="feature-group-num">2</span>
+              <div>
+                <h3>来てくれる人を、もっと大切に</h3>
+                <p>「差別」ではなく「お返し」。来店回数に応じた自然な仕組みです。</p>
+              </div>
+              <span className="feature-group-tag is-std">STANDARD+</span>
+            </div>
+            <div className="feature-cards">
+              <div className="feature-card tilt-in">
+                <div className="feature-card-icon">🎟️</div>
+                <h4>通常クーポン</h4>
+                <p>登録者全員が何度でも使える常設クーポン。「会員様特典」として運用。</p>
+              </div>
+              <div className="feature-card tilt-in" style={{ transitionDelay: '0.05s' }}>
+                <div className="feature-card-icon">🏆</div>
+                <h4>特別達成クーポン</h4>
+                <p>N回来店で自動解放。「あと1回」の心理が、来店を後押しします。</p>
+              </div>
+              <div className="feature-card tilt-in" style={{ transitionDelay: '0.1s' }}>
+                <div className="feature-card-icon">📊</div>
+                <h4>開封率の確認</h4>
+                <p>配信ごとの開封率をチェック。何が効いているか、一目でわかります。</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="feature-group">
+            <div className="feature-group-head reveal">
+              <span className="feature-group-num">3</span>
+              <div>
+                <h3>もっと極めたい人へ</h3>
+                <p>慣れてきたら、ここから。仕組みをさらに強くできます。</p>
+              </div>
+              <span className="feature-group-tag is-pro">PRO</span>
+            </div>
+            <div className="feature-cards">
+              <div className="feature-card tilt-in">
+                <div className="feature-card-icon">🐾</div>
+                <h4>ステップアップクーポン</h4>
+                <p>来店ごとに段階的に特典アップ。最大10段階まで設計可能。</p>
+              </div>
+              <div className="feature-card tilt-in" style={{ transitionDelay: '0.05s' }}>
+                <div className="feature-card-icon">🔄</div>
+                <h4>連続クーポン</h4>
+                <p>消込と同時に、次回分のクーポンを自動発行。来店サイクルを短縮。</p>
+              </div>
+              <div className="feature-card tilt-in" style={{ transitionDelay: '0.1s' }}>
+                <div className="feature-card-icon">🎂</div>
+                <h4>記念日・誕生日クーポン</h4>
+                <p>年1回の特別な日に、自動でお祝いクーポンを配信。</p>
+              </div>
+              <div className="feature-card tilt-in" style={{ transitionDelay: '0.15s' }}>
+                <div className="feature-card-icon">💤</div>
+                <h4>休眠復活クーポン</h4>
+                <p>離反しかけた顧客に、自動で復帰クーポンを届けます。</p>
+              </div>
+              <div className="feature-card tilt-in" style={{ transitionDelay: '0.2s' }}>
+                <div className="feature-card-icon">📅</div>
+                <h4>予約配信・定期配信</h4>
+                <p>「毎週金曜18時」など、指定日時に自動送信。</p>
+              </div>
+              <div className="feature-card tilt-in" style={{ transitionDelay: '0.25s' }}>
+                <div className="feature-card-icon">🤝</div>
+                <h4>紹介報酬制度</h4>
+                <p>他店舗を紹介すると、PROプランの月額が割引に。詳細は下に。</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-            {/* ============================================================
-          SCREEN MOCKUP
+      {/* ============================================================
+          SCREEN MOCKUP（アイコン統一 + カスタマイズ説明追加）
       ============================================================ */}
-      <section className="section screen-section" id="interface">
+      <section className="section section-alt screen-section" id="interface">
         <div className="container">
           <div className="section-header reveal">
             <span className="section-tag">Interface</span>
             <h2>シンプルで使いやすい、2つの画面</h2>
-            <p>お客様が使うのは、QRコードを読み取るだけ。<br />店舗オーナーは、見やすい管理画面で全ての施策をコントロールできます。</p>
+            <p>
+              お客様が使うのは、QRコードを読み取るだけ。<br />
+              店舗オーナーは、見やすい管理画面で全ての施策をコントロールできます。
+            </p>
           </div>
-
           <div className="screen-grid">
-
-            {/* ========== お客様側 ========== */}
-            <div>
-              <div className="phone-mock">
+            <div className="screen-item">
+              <div className="phone-mock float">
                 <div className="phone-screen">
                   <div className="phone-status-bar">
                     <span>9:41</span>
@@ -706,67 +681,32 @@ export default function HomeClient() {
                       <rect x="33.5" y="2.5" width="8" height="6" fill="#1a202c" />
                     </svg>
                   </div>
-
-                  {/* 店舗ヘッダー */}
                   <div className="phone-shop-header">
-                    <div className="phone-shop-icon">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                        <path d="M4 21h16v-4H4z" fill="#fff" />
-                        <path d="M4 17c1 0 1-1 2-1s1 1 2 1 1-1 2-1 1 1 2 1 1-1 2-1 1 1 2 1 1-1 2-1 1 1 2 1v-4H4z" fill="#ffedd5" />
-                        <path d="M12 3v6M12 3c-1 0-2 1-2 2s1 2 2 2M12 3c1 0 2 1 2 2s-1 2-2 2" stroke="#fbbf24" strokeWidth="1.5" strokeLinecap="round" />
-                      </svg>
-                    </div>
+                    <div className="phone-shop-icon">🍰</div>
                     <div className="phone-shop-name">Patisserie Taro</div>
                     <div className="phone-link-btn">🌐 サイトはこちらから</div>
                   </div>
-
                   <div className="phone-coupons-scroll">
-
-                    {/* 初回クーポン */}
                     <div className="phone-coupon phone-coupon-first">
                       <span className="phone-coupon-badge">初回限定</span>
                       <div className="phone-coupon-title">🎁 初回限定クーポン</div>
                       <div className="phone-coupon-desc">次回ご来店時にご利用ください</div>
-                      <div className="phone-coupon-qr">
-                        <svg width="80" height="80" viewBox="0 0 21 21">
-                          <rect width="21" height="21" fill="#fff"/>
-                          <path fill="#0f172a" d="M0,0h7v7h-7zM1,1v5h5v-5zM2,2h3v3h-3zM14,0h7v7h-7zM15,1v5h5v-5zM16,2h3v3h-3zM0,14h7v7h-7zM1,15v5h5v-5zM2,16h3v3h-3zM9,0h1v1h-1zM11,0h1v1h-1zM9,2h1v1h-1zM10,3h1v1h-1zM8,4h1v1h-1z"/>
-                        </svg>
-                      </div>
-                      <div className="phone-coupon-note">会計時にこちらのQRコードをスタッフにご提示ください</div>
+                      <div className="phone-coupon-qr"></div>
+                      <div className="phone-coupon-note">会計時にこちらのQRコードを<br />スタッフにご提示ください</div>
                     </div>
-
-                    {/* 通常クーポン */}
                     <div className="phone-coupon phone-coupon-normal">
                       <span className="phone-coupon-badge is-green">通常クーポン</span>
                       <div className="phone-coupon-title">🎟️ 会員様 10%OFF</div>
                       <div className="phone-coupon-desc">いつでもご利用いただけます</div>
-                      <div className="phone-coupon-qr">
-                        <svg width="80" height="80" viewBox="0 0 21 21">
-                          <rect width="21" height="21" fill="#fff"/>
-                          <path fill="#0f172a" d="M0,0h7v7h-7zM1,1v5h5v-5zM2,2h3v3h-3zM14,0h7v7h-7zM15,1v5h5v-5zM16,2h3v3h-3zM0,14h7v7h-7zM1,15v5h5v-5zM2,16h3v3h-3zM9,0h1v1h-1zM11,0h1v1h-1zM9,2h1v1h-1zM10,3h1v1h-1zM8,4h1v1h-1z"/>
-                        </svg>
-                      </div>
-                      <div className="phone-coupon-note">会計時にこちらのQRコードをスタッフにご提示ください</div>
+                      <div className="phone-coupon-qr"></div>
                     </div>
-
-                    {/* 特別達成クーポン */}
                     <div className="phone-coupon phone-coupon-loyalty">
                       <span className="phone-coupon-badge is-orange">特別達成クーポン</span>
                       <div className="phone-coupon-title">🏆 3回達成 20%OFF</div>
-                      <div className="phone-coupon-desc">通常クーポンを規定回数ご利用いただいた特典です</div>
-                      <div className="phone-coupon-qr">
-                        <svg width="80" height="80" viewBox="0 0 21 21">
-                          <rect width="21" height="21" fill="#fff"/>
-                          <path fill="#0f172a" d="M0,0h7v7h-7zM1,1v5h5v-5zM2,2h3v3h-3zM14,0h7v7h-7zM15,1v5h5v-5zM16,2h3v3h-3zM0,14h7v7h-7zM1,15v5h5v-5zM2,16h3v3h-3zM9,0h1v1h-1zM11,0h1v1h-1zM9,2h1v1h-1zM10,3h1v1h-1zM8,4h1v1h-1z"/>
-                        </svg>
-                      </div>
-                      <div className="phone-coupon-note">会計時にこちらのQRコードをスタッフにご提示ください</div>
+                      <div className="phone-coupon-desc">通常クーポン規定回数ご利用の特典です</div>
+                      <div className="phone-coupon-qr"></div>
                     </div>
-
                   </div>
-
-                  {/* 通知履歴 */}
                   <div className="phone-history">
                     <div className="phone-history-head">
                       <span>📜 通知履歴 (3件)</span>
@@ -780,20 +720,15 @@ export default function HomeClient() {
                 QRを読み取って、クーポンを提示するだけ
               </p>
             </div>
-
-            {/* ========== 店舗オーナー側 ========== */}
-            <div>
-              <div className="dash-mock">
+            <div className="screen-item">
+              <div className="dash-mock float">
                 <div className="dash-topbar">
                   <span className="dash-dot red"></span>
                   <span className="dash-dot yellow"></span>
                   <span className="dash-dot green"></span>
                   <span className="dash-url">push-taro.com/pro-shop</span>
                 </div>
-
                 <div className="dash-body">
-
-                  {/* ヘッダー */}
                   <div className="dash-header">
                     <div className="dash-header-left">
                       <div className="dash-shop-icon">🍰</div>
@@ -807,21 +742,13 @@ export default function HomeClient() {
                     </div>
                     <button className="dash-logout">ログアウト</button>
                   </div>
-
-                  {/* タブ */}
                   <div className="dash-tabs">
                     <div className="dash-tab is-active">📢 即時通知・消し込み</div>
                     <div className="dash-tab">🏪 店舗・基本クーポン</div>
                     <div className="dash-tab">🔥 PRO機能</div>
                     <div className="dash-tab">📅 予約配信</div>
                   </div>
-
-                  {/* 消し込みボタン */}
-                  <div className="dash-scan-btn">
-                    📷 クーポンQRコードを読み取る（消し込み）
-                  </div>
-
-                  {/* 通知作成フォーム */}
+                  <div className="dash-scan-btn">📷 クーポンQRコードを読み取る（消し込み）</div>
                   <div className="dash-form">
                     <div className="dash-form-title">📢 プッシュ通知を作成・即時送信</div>
                     <div className="dash-form-field">
@@ -834,8 +761,6 @@ export default function HomeClient() {
                     </div>
                     <div className="dash-form-btn">🔥 Push 通知送信</div>
                   </div>
-
-                  {/* 送信ステータス */}
                   <div className="dash-status">
                     <div className="dash-status-left">
                       🔥 月間送信ステータス
@@ -843,14 +768,10 @@ export default function HomeClient() {
                     </div>
                     <div className="dash-status-right">配信無制限</div>
                   </div>
-
-                  {/* 受取許可件数 */}
                   <div className="dash-subscribers">
                     <span>📱 現在の受取許可件数</span>
                     <strong>1,247 件</strong>
                   </div>
-
-                  {/* 送信履歴 */}
                   <div className="dash-history-title">
                     <span>📁 送信履歴</span>
                     <div className="dash-history-actions">
@@ -882,7 +803,6 @@ export default function HomeClient() {
                       <span className="dash-history-open">開封率: 58.7%</span>
                     </div>
                   </div>
-
                 </div>
               </div>
               <p className="screen-caption">
@@ -890,869 +810,459 @@ export default function HomeClient() {
                 すべての施策を1画面でコントロール
               </p>
             </div>
+          </div>
 
+          {/* カスタマイズ説明 */}
+          <div className="screen-customize reveal">
+            <div className="screen-customize-icon">🎨</div>
+            <div className="screen-customize-body">
+              <h3>アイコンも店舗名も、自分のお店のまま。</h3>
+              <p>
+                お客様のホーム画面に表示されるアイコンと店舗名は、管理画面から自由に変更できます。<br />
+                画像は<strong>ドラッグ＆ドロップするだけ</strong>。自動で最適化されるので、面倒なリサイズ作業は不要です。<br />
+                お客様にとっては、まるで自店専用のアプリ。愛着も、登録率も、ぐっと上がります。
+              </p>
+            </div>
           </div>
         </div>
       </section>
-
-      {/* ============================================================
-          COUPON SYSTEM
-      ============================================================ */}
-      <section className="section" id="coupons">
-        <div className="container">
-          <div className="section-header reveal">
-            <span className="section-tag">Coupon System</span>
-            <h2>7種類のクーポンで、来店サイクルを完全に設計</h2>
-            <p>「初回来店 → 習慣化 → ファン化 → 休眠復活」まで、すべてのフェーズに最適化されたクーポンを配信できます。</p>
-          </div>
-
-          <div className="coupon-grid">
-            <div className="coupon-card tilt-in-left" data-type="first" style={{ transitionDelay: '0s' }}>
-              <span className="coupon-badge">全プラン</span>
-              <div className="coupon-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="8" width="18" height="12" rx="1" fill="#f59e0b" />
-                  <path d="M3 8l3-5h12l3 5" stroke="#d97706" strokeWidth="1.5" strokeLinejoin="round" fill="none" />
-                  <path d="M12 8v12" stroke="#d97706" strokeWidth="1.5" />
-                  <path d="M12 8c-2 0-3-1.5-3-3s1-2 2-2 1 2 1 5M12 8c2 0 3-1.5 3-3s-1-2-2-2-1 2-1 5" stroke="#fff" strokeWidth="1.2" fill="none" />
-                </svg>
-              </div>
-              <h3>初回限定クーポン</h3>
-              <p>通知登録と同時に配布される初回来店特典。QRコードを会計時に提示するだけで消込完了。二重利用は自動でブロック。</p>
-              <span className="coupon-plan-tag">LIGHT / STANDARD / PRO</span>
-            </div>
-
-            <div className="coupon-card tilt-in-right" data-type="normal" style={{ transitionDelay: '0.08s' }}>
-              <span className="coupon-badge">STANDARD+</span>
-              <div className="coupon-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M3 10a2 2 0 010-4V4a1 1 0 011-1h16a1 1 0 011 1v2a2 2 0 010 4v2a2 2 0 010 4v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2a2 2 0 010-4v-2z" fill="#10b981" />
-                  <circle cx="12" cy="12" r="2.5" fill="#fff" />
-                </svg>
-              </div>
-              <h3>通常クーポン</h3>
-              <p>登録者全員が使える常設クーポン。LINE公式のような「友だち特典」をWebプッシュ通知で実現します。</p>
-              <span className="coupon-plan-tag">STANDARD / PRO</span>
-            </div>
-
-            <div className="coupon-card tilt-in-left" data-type="loyalty" style={{ transitionDelay: '0.16s' }}>
-              <span className="coupon-badge">STANDARD+</span>
-              <div className="coupon-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M6 3h12v6a6 6 0 01-12 0V3z" fill="#3b82f6" />
-                  <path d="M6 5H3v2a3 3 0 003 3M18 5h3v2a3 3 0 01-3 3" stroke="#3b82f6" strokeWidth="1.5" fill="none" />
-                  <path d="M10 15h4v3h2v3H8v-3h2v-3z" fill="#3b82f6" />
-                  <path d="M12 6l1 2 2 .5-1.5 1.5.5 2-2-1-2 1 .5-2L9 8.5 11 8z" fill="#fff" />
-                </svg>
-              </div>
-              <h3>特別達成クーポン</h3>
-              <p>累計来店N回で解放される特別報酬。ポイントカードのデジタル版として、常連客のファン化を促進します。</p>
-              <span className="coupon-plan-tag">STANDARD / PRO</span>
-            </div>
-
-            <div className="coupon-card tilt-in-right" data-type="stepup" style={{ transitionDelay: '0.24s' }}>
-              <span className="coupon-badge">PRO限定</span>
-              <div className="coupon-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="17" width="5" height="4" fill="#8b5cf6" />
-                  <rect x="9" y="12" width="5" height="9" fill="#8b5cf6" />
-                  <rect x="15" y="7" width="5" height="14" fill="#8b5cf6" />
-                  <path d="M5 14l4-4 4 2 6-6" stroke="#fbbf24" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                  <circle cx="19" cy="6" r="1.5" fill="#fbbf24" />
-                </svg>
-              </div>
-              <h3>ステップアップクーポン</h3>
-              <p>「1回目→2回目→3回目…」と段階的に特典が豪華になる仕組み。最大10段階まで設計でき、来店習慣を強力に後押し。</p>
-              <span className="coupon-plan-tag">PRO ONLY</span>
-            </div>
-
-            <div className="coupon-card tilt-in-left" data-type="repeat" style={{ transitionDelay: '0.08s' }}>
-              <span className="coupon-badge">PRO限定</span>
-              <div className="coupon-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M20 12a8 8 0 11-2.3-5.6" stroke="#ec4899" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-                  <path d="M20 3v6h-6" stroke="#ec4899" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <h3>連続クーポン</h3>
-              <p>消込と同時に次回使えるクーポンが即時発行。有効期限を「14日間」のように設定し、来店サイクルを短縮します。</p>
-              <span className="coupon-plan-tag">PRO ONLY</span>
-            </div>
-
-            <div className="coupon-card tilt-in-right" data-type="birthday" style={{ transitionDelay: '0.16s' }}>
-              <span className="coupon-badge">PRO限定</span>
-              <div className="coupon-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 21h16v-4H4z" fill="#f97316" />
-                  <path d="M4 17c1 0 1-1 2-1s1 1 2 1 1-1 2-1 1 1 2 1 1-1 2-1 1 1 2 1 1-1 2-1 1 1 2 1v-4H4z" fill="#ffedd5" stroke="#ea580c" strokeWidth="1" />
-                  <path d="M12 3v6M12 3c-1 0-2 1-2 2s1 2 2 2M12 3c1 0 2 1 2 2s-1 2-2 2" stroke="#fbbf24" strokeWidth="1.5" strokeLinecap="round" />
-                  <circle cx="7" cy="19" r="0.8" fill="#fbbf24" />
-                  <circle cx="12" cy="19" r="0.8" fill="#ec4899" />
-                  <circle cx="17" cy="19" r="0.8" fill="#3b82f6" />
-                </svg>
-              </div>
-              <h3>記念日、誕生日クーポン</h3>
-              <p>顧客の記念日や誕生日の月日を登録しておくだけで、誕生日当日に自動でお祝い通知。特別感でファン化を加速させます。</p>
-              <span className="coupon-plan-tag">PRO ONLY</span>
-            </div>
-
-            <div className="coupon-card tilt-in-left" data-type="dormant" style={{ transitionDelay: '0.24s' }}>
-              <span className="coupon-badge">PRO限定</span>
-              <div className="coupon-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" fill="#64748b" />
-                  <text x="12" y="11" fontSize="6" fill="#fff" fontWeight="bold">Z</text>
-                  <text x="15" y="15" fontSize="4" fill="#fff" fontWeight="bold">z</text>
-                  <path d="M3 20l3-2 3 2 3-2 3 2 3-2 3 2" stroke="#94a3b8" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                </svg>
-              </div>
-              <h3>休眠復活クーポン</h3>
-              <p>「最終来店から指定した日にちを経過した顧客」を自動抽出し、特別な復帰クーポンを配信。離反顧客の呼び戻しを仕組み化。</p>
-              <span className="coupon-plan-tag">PRO ONLY</span>
-            </div>
-          </div>
-
-          <div className="section-cta-row">
-            <a href="/signup" className="section-cta-btn primary">
-              今すぐ申し込む
-              <svg className="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </a>
-            <a href="/guide" className="section-cta-btn outline">
-              📚 活用方法を見てみる
-            </a>
-          </div>
-        </div>
-      </section>
-
-  {/* ============================================================
-    SIGNUP & SETUP（顧客登録 × 店舗導入）
-============================================================ */}
-<section className="section section-alt" id="signup-setup">
-  <div className="container">
-    <div className="section-header reveal">
-      <span className="section-tag">Easy Signup × Easy Setup</span>
-      <h2>
-        顧客登録も店舗導入も、<br />
-        どちらもシンプル。
-      </h2>
-      <p>
-        アプリのダウンロード不要。QRコードを読み取って、SMS認証だけ。<br />
-        店舗オーナー様も、最短10分で運用開始できます。
-      </p>
-    </div>
-
-    {/* 難関メッセージ */}
-    <div className="signup-barrier reveal">
-      <div className="signup-barrier-icon">🚪</div>
-      <div className="signup-barrier-body">
-        <h3>Push通知の最大の難関は、<br />「受け取ってもらう」こと。</h3>
-        <p>
-          アプリのダウンロード、LINE登録、ホーム画面への追加——<br />
-          お客様に何らかのアクションをしてもらわないと、通知は届きません。<br />
-          <strong>この最初のハードルを、いかに低くするかが勝負です。</strong>
-        </p>
-      </div>
-    </div>
-
-    {/* 2つのフロー並列 */}
-    <div className="signup-flow-wrap reveal">
-
-      {/* 顧客側 */}
-      <div className="signup-flow-col is-customer">
-        <div className="signup-flow-head">
-          <span className="signup-flow-badge">お客様側</span>
-          <h3>QRを読み取って、30秒。</h3>
-          <p>全プランに「QRコード + 初回クーポン」標準搭載</p>
-        </div>
-
-        <div className="signup-flow-steps">
-          <div className="signup-flow-step">
-            <div className="signup-flow-num">1</div>
-            <div className="signup-flow-icon">📱</div>
-            <div className="signup-flow-text">
-              <strong>QRコードを読み取る</strong>
-              <span>店頭POPのQRをカメラで読み取るだけ</span>
-            </div>
-          </div>
-          <div className="signup-flow-step">
-            <div className="signup-flow-num">2</div>
-            <div className="signup-flow-icon">🏠</div>
-            <div className="signup-flow-text">
-              <strong>ホーム画面に追加</strong>
-              <span>iPhoneのみ。Androidは自動で完了</span>
-            </div>
-          </div>
-          <div className="signup-flow-step">
-            <div className="signup-flow-num">3</div>
-            <div className="signup-flow-icon">📲</div>
-            <div className="signup-flow-text">
-              <strong>SMS認証</strong>
-              <span>電話番号に届くコードを入力</span>
-            </div>
-          </div>
-          <div className="signup-flow-step is-final">
-            <div className="signup-flow-num">✅</div>
-            <div className="signup-flow-icon">🎉</div>
-            <div className="signup-flow-text">
-              <strong>登録完了 + 初回クーポンGET</strong>
-              <span>その場で「10〜20%OFF」が受け取れる</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="signup-flow-note">
-          <strong>「ホーム画面に追加で10%OFF」</strong><br />
-          これだけで、お客様の登録ハードルは一気に下がります。
-        </div>
-      </div>
-
-      {/* 店舗側 */}
-      <div className="signup-flow-col is-owner">
-        <div className="signup-flow-head">
-          <span className="signup-flow-badge">店舗オーナー側</span>
-          <h3>登録から運用まで、10分。</h3>
-          <p>専門知識ゼロ。ITが苦手でも大丈夫。</p>
-        </div>
-
-        <div className="signup-flow-steps">
-          <div className="signup-flow-step">
-            <div className="signup-flow-num">1</div>
-            <div className="signup-flow-icon">👤</div>
-            <div className="signup-flow-text">
-              <strong>アカウント作成</strong>
-              <span>メールアドレスと店舗情報を入力</span>
-            </div>
-          </div>
-          <div className="signup-flow-step">
-            <div className="signup-flow-num">2</div>
-            <div className="signup-flow-icon">🎫</div>
-            <div className="signup-flow-text">
-              <strong>クーポン設定</strong>
-              <span>タイトル・説明・有効期限を管理画面で</span>
-            </div>
-          </div>
-          <div className="signup-flow-step">
-            <div className="signup-flow-num">3</div>
-            <div className="signup-flow-icon">🖨️</div>
-            <div className="signup-flow-text">
-              <strong>店頭にQR設置</strong>
-              <span>生成されたQRをPOPに印刷するだけ</span>
-            </div>
-          </div>
-          <div className="signup-flow-step is-final">
-            <div className="signup-flow-num">📢</div>
-            <div className="signup-flow-icon">🚀</div>
-            <div className="signup-flow-text">
-              <strong>通知を送信</strong>
-              <span>「本日の日替わりランチ！」を即配信</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="signup-flow-note">
-          <strong>アカウント作成から最短10分。</strong><br />
-          決済完了で、即時利用開始できます。
-        </div>
-      </div>
-
-    </div>
-
-    {/* LINE比較 */}
-    <div className="signup-compare reveal">
-      <h3 className="signup-compare-title">
-        「登録の手軽さ」と「コスト」で見る、3つの選択肢
-      </h3>
-
-      <div className="signup-compare-grid">
-        {/* LINE公式 */}
-        <div className="signup-compare-card is-line">
-          <span className="signup-compare-badge">LINE公式</span>
-          <h4>登録は簡単だが、コストが重い</h4>
-          <ul className="signup-compare-list">
-            <li><span className="signup-compare-icon">✅</span>友達追加は超簡単</li>
-            <li><span className="signup-compare-icon">⚠️</span>配信数で料金が跳ね上がる</li>
-            <li><span className="signup-compare-icon">⚠️</span>機能拡張で上位プラン必須</li>
-          </ul>
-          <div className="signup-compare-pricing">
-            <div className="signup-compare-row">
-              <span>5,000通</span>
-              <strong>¥5,000</strong>
-            </div>
-            <div className="signup-compare-row is-highlight">
-              <span>25,000通プラン</span>
-              <strong>¥25,000〜</strong>
-            </div>
-          </div>
-        </div>
-
-        {/* Push-taro LIGHT */}
-        <div className="signup-compare-card">
-          <span className="signup-compare-badge is-pushtaro">Push-taro LIGHT</span>
-          <h4>LINEに近い手軽さ、半分以下の価格</h4>
-          <ul className="signup-compare-list">
-            <li><span className="signup-compare-icon">✅</span>QR＋SMS認証で30秒</li>
-            <li><span className="signup-compare-icon">✅</span>アプリ不要</li>
-            <li><span className="signup-compare-icon">✅</span>従量課金なし</li>
-          </ul>
-          <div className="signup-compare-pricing">
-            <div className="signup-compare-row">
-              <span>5,000通</span>
-              <strong className="is-price">¥1,980</strong>
-            </div>
-            <div className="signup-compare-row is-highlight">
-              <span>LINE比較</span>
-              <strong className="is-price">約 1/2.5</strong>
-            </div>
-          </div>
-        </div>
-
-        {/* Push-taro STANDARD */}
-        <div className="signup-compare-card is-recommend">
-          <span className="signup-compare-badge is-recommend">Push-taro STANDARD</span>
-          <h4>LINEの3倍送れて、価格は2/3</h4>
-          <ul className="signup-compare-list">
-            <li><span className="signup-compare-icon">✅</span>15,000通/月</li>
-            <li><span className="signup-compare-icon">✅</span>通常クーポン・特別達成クーポン</li>
-            <li><span className="signup-compare-icon">✅</span>開封率の確認</li>
-          </ul>
-          <div className="signup-compare-pricing">
-            <div className="signup-compare-row">
-              <span>15,000通</span>
-              <strong className="is-price">¥3,800</strong>
-            </div>
-            <div className="signup-compare-row is-highlight">
-              <span>LINEの3倍送れて</span>
-              <strong className="is-price">約 2/3 の価格</strong>
-            </div>
-          </div>
-        </div>
-
-        {/* Push-taro PRO */}
-        <div className="signup-compare-card is-pro">
-          <span className="signup-compare-badge is-pro">Push-taro PRO</span>
-          <h4>登録者5万人でも配信無制限</h4>
-          <ul className="signup-compare-list">
-            <li><span className="signup-compare-icon">✅</span>配信無制限</li>
-            <li><span className="signup-compare-icon">✅</span>全機能解放</li>
-            <li><span className="signup-compare-icon">✅</span>記念日・誕生日クーポン</li>
-          </ul>
-          <div className="signup-compare-pricing">
-            <div className="signup-compare-row">
-              <span>配信無制限</span>
-              <strong className="is-price">¥10,000</strong>
-            </div>
-            <div className="signup-compare-row is-highlight">
-              <span>LINEの上位プラン比較</span>
-              <strong className="is-price">約 1/2.5</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="signup-compare-conclusion">
-        <p>
-          <strong>「登録のしやすさはLINE並み、価格はLINE以下。」</strong><br />
-          そして、Push-taroならではの機能が、リピート施策の幅を広げます。
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
 
       {/* ============================================================
           COMPARISON
       ============================================================ */}
-      <section className="section">
+      <section className="section" id="comparison">
         <div className="container">
           <div className="section-header reveal">
             <span className="section-tag">Comparison</span>
-            <h2>他社サービスとの圧倒的な違い</h2>
-            <p>Push-taroは「実店舗のリピート施策」に特化。汎用ツールにはない機能が満載です。</p>
+            <h2>他社ツールとの、<br />決定的な違い。</h2>
+            <p>実店舗に特化しているからこそ、できることがあります。</p>
           </div>
-
-          <div className="compare-wrap">
-            <table className="compare-table">
+          <div className="compare-table-wrap reveal">
+            <table className="tool-compare-table">
               <thead>
                 <tr>
                   <th>機能</th>
                   <th className="col-pushtaro">Push-taro</th>
                   <th>汎用プッシュ通知</th>
                   <th>LINE公式</th>
+                  <th>メルマガ</th>
                 </tr>
               </thead>
               <tbody>
-                <tr><td>プッシュ通知の配信</td><td className="col-pushtaro">✓ 全デバイス対応</td><td>✓</td><td>✓</td></tr>
-                <tr><td>クーポン機能</td><td className="col-pushtaro">✓ 7種類</td><td className="check-no">✗ なし</td><td>△ 手動配信のみ</td></tr>
-<tr><td>クーポンの自動発行</td><td className="col-pushtaro">✓ 登録・来店・誕生日・休眠に連動</td><td className="check-no">✗ なし</td><td className="check-no">✗ なし</td></tr>
-                <tr><td>QRコード消込</td><td className="col-pushtaro">✓ 標準搭載</td><td className="check-no">✗</td><td>△ 別途開発必要</td></tr>
-                <tr><td>予約配信・定期配信</td><td className="col-pushtaro">✓</td><td>△ 有料オプション</td><td className="check-no">✗</td></tr>
-                <tr><td>誕生日・休眠復活の自動化</td><td className="col-pushtaro">✓</td><td className="check-no">✗</td><td className="check-no">✗</td></tr>
-                <tr><td>月額費用</td><td className="col-pushtaro">¥1,980〜</td><td>¥5,000〜</td><td>¥5,000〜 + 従量</td></tr>
-                <tr><td>配信の従量課金</td><td className="col-pushtaro">✓ なし</td><td className="check-no">✗ あり</td><td className="check-no">✗ あり</td></tr>
-                <tr><td>紹介・代理店プログラム</td><td className="col-pushtaro">✓ 3種標準搭載</td><td className="check-no">✗</td><td className="check-no">✗</td></tr>
+                <tr>
+                  <td>開封率</td>
+                  <td className="col-pushtaro"><strong>最大10倍</strong></td>
+                  <td>△ ツール次第</td>
+                  <td>○ 高い</td>
+                  <td>× 低い</td>
+                </tr>
+                <tr>
+                  <td>店頭QRコード登録</td>
+                  <td className="col-pushtaro">○ 標準搭載</td>
+                  <td>× なし</td>
+                  <td>○ 対応</td>
+                  <td>× なし</td>
+                </tr>
+                <tr>
+                  <td>クーポン機能</td>
+                  <td className="col-pushtaro">○ 7種類</td>
+                  <td>× なし</td>
+                  <td>△ 手動のみ</td>
+                  <td>× なし</td>
+                </tr>
+                <tr>
+                  <td>店頭ポップ印刷</td>
+                  <td className="col-pushtaro">○ 標準搭載</td>
+                  <td>× なし</td>
+                  <td>× なし</td>
+                  <td>× なし</td>
+                </tr>
+                <tr>
+                  <td>従量課金（使った分だけ料金がかかる仕組み）</td>
+                  <td className="col-pushtaro">○ なし</td>
+                  <td>△ あり</td>
+                  <td>× あり</td>
+                  <td>△ あり</td>
+                </tr>
+                <tr>
+                  <td>セグメント配信</td>
+                  <td className="col-pushtaro">○ あえて非搭載</td>
+                  <td>○ 搭載</td>
+                  <td>○ 搭載</td>
+                  <td>○ 搭載</td>
+                </tr>
+                <tr>
+                  <td>月額</td>
+                  <td className="col-pushtaro"><strong>¥1,980〜</strong></td>
+                  <td>¥5,000〜</td>
+                  <td>¥5,000〜</td>
+                  <td>¥3,000〜</td>
+                </tr>
               </tbody>
             </table>
+          </div>
+          <div className="compare-note reveal">
+            <strong>Push-taroが選ばれる理由：</strong>
+            実店舗に本当に必要なものだけを、シンプルに。大手ツールの真似ではなく、現場に寄り添った設計です。
           </div>
         </div>
       </section>
 
-            {/* ============================================================
-          BEFORE / AFTER
+      {/* ============================================================
+          COUPONS
       ============================================================ */}
-      <section className="section section-alt">
+      <section className="section section-alt" id="coupons">
         <div className="container">
           <div className="section-header reveal">
-            <span className="section-tag">Before / After</span>
-            <h2>Push-taro導入前後の変化</h2>
-            <p>施策の自動化と一元管理で、店舗運営はここまで変わります。</p>
+            <span className="section-tag">Coupons</span>
+            <h2>7つのクーポンを、<br />「誰に配るか」で選ぶ。</h2>
+            <p>機能の名前ではなく、目的で選べるようにしました。<br />お店の状況に合わせて、必要なものだけ使えます。</p>
           </div>
-
-          <div className="ba-grid">
-            <div className="ba-card before">
-              <span className="ba-label before">BEFORE</span>
-              <h3>導入前の店舗運営</h3>
-              <div className="ba-list">
-                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#fecaca" /><path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" /></svg><span>集客が新規も既存客も同じ仕組みの呼び込み</span></div>
-                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#fecaca" /><path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" /></svg><span>既存客への特別措置が手薄</span></div>
-                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#fecaca" /><path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" /></svg><span>誕生日・休眠客への施策は手作業 or 未実施</span></div>
-                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#fecaca" /><path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" /></svg><span>クーポン配布のたびにスタッフが手間を取られる</span></div>
-                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#fecaca" /><path d="M8 8l8 8M16 8l-8 8" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" /></svg><span>大切な既存客への施策が思うようにできない</span></div>
+          <div className="coupon-groups">
+            <div className="coupon-group">
+              <div className="coupon-group-head reveal">
+                <span className="coupon-group-label">全員に配る</span>
+                <h3>まずは、ここから。</h3>
               </div>
-              <div className="ba-metric">
-                <div className="ba-metric-value" style={{ fontSize: '17px', letterSpacing: 0, color: '#dc2626', fontWeight: 900, lineHeight: 1.4 }}>
-                  リピート施策が<br />後手に回る
+              <div className="coupon-group-cards">
+                <div className="coupon-card is-all tilt-in-left">
+                  <span className="coupon-plan is-all">全プラン</span>
+                  <div className="coupon-card-icon">🎫</div>
+                  <h4>初回クーポン</h4>
+                  <p>通知登録と同時に自動配布。「今すぐ使える」特典で、登録の後押しをします。</p>
                 </div>
-                <div className="ba-metric-label">施策の属人化・属時化</div>
-              </div>
-            </div>
-
-            <div className="ba-arrow">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                <path d="M4 12h16M14 6l6 6-6 6" stroke="#ff4500" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-
-            <div className="ba-card after">
-              <span className="ba-label after">AFTER</span>
-              <h3>Push-taro導入後</h3>
-              <div className="ba-list">
-                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#bbf7d0" /><path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>QRコードで勝手に既存客が登録</span></div>
-                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#bbf7d0" /><path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>既存客への特別配信が可能</span></div>
-                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#bbf7d0" /><path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>誕生日・休眠復活クーポンが全自動で配信</span></div>
-                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#bbf7d0" /><path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>QR読み取りで消込完了、スタッフの負担ゼロ</span></div>
-                <div className="ba-item"><svg className="svg-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ marginTop: '2px' }}><circle cx="12" cy="12" r="10" fill="#bbf7d0" /><path d="M7 12l3.5 3.5L17 9" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>思い通りの独自の施策が簡単に実現</span></div>
-              </div>
-              <div className="ba-metric">
-                <div className="ba-metric-value" style={{ fontSize: '17px', letterSpacing: 0, color: '#16a34a', fontWeight: 900, lineHeight: 1.4 }}>
-                  仕組みで<br />自動的に回る
+                <div className="coupon-card is-std tilt-in-right">
+                  <span className="coupon-plan is-std">STANDARD+</span>
+                  <div className="coupon-card-icon">🎟️</div>
+                  <h4>通常クーポン</h4>
+                  <p>登録者が何度でも使える常設クーポン。「会員様特典」として運用できます。</p>
                 </div>
-                <div className="ba-metric-label">施策の自動化・見える化</div>
+              </div>
+            </div>
+            <div className="coupon-group">
+              <div className="coupon-group-head reveal">
+                <span className="coupon-group-label is-std">来てくれる人へ</span>
+                <h3>感謝を、カタチに。</h3>
+              </div>
+              <div className="coupon-group-cards">
+                <div className="coupon-card is-std tilt-in-left">
+                  <span className="coupon-plan is-std">STANDARD+</span>
+                  <div className="coupon-card-icon">🏆</div>
+                  <h4>特別達成クーポン</h4>
+                  <p>N回来店で解放。「あと1回」の心理が、自然な来店動機になります。</p>
+                </div>
+                <div className="coupon-card is-pro tilt-in">
+                  <span className="coupon-plan is-pro">PRO</span>
+                  <div className="coupon-card-icon">🐾</div>
+                  <h4>ステップアップクーポン</h4>
+                  <p>来店ごとに段階的に特典アップ。習慣化を強力に後押しします。</p>
+                </div>
+                <div className="coupon-card is-pro tilt-in-right">
+                  <span className="coupon-plan is-pro">PRO</span>
+                  <div className="coupon-card-icon">🔄</div>
+                  <h4>連続クーポン</h4>
+                  <p>消込と同時に次回分を自動発行。来店サイクルを短縮します。</p>
+                </div>
+              </div>
+            </div>
+            <div className="coupon-group">
+              <div className="coupon-group-head reveal">
+                <span className="coupon-group-label is-pro">特別な日に</span>
+                <h3>忘れられない日に。</h3>
+              </div>
+              <div className="coupon-group-cards">
+                <div className="coupon-card is-pro tilt-in-left">
+                  <span className="coupon-plan is-pro">PRO</span>
+                  <div className="coupon-card-icon">🎂</div>
+                  <h4>記念日・誕生日クーポン</h4>
+                  <p>年1回の特別な日に、自動でお祝いを。特別感がファン化を加速させます。</p>
+                </div>
+                <div className="coupon-card is-pro tilt-in-right">
+                  <span className="coupon-plan is-pro">PRO</span>
+                  <div className="coupon-card-icon">💤</div>
+                  <h4>休眠復活クーポン</h4>
+                  <p>離反しかけた顧客に、自動で復帰クーポンを。静かな呼び戻しの仕組み。</p>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* 出典付き統計 */}
-          <div className="ba-stats reveal">
-            <div className="ba-stat-item">
-              <div className="ba-stat-value">
-                <span className="count-up" data-count="10">10</span><span className="ba-stat-unit">倍</span>
-              </div>
-              <div className="ba-stat-label">メルマガ比<br />プッシュ通知の開封率</div>
-              <div className="ba-stat-source">出典：PUSHONE調査</div>
+      {/* ============================================================
+          PRO REFERRAL
+      ============================================================ */}
+      <section className="section" id="pro-referral">
+        <div className="container">
+          <div className="section-header reveal">
+            <span className="section-tag">PRO Referral</span>
+            <h2>PROプランなら、<br />紹介で、もっとお得に。</h2>
+            <p>他店舗を紹介すると、PROプランの月額が割引されます。<br />2つの選択肢から、あなたに合った方を選べます。</p>
+          </div>
+          <div className="referral-choices">
+            <div className="referral-choice tilt-in-left">
+              <span className="referral-badge is-a">選択肢 A</span>
+              <h3>じっくり型</h3>
+              <div className="referral-rate">10%<small>継続還元</small></div>
+              <p>紹介した店舗が契約している限り、毎月10%が還元されます。</p>
+              <ul>
+                <li>紹介数は無制限</li>
+                <li>10店舗紹介でPROが実質無料</li>
+                <li>11店舗目以降はプラス収益</li>
+              </ul>
             </div>
-            <div className="ba-stat-item">
-              <div className="ba-stat-value">
-                <span className="count-up" data-count="87">87</span><span className="ba-stat-unit">%</span>
-              </div>
-              <div className="ba-stat-label">小売業での<br />プッシュ通知による行動変容率</div>
-              <div className="ba-stat-source">出典：アイリッジ 2025年調査</div>
-            </div>
-            <div className="ba-stat-item">
-              <div className="ba-stat-value">
-                <span className="count-up" data-count="47">47</span><span className="ba-stat-unit">〜80%</span>
-              </div>
-              <div className="ba-stat-label">プッシュ通知の<br />開封率レンジ</div>
-              <div className="ba-stat-source">出典：Thanx</div>
+            <div className="referral-choice is-featured tilt-in-right">
+              <span className="referral-badge is-b">選択肢 B</span>
+              <h3>がっつり型</h3>
+              <div className="referral-rate">20%<small>×2件で40%OFF</small></div>
+              <p>2件だけ、20%の高還元。2件紹介すれば、PROが6,000円に。</p>
+              <ul>
+                <li>1件あたり20%還元</li>
+                <li>2件紹介で、月額6,000円</li>
+                <li>短期集中で大きく割引</li>
+              </ul>
             </div>
           </div>
-
-          <p className="ba-disclaimer">
-            ※ 上記の数値は各種業界調査に基づく参考値であり、特定の店舗における成果を保証するものではありません。
-          </p>
+          <div className="referral-note reveal">
+            <p>※ 選択肢は登録時に選択してください。登録後の変更はできません。</p>
+          </div>
         </div>
       </section>
 
       {/* ============================================================
           PRICING
       ============================================================ */}
-      <section className="section" id="pricing">
+      <section className="section section-alt" id="pricing">
         <div className="container">
           <div className="section-header reveal">
             <span className="section-tag">Pricing</span>
             <h2>明快でリーズナブルな料金プラン</h2>
             <p>店舗規模やマーケティング目的に合わせて選べる3つのプラン。<br />追加の従量課金は一切ありません。</p>
           </div>
-
-          <div className="pricing-grid">
-            <div className="price-card light tilt-in" style={{ transitionDelay: '0s' }}>
-              <div className="price-name">LIGHT</div>
-              <div className="price-amount">¥1,980<small>/月（税別）</small></div>
-              <div className="price-limit">月間配信上限: 5,000通</div>
-              <ul className="price-features">
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>全デバイス対応プッシュ通知</li>
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>QRコード登録</li>
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>初回クーポン</strong></li>
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>即時配信・履歴管理</li>
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>月間上限ゲージ表示</li>
+          <div className="plans">
+            <div className="plan is-light tilt-in">
+              <div className="plan-name">LIGHT</div>
+              <div className="plan-amount">¥1,980<small>/月（税別）</small></div>
+              <div className="plan-limit">月間配信上限: 5,000通</div>
+              <ul className="plan-features">
+                <li><span className="maru">○</span><span>プッシュ通知（全デバイス対応）</span></li>
+                <li><span className="maru">○</span><span>QRコード登録</span></li>
+                <li><span className="maru">○</span><span><strong>初回クーポン</strong></span></li>
+                <li><span className="maru">○</span><span>即時配信・履歴管理</span></li>
+                <li><span className="maru">○</span><span>月間上限ゲージ表示</span></li>
               </ul>
-              <a href="/signup" className="price-cta light-cta">LIGHTで始める</a>
+              <Link href="/signup" className="plan-cta">LIGHTで始める</Link>
             </div>
-
-            <div className="price-card featured tilt-in" style={{ transitionDelay: '0.12s' }}>
-              <span className="price-badge popular">人気</span>
-              <div className="price-name">STANDARD</div>
-              <div className="price-amount">¥3,800<small>/月（税別）</small></div>
-              <div className="price-limit">月間配信上限: 15,000通</div>
-              <ul className="price-features">
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>LIGHTの全機能</li>
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>通常クーポン</strong></li>
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>特別達成クーポン</strong></li>
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>開封率の確認</strong></li>
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>拡大された配信枠（15,000通）</li>
+            <div className="plan is-standard tilt-in" style={{ transitionDelay: '0.12s' }}>
+              <span className="plan-badge popular">人気</span>
+              <div className="plan-name">STANDARD</div>
+              <div className="plan-amount">¥3,800<small>/月（税別）</small></div>
+              <div className="plan-limit">月間配信上限: 15,000通</div>
+              <ul className="plan-features">
+                <li><span className="maru">○</span><span>LIGHTの全機能</span></li>
+                <li><span className="maru">○</span><span><strong>通常クーポン</strong></span></li>
+                <li><span className="maru">○</span><span><strong>特別達成クーポン</strong></span></li>
+                <li><span className="maru">○</span><span><strong>開封率の確認</strong></span></li>
+                <li><span className="maru">○</span><span><strong>店頭ポップ印刷（A4/A5）</strong><span className="new-badge">NEW</span></span></li>
+                <li><span className="maru">○</span><span>拡大された配信枠（15,000通）</span></li>
               </ul>
-              <a href="/signup" className="price-cta std-cta">STANDARDで始める</a>
+              <Link href="/signup" className="plan-cta">STANDARDで始める</Link>
             </div>
-
-            <div className="price-card pro tilt-in" style={{ transitionDelay: '0.24s' }}>
-              <span className="price-badge best">最高峰</span>
-              <div className="price-name">PRO</div>
-              <div className="price-amount">¥10,000<small>/月（税別）</small></div>
-              <div className="price-limit">配信無制限</div>
-              <ul className="price-features">
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>STANDARDの全機能</li>
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>ステップアップクーポン</strong></li>
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>連続クーポン</strong></li>
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>誕生日・記念日クーポン</strong></li>
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>休眠復活クーポン</strong></li>
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>予約配信・定期配信</strong></li>
-                <li><svg className="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ marginTop: '4px' }}><path d="M5 12l5 5L20 7" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>紹介報酬制度（最大10%）</strong></li>
+            <div className="plan is-pro tilt-in" style={{ transitionDelay: '0.24s' }}>
+              <span className="plan-badge best">最高峰</span>
+              <div className="plan-name">PRO</div>
+              <div className="plan-amount">¥10,000<small>/月（税別）</small></div>
+              <div className="plan-limit">配信無制限</div>
+              <ul className="plan-features">
+                <li><span className="maru">○</span><span>STANDARDの全機能</span></li>
+                <li><span className="maru">○</span><span><strong>ステップアップクーポン</strong></span></li>
+                <li><span className="maru">○</span><span><strong>連続クーポン</strong></span></li>
+                <li><span className="maru">○</span><span><strong>記念日・誕生日クーポン</strong></span></li>
+                <li><span className="maru">○</span><span><strong>休眠復活クーポン</strong></span></li>
+                <li><span className="maru">○</span><span><strong>予約配信・定期配信</strong></span></li>
+                <li><span className="maru">○</span><span><strong>紹介報酬制度（10% or 20%×2件）</strong></span></li>
               </ul>
-              <a href="/signup" className="price-cta pro-cta">PROで始める</a>
+              <Link href="/signup" className="plan-cta">PROで始める</Link>
             </div>
+          </div>
+
+          <div className="compare-wrap reveal">
+            <div className="compare-title">
+              <h3>プラン別 機能一覧</h3>
+              <p>ご契約プランによって使える機能が異なります。</p>
+            </div>
+            <table className="compare-table">
+              <thead>
+                <tr>
+                  <th>機能</th>
+                  <th className="col-light">LIGHT</th>
+                  <th className="col-standard">STANDARD</th>
+                  <th className="col-pro">PRO</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="group"><td colSpan={4}>基本機能</td></tr>
+                <tr>
+                  <td>プッシュ通知の配信</td>
+                  <td><span className="val-text">月5,000通</span></td>
+                  <td className="col-standard"><span className="val-text">月15,000通</span></td>
+                  <td className="col-pro"><span className="val-text">配信無制限</span></td>
+                </tr>
+                <tr>
+                  <td>QRコード顧客獲得</td>
+                  <td><span className="maru">○</span></td>
+                  <td className="col-standard"><span className="maru">○</span></td>
+                  <td className="col-pro"><span className="maru">○</span></td>
+                </tr>
+                <tr>
+                  <td>即時配信・履歴管理</td>
+                  <td><span className="maru">○</span></td>
+                  <td className="col-standard"><span className="maru">○</span></td>
+                  <td className="col-pro"><span className="maru">○</span></td>
+                </tr>
+                <tr>
+                  <td>顧客管理ダッシュボード</td>
+                  <td><span className="maru">○</span></td>
+                  <td className="col-standard"><span className="maru">○</span></td>
+                  <td className="col-pro"><span className="maru">○</span></td>
+                </tr>
+                <tr className="group"><td colSpan={4}>クーポン機能</td></tr>
+                <tr>
+                  <td>🎫 初回クーポン</td>
+                  <td><span className="maru">○</span></td>
+                  <td className="col-standard"><span className="maru">○</span></td>
+                  <td className="col-pro"><span className="maru">○</span></td>
+                </tr>
+                <tr>
+                  <td>🎟️ 通常クーポン</td>
+                  <td><span className="batsu">×</span></td>
+                  <td className="col-standard"><span className="maru">○</span></td>
+                  <td className="col-pro"><span className="maru">○</span></td>
+                </tr>
+                <tr>
+                  <td>🏆 特別達成クーポン</td>
+                  <td><span className="batsu">×</span></td>
+                  <td className="col-standard"><span className="maru">○</span></td>
+                  <td className="col-pro"><span className="maru">○</span></td>
+                </tr>
+                <tr>
+                  <td>🐾 ステップアップクーポン</td>
+                  <td><span className="batsu">×</span></td>
+                  <td className="col-standard"><span className="batsu">×</span></td>
+                  <td className="col-pro"><span className="maru">○</span></td>
+                </tr>
+                <tr>
+                  <td>🔄 連続クーポン</td>
+                  <td><span className="batsu">×</span></td>
+                  <td className="col-standard"><span className="batsu">×</span></td>
+                  <td className="col-pro"><span className="maru">○</span></td>
+                </tr>
+                <tr>
+                  <td>🎂 記念日・誕生日クーポン</td>
+                  <td><span className="batsu">×</span></td>
+                  <td className="col-standard"><span className="batsu">×</span></td>
+                  <td className="col-pro"><span className="maru">○</span></td>
+                </tr>
+                <tr>
+                  <td>💤 休眠復活クーポン</td>
+                  <td><span className="batsu">×</span></td>
+                  <td className="col-standard"><span className="batsu">×</span></td>
+                  <td className="col-pro"><span className="maru">○</span></td>
+                </tr>
+                <tr className="group"><td colSpan={4}>配信・分析</td></tr>
+                <tr>
+                  <td>📊 開封率の確認</td>
+                  <td><span className="batsu">×</span></td>
+                  <td className="col-standard"><span className="maru">○</span></td>
+                  <td className="col-pro"><span className="maru">○</span></td>
+                </tr>
+                <tr>
+                  <td>📅 予約配信・定期配信</td>
+                  <td><span className="batsu">×</span></td>
+                  <td className="col-standard"><span className="batsu">×</span></td>
+                  <td className="col-pro"><span className="maru">○</span></td>
+                </tr>
+                <tr className="group"><td colSpan={4}>販促ツール</td></tr>
+                <tr>
+                  <td>🖨️ 店頭ポップ印刷（A4）<span className="new-badge">NEW</span></td>
+                  <td><span className="batsu">×</span></td>
+                  <td className="col-standard"><span className="maru">○</span></td>
+                  <td className="col-pro"><span className="maru">○</span></td>
+                </tr>
+                <tr>
+                  <td>🖨️ 店頭ポップ印刷（A5）<span className="new-badge">NEW</span></td>
+                  <td><span className="batsu">×</span></td>
+                  <td className="col-standard"><span className="maru">○</span></td>
+                  <td className="col-pro"><span className="maru">○</span></td>
+                </tr>
+                <tr className="group"><td colSpan={4}>収益化プログラム</td></tr>
+                <tr>
+                  <td>🤝 紹介報酬制度（最大10%）</td>
+                  <td><span className="batsu">×</span></td>
+                  <td className="col-standard"><span className="batsu">×</span></td>
+                  <td className="col-pro"><span className="maru">○</span></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
 
       {/* ============================================================
-          REVENUE PARTNERS
+          PARTNERS
       ============================================================ */}
       <section className="section section-dark" id="partners">
         <div className="container">
           <div className="section-header reveal">
             <span className="section-tag">Revenue Programs</span>
             <h2>3つの収益化プログラムを標準搭載</h2>
-            <p>Push-taroは、店舗自身が「稼ぐ側」にもなれるプラットフォーム。<br />あなたのネットワークが、毎月の安定収益に変わります。</p>
+            <p>
+              Push-taroは、店舗自身が「稼ぐ側」にもなれるプラットフォーム。<br />
+              あなたのネットワークが、毎月の安定収益に変わります。
+            </p>
           </div>
-
-          <div className="program-grid">
-            <div className="program-card tilt-in" style={{ transitionDelay: '0s' }}>
-              <div className="program-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                  <path d="M3 8l4 4 5-7 5 7 4-4v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" fill="#ff4500" stroke="#ffedd5" strokeWidth="1.5" strokeLinejoin="round" />
-                  <circle cx="8" cy="16" r="1" fill="#ffedd5" />
-                  <circle cx="12" cy="16" r="1" fill="#ffedd5" />
-                  <circle cx="16" cy="16" r="1" fill="#ffedd5" />
-                </svg>
-              </div>
+          <div className="partner-grid">
+            <div className="partner-card tilt-in">
+              <div className="partner-icon">👑</div>
               <h3>代理店パートナー</h3>
-              <div className="program-sub">法人・事業者向け｜最大級のストック収益</div>
-              <div className="program-rate">最大 45%</div>
-              <div className="program-desc">
-                紹介した店舗のプラン・契約数に応じて報酬率がステップアップする超過累進型。中長期的に安定した収益源になります。
-              </div>
-              <ul className="program-list">
+              <div className="partner-rate">最大 45%</div>
+              <p>紹介した店舗のプラン・契約数に応じて報酬率がステップアップ。中長期的に安定した収益源になります。</p>
+              <ul>
                 <li>PRO 30% / その他 18%（基本）</li>
                 <li>100社紹介で 36%、200社以上で 45%</li>
                 <li>加盟金 ¥300,000 + 月額 ¥30,000</li>
-                <li>専用ダッシュボード・販促素材完備</li>
               </ul>
+              <Link href="/agency" className="partner-cta">詳細を見る →</Link>
             </div>
-
-            <div className="program-card tilt-in" style={{ transitionDelay: '0.12s' }}>
-              <div className="program-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                  <circle cx="9" cy="8" r="3.5" fill="#ff4500" stroke="#ffedd5" strokeWidth="1.5" />
-                  <circle cx="17" cy="10" r="2.5" fill="#fb923c" stroke="#ffedd5" strokeWidth="1.5" />
-                  <path d="M3 20c0-3.5 3-6 6-6s6 2.5 6 6" fill="#ff4500" stroke="#ffedd5" strokeWidth="1.5" />
-                  <path d="M14 18c0-2.5 2-4 4-4s4 1.5 4 4" stroke="#ffedd5" strokeWidth="1.5" fill="none" />
-                </svg>
-              </div>
+            <div className="partner-card tilt-in" style={{ transitionDelay: '0.12s' }}>
+              <div className="partner-icon">🤝</div>
               <h3>PRO紹介制度</h3>
-              <div className="program-sub">PROプラン契約者向け｜実質無料化が可能</div>
-              <div className="program-rate">毎月 10%</div>
-              <div className="program-desc">
-                PROプランをご契約中の店舗が他店舗を紹介するだけで、毎月10%の報酬が還元。10店舗紹介でPROプランが実質無料に。
-              </div>
-              <ul className="program-list">
+              <div className="partner-rate">毎月 10%</div>
+              <p>PROプランをご契約中の店舗が他店舗を紹介するだけで、毎月10%の報酬が還元。10店舗紹介でPROプランが実質無料に。</p>
+              <ul>
                 <li>紹介店舗が契約中は毎月発生</li>
                 <li>10店舗で実質無料化</li>
                 <li>管理画面から即時参加可能</li>
-                <li>累計1万円で振込申請</li>
               </ul>
+              <Link href="/signup" className="partner-cta">PROプランで始める →</Link>
             </div>
-
-            <div className="program-card tilt-in" style={{ transitionDelay: '0.24s' }}>
-              <div className="program-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                  <path d="M3 11v2l4 1 1 4 3-2 3 2 1-4 4-1v-2l-4-1-1-4-3 2-3-2-1 4-4 1z" fill="#ff4500" stroke="#ffedd5" strokeWidth="1.5" strokeLinejoin="round" />
-                  <circle cx="12" cy="12" r="2" fill="#ffedd5" />
-                </svg>
-              </div>
+            <div className="partner-card tilt-in" style={{ transitionDelay: '0.24s' }}>
+              <div className="partner-icon">📢</div>
               <h3>アフィリエイト</h3>
-              <div className="program-sub">誰でもOK｜リスクフリーで副収入</div>
-              <div className="program-rate">8% または 単発</div>
-              <div className="program-desc">
-                ブログ・SNS・知人紹介など、自由な方法で店舗を紹介。初期費用・月額費用0円で、リスクなく始められます。
-              </div>
-              <ul className="program-list">
-                <li>継続課金型: 初年度8%・13ヶ月目以降5%を継続還元</li>
+              <div className="partner-rate">8% または 単発</div>
+              <p>ブログ・SNS・知人紹介など、自由な方法で店舗を紹介。初期費用・月額費用0円で、リスクなく始められます。</p>
+              <ul>
+                <li>継続課金型: 初年度8%・13ヶ月目以降5%</li>
                 <li>単発型: PRO¥5,000 / STD¥2,000 / LIGHT¥1,000</li>
-                <li>インボイス登録で源泉徴収なし</li>
                 <li>累計5,000円で振込申請</li>
               </ul>
+              <Link href="/affiliate/signup" className="partner-cta">今すぐ登録 →</Link>
             </div>
           </div>
-           <div className="section-cta-row">
-            <a href="/partners" className="section-cta-btn primary-light">
-              👑 収益プログラムを詳しく見てみる
-              <svg className="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </a>
-          </div>
-        </div>
-      </section>
-
-     {/* ============================================================
-    USE CASES（拡張版）
-============================================================ */}
-<section className="section section-alt" id="usecases">
-  <div className="container">
-    <div className="section-header reveal">
-      <span className="section-tag">Real Use Cases </span>
-      <h2>
-        <strong>実店舗運営</strong>から導き出した、<br />
-        「本当に人が動く」活用ノウハウ
-      </h2>
-      <p>机上の空論ではない、現場で実際に効果が出た具体例をご紹介します。</p>
-    </div>
-
-    <div className="usecase-grid">
-      {/* 飲食店・カフェ */}
-      <div className="usecase-card tilt-in-left" style={{ transitionDelay: '0s' }}>
-        <div className="usecase-header">
-          <span className="usecase-industry">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M5 11h14a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2z" fill="#475569" />
-              <path d="M3 11l3-6h12l3 6" stroke="#475569" strokeWidth="1.5" strokeLinejoin="round" fill="none" />
-            </svg>
-            飲食店・カフェ
-          </span>
-          <span className="usecase-plan">ALL PLAN</span>
-        </div>
-        <div className="usecase-body">
-          <div className="usecase-title">毎日10時の「日替わりランチ」配信</div>
-          <p className="usecase-desc">
-            ランチ激戦区では、午前10時に日替わりメニューを配信するだけで、お客様の頭の中は今日のランチでいっぱいに。「以前食べて気に入ったメニュー」なら、さらに行きたくなる。
-          </p>
-        </div>
-      </div>
-
-      {/* パン屋・ケーキ屋 */}
-      <div className="usecase-card tilt-in-right" style={{ transitionDelay: '0.08s' }}>
-        <div className="usecase-header">
-          <span className="usecase-industry">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M8 3v6a4 4 0 004 4v8M12 3v10" stroke="#475569" strokeWidth="2" strokeLinecap="round" />
-              <circle cx="18" cy="7" r="3" stroke="#475569" strokeWidth="2" fill="none" />
-            </svg>
-            パン屋・ケーキ屋
-          </span>
-          <span className="usecase-plan">ALL PLAN</span>
-        </div>
-        <div className="usecase-body">
-          <div className="usecase-title">本日30個限定「生チョコ食パン15時から」</div>
-          <p className="usecase-desc">
-            季節メニューやテスト新商品を数量限定で告知。メニュー開発の人気度チェックにも使える。LIGHT / STANDARDプランでも十分効果が出る。
-          </p>
-        </div>
-      </div>
-
-      {/* スナック・居酒屋 */}
-      <div className="usecase-card tilt-in-left" style={{ transitionDelay: '0.16s' }}>
-        <div className="usecase-header">
-          <span className="usecase-industry">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M12 3c-2 0-3 2-3 4 0 3 3 5 3 8 0 3-3 5-3 5s5-1 6-4 0-6 0-6 3 1 3 4c0 2-1 4-1 4s3-2 3-6c0-5-4-9-8-9z" fill="#475569" />
-            </svg>
-            スナック・居酒屋
-          </span>
-          <span className="usecase-plan">ALL PLAN</span>
-        </div>
-        <div className="usecase-body">
-          <div className="usecase-title">夜のお店の「ボトルプッシュ」</div>
-          <p className="usecase-desc">
-            ビール1杯では今は惹きつけられない。「本日、焼酎ボトル1本サービス！！」——現場の心理を突いた仕組み。
-          </p>
-        </div>
-      </div>
-
-      {/* 自動車整備 */}
-      <div className="usecase-card tilt-in-right" style={{ transitionDelay: '0.24s' }}>
-        <div className="usecase-header">
-          <span className="usecase-industry">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M9 3l-2 7h10l-2-7" stroke="#475569" strokeWidth="2" strokeLinejoin="round" fill="none" />
-              <path d="M4 10h16l-1 10a1 1 0 01-1 1H6a1 1 0 01-1-1L4 10z" fill="#475569" />
-            </svg>
-            自動車整備・スタンド
-          </span>
-          <span className="usecase-plan">ALL PLAN</span>
-        </div>
-        <div className="usecase-body">
-          <div className="usecase-title">「車検はいくら」を毎週配信</div>
-          <p className="usecase-desc">
-            毎日では多すぎるが、毎週なら記憶に残る。「あそこは安いな」と思ってもらえれば、車検時期に真っ先に思い出される。
-          </p>
-        </div>
-      </div>
-
-      {/* 小売店・エステ */}
-      <div className="usecase-card tilt-in-left" style={{ transitionDelay: '0.32s' }}>
-        <div className="usecase-header">
-          <span className="usecase-industry">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <circle cx="18" cy="7" r="3" stroke="#475569" strokeWidth="2" fill="none" />
-            </svg>
-            小売店・エステ・アパレル
-          </span>
-          <span className="usecase-plan">PRO</span>
-        </div>
-        <div className="usecase-body">
-          <div className="usecase-title">クーポン活用で来店サイクルを設計</div>
-          <p className="usecase-desc">
-            連続クーポン + ステップアップクーポン + 特別達成クーポンを組み合わせ、来れば来るほどお得になる仕組みで来店率を上げる。
-          </p>
-        </div>
-      </div>
-
-      {/* 全業種共通 */}
-      <div className="usecase-card tilt-in-right" style={{ transitionDelay: '0.4s' }}>
-        <div className="usecase-header">
-          <span className="usecase-industry">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="3" width="7" height="7" rx="1" fill="#475569" />
-              <rect x="14" y="3" width="7" height="7" rx="1" fill="#475569" />
-              <rect x="3" y="14" width="7" height="7" rx="1" fill="#475569" />
-            </svg>
-            全業種共通
-          </span>
-          <span className="usecase-plan">PRO</span>
-        </div>
-        <div className="usecase-body">
-          <div className="usecase-title">年間9回のキャンペーン設計 + 週2回の黄金律</div>
-          <p className="usecase-desc">
-            マクドナルド式の「定番 + 季節」。1年を4半期に分け、年末年始・バレンタイン・GW・ハロウィン・クリスマスを被らないように配置。プッシュ通知は週2回までが適正頻度。
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <div className="know-how-conclusion reveal">
-      <p>
-        これらはすべて、<strong>実店舗で本当に効果が出る施策</strong>、<br />
-        だけを厳選したものです。
-      </p>
-    </div>
-  </div>
-</section>
-
-      {/* ============================================================
-          SECURITY
-      ============================================================ */}
-      <section className="section section-alt">
-        <div className="container">
-          <div className="section-header reveal">
-            <span className="section-tag">Security & Reliability</span>
-            <h2>安心して運用いただくための仕組み</h2>
-            <p>大切な顧客情報と店舗の売上を守るため、堅牢なセキュリティと運用体制を整えています。</p>
-          </div>
-
-          <div className="security-grid">
-            <div className="security-item tilt-in" style={{ transitionDelay: '0s' }}>
-              <div className="security-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <rect x="4" y="10" width="16" height="11" rx="2" fill="#16a34a" />
-                  <path d="M8 10V7a4 4 0 018 0v3" stroke="#16a34a" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-                  <circle cx="12" cy="15.5" r="1.5" fill="#fff" />
-                  <path d="M12 16v2" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-              </div>
-              <h4>Firebase Auth 認証</h4>
-              <p>業界標準のIDトークン認証で、店舗・代理店・アフィリエイトすべてのアカウントを安全に保護。</p>
-            </div>
-            <div className="security-item tilt-in" style={{ transitionDelay: '0.06s' }}>
-              <div className="security-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M3 18l4-8 6 4 8-9" stroke="#16a34a" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M17 3h4v4" stroke="#16a34a" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <h4>Webhook 署名検証</h4>
-              <p>Squareからの決済通知は、HMAC-SHA256署名を検証。なりすまし・改ざんを完全に防止します。</p>
-            </div>
-            <div className="security-item tilt-in" style={{ transitionDelay: '0.12s' }}>
-              <div className="security-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M18 8a6 6 0 10-12 0c0 7-3 8-3 8h18s-3-1-3-8z" fill="#16a34a" />
-                  <circle cx="12" cy="3" r="2" fill="#ef4444" />
-                </svg>
-              </div>
-              <h4>エラー即時通知</h4>
-              <p>システムエラー発生時は管理者へ即時メール通知。5分間のスロットル機能で通知爆発も防止。</p>
-            </div>
-            <div className="security-item tilt-in" style={{ transitionDelay: '0.06s' }}>
-              <div className="security-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" fill="#16a34a" stroke="#16a34a" strokeWidth="1.5" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <h4>サーキットブレーカー</h4>
-              <p>異常検知時は管理画面から全配信をワンクリックで緊急停止。被害拡大を未然に防ぎます。</p>
-            </div>
-            <div className="security-item tilt-in" style={{ transitionDelay: '0.12s' }}>
-              <div className="security-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 5h12l4 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z" stroke="#16a34a" strokeWidth="2" fill="none" strokeLinejoin="round" />
-                  <path d="M16 5v4h4" stroke="#16a34a" strokeWidth="2" fill="none" strokeLinejoin="round" />
-                  <path d="M7 12h8M7 15h5" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-              </div>
-              <h4>自動クリーンアップ</h4>
-              <p>30日以上応答のない端末トークンは自動削除。ストレージ肥大化と誤配信リスクを防止。</p>
-            </div>
-            <div className="security-item tilt-in" style={{ transitionDelay: '0.18s' }}>
-              <div className="security-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <rect x="5" y="3" width="14" height="18" rx="2" stroke="#16a34a" strokeWidth="2" fill="none" />
-                  <path d="M9 8h6M9 12h6M9 16h4" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-              </div>
-              <h4>監査ログ記録</h4>
-              <p>決済履歴・報酬計算・手動アクションをすべてFirestoreに記録。いつ誰が何をしたか追跡可能。</p>
-            </div>
+          <div className="partner-cta-row reveal">
+            <Link href="/partners" className="partner-main-cta">
+              3つの収益化プログラムを、詳しく見る →
+            </Link>
           </div>
         </div>
       </section>
@@ -1760,43 +1270,26 @@ export default function HomeClient() {
       {/* ============================================================
           FAQ
       ============================================================ */}
-      <section className="section section-alt" id="faq">
+      <section className="section" id="faq">
         <div className="container">
           <div className="section-header reveal">
             <span className="section-tag">FAQ</span>
             <h2>よくあるご質問</h2>
             <p>その他ご不明な点は、お気軽にお問い合わせください。</p>
           </div>
-
           <div className="faq-list">
-  {faqs.map((f, i) => (
-    <details
-      key={f.q}
-      className="faq-item reveal"
-      style={{ transitionDelay: `${i * 0.05}s` }}
-    >
-      <summary>
-        {f.q}
-        <svg
-          className="faq-icon"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M12 5v14M5 12h14"
-            stroke="#ff4500"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          />
-        </svg>
-      </summary>
-      <div className="faq-answer">{f.a}</div>
-    </details>
-  ))}
-</div>
+            {faqs.map((f, i) => (
+              <details key={f.q} className="faq-item reveal" style={{ transitionDelay: `${i * 0.05}s` }}>
+                <summary>
+                  {f.q}
+                  <svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 5v14M5 12h14" stroke="#ff4500" strokeWidth="2.5" strokeLinecap="round" />
+                  </svg>
+                </summary>
+                <div className="faq-answer">{f.a}</div>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -1804,125 +1297,100 @@ export default function HomeClient() {
           FINAL CTA
       ============================================================ */}
       <section className="cta-final" id="cta">
-        <svg className="cta-bg-svg" viewBox="0 0 1400 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="ctaGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#ff4500" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#ff4500" stopOpacity="0" />
-            </radialGradient>
-          </defs>
-          <circle cx="700" cy="300" r="400" fill="url(#ctaGlow)" />
-          <path d="M0 400 Q 350 350 700 400 T 1400 400" stroke="#ff4500" strokeWidth="1" fill="none" opacity="0.15" />
-          <path d="M0 430 Q 350 380 700 430 T 1400 430" stroke="#ff4500" strokeWidth="1" fill="none" opacity="0.08" />
-        </svg>
-
         <div className="cta-final-inner reveal">
-  <h2>
-    お客様に喜んで頂ける、<br />
-    お店づくりを、一緒に。
-  </h2>
-  <p>
-    Push-taroは、実店舗の「喜んで頂ける仕組み」を<br />
-    プッシュ通知 × CRM で自動化するプラットフォームです。<br />
-    まずはお気軽に、無料相談・資料請求から。
-  </p>
-
-  {/* ★ ボタンペアに変更 */}
-  <div className="cta-final-actions">
-    <a href="/signup" className="btn-primary">
-      👑 今すぐ申し込む
-      <svg className="svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </a>
-    <a href="/contact" className="btn-secondary">
-      📩 まずはご相談
-    </a>
-  </div>
-
-  <div className="cta-note">
-    ※ 2026年9月 正式リリース。現在、先行登録受付中です。
-  </div>
-</div>
+          <h2>
+            お客様に喜んで頂ける、<br />
+            お店づくりを、一緒に。
+          </h2>
+          <p>
+            Push-taroは、実店舗の「喜んで頂ける仕組み」を<br />
+            プッシュ通知 × CRM で自動化するプラットフォームです。<br />
+            まずはお気軽に、無料相談・資料請求から。
+          </p>
+          <div className="cta-final-actions">
+            <Link href="/signup" className="btn-primary">
+              👑 今すぐ申し込む
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+            <Link href="/contact" className="btn-secondary">
+              📩 まずはご相談
+            </Link>
+          </div>
+          <div className="cta-note">※ 2026年9月 正式リリース。現在、先行登録受付中です。</div>
+        </div>
       </section>
 
       {/* ============================================================
-    FOOTER（partners と統一）
-============================================================ */}
-<footer className="footer">
-  <div className="container">
-    <div className="footer-grid">
-      <div className="footer-brand">
-        <div className="footer-logo">
-          <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
-            <defs>
-              <linearGradient id="footerLogoGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#ff6b6b" />
-                <stop offset="100%" stopColor="#ff4500" />
-              </linearGradient>
-            </defs>
-            <circle cx="24" cy="24" r="23" fill="url(#footerLogoGrad)" />
-            <path d="M24 8 L33 22 L28 22 L28 30 L20 30 L20 22 L15 22 Z" fill="#ffffff" />
-            <circle cx="24" cy="20" r="3" fill="#ff4500" opacity="0.5" />
-            <path d="M18 30 L14 38 L20 34 Z" fill="#ffffff" />
-            <path d="M30 30 L34 38 L28 34 Z" fill="#ffffff" />
-            <path d="M22 30 L24 40 L26 30 Z" fill="#fbbf24" />
-          </svg>
-          <span>Push-taro<span className="dot">.</span></span>
+          FOOTER
+      ============================================================ */}
+      <footer className="footer">
+        <div className="container">
+          <div className="footer-grid">
+            <div className="footer-brand">
+              <div className="footer-logo">
+                <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+                  <defs>
+                    <linearGradient id="footerLogoGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stopColor="#ff6b6b" />
+                      <stop offset="100%" stopColor="#ff4500" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="24" cy="24" r="23" fill="url(#footerLogoGrad)" />
+                  <path d="M24 8 L33 22 L28 22 L28 30 L20 30 L20 22 L15 22 Z" fill="#ffffff" />
+                  <circle cx="24" cy="20" r="3" fill="#ff4500" opacity="0.5" />
+                  <path d="M18 30 L14 38 L20 34 Z" fill="#ffffff" />
+                  <path d="M30 30 L34 38 L28 34 Z" fill="#ffffff" />
+                  <path d="M22 30 L24 40 L26 30 Z" fill="#fbbf24" />
+                </svg>
+                <span>Push-taro<span className="dot">.</span></span>
+              </div>
+              <p className="footer-desc">
+                実店舗のリピート施策を「プッシュ通知 × CRM」で自動化するSaaS。<br />
+                店舗リピーター育成のためのクーポンアプリ。
+              </p>
+              <div className="footer-badge">
+                <span className="footer-badge-dot"></span>
+                2026年9月 サービス開始
+              </div>
+            </div>
+            <div className="footer-links-wrap">
+              <div className="footer-col">
+                <h4 className="footer-col-title">サービス</h4>
+                <ul className="footer-col-list">
+                  <li><Link href="/">Push-taro トップ</Link></li>
+                  <li><Link href="/guide">活用ガイド</Link></li>
+                  <li><Link href="/partners">収益化プログラム</Link></li>
+                  <li><Link href="/signup">PROプランで始める</Link></li>
+                </ul>
+              </div>
+              <div className="footer-col">
+                <h4 className="footer-col-title">活用ガイド</h4>
+                <ul className="footer-col-list">
+                  <li><Link href="/guide">ガイドTOP</Link></li>
+                  <li><Link href="/guide/features">機能別ガイド</Link></li>
+                  <li><Link href="/guide/case-studies">導入事例</Link></li>
+                  <li><Link href="/guide/ng-actions">NG行為集</Link></li>
+                </ul>
+              </div>
+              <div className="footer-col">
+                <h4 className="footer-col-title">サポート</h4>
+                <ul className="footer-col-list">
+                  <li><Link href="/contact">お問い合わせ</Link></li>
+                  <li><Link href="/terms">利用規約</Link></li>
+                  <li><Link href="/privacy">プライバシーポリシー</Link></li>
+                  <li><Link href="/tokusho">特定商取引法</Link></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <p className="footer-copy">&copy; 2026 Push-taro All Rights Reserved. ｜ 運営：the合同会社</p>
+            <p className="footer-address">〒357-0123 埼玉県飯能市中藤下郷23-21</p>
+          </div>
         </div>
-        <p className="footer-desc">
-          実店舗のリピート施策を「プッシュ通知 × CRM」で自動化するSaaS。<br />
-          店舗リピーター育成のためのクーポンアプリ。
-        </p>
-        <div className="footer-badge">
-          <span className="footer-badge-dot"></span>
-          2026年9月 サービス開始
-        </div>
-      </div>
-
-      <div className="footer-links-wrap">
-        <div className="footer-col">
-          <h4 className="footer-col-title">サービス</h4>
-          <ul className="footer-col-list">
-            <li><Link href="/">Push-taro トップ</Link></li>
-            <li><Link href="/guide">活用ガイド</Link></li>
-            <li><Link href="/partners">収益化プログラム</Link></li>
-            <li><Link href="/signup">PROプランで始める</Link></li>
-          </ul>
-        </div>
-
-        <div className="footer-col">
-          <h4 className="footer-col-title">活用ガイド</h4>
-          <ul className="footer-col-list">
-            <li><Link href="/guide">ガイドTOP</Link></li>
-            <li><Link href="/guide/features">機能別ガイド</Link></li>
-            <li><Link href="/guide/case-studies">導入事例</Link></li>
-            <li><Link href="/guide/ng-actions">NG行為集</Link></li>
-          </ul>
-        </div>
-
-        <div className="footer-col">
-          <h4 className="footer-col-title">サポート</h4>
-          <ul className="footer-col-list">
-            <li><Link href="/contact">お問い合わせ</Link></li>
-            <li><Link href="/terms">利用規約</Link></li>
-            <li><Link href="/privacy">プライバシーポリシー</Link></li>
-            <li><Link href="/tokusho">特定商取引法</Link></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div className="footer-bottom">
-      <p className="footer-copy">
-        &copy; 2026 Push-taro All Rights Reserved. ｜ 運営：the合同会社
-      </p>
-      <p className="footer-address">
-        〒357-0123 埼玉県飯能市中下藤下郷23-21
-      </p>
-    </div>
-  </div>
-</footer>
+      </footer>
     </>
   );
 }
