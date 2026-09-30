@@ -990,46 +990,6 @@ export default function HomeClient() {
       </section>
 
       {/* ============================================================
-          PRO REFERRAL
-      ============================================================ */}
-      <section className="section" id="pro-referral">
-        <div className="container">
-          <div className="section-header reveal">
-            <span className="section-tag">PRO Referral</span>
-            <h2>PROプランなら、<br />紹介で、もっとお得に。</h2>
-            <p>他店舗を紹介すると、PROプランの月額が割引されます。<br />2つの選択肢から、あなたに合った方を選べます。</p>
-          </div>
-          <div className="referral-choices">
-            <div className="referral-choice tilt-in-left">
-              <span className="referral-badge is-a">選択肢 A</span>
-              <h3>じっくり型</h3>
-              <div className="referral-rate">10%<small>継続還元</small></div>
-              <p>紹介した店舗が契約している限り、毎月10%が還元されます。</p>
-              <ul>
-                <li>紹介数は無制限</li>
-                <li>10店舗紹介でPROが実質無料</li>
-                <li>11店舗目以降はプラス収益</li>
-              </ul>
-            </div>
-            <div className="referral-choice is-featured tilt-in-right">
-              <span className="referral-badge is-b">選択肢 B</span>
-              <h3>がっつり型</h3>
-              <div className="referral-rate">20%<small>×2件で40%OFF</small></div>
-              <p>2件だけ、20%の高還元。2件紹介すれば、PROが6,000円に。</p>
-              <ul>
-                <li>1件あたり20%還元</li>
-                <li>2件紹介で、月額6,000円</li>
-                <li>短期集中で大きく割引</li>
-              </ul>
-            </div>
-          </div>
-          <div className="referral-note reveal">
-            <p>※ 選択肢は登録時に選択してください。登録後の変更はできません。</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================================
           PRICING
       ============================================================ */}
       <section className="section section-alt" id="pricing">
@@ -1204,6 +1164,46 @@ export default function HomeClient() {
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+      </section>
+
+       {/* ============================================================
+          PRO REFERRAL
+      ============================================================ */}
+      <section className="section" id="pro-referral">
+        <div className="container">
+          <div className="section-header reveal">
+            <span className="section-tag">PRO Referral</span>
+            <h2>PROプランなら、<br />紹介で、もっとお得に。</h2>
+            <p>他店舗を紹介すると、PROプランの月額が割引されます。<br />2つの選択肢から、あなたに合った方を選べます。</p>
+          </div>
+          <div className="referral-choices">
+            <div className="referral-choice tilt-in-left">
+              <span className="referral-badge is-a">選択肢 A</span>
+              <h3>じっくり型</h3>
+              <div className="referral-rate">10%<small>継続還元</small></div>
+              <p>紹介した店舗が契約している限り、毎月10%が還元されます。</p>
+              <ul>
+                <li>紹介数は無制限</li>
+                <li>10店舗紹介でPROが実質無料</li>
+                <li>11店舗目以降はプラス収益</li>
+              </ul>
+            </div>
+            <div className="referral-choice is-featured tilt-in-right">
+              <span className="referral-badge is-b">選択肢 B</span>
+              <h3>がっつり型</h3>
+              <div className="referral-rate">20%<small>×2件で40%OFF</small></div>
+              <p>2件だけ、20%の高還元。2件紹介すれば、PROが6,000円に。</p>
+              <ul>
+                <li>1件あたり20%還元</li>
+                <li>2件紹介で、月額6,000円</li>
+                <li>短期集中で大きく割引</li>
+              </ul>
+            </div>
+          </div>
+          <div className="referral-note reveal">
+            <p>※ 選択肢は登録時に選択してください。登録後の変更はできません。</p>
           </div>
         </div>
       </section>
