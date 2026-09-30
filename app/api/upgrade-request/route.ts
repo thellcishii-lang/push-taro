@@ -5,7 +5,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../lib/mailer';
 
 // StandardプランのSquareリンク（環境変数から取得）
-const STANDARD_PAYMENT_URL = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
+const STANDARD_PAYMENT_URL = process.env.PUBLIC_SQUARE_LINK_STANDARD || '';
 
 export const dynamic = 'force-dynamic';
 
