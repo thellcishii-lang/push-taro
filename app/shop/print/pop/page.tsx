@@ -58,7 +58,7 @@ function PopContent() {
     return (
       <main style={{ padding: 40, textAlign: 'center', fontFamily: 'sans-serif' }}>
         <p style={{ color: '#dc2626' }}>{error}</p>
-        <button onClick={() => router.back()}>← 戻る</button>
+        <button onClick={() => window.close()}>← 閉じる</button>
       </main>
     );
   }
