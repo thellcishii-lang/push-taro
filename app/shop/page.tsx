@@ -1025,7 +1025,7 @@ export default function ShopPage() {
               {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 基本設定を保存'}
             </button>
             {/* ★ 追加：店頭ポップ */}
-            <ShopPopSection shopId={shopId} />
+            {isStandard && shopId && <ShopPopSection shopId={shopId} returnTo="/shop" />}
           </div>
 
           {/* 退会エリア */}
