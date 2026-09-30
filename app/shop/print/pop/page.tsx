@@ -71,6 +71,15 @@ function PopContent() {
     router.replace(`/shop/print/pop?s=${shopId}&size=${nextSize}`);
   };
 
+  const returnTo = searchParams.get('returnTo') || '/shop';
+
+  const handleClose = () => {
+    window.close();
+    setTimeout(() => {
+      window.location.href = returnTo;
+    }, 200);
+  };
+
   return (
     <div className="print-wrap">
       <div className="print-toolbar no-print">
@@ -85,7 +94,7 @@ function PopContent() {
           <button className="primary" onClick={() => window.print()}>
             🖨️ 印刷 / PDF保存
           </button>
-          <button onClick={() => router.back()}>← 戻る</button>
+          <button onClick={handleClose}>← 閉じる</button>
         </div>
       </div>
 
