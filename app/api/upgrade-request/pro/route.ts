@@ -5,7 +5,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../../lib/mailer';
 
 // PROプランのSquareリンク（環境変数から取得）
-const PRO_PAYMENT_URL = process.env.NEXT_PUBLIC_SQUARE_LINK_TEST || '';
+const PRO_PAYMENT_URL = process.env.NEXT_PUBLIC_SQUARE_LINK_PRO || '';
 
 export const dynamic = 'force-dynamic';
 
