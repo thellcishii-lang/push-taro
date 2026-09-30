@@ -21,9 +21,10 @@ const SHOP_POP_MATERIALS = [
 
 interface ShopPopSectionProps {
   shopId: string;
+  returnTo: string;
 }
 
-export default function ShopPopSection({ shopId }: ShopPopSectionProps) {
+export default function ShopPopSection({ shopId, returnTo }: ShopPopSectionProps) {
   if (!shopId) return null;
 
   return (
@@ -50,7 +51,7 @@ export default function ShopPopSection({ shopId }: ShopPopSectionProps) {
         {SHOP_POP_MATERIALS.map((m) => (
           <Link
             key={m.type}
-            href={`/shop/print/pop?s=${shopId}&size=${m.type}`}
+            href={`/shop/print/pop?s=${shopId}&size=${m.type}&returnTo=${encodeURIComponent(returnTo)}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{
