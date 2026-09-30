@@ -9,17 +9,14 @@ interface Props {
 export default function ShopPop({ data, size }: Props) {
   const { shopName, subscribeUrl, firstCoupon } = data;
 
-  // 初回クーポンが有効なときだけ表示
   const showPerk = firstCoupon?.enabled === true;
   const perkTitle = firstCoupon?.title || '初回限定クーポン';
   const perkDesc = firstCoupon?.description || '';
 
   return (
     <section className={`p-page shop-pop shop-pop--${size}`}>
-      {/* 店舗名 */}
       <h1 className="shop-pop-name">{shopName}</h1>
 
-      {/* メイン */}
       <div className="shop-pop-mid">
         <div className="shop-pop-lead">＼ スマホで読み取るだけ ／</div>
         <h2 className="shop-pop-catch">
@@ -29,11 +26,10 @@ export default function ShopPop({ data, size }: Props) {
         </h2>
 
         <div className="shop-pop-qr">
-          <QRBlock value={subscribeUrl} size={size === 'a4' ? 285 : 210} />
+          <QRBlock value={subscribeUrl} size={size === 'a4' ? 285 : 175} />
         </div>
       </div>
 
-      {/* 初回クーポン（有効時のみ） */}
       {showPerk && (
         <div className="shop-pop-perk">
           <span className="shop-pop-perk-badge">初回限定</span>
@@ -54,6 +50,11 @@ export default function ShopPop({ data, size }: Props) {
           box-sizing: border-box;
           border: 0.6mm solid #0f172a;
           overflow: hidden;
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        .shop-pop * {
+          box-sizing: border-box;
         }
         .shop-pop--a4 {
           width: 210mm;
@@ -64,11 +65,11 @@ export default function ShopPop({ data, size }: Props) {
         .shop-pop--a5 {
           width: 148mm;
           height: 210mm;
-          padding: 12mm 11mm;
+          padding: 10mm 10mm 8mm;
           page: page-a5v;
         }
 
-        /* 店舗名 */
+        /* ============ 店舗名 ============ */
         .shop-pop-name {
           font-weight: 900;
           letter-spacing: -0.02em;
@@ -80,9 +81,12 @@ export default function ShopPop({ data, size }: Props) {
           flex-shrink: 0;
         }
         .shop-pop--a4 .shop-pop-name { font-size: 26pt; }
-        .shop-pop--a5 .shop-pop-name { font-size: 18pt; }
+        .shop-pop--a5 .shop-pop-name {
+          font-size: 15pt;
+          padding-bottom: 4mm;
+        }
 
-        /* メイン */
+        /* ============ メイン ============ */
         .shop-pop-mid {
           flex: 1;
           display: flex;
@@ -91,8 +95,11 @@ export default function ShopPop({ data, size }: Props) {
           align-items: center;
           text-align: center;
           padding: 6mm 0;
+          min-height: 0;
         }
-        .shop-pop--a5 .shop-pop-mid { padding: 4mm 0; }
+        .shop-pop--a5 .shop-pop-mid {
+          padding: 3mm 0;
+        }
 
         .shop-pop-lead {
           display: inline-block;
@@ -103,9 +110,14 @@ export default function ShopPop({ data, size }: Props) {
           padding: 1.8mm 6mm;
           margin-bottom: 6mm;
           letter-spacing: 0.05em;
+          white-space: nowrap;
         }
         .shop-pop--a4 .shop-pop-lead { font-size: 12pt; }
-        .shop-pop--a5 .shop-pop-lead { font-size: 9pt; padding: 1.4mm 5mm; }
+        .shop-pop--a5 .shop-pop-lead {
+          font-size: 8pt;
+          padding: 1.2mm 4mm;
+          margin-bottom: 3mm;
+        }
 
         .shop-pop-catch {
           font-weight: 900;
@@ -114,7 +126,11 @@ export default function ShopPop({ data, size }: Props) {
           margin: 0 0 8mm;
         }
         .shop-pop--a4 .shop-pop-catch { font-size: 30pt; }
-        .shop-pop--a5 .shop-pop-catch { font-size: 22pt; margin-bottom: 6mm; }
+        .shop-pop--a5 .shop-pop-catch {
+          font-size: 17pt;
+          margin-bottom: 4mm;
+          line-height: 1.25;
+        }
         .shop-pop-catch .accent { color: #ff4500; }
 
         .shop-pop-qr {
@@ -127,9 +143,11 @@ export default function ShopPop({ data, size }: Props) {
           justify-content: center;
           line-height: 0;
         }
-        .shop-pop--a5 .shop-pop-qr { padding: 4mm; }
+        .shop-pop--a5 .shop-pop-qr {
+          padding: 3mm;
+        }
 
-        /* 初回クーポン */
+        /* ============ 初回クーポン ============ */
         .shop-pop-perk {
           margin-top: 6mm;
           padding: 5mm 6mm;
@@ -138,10 +156,12 @@ export default function ShopPop({ data, size }: Props) {
           border-radius: 3mm;
           text-align: center;
           flex-shrink: 0;
+          break-inside: avoid;
+          page-break-inside: avoid;
         }
         .shop-pop--a5 .shop-pop-perk {
-          margin-top: 4mm;
-          padding: 4mm 5mm;
+          margin-top: 3mm;
+          padding: 3mm 4mm;
         }
 
         .shop-pop-perk-badge {
@@ -155,7 +175,11 @@ export default function ShopPop({ data, size }: Props) {
           letter-spacing: 0.08em;
         }
         .shop-pop--a4 .shop-pop-perk-badge { font-size: 10pt; }
-        .shop-pop--a5 .shop-pop-perk-badge { font-size: 8pt; padding: 0.8mm 3mm; }
+        .shop-pop--a5 .shop-pop-perk-badge {
+          font-size: 7pt;
+          padding: 0.6mm 2.5mm;
+          margin-bottom: 1.5mm;
+        }
 
         .shop-pop-perk-title {
           color: #c2410c;
@@ -163,7 +187,7 @@ export default function ShopPop({ data, size }: Props) {
           line-height: 1.3;
         }
         .shop-pop--a4 .shop-pop-perk-title { font-size: 20pt; }
-        .shop-pop--a5 .shop-pop-perk-title { font-size: 14pt; }
+        .shop-pop--a5 .shop-pop-perk-title { font-size: 12pt; }
 
         .shop-pop-perk-desc {
           color: #7c2d12;
@@ -172,10 +196,16 @@ export default function ShopPop({ data, size }: Props) {
           line-height: 1.5;
         }
         .shop-pop--a4 .shop-pop-perk-desc { font-size: 10pt; }
-        .shop-pop--a5 .shop-pop-perk-desc { font-size: 8pt; margin-top: 1.5mm; }
+        .shop-pop--a5 .shop-pop-perk-desc {
+          font-size: 7.5pt;
+          margin-top: 1.2mm;
+        }
 
+        /* ============ 印刷時の保険 ============ */
         @media print {
           .shop-pop { box-shadow: none; }
+          .shop-pop--a4 { padding: 18mm 16mm !important; }
+          .shop-pop--a5 { padding: 10mm 10mm 8mm !important; }
         }
       `}</style>
     </section>
