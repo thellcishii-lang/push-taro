@@ -183,7 +183,7 @@ export default function WhyPushTaroPage() {
             </div>
           </div>
 
-          {/* ============================================================
+                    {/* ============================================================
               第3章
               ============================================================ */}
           <h2><span className="num">3</span>課題② 既存リピーターの、回転率を上げる</h2>
@@ -200,42 +200,88 @@ export default function WhyPushTaroPage() {
             では、<strong>クーポンなら、どうでしょう？</strong>
           </p>
 
-          <h3 className="g-h3">学ぶべきは、あの有名チェーンの、50年の歴史</h3>
+          <h3 className="g-h3">学ぶべきは、マクドナルドの、50年の歴史</h3>
 
           <p>
-            あるハンバーガーチェーンは、<strong>50年以上もの歳月をかけて</strong>、季節ごとのキャンペーンを、ずっと続けています。
+            マクドナルドは、<strong>50年以上、季節ごとのキャンペーンを続けています</strong>。
           </p>
           <p>
-            これは、単なる「セール」ではありません。<br />
-            <strong>年をかけて、ファンを作り上げる手法</strong>です。
+            これは、「長くやったからファンがつく」という話ではありません。
           </p>
-          <p>たとえば——</p>
+
+          <div className="g-quote is-orange">
+            「この時期は、これ」<br />
+            という季節キャンペーンが、<br />
+            今でも十分に通用する、<br />
+            普遍的なマーケティング手法
+          </div>
+
+          <p>
+            だ、という証拠なのです。
+          </p>
+          <p>
+            そして、この手法は、大手だからできる特別なことではありません。
+          </p>
+          <p>
+            <strong>「この時期は、これ」</strong> という定着は、<strong>3年もあれば、十分に作れます。</strong>
+          </p>
+
+          <div className="g-callout info">
+            <span className="ico">💡</span>
+            <div>
+              <p>
+                「3年は長い」と感じるなら——<br />
+                それは、<strong>マーケティングの基本が、抜けている</strong>のかもしれません。
+              </p>
+            </div>
+          </div>
+
+          <h3 className="g-h3">実店舗の、独自の季節キャンペーン</h3>
+
+          <p>
+            これを、<strong>実店舗の業種ごとに当てはめていく</strong>。
+          </p>
+          <p>
+            1年を細かく分けて、<strong>クリスマス・お正月・バレンタイン以外の、独自のイベント</strong>を仕込む。
+          </p>
+          <p>
+            そして、<strong>あなたの店にしかない、独自の季節イベント</strong>を作る。
+          </p>
 
           <div className="g-grid">
             <div className="g-card-simple">
-              <div className="g-icon-big">🎂</div>
-              <h4>お誕生日クーポン</h4>
-              <p>お客様の特別な日に、特別なクーポンを。</p>
+              <div className="g-icon-big">🥐</div>
+              <h4>パン屋なら</h4>
+              <p>「毎年、桜の時期にだけ出す、桜あんぱん」</p>
             </div>
             <div className="g-card-simple">
-              <div className="g-icon-big">🌸</div>
-              <h4>季節キャンペーン</h4>
-              <p>春・夏・秋・冬、それぞれの季節に合った企画を。</p>
+              <div className="g-icon-big">☕</div>
+              <h4>カフェなら</h4>
+              <p>「秋の夜長にだけ出す、限定ブレンド」</p>
             </div>
             <div className="g-card-simple">
-              <div className="g-icon-big">✨</div>
-              <h4>単発クーポン</h4>
-              <p>その時々で、サプライズを。</p>
+              <div className="g-icon-big">💇</div>
+              <h4>美容室なら</h4>
+              <p>「春の新生活応援、初回20%OFF」</p>
             </div>
           </div>
 
           <p>
-            これを、<strong>実店舗の業種ごとに当てはめていく</strong>。<br />
-            1年を細かく分けて、<strong>クリスマス・お正月・バレンタイン以外の、独自のイベント</strong>を仕込む。<br />
-            キャンペーンの中に、<strong>3回程度のステップクーポン</strong>を組み込む。
+            お客様は、それを<strong>1年待ってくれる</strong>ようになります。
           </p>
           <p>
-            そうすれば、<strong>1年を通して、お客様に喜んでもらえる仕組み</strong>が、自然と生まれます。
+            キャンペーンの中に、<strong>3回程度のステップクーポン</strong>を組み込む。<br />
+            そうすれば、<strong>1年目で「この時期はこれ」</strong>が、お客様の頭に残り始めます。
+          </p>
+
+          <div className="g-quote is-orange">
+            3年目には、<br />
+            お客様が「今年も、あれが来る」と<br />
+            待ってくれるようになる。
+          </div>
+
+          <p>
+            これが、<strong>実店舗が長く愛され続ける、本当の秘訣</strong>なのです。
           </p>
 
           <h3 className="g-h3">「囲い込み」ではなく、「楽しんでもらう」</h3>
@@ -346,13 +392,13 @@ export default function WhyPushTaroPage() {
                 <span className="arrow">→</span>
               </Link>
               <Link href="/guide/case-studies" className="g-related-card">
-                <span className="ico">📈</span>
-                <div>
-                  <div className="title">導入事例</div>
-                  <div class="sub">成果を出した店舗の事例</div>
-                </div>
-                <span className="arrow">→</span>
-              </Link>
+  <span className="ico">📈</span>
+  <div>
+    <div className="title">導入事例</div>
+    <div className="sub">成果を出した店舗の事例</div>   {/* ← className に */}
+  </div>
+  <span className="arrow">→</span>
+</Link>
             </div>
           </div>
 
