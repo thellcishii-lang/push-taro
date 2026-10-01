@@ -258,7 +258,7 @@ export default function HomeClient() {
         </div>
       </section>
 
-      {/* ============================================================
+            {/* ============================================================
           PHILOSOPHY
       ============================================================ */}
       <section className="section" id="philosophy">
@@ -268,6 +268,7 @@ export default function HomeClient() {
             <h2>実店舗に、<br />本当に必要なものだけ。</h2>
             <p>大手マーケティングツールの真似ではなく、<br />実店舗のリアルに合わせた設計です。</p>
           </div>
+
           <div className="philosophy-statement reveal">
             <span className="quote-mark">&quot;</span>
             <h3>
@@ -284,11 +285,12 @@ export default function HomeClient() {
             </p>
           </div>
 
-           <div style={{ textAlign: 'center' }}>
-  <Link href="/guide/segmentation" className="philosophy-statement-link">
-    📊 セグメント配信が、実店舗では「使えない」理由を詳しく読む
-  </Link>
-           
+          <div style={{ textAlign: 'center' }}>
+            <Link href="/guide/segmentation" className="philosophy-statement-link">
+              📊 セグメント配信が、実店舗では「使えない」理由を詳しく読む
+            </Link>
+          </div>
+
           <div className="philosophy-compare">
             <div className="pc-card is-wrong tilt-in-left">
               <span className="pc-badge">業界の「間違い」</span>
