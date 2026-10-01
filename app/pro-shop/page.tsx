@@ -73,9 +73,9 @@ export default function ProShopPage() {
 
   // PRO機能：ステップアップ
   const [stepUpEnabled, setStepUpEnabled] = useState(false);
-  const [stepUpList, setStepUpList] = useState<Array<{ title: string; expireType: string; expireDays: number; expireDate?: string; combinable: boolean }>>([
-    { title: '', expireType: 'days', expireDays: 7, combinable: false },
-    { title: '', expireType: 'days', expireDays: 14, combinable: false },
+  const [stepUpList, setStepUpList] = useState<Array<{ title: string; expireType: string; expireDays: number; expireDate?: string; combinable: boolean; sameDayCombinable: boolean }>>([
+    { title: '', expireType: 'days', expireDays: 7, combinable: false, sameDayCombinable: false },
+    { title: '', expireType: 'days', expireDays: 14, combinable: false, sameDayCombinable: false },
   ]);
 
   // PRO機能：連続クーポン
@@ -85,12 +85,14 @@ export default function ProShopPage() {
   const [repeatExpireDays, setRepeatExpireDays] = useState(14);
   const [repeatExpireDate, setRepeatExpireDate] = useState('');
   const [repeatCombinable, setRepeatCombinable] = useState(false);
+  const [repeatSameDayCombinable, setRepeatSameDayCombinable] = useState(false);
 
   // PRO機能：誕生日
   const [birthdayEnabled, setBirthdayEnabled] = useState(false);
   const [birthdayTitle, setBirthdayTitle] = useState('');
   const [birthdayMessage, setBirthdayMessage] = useState('');
   const [birthdayCombinable, setBirthdayCombinable] = useState(true);
+  const [birthdaySameDayCombinable, setBirthdaySameDayCombinable] = useState(false);
 
   // PRO機能：休眠復活
   const [dormantEnabled, setDormantEnabled] = useState(false);
@@ -99,6 +101,7 @@ export default function ProShopPage() {
   const [dormantMessage, setDormantMessage] = useState('');
   const [dormantExpireDays, setDormantExpireDays] = useState(14);
   const [dormantCombinable, setDormantCombinable] = useState(false);
+  const [dormantSameDayCombinable, setDormantSameDayCombinable] = useState(false);
 
   // 予約配信
   const [scheduledList, setScheduledList] = useState<Array<{
@@ -110,6 +113,8 @@ export default function ProShopPage() {
     body: string;
     linkUrl?: string;
     couponExpireDays?: number;
+    sameDayCombinable?: boolean;
+    loyaltyCountable?: boolean;
   }>>([]);
 
   const [reserveType, setReserveType] = useState<'notification' | 'coupon'>('notification');
@@ -121,6 +126,8 @@ export default function ProShopPage() {
   const [reserveBody, setReserveBody] = useState('');
   const [reserveLinkUrl, setReserveLinkUrl] = useState('');
   const [reserveCouponExpireDays, setReserveCouponExpireDays] = useState(14);
+  const [reserveCouponSameDayCombinable, setReserveCouponSameDayCombinable] = useState(false);
+  const [reserveCouponLoyaltyCountable, setReserveCouponLoyaltyCountable] = useState(false);
 
   // QRスキャン
   const [scanOpen, setScanOpen] = useState(false);
@@ -211,7 +218,7 @@ export default function ProShopPage() {
                 const pro = shop.proCoupons;
                 if (pro.stepUp) {
                   setStepUpEnabled(pro.stepUp.enabled || false);
-                  if (pro.stepUp.steps) setStepUpList(pro.stepUp.steps.map((step: any) => ({ ...step, combinable: step.combinable ?? step.loyaltyCountable ?? false })));
+                  if (pro.stepUp.steps) setStepUpList(pro.stepUp.steps.map((step: any) => ({ ...step, combinable: step.combinable ?? step.loyaltyCountable ?? false, sameDayCombinable: step.sameDayCombinable === true })));
                 }
                 if (pro.repeat) {
                   setRepeatEnabled(pro.repeat.enabled || false);
@@ -220,12 +227,14 @@ export default function ProShopPage() {
                   setRepeatExpireDays(pro.repeat.expireDays || 14);
                   setRepeatExpireDate(pro.repeat.expireDate || '');
                   setRepeatCombinable(pro.repeat.loyaltyCountable ?? pro.repeat.combinable ?? false);
+                  setRepeatSameDayCombinable(pro.repeat.sameDayCombinable === true);
                 }
                 if (pro.birthday) {
                   setBirthdayEnabled(pro.birthday.enabled || false);
                   setBirthdayTitle(pro.birthday.title || '');
                   setBirthdayMessage(pro.birthday.message || '');
                   setBirthdayCombinable(pro.birthday.loyaltyCountable ?? pro.birthday.combinable ?? false);
+                  setBirthdaySameDayCombinable(pro.birthday.sameDayCombinable === true);
                 }
                 if (pro.dormant) {
                   setDormantEnabled(pro.dormant.enabled || false);
@@ -234,6 +243,7 @@ export default function ProShopPage() {
                   setDormantMessage(pro.dormant.message || '');
                   setDormantExpireDays(pro.dormant.expireDays || 14);
                   setDormantCombinable(pro.dormant.loyaltyCountable ?? pro.dormant.combinable ?? false);
+                  setDormantSameDayCombinable(pro.dormant.sameDayCombinable === true);
                 }
               }
 
@@ -494,9 +504,9 @@ export default function ProShopPage() {
           },
           proCoupons: {
             stepUp: { enabled: stepUpEnabled, steps: stepUpList.map(({ combinable, ...step }) => ({ ...step, loyaltyCountable: combinable })) },
-            repeat: { enabled: repeatEnabled, title: repeatTitle, expireType: repeatExpireType, expireDays: repeatExpireDays, expireDate: repeatExpireDate, loyaltyCountable: repeatCombinable },
-            birthday: { enabled: birthdayEnabled, title: birthdayTitle, message: birthdayMessage, loyaltyCountable: birthdayCombinable },
-            dormant: { enabled: dormantEnabled, targetDays: dormantTargetDays, title: dormantTitle, message: dormantMessage, expireDays: dormantExpireDays, loyaltyCountable: dormantCombinable },
+            repeat: { enabled: repeatEnabled, title: repeatTitle, expireType: repeatExpireType, expireDays: repeatExpireDays, expireDate: repeatExpireDate, loyaltyCountable: repeatCombinable, sameDayCombinable: repeatSameDayCombinable },
+            birthday: { enabled: birthdayEnabled, title: birthdayTitle, message: birthdayMessage, loyaltyCountable: birthdayCombinable, sameDayCombinable: birthdaySameDayCombinable },
+            dormant: { enabled: dormantEnabled, targetDays: dormantTargetDays, title: dormantTitle, message: dormantMessage, expireDays: dormantExpireDays, loyaltyCountable: dormantCombinable, sameDayCombinable: dormantSameDayCombinable },
           },
           coupon: {
             enabled: couponEnabled,
@@ -560,6 +570,8 @@ export default function ProShopPage() {
       body: reserveBody,
       linkUrl: reserveLinkUrl || undefined,
       couponExpireDays: reserveType === 'coupon' ? Math.max(1, reserveCouponExpireDays) : undefined,
+      sameDayCombinable: reserveType === 'coupon' ? reserveCouponSameDayCombinable : undefined,
+      loyaltyCountable: reserveType === 'coupon' ? reserveCouponLoyaltyCountable : undefined,
       createdAt: new Date().toISOString(),
     };
 
@@ -1136,6 +1148,17 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
                           }}
                         /> 特別達成クーポンに追加する
                       </label>
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={step.sameDayCombinable}
+                          onChange={(e) => {
+                            const newList = [...stepUpList];
+                            newList[index].sameDayCombinable = e.target.checked;
+                            setStepUpList(newList);
+                          }}
+                        /> 同日、他のクーポンと併用
+                      </label>
                       {stepUpList.length > 1 && (
                         <button type="button" onClick={() => setStepUpList(stepUpList.filter((_, itemIndex) => itemIndex !== index))} style={{ padding: '4px 8px', background: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5', borderRadius: '4px', cursor: 'pointer' }}>
                           このステップを削除
@@ -1147,7 +1170,7 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
                 {stepUpList.length < 10 && (
                   <button
                     type="button"
-                    onClick={() => setStepUpList([...stepUpList, { title: '', expireType: 'days', expireDays: 7, combinable: false }])}
+                    onClick={() => setStepUpList([...stepUpList, { title: '', expireType: 'days', expireDays: 7, combinable: false, sameDayCombinable: false }])}
                     style={{ padding: '8px', background: '#dcfce7', border: '1px solid #86efac', color: '#166534', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
                   >
                     ＋ ステップを追加（最大10段階）
@@ -1185,6 +1208,9 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
                   <label>
                     <input type="checkbox" checked={repeatCombinable} onChange={(e) => setRepeatCombinable(e.target.checked)} /> 特別達成クーポンに追加する
                   </label>
+                  <label>
+                    <input type="checkbox" checked={repeatSameDayCombinable} onChange={(e) => setRepeatSameDayCombinable(e.target.checked)} /> 同日、他のクーポンと併用
+                  </label>
                 </div>
               </div>
             )}
@@ -1202,6 +1228,9 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
                 <textarea placeholder="お祝いメッセージ本文" value={birthdayMessage} onChange={(e) => setBirthdayMessage(e.target.value)} rows={2} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
                 <label style={{ cursor: 'pointer' }}>
                   <input type="checkbox" checked={birthdayCombinable} onChange={(e) => setBirthdayCombinable(e.target.checked)} /> 特別達成クーポンに追加する
+                </label>
+                <label style={{ cursor: 'pointer' }}>
+                  <input type="checkbox" checked={birthdaySameDayCombinable} onChange={(e) => setBirthdaySameDayCombinable(e.target.checked)} /> 同日、他のクーポンと併用
                 </label>
               </div>
             )}
@@ -1224,6 +1253,9 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
                 <textarea placeholder="お久しぶりメッセージ本文" value={dormantMessage} onChange={(e) => setDormantMessage(e.target.value)} rows={2} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
                 <label style={{ cursor: 'pointer' }}>
                   <input type="checkbox" checked={dormantCombinable} onChange={(e) => setDormantCombinable(e.target.checked)} /> 特別達成クーポンに追加する
+                </label>
+                <label style={{ cursor: 'pointer' }}>
+                  <input type="checkbox" checked={dormantSameDayCombinable} onChange={(e) => setDormantSameDayCombinable(e.target.checked)} /> 同日、他のクーポンと併用
                 </label>
               </div>
             )}
@@ -1326,9 +1358,17 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
               </div>
 
               {reserveType === 'coupon' && (
-                <div>
-                  <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>クーポン有効日数</label>
-                  <input type="number" min="1" value={reserveCouponExpireDays} onChange={(e) => setReserveCouponExpireDays(Math.max(1, Number(e.target.value.replace(/^0+(?=\d)/, '')) || 1))} style={{ width: '100px', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} /> 日間
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>クーポン有効日数</label>
+                    <input type="number" min="1" value={reserveCouponExpireDays} onChange={(e) => setReserveCouponExpireDays(Math.max(1, Number(e.target.value.replace(/^0+(?=\d)/, '')) || 1))} style={{ width: '100px', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} /> 日間
+                  </div>
+                  <label style={{ cursor: 'pointer' }}>
+                    <input type="checkbox" checked={reserveCouponSameDayCombinable} onChange={(e) => setReserveCouponSameDayCombinable(e.target.checked)} /> 同日、他のクーポンと併用
+                  </label>
+                  <label style={{ cursor: 'pointer' }}>
+                    <input type="checkbox" checked={reserveCouponLoyaltyCountable} onChange={(e) => setReserveCouponLoyaltyCountable(e.target.checked)} /> 特別達成クーポンの達成回数に加算
+                  </label>
                 </div>
               )}
 

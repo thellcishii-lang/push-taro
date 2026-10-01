@@ -69,7 +69,16 @@ export async function GET(req: Request) {
       const couponId = `${item.id}-${issuedAt.getTime()}`;
       const expiresAt = new Date(issuedAt.getTime() + Math.max(1, Number(item.couponExpireDays) || 14) * 24 * 60 * 60 * 1000).toISOString();
       activeScheduledCoupons = activeScheduledCoupons.filter((coupon: any) => coupon.scheduleId !== item.id && new Date(coupon.expiresAt || 0).getTime() >= issuedAt.getTime());
-      activeScheduledCoupons.push({ id: couponId, scheduleId: item.id, title: item.title, body: item.body, issuedAt: issuedAt.toISOString(), expiresAt });
+      activeScheduledCoupons.push({
+        id: couponId,
+        scheduleId: item.id,
+        title: item.title,
+        body: item.body,
+        issuedAt: issuedAt.toISOString(),
+        expiresAt,
+        sameDayCombinable: item.sameDayCombinable === true,
+        loyaltyCountable: item.loyaltyCountable === true,
+      });
       await adminDb.collection('shops').doc(doc.id).update({ scheduledCoupons: activeScheduledCoupons });
     }
     totalSent++;

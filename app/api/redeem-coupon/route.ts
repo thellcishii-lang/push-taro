@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { couponDay } from '@/lib/coupon-day';
+import { canCombineWithLastCoupon } from '@/lib/coupon-combination';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,6 +58,35 @@ async function addToLoyaltyCount(
   return unlocked;
 }
 
+function toDate(value: any): Date | null {
+  const date = value?.toDate?.() || value;
+  if (date instanceof Date) return date;
+  if (typeof date === 'string') return new Date(date);
+  return null;
+}
+
+async function recordSameDayCouponUse(
+  usageRef: FirebaseFirestore.DocumentReference,
+  shopId: string,
+  sameDayCombinable: boolean,
+) {
+  await db.runTransaction(async (transaction) => {
+    const currentDoc = await transaction.get(usageRef);
+    const currentUsage = currentDoc.data()?.couponUsage?.[shopId] || DEFAULT_USAGE;
+    if (!canCombineWithLastCoupon(
+      toDate(currentUsage.lastCouponUsedAt),
+      currentUsage.lastCouponSameDayCombinable,
+      sameDayCombinable,
+    )) {
+      throw new Error('COUPON_NOT_COMBINABLE_TODAY');
+    }
+    transaction.update(usageRef, {
+      [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
+      [`couponUsage.${shopId}.lastCouponSameDayCombinable`]: sameDayCombinable,
+    });
+  });
+}
+
 export async function POST(request: Request) {
   // ─── 認証（店舗オーナー）───
   const authHeader = request.headers.get('Authorization');
@@ -109,6 +139,21 @@ export async function POST(request: Request) {
     const usageData = usageDoc.data()!;
     const usage = usageData.couponUsage?.[shopId] || DEFAULT_USAGE;
 
+    const sameDayCombinable = couponType === 'first' || couponType === 'normal'
+      ? true
+      : couponType === 'loyalty'
+        ? shopData.loyaltyCoupon?.combinable === true
+        : couponType === 'step-up'
+          ? shopData.proCoupons?.stepUp?.steps?.[usage.stepUpIndex || 0]?.sameDayCombinable === true
+          : couponType === 'repeat'
+            ? shopData.proCoupons?.repeat?.sameDayCombinable === true
+            : couponType === 'birthday'
+              ? shopData.proCoupons?.birthday?.sameDayCombinable === true
+              : couponType === 'dormant'
+                ? shopData.proCoupons?.dormant?.sameDayCombinable === true
+                : couponType === 'scheduled'
+                  ? shopData.scheduledCoupons?.find((coupon: any) => coupon.id === couponId)?.sameDayCombinable === true
+                  : false;
     let couponTitle = 'クーポン';
     let responseExtra: any = {};
 
@@ -133,6 +178,7 @@ export async function POST(request: Request) {
         );
       }
 
+      await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable);
       await usageRef.update({
         [`couponUsage.${shopId}.firstCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
@@ -164,6 +210,9 @@ export async function POST(request: Request) {
         if (alreadyUsed) {
           throw new Error('COUPON_ALREADY_USED');
         }
+        if (!canCombineWithLastCoupon(toDate(currentUsage.lastCouponUsedAt), currentUsage.lastCouponSameDayCombinable, sameDayCombinable)) {
+          throw new Error('COUPON_NOT_COMBINABLE_TODAY');
+        }
 
         const targetCount = Number(shopData.loyaltyCoupon?.targetCount || 0);
         const nextVisitCount = Number(currentUsage.normalCouponVisitCount || 0) + 1;
@@ -178,6 +227,7 @@ export async function POST(request: Request) {
               normalCouponVisitCount: loyaltyUnlocked ? 0 : nextVisitCount,
               loyaltyCouponAvailable: loyaltyUnlocked || currentUsage.loyaltyCouponAvailable === true,
               lastCouponUsedAt: FieldValue.serverTimestamp(),
+              lastCouponSameDayCombinable: sameDayCombinable,
               totalVisits: FieldValue.increment(1),
             },
           },
@@ -212,6 +262,7 @@ export async function POST(request: Request) {
         }
       }
 
+      await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable);
       await usageRef.update({
         [`couponUsage.${shopId}.loyaltyCouponAvailable`]: false,
         [`couponUsage.${shopId}.loyaltyAchieved`]: shopData.loyaltyCoupon?.repeatEnabled !== true,
@@ -248,6 +299,7 @@ export async function POST(request: Request) {
       const nextIndex = currentIndex + 1;
       const nextStep = steps[nextIndex];
 
+      await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable);
       await usageRef.update({
         [`couponUsage.${shopId}.stepUpIndex`]: nextIndex,
         [`couponUsage.${shopId}.stepUpIndexUpdatedAt`]: FieldValue.serverTimestamp(),
@@ -293,14 +345,19 @@ export async function POST(request: Request) {
 
       await db.runTransaction(async (transaction) => {
         const currentDoc = await transaction.get(usageRef);
-        const lastUsed = currentDoc.data()?.couponUsage?.[shopId]?.repeatCouponUsedAt?.toDate?.();
+        const currentUsage = currentDoc.data()?.couponUsage?.[shopId] || DEFAULT_USAGE;
+        const lastUsed = toDate(currentUsage.repeatCouponUsedAt);
         if (lastUsed && couponDay(lastUsed) === couponDay(new Date())) {
           throw new Error('REPEAT_COUPON_USED_TODAY');
+        }
+        if (!canCombineWithLastCoupon(toDate(currentUsage.lastCouponUsedAt), currentUsage.lastCouponSameDayCombinable, sameDayCombinable)) {
+          throw new Error('COUPON_NOT_COMBINABLE_TODAY');
         }
         transaction.update(usageRef, {
           [`couponUsage.${shopId}.repeatCouponActiveUntil`]: activeUntil,
           [`couponUsage.${shopId}.repeatCouponUsedAt`]: FieldValue.serverTimestamp(),
           [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
+          [`couponUsage.${shopId}.lastCouponSameDayCombinable`]: sameDayCombinable,
           [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
         });
       });
@@ -325,6 +382,7 @@ export async function POST(request: Request) {
       if (String(usage.birthdayCouponUsedYear) === currentYear) {
         return NextResponse.json({ error: '⚠️ このお誕生日クーポンはすでに使用済みです！' }, { status: 400 });
       }
+      await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable);
       await usageRef.update({
         [`couponUsage.${shopId}.birthdayCouponUsedYear`]: currentYear,
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
@@ -348,6 +406,7 @@ export async function POST(request: Request) {
       if (expiresAt.getTime() < Date.now()) {
         return NextResponse.json({ error: '⚠️ この休眠復活クーポンは有効期限切れです！' }, { status: 400 });
       }
+      await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable);
       await usageRef.update({
         [`couponUsage.${shopId}.dormantCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
@@ -370,11 +429,15 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'この予約クーポンは使用済みです' }, { status: 400 });
       }
       couponTitle = scheduledCoupon.title || '予約クーポン';
+      await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable);
       await usageRef.update({
         [`couponUsage.${shopId}.scheduledCouponUsedIds`]: FieldValue.arrayUnion(couponId),
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
       });
+      if (await addToLoyaltyCount(usageRef, shopData, shopId, scheduledCoupon.loyaltyCountable === true)) {
+        responseExtra.loyaltyUnlocked = true;
+      }
     }
 
     // ============================================================
@@ -422,6 +485,9 @@ export async function POST(request: Request) {
     }
     if (error?.message === 'REPEAT_COUPON_USED_TODAY') {
       return NextResponse.json({ error: '⚠️ 連続クーポンは1日1回のみ使用できます' }, { status: 400 });
+    }
+    if (error?.message === 'COUPON_NOT_COMBINABLE_TODAY') {
+      return NextResponse.json({ error: '⚠️ このクーポンは、本日使用済みのクーポンと併用できません' }, { status: 400 });
     }
     return NextResponse.json(
       { error: error.message || '消し込み処理に失敗しました' },
