@@ -430,8 +430,8 @@ export default function ExistingCustomersClient() {
 
           <p>ここまで読んで、こう思ったはずです。</p>
 
-          <div className="g-quote">
-            「そんな施策、いちいち考えて、<br />組むのは大変そう。」
+          <div className="g-quote is-orange">
+            「そんな施策、どうやったら組めるんだろ？<br />組むのは大変そう。」
           </div>
 
           <p>その通りです。</p>
@@ -447,7 +447,7 @@ export default function ExistingCustomersClient() {
           </p>
 
           <p>
-            だから、<strong>Push-taroが、その機能を詰め込みました</strong>。
+            だから、<strong>Push-taroは、このような仕組化を簡単に店舗に取り込める機能を詰め込みました</strong>。
           </p>
 
           <div className="g-grid">
