@@ -75,10 +75,9 @@ export default function ExistingCustomersClient() {
             でも——<strong>普通の店舗には、そんな広告費はありません。</strong>
           </p>
 
-          <div className="g-quote">
-            広告費は、<br />
-            湯水のように使えない。
-          </div>
+          <div className="g-quote is-orange">
+  広告費は、湯水のように使えない。
+</div>
 
           <p>
             では、SNSで拡散する手は？——これも、限定的です。
@@ -196,9 +195,9 @@ export default function ExistingCustomersClient() {
             でも、ポイントカードには、決定的な弱点があります。
           </p>
 
-          <div className="g-quote">
-            目標が、<br />遠すぎる。
-          </div>
+          <div className="g-quote is-orange">
+  目標が、遠すぎる。
+</div>
 
           <p>
             「100ポイント貯まったら500円引き」と言われても、
