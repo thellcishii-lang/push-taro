@@ -12,10 +12,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/guide', priority: 0.9, freq: 'weekly' as const },
     { path: '/partners', priority: 0.9, freq: 'weekly' as const },
     { path: '/signup', priority: 0.8, freq: 'monthly' as const },
+    { path: '/contact', priority: 0.6, freq: 'monthly' as const },
   ];
 
   // ② ガイド配下（priority 0.7）
   const guides = [
+    // --- 機能別 ---
     '/guide/features',
     '/guide/features/push-notification',
     '/guide/features/qr-acquisition',
@@ -28,8 +30,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/guide/features/coupon-dormant',
     '/guide/features/scheduled-push',
     '/guide/features/referral',
+
+    // --- 運用ノウハウ ---
     '/guide/case-studies',
     '/guide/ng-actions',
+    '/guide/segmentation',
+    '/guide/existing-customers',
+
+    // --- 業種別 ---
+    '/guide/bakery',
     '/guide/cafe',
     '/guide/izakaya',
     '/guide/ramen',
@@ -38,25 +47,35 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/guide/massage',
     '/guide/snack',
     '/guide/apparel',
+
+    // --- テーマ別 ---
     '/guide/themes/new-customer',
     '/guide/themes/repeat',
     '/guide/themes/birthday',
     '/guide/themes/dormant',
   ].map((path) => ({ path, priority: 0.7, freq: 'monthly' as const }));
 
-  // ③ 法務・補助（priority 0.3）
-  const legal = ['/privacy', '/terms', '/tokusho', '/torisetsu'].map((path) => ({
-    path,
-    priority: 0.3,
-    freq: 'yearly' as const,
-  }));
+  // ③ 取扱説明書（priority 0.5）
+  const manual = [
+    '/torisetsu',
+    '/torisetsu/light-standard',
+    '/torisetsu/pro',
+  ].map((path) => ({ path, priority: 0.5, freq: 'monthly' as const }));
 
-  // ★ 除外したもの（ログイン後画面 / 決済フロー）
-  //   /pro-shop /agency /affilishop /subscribe
-  //   /affiliate/signup /notification-link
+  // ④ 法務・補助（priority 0.3）
+  const legal = [
+    '/privacy',
+    '/terms',
+    '/tokusho',
+  ].map((path) => ({ path, priority: 0.3, freq: 'yearly' as const }));
+
+  // ★ 除外（ログイン後画面 / 決済フロー / API）
+  //   /pro-shop /shop /agency /affiliate /affilishop
+  //   /subscribe /notification-link /payment
+  //   /system-admin /print /api
   //   → sitemap に含めない
 
-  return [...core, ...guides, ...legal].map((p) => ({
+  return [...core, ...guides, ...manual, ...legal].map((p) => ({
     url: new URL(p.path, appUrl).toString(),
     lastModified: now,
     changeFrequency: p.freq,
