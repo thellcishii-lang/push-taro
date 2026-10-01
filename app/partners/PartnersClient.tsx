@@ -551,7 +551,7 @@ export default function PartnersClient() {
           <div className="section-title reveal">
             <span className="tag">REWARD STAGES</span>
             <h2>紹介店舗が増えるほど、報酬率も上がる。</h2>
-            <p>200店舗で45%の世界へ。積み上がるストック収益の全貌をご覧ください。</p>
+            <p>201件目から45%。紹介した店舗ごとの料率で積み上がるストック収益をご覧ください。</p>
           </div>
 
           <div className="stages-visual reveal">
@@ -841,8 +841,8 @@ export default function PartnersClient() {
             <div className="sim-card tilt-in" style={{ transitionDelay: '0.08s' }}>
               <h4>👑 ケース②：代理店（300社PRO紹介）</h4>
               <div className="desc">100社×30% + 100社×36% + 100社×45%</div>
-              <div className="amount">¥1,221,000 <span>/ 月</span></div>
-              <div className="note"><i className="fas fa-trophy"></i> 200店舗達成で45%の世界へ！</div>
+              <div className="amount">¥1,110,000 <span>/ 月</span></div>
+              <div className="note"><i className="fas fa-trophy"></i> 201件目から45%！</div>
             </div>
 
             <div className="sim-card tilt-in" style={{ transitionDelay: '0.16s' }}>

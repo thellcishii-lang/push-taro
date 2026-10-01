@@ -14,6 +14,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import ImageUploader from '../../components/ImageUploader';
 import { Html5Qrcode } from 'html5-qrcode';
 import ShopPopSection from '@/components/print/ShopPopSection';
+import CouponHistorySection from '../../components/CouponHistorySection';
 
 export default function ProShopPage() {
   const router = useRouter();
@@ -883,6 +884,7 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
           </div>
 
           {/* 履歴 */}
+          <CouponHistorySection shopId={shopId} refreshKey={scanResult} />
           <div style={{ borderTop: '2px solid #eee', paddingTop: '20px' }}>
             <div style={{ marginBottom: '15px', padding: '12px 16px', background: '#e3f2fd', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '15px', fontWeight: 'bold', color: '#0d47a1' }}>📱 現在の受取許可件数</span>
@@ -1020,7 +1022,7 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
                     )}
                   </div>
                   <label style={{ cursor: 'pointer' }}>
-                    <input type="checkbox" checked={loyaltyCombinable} onChange={(e) => setLoyaltyCombinable(e.target.checked)} /> 他クーポンと併用可能
+                    <input type="checkbox" checked={loyaltyCombinable} onChange={(e) => setLoyaltyCombinable(e.target.checked)} /> 同日、他のクーポンと併用
                   </label>
                   <label style={{ cursor: 'pointer' }}>
                     <input type="checkbox" checked={loyaltyRepeatEnabled} onChange={(e) => setLoyaltyRepeatEnabled(e.target.checked)} /> 繰り返す（利用後、再度達成回数をカウントする）

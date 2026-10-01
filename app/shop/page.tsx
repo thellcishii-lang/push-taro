@@ -14,6 +14,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import ImageUploader from '../../components/ImageUploader';
 import { Html5Qrcode } from 'html5-qrcode';
 import ShopPopSection from '@/components/print/ShopPopSection';
+import CouponHistorySection from '../../components/CouponHistorySection';
 
 export default function ShopPage() {
   const router = useRouter();
@@ -861,6 +862,8 @@ export default function ShopPage() {
             );
           })()}
 
+          <CouponHistorySection shopId={shopId} refreshKey={scanResult} />
+
           {/* 履歴 */}
           <div style={{ borderTop: '2px solid #eee', paddingTop: '20px' }}>
             <div style={{ marginBottom: '15px', padding: '12px 16px', background: '#e3f2fd', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1009,7 +1012,7 @@ export default function ShopPage() {
                         )}
                       </div>
                       <label style={{ cursor: 'pointer' }}>
-                        <input type="checkbox" checked={loyaltyCombinable} onChange={(e) => setLoyaltyCombinable(e.target.checked)} /> 他クーポンと併用可能
+                        <input type="checkbox" checked={loyaltyCombinable} onChange={(e) => setLoyaltyCombinable(e.target.checked)} /> 同日、他のクーポンと併用
                       </label>
                     </div>
                   )}

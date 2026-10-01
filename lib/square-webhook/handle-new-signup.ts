@@ -154,13 +154,7 @@ try {
         } else {
           const isTiered = (referrerType === 'affiliate' && affiliateRewardType === 'recurring') || referrerType === 'affilishop';
           relationMeta = { createdAt: new Date(), tieredReward: isTiered };
-          const effectiveRate = await calculateRewardRate(
-            referrerData,
-            referrerType,
-            plan,
-            referrerId,
-            relationMeta
-          );
+          const effectiveRate = await calculateRewardRate(referrerData, referrerType, plan, referrerId, relationMeta);
 
           await db.collection('referral_relations').add({
             referrerId,
@@ -183,6 +177,7 @@ try {
 
         await db.collection('shops').doc(shopId).collection('payment_history').add({
           billingMonth: currentMonth,
+          plan,
           periodStart,
           periodEnd,
           amount: planAmount,
@@ -400,13 +395,14 @@ async function sendAgencyNotificationEmail(
         <table style="font-size: 14px;">
           <tr><td style="padding: 6px; font-weight: bold;">店舗名</td><td style="padding: 6px;">${pendingShopData.name || '未設定'}</td></tr>
           <tr><td style="padding: 6px; font-weight: bold;">プラン</td><td style="padding: 6px;">${plan.toUpperCase()}</td></tr>
-          <tr><td style="padding: 6px; font-weight: bold;">報酬率</td><td style="padding: 6px;">${(baseRate * 100).toFixed(1)}%</td></tr>
-          <tr><td style="padding: 6px; font-weight: bold;">今回の紹介報酬（参考値）</td><td style="padding: 6px;">¥${baseReward.toLocaleString()}</td></tr>
-          ${!hasInvoice ? `<tr><td style="padding: 6px; font-weight: bold; color: #dc2626;">源泉徴収（インボイス未登録 -10%）</td><td style="padding: 6px; color: #dc2626;">-¥${withholding.toLocaleString()}</td></tr>` : ''}
-          <tr style="border-top: 1px solid #e2e8f0;">
-            <td style="padding: 6px; font-weight: bold;">お支払い予定額</td>
-            <td style="padding: 6px; color: #ff4500; font-weight: bold; font-size: 16px;">¥${netReward.toLocaleString()}</td>
-          </tr>
+          ${plan === 'pro' ? '<tr><td colspan="2">PRO報酬は月末の決済成功件数に応じて30%・36%・45%を段階適用します。</td></tr>' : `
+            <tr><td style="padding: 6px; font-weight: bold;">報酬率</td><td style="padding: 6px;">${(baseRate * 100).toFixed(1)}%</td></tr>
+            <tr><td style="padding: 6px; font-weight: bold;">今回の紹介報酬（参考値）</td><td style="padding: 6px;">¥${baseReward.toLocaleString()}</td></tr>
+            ${!hasInvoice ? `<tr><td style="padding: 6px; font-weight: bold; color: #dc2626;">源泉徴収（インボイス未登録 -10%）</td><td style="padding: 6px; color: #dc2626;">-¥${withholding.toLocaleString()}</td></tr>` : ''}
+            <tr style="border-top: 1px solid #e2e8f0;">
+              <td style="padding: 6px; font-weight: bold;">お支払い予定額</td>
+              <td style="padding: 6px; color: #ff4500; font-weight: bold; font-size: 16px;">¥${netReward.toLocaleString()}</td>
+            </tr>`}
         </table>
         <hr />
         <p style="font-size: 13px; color: #64748b;">

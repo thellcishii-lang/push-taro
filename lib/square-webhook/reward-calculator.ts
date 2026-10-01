@@ -1,6 +1,5 @@
 // lib/square-webhook/reward-calculator.ts
-import { db } from '@/lib/firebase-admin';
-import { sendEmail } from '@/lib/mailer';
+import { sendEmail } from '../mailer';
 import {
   AGENCY_RATE_PRO_TIERS,
   AGENCY_RATE_OTHER,
@@ -13,41 +12,26 @@ import {
   AFFILISHOP_RATE_FIRST_YEAR,
   AFFILISHOP_FIRST_YEAR_MONTHS,
   WITHHOLDING_RATE,
-} from '@/lib/constants';
+} from '../constants';
 
 // 紹介関係の開始日から現在までの経過月数（0始まり）
 function monthsElapsedSince(startDate: Date, now: Date): number {
   return (now.getFullYear() - startDate.getFullYear()) * 12 + (now.getMonth() - startDate.getMonth());
 }
 
-// ============================================================
-// 代理店が紹介しているアクティブなPRO店舗数をカウント
-// ============================================================
-export async function countActiveProReferrals(referrerId: string): Promise<number> {
-  try {
-    const relSnap = await db.collection('referral_relations')
-      .where('referrerId', '==', referrerId)
-      .where('status', '==', 'active')
-      .get();
-
-    if (relSnap.empty) return 0;
-
-    let proCount = 0;
-    for (const relDoc of relSnap.docs) {
-      const relData = relDoc.data();
-      const shopDoc = await db.collection('shops').doc(relData.referredTenantId).get();
-      if (shopDoc.exists) {
-        const shopData = shopDoc.data();
-        if (shopData?.plan === 'pro' && shopData?.status === 'active') {
-          proCount++;
-        }
-      }
-    }
-    return proCount;
-  } catch (error) {
-    console.error('[countActiveProReferrals] エラー:', error);
-    return 0;
+export function calculateAgencyProBaseReward(count: number, unitAmount: number): number {
+  let previousLimit = 0;
+  let reward = 0;
+  for (const tier of AGENCY_RATE_PRO_TIERS) {
+    const tierCount = Math.max(0, Math.min(count, tier.maxActivePro) - previousLimit);
+    reward += Math.floor(tierCount * unitAmount * tier.rate);
+    previousLimit = tier.maxActivePro;
   }
+  return reward;
+}
+
+export function isSuccessfulProPayment(payment: { result?: string; plan?: string }, fallbackPlan: string): boolean {
+  return payment.result === 'success' && (payment.plan || fallbackPlan) === 'pro';
 }
 
 // ============================================================
@@ -64,11 +48,7 @@ export async function calculateRewardRate(
 
   if (referrerType === 'agency') {
     if (plan === 'pro') {
-      const activeProCount = await countActiveProReferrals(referrerId);
-      for (const tier of AGENCY_RATE_PRO_TIERS) {
-        if (activeProCount <= tier.maxActivePro) return tier.rate;
-      }
-      return AGENCY_RATE_PRO_TIERS[AGENCY_RATE_PRO_TIERS.length - 1].rate;
+      return AGENCY_RATE_PRO_TIERS[0].rate;
     }
     return AGENCY_RATE_OTHER;
   }

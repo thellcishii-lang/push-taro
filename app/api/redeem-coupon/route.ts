@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
+import { couponDay } from '@/lib/coupon-day';
 
 export const dynamic = 'force-dynamic';
 
@@ -290,11 +291,18 @@ export async function POST(request: Request) {
         activeUntil = new Date(`${repeat.expireDate}T23:59:59`);
       }
 
-      await usageRef.update({
-        [`couponUsage.${shopId}.repeatCouponActiveUntil`]: activeUntil,
-        [`couponUsage.${shopId}.repeatCouponUsedAt`]: FieldValue.serverTimestamp(),
-        [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
-        [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
+      await db.runTransaction(async (transaction) => {
+        const currentDoc = await transaction.get(usageRef);
+        const lastUsed = currentDoc.data()?.couponUsage?.[shopId]?.repeatCouponUsedAt?.toDate?.();
+        if (lastUsed && couponDay(lastUsed) === couponDay(new Date())) {
+          throw new Error('REPEAT_COUPON_USED_TODAY');
+        }
+        transaction.update(usageRef, {
+          [`couponUsage.${shopId}.repeatCouponActiveUntil`]: activeUntil,
+          [`couponUsage.${shopId}.repeatCouponUsedAt`]: FieldValue.serverTimestamp(),
+          [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
+          [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
+        });
       });
 
       responseExtra.nextRepeatCouponUntil = activeUntil?.toISOString() || null;
@@ -380,10 +388,20 @@ export async function POST(request: Request) {
     }
 
     // ─── 利用ログの書き込み ───
+    let customerPhone = '';
+    if (usageData.customerUid) {
+      try {
+        customerPhone = (await authAdmin.getUser(usageData.customerUid)).phoneNumber || '';
+      } catch (error) {
+        console.error('[redeem-coupon] 電話番号取得失敗:', error);
+      }
+    }
     await db.collection('shops').doc(shopId).collection('coupon_logs').add({
       couponType,
       couponTitle,
       userToken: token,
+      customerUid: usageData.customerUid || null,
+      customerPhone,
       usedAt: FieldValue.serverTimestamp(),
       scannedBy: uid,
     });
@@ -401,6 +419,9 @@ export async function POST(request: Request) {
         { error: '⚠️ この通常クーポンはすでに使用済みです！' },
         { status: 400 }
       );
+    }
+    if (error?.message === 'REPEAT_COUPON_USED_TODAY') {
+      return NextResponse.json({ error: '⚠️ 連続クーポンは1日1回のみ使用できます' }, { status: 400 });
     }
     return NextResponse.json(
       { error: error.message || '消し込み処理に失敗しました' },

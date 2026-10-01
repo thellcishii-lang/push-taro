@@ -13,6 +13,7 @@
  */
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
+import { couponDay } from '@/lib/coupon-day';
 
 export const dynamic = 'force-dynamic';
 
@@ -125,7 +126,7 @@ export async function GET(request: Request) {
       stepUpEnabled: proCoupons.stepUp?.enabled === true,
       repeatEnabled: proCoupons.repeat?.enabled === true,
       repeatCouponActiveUntil: repeatActiveUntil,
-      repeatCouponUsed: false,
+      repeatCouponUsed: Boolean(usage.repeatCouponUsedAt?.toDate?.() && couponDay(usage.repeatCouponUsedAt.toDate()) === couponDay(new Date())),
       birthdayNotifiedYear: usage.birthdayNotifiedYear || null,
       birthdayCouponUsed: String(usage.birthdayCouponUsedYear) === currentYear,
       dormantNotifiedAt,

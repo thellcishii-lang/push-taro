@@ -65,6 +65,7 @@ export async function handleRecurring(
 
   await db.collection('shops').doc(shopId).collection('payment_history').add({
     billingMonth: currentMonth,
+    plan,
     periodStart,
     periodEnd,
     amount: planAmount,

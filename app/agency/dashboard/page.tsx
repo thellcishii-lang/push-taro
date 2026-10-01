@@ -273,7 +273,7 @@ export default function AgencyDashboardPage() {
     csv += `支払総額,${statement.totalReward}\n\n`;
     csv += '店舗名,プラン,報酬率,決済額,基本報酬,報酬額\n';
     (statement.shops || []).forEach((s: any) => {
-      csv += `"${s.shopName}",${s.plan.toUpperCase()},${(s.rate * 100).toFixed(0)}%,${s.payment},${s.baseReward},${s.reward}\n`;
+      csv += `"${s.shopName}",${s.plan.toUpperCase()},${s.rate == null ? '30% / 36% / 45%' : `${(s.rate * 100).toFixed(0)}%`},${s.payment},${s.baseReward},${s.reward}\n`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
@@ -724,7 +724,7 @@ export default function AgencyDashboardPage() {
                                 </span>
                               </td>
                               <td style={{ padding: '8px 10px', textAlign: 'center', color: '#16a34a', fontWeight: 'bold' }}>
-                                {(s.rate * 100).toFixed(0)}%
+                                {s.rate == null ? '30% / 36% / 45%' : `${(s.rate * 100).toFixed(0)}%`}
                               </td>
                               <td style={{ padding: '8px 10px', textAlign: 'right' }}>¥{s.payment.toLocaleString()}</td>
                               <td style={{ padding: '8px 10px', textAlign: 'right' }}>¥{s.baseReward.toLocaleString()}</td>

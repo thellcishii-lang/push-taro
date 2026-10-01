@@ -10,7 +10,10 @@ import {
   sendAdminPayoutNotification,
   calculateRewards,
   getOneTimeRewardAmount,
+  calculateAgencyProBaseReward,
+  isSuccessfulProPayment,
 } from '@/lib/square-webhook/reward-calculator';
+import { PLAN_PRICES, WITHHOLDING_RATE } from '@/lib/constants';
 import { isValidCronRequest } from '@/lib/cron-auth';
 import { notifyAdmins } from '@/lib/error-notifier';
 import { getReferrerDashboardPath } from '@/lib/referrer-dashboard';
@@ -136,7 +139,8 @@ export async function GET(request: Request) {
         let totalReward = 0;
         let totalBaseReward = 0;
         let totalPayment = 0;
-        const shopBreakdown: Array<{ shopId: string; shopName: string; plan: string; rate: number; effectiveRate: number; payment: number; baseReward: number; reward: number }> = [];
+        const shopBreakdown: Array<{ shopId: string; shopName: string; plan: string; rate: number | null; effectiveRate: number; payment: number; baseReward: number; reward: number }> = [];
+        const proPaymentsByMonth = new Map<string, { count: number; payment: number }>();
 
         for (const rel of targetRelations) {
           const { referredTenantId } = rel;
@@ -152,29 +156,32 @@ export async function GET(request: Request) {
           const isOneTimeAffiliate =
             referrerType === 'affiliate' && referrerData?.rewardType === 'one-time';
 
-          // 源泉前の率（単発型は 0）
-          const baseRate = isOneTimeAffiliate
-            ? 0
-            : await calculateRewardRate(referrerData, referrerType, plan, referrerId, {
-                createdAt: rel.createdAt,
-                tieredReward: rel.tieredReward,
-              });
-
-          // 単発型の固定額（源泉前）
-          const oneTimeAmount = isOneTimeAffiliate
-            ? getOneTimeRewardAmount(plan)
-            : undefined;
-
           let shopPayment = 0;
           let shopBaseReward = 0;
           let shopReward = 0;
           let shopEffectiveRate = 0;
+          let shopRate = 0;
           let oneTimeUsed = false;
 
           for (const histDoc of historyDocs) {
             const histData = histDoc.data();
+            const paymentPlan = histData.plan || plan;
+            if (referrerType === 'agency' && paymentPlan === 'pro') {
+              const month = histData.billingMonth;
+              const current = proPaymentsByMonth.get(month) || { count: 0, payment: 0 };
+              proPaymentsByMonth.set(month, { count: current.count + 1, payment: current.payment + (histData.amount || 0) });
+              batchOperations.push({ type: 'update_history', ref: histDoc.ref });
+              continue;
+            }
+            const baseRate = isOneTimeAffiliate ? 0
+              : await calculateRewardRate(referrerData, referrerType, paymentPlan, referrerId, {
+                  createdAt: rel.createdAt,
+                  tieredReward: rel.tieredReward,
+                });
+            const oneTimeAmount = isOneTimeAffiliate ? getOneTimeRewardAmount(paymentPlan) : undefined;
             const amount = histData.amount || 0;
             shopPayment += amount;
+            shopRate = baseRate;
 
             // 単発型：初回の決済1件のみ報酬を発生させる
             const shouldReward = isOneTimeAffiliate
@@ -230,7 +237,46 @@ export async function GET(request: Request) {
             totalPayment += shopPayment;
             totalBaseReward += shopBaseReward;
             totalReward += shopReward;
-            shopBreakdown.push({ shopId: referredTenantId, shopName, plan, rate: baseRate, effectiveRate: shopEffectiveRate, payment: shopPayment, baseReward: shopBaseReward, reward: shopReward });
+            shopBreakdown.push({ shopId: referredTenantId, shopName, plan, rate: shopRate, effectiveRate: shopEffectiveRate, payment: shopPayment, baseReward: shopBaseReward, reward: shopReward });
+          }
+        }
+
+        for (const [billingMonth, pending] of proPaymentsByMonth) {
+          const counts = await Promise.all(relations.map(async ({ referredTenantId }) => {
+            const shopRef = db.collection('shops').doc(referredTenantId);
+            const [shop, history] = await Promise.all([
+              shopRef.get(),
+              shopRef.collection('payment_history').where('billingMonth', '==', billingMonth).get(),
+            ]);
+            return history.docs.filter((doc) => isSuccessfulProPayment(doc.data(), shop.data()?.plan || 'light')).length;
+          }));
+          const successfulCount = counts.reduce((sum, count) => sum + count, 0);
+          const processedCount = successfulCount - pending.count;
+          if (processedCount < 0) throw new Error('PRO決済成功件数が一致しません');
+          const totalBase = calculateAgencyProBaseReward(successfulCount, PLAN_PRICES.pro);
+          const processedBase = calculateAgencyProBaseReward(processedCount, PLAN_PRICES.pro);
+          const baseReward = totalBase - processedBase;
+          const reward = hasInvoice
+            ? baseReward
+            : Math.floor(totalBase * (1 - WITHHOLDING_RATE)) - Math.floor(processedBase * (1 - WITHHOLDING_RATE));
+          totalPayment += pending.payment;
+          totalBaseReward += baseReward;
+          totalReward += reward;
+          shopBreakdown.push({
+            shopId: '', shopName: `PRO決済成功分（${pending.count}件）`, plan: 'pro', rate: null,
+            effectiveRate: 0, payment: pending.payment, baseReward, reward,
+          });
+          if (reward > 0) {
+            batchOperations.push({
+              type: 'set_reward', ref: db.collection('monthly_rewards').doc(),
+              data: {
+                userId: referrerId, sourceTenantId: null, sourceShopName: `PRO決済成功分（${pending.count}件）`,
+                amount: reward, baseAmount: baseReward, withholding: baseReward - reward,
+                paymentAmount: pending.payment, billingMonth, scheduledPayoutMonth,
+                status: 'unpaid', referrerType, createdAt: FieldValue.serverTimestamp(),
+                paidAt: null, paidBy: null,
+              },
+            });
           }
         }
 
@@ -355,7 +401,7 @@ export async function GET(request: Request) {
 
 async function sendAgencyPayoutEmail(
   referrerData: any,
-  shopBreakdown: Array<{ shopId: string; shopName: string; plan: string; rate: number; payment: number; baseReward: number; reward: number }>,
+  shopBreakdown: Array<{ shopId: string; shopName: string; plan: string; rate: number | null; payment: number; baseReward: number; reward: number }>,
   totalPayment: number,
   totalBaseReward: number,
   totalReward: number,

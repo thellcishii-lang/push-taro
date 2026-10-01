@@ -282,9 +282,9 @@ export async function POST(request: Request) {
 
   // 紹介者への通知メール（ratePercent の表示を調整）
   if (referrerEmail) {
-    const ratePercent = rewardRate > 0
-      ? `${(rewardRate * 100).toFixed(1)}%`
-      : '初回のみ固定報酬';
+    const ratePercent = referrerType === 'agency' && plan === 'pro'
+      ? '月末のPRO決済成功件数に応じて30%・36%・45%を段階適用'
+      : rewardRate > 0 ? `${(rewardRate * 100).toFixed(1)}%` : '初回のみ固定報酬';
     const dashboardUrl = getReferrerDashboardUrl(referrerType);
 
     await sendEmail({

@@ -8,6 +8,7 @@
  */
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
+import { AGENCY_RATE_OTHER } from '@/lib/constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -81,7 +82,7 @@ export async function GET(request: Request) {
         name: shopData.name || '未設定',
         plan: (shopData.plan || 'light').toLowerCase(),
         status: relData.status || 'pending',
-        rewardRate: relData.rewardRate || 0,
+        rewardRate: shopData.plan === 'pro' ? 0 : AGENCY_RATE_OTHER,
         startedAt: startedAtStr,
       });
     }

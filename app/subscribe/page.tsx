@@ -35,6 +35,7 @@ export default function SubscribePage() {
   const [stepUpIndex, setStepUpIndex] = useState(0);
   const [stepUpIndexAppearedAt, setStepUpIndexAppearedAt] = useState<string | null>(null);
   const [repeatCouponActiveUntil, setRepeatCouponActiveUntil] = useState<string | null>(null);
+  const [repeatCouponUsedToday, setRepeatCouponUsedToday] = useState(false);
   const [birthdayCouponAvailable, setBirthdayCouponAvailable] = useState(false);
   const [birthdayCouponUsed, setBirthdayCouponUsed] = useState(false);
   const [dormantCouponAvailable, setDormantCouponAvailable] = useState(false);
@@ -51,6 +52,29 @@ export default function SubscribePage() {
   // 📜 通知履歴用ステート
   const [historyList, setHistoryList] = useState<any[]>([]);
   const [displayCount, setDisplayCount] = useState<number>(10);
+  const [couponHistoryOpen, setCouponHistoryOpen] = useState(false);
+  const [couponHistory, setCouponHistory] = useState<Array<{ id: string; title: string; usedAt: string | null }>>([]);
+  const [couponHistoryError, setCouponHistoryError] = useState('');
+  const [couponHistoryLoading, setCouponHistoryLoading] = useState(false);
+
+  const loadCouponHistory = async () => {
+    if (!shopId || !fcmToken) return;
+    setCouponHistoryLoading(true);
+    setCouponHistoryError('');
+    try {
+      const idToken = await auth.currentUser?.getIdToken();
+      const response = await fetch(`/api/coupon-history?shopId=${encodeURIComponent(shopId)}&token=${encodeURIComponent(fcmToken)}`, {
+        headers: idToken ? { Authorization: `Bearer ${idToken}` } : {},
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || '履歴を取得できませんでした');
+      setCouponHistory(data.histories);
+    } catch (error) {
+      setCouponHistoryError(error instanceof Error ? error.message : '履歴を取得できませんでした');
+    } finally {
+      setCouponHistoryLoading(false);
+    }
+  };
 
   useEffect(() => onAuthStateChanged(auth, (user) => {
     setCustomerUid(user?.uid || '');
@@ -169,6 +193,7 @@ useEffect(() => {
             setStepUpIndex(data.stepUpIndex || 0);
             setStepUpIndexAppearedAt(data.stepUpIndexAppearedAt || null);
             setRepeatCouponActiveUntil(data.repeatCouponActiveUntil || null);
+            setRepeatCouponUsedToday(data.repeatCouponUsed === true);
             setBirthdayCouponAvailable(String(data.birthdayNotifiedYear) === String(new Date().getFullYear()));
             setBirthdayCouponUsed(data.birthdayCouponUsed === true);
             setDormantCouponAvailable(Boolean(data.dormantNotifiedAt));
@@ -259,6 +284,7 @@ useEffect(() => {
           setStepUpIndex(data.stepUpIndex || 0);
           setStepUpIndexAppearedAt(data.stepUpIndexAppearedAt || null);
           setRepeatCouponActiveUntil(data.repeatCouponActiveUntil || null);
+          setRepeatCouponUsedToday(data.repeatCouponUsed === true);
           setBirthdayCouponAvailable(String(data.birthdayNotifiedYear) === String(new Date().getFullYear()));
           setBirthdayCouponUsed(data.birthdayCouponUsed === true);
           setDormantCouponAvailable(Boolean(data.dormantNotifiedAt));
@@ -750,10 +776,12 @@ useEffect(() => {
     <h3 style={{ margin: '6px 0 8px 0', color: '#0369a1' }}>🔄 {shopData.proCoupons.repeat.title || '連続クーポン'}</h3>
     {shopData.proCoupons.repeat.expireType === 'date' && shopData.proCoupons.repeat.expireDate && <p style={{ fontSize: '12px', color: '#64748b' }}>有効期限: {shopData.proCoupons.repeat.expireDate}</p>}
     {repeatCouponActiveUntil && <p style={{ fontSize: '12px', color: '#64748b' }}>今回の有効期限: {new Date(repeatCouponActiveUntil).toLocaleDateString('ja-JP')}</p>}
-    <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
-      <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'repeat', token: fcmToken })} size={150} />
-    </div>
-    <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
+    {repeatCouponUsedToday ? <p>本日は使用済みです。次回は翌日から利用できます。</p> : <>
+      <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
+        <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'repeat', token: fcmToken })} size={150} />
+      </div>
+      <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
+    </>}
   </div>
 )}
 {shopData?.loyaltyCoupon?.enabled && loyaltyCouponAvailable && !hiddenCouponTypes.includes('loyalty') && (
@@ -779,16 +807,31 @@ useEffect(() => {
 )}
         {/* 📜 【通知履歴エリア】 */}
         <div style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
-          <button
-            onClick={() => {
-              setHistoryOpen(!historyOpen);
-              if (!historyOpen) loadNotificationHistory();
-            }}
-            style={{ width: '100%', padding: '12px', background: '#f5f5f5', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-          >
-            <span>📜 通知履歴 ({historyList.length}件)</span>
-            <span>{historyOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
-          </button>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            <button
+              onClick={() => {
+                setHistoryOpen(!historyOpen);
+                if (!historyOpen) loadNotificationHistory();
+              }}
+              style={{ flex: '1 1 160px', padding: '12px', background: '#f5f5f5', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+            >
+              <span>📜 通知履歴 ({historyList.length}件)</span>
+              <span>{historyOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
+            </button>
+            <button type="button" onClick={() => { setCouponHistoryOpen(!couponHistoryOpen); if (!couponHistoryOpen) void loadCouponHistory(); }}
+              style={{ flex: '1 1 160px', padding: '12px', background: '#f5f5f5', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}>
+              クーポン使用履歴 {couponHistoryOpen ? '▲' : '▼'}
+            </button>
+          </div>
+
+          {couponHistoryOpen && <div style={{ marginTop: '12px' }}>
+            {couponHistoryLoading ? <p>読み込み中...</p> : couponHistoryError ? <p role="alert">{couponHistoryError}</p> :
+              couponHistory.length === 0 ? <p>クーポン使用履歴はありません。</p> :
+                couponHistory.map((entry) => <div key={entry.id} style={{ padding: '12px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                  <strong>{entry.title}</strong>
+                  <span>{entry.usedAt ? new Date(entry.usedAt).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }) : '-'}</span>
+                </div>)}
+          </div>}
 
           {historyOpen && (
             <div style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
