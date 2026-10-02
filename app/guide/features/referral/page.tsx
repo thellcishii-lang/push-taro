@@ -26,8 +26,8 @@ export default function ReferralFeature() {
           <span className="g-badge is-pro">🔥 PRO 限定</span>
           <h1>🤝 紹介報酬</h1>
           <p>
-            PROプラン特典として、他の店舗を紹介すると<strong>毎月10%の報酬</strong>が発生します。
-            10店舗紹介すれば、PROプラン（月額¥10,000）が実質無料になります。
+            登録時にA・Bの報酬プランを選択できます。Aは全プラン10%、BはPROのみ2件まで20%。
+            確定後のプラン変更はできません。
           </p>
         </div>
 
@@ -35,8 +35,8 @@ export default function ReferralFeature() {
 
           <h2 className="g-h2"><span className="num">1</span>この機能でできること</h2>
           <div className="g-feature-list">
-            <div className="g-feature-item"><span className="ico">💰</span><div><strong>毎月10%の継続報酬</strong><p>紹介した店舗が契約している限り、毎月10%の報酬が発生し続けます。</p></div></div>
-            <div className="g-feature-item"><span className="ico">🎁</span><div><strong>10店舗で実質無料</strong><p>10店舗紹介すれば、PROプランの月額（¥10,000）が完全に相殺されます。</p></div></div>
+            <div className="g-feature-item"><span className="ico">💰</span><div><strong>Aプラン：紹介件数無制限</strong><p>紹介先のプランを問わず、毎月一律10%の報酬が発生します。</p></div></div>
+            <div className="g-feature-item"><span className="ico">🎁</span><div><strong>Bプラン：PRO紹介を2件まで</strong><p>PROプラン1件につき20%。紹介先が解約すると枠が空き、再び紹介できます。</p></div></div>
             <div className="g-feature-item"><span className="ico">🏦</span><div><strong>口座振込で受け取り</strong><p>累計1万円を超えると、指定の銀行口座に振込申請ができます。</p></div></div>
             <div className="g-feature-item"><span className="ico">📊</span><div><strong>専用ダッシュボード</strong><p>紹介店舗数・累計報酬・未払い報酬が一目で確認できます。</p></div></div>
           </div>
@@ -45,12 +45,11 @@ export default function ReferralFeature() {
           <div className="g-table-wrap">
             <table className="g-table">
               <thead>
-                <tr><th>紹介店舗のプラン</th><th>月額</th><th>報酬率</th><th>あなたの報酬（毎月）</th></tr>
+                <tr><th>制度</th><th>紹介対象</th><th>上限</th><th>報酬率</th></tr>
               </thead>
               <tbody>
-                <tr><td>LIGHT</td><td>¥1,980</td><td className="yes">10%</td><td className="yes">¥198</td></tr>
-                <tr><td>STANDARD</td><td>¥3,800</td><td className="yes">10%</td><td className="yes">¥380</td></tr>
-                <tr><td>PRO</td><td>¥10,000</td><td className="yes">10%</td><td className="yes">¥1,000</td></tr>
+                <tr><td>Aプラン</td><td>全プラン</td><td>なし</td><td className="yes">一律10%</td></tr>
+                <tr><td>Bプラン</td><td>PROのみ</td><td>同時に2件</td><td className="yes">1件20%</td></tr>
               </tbody>
             </table>
           </div>
@@ -58,9 +57,8 @@ export default function ReferralFeature() {
           <div className="g-callout info">
             <span className="ico">💡</span>
             <div>
-              <strong>PRO 10店舗で、月額¥10,000が完全に相殺</strong>
-              <p>10店舗 × ¥1,000 = ¥10,000 → PROプラン月額と完全に相殺され、<strong>実質無料</strong>になります。
-              11店舗目からは、プラス収益になります。</p>
+              <strong>Aは紹介数を伸ばして収益化、BはPROを2件紹介して40%相当</strong>
+              <p>Aは紹介数に上限がなく、紹介先の月額の10%が報酬になります。BはPROを2件紹介すると合計20%×2件で、PRO月額の40%相当です。</p>
             </div>
           </div>
 
@@ -160,7 +158,7 @@ export default function ReferralFeature() {
 
           <div className="g-cta">
             <h3>紹介するほど、お得になる</h3>
-            <p>10店舗紹介すればPROプランが実質無料。あなたのネットワークが収益源に。</p>
+            <p>登録時に報酬プランを選択し、紹介実績に応じた報酬を受け取れます。</p>
             <Link href="/signup" className="g-cta-btn">無料相談・資料請求 →</Link>
           </div>
         </div>

@@ -73,7 +73,7 @@ export async function GET(request: Request) {
     const groups = new Map<string, {
       referrerId: string;
       referrerType: string;
-      relations: Array<{ relId: string; referredTenantId: string; createdAt?: any; tieredReward?: boolean }>;
+      relations: Array<{ relId: string; referredTenantId: string; createdAt?: any; tieredReward?: boolean; proReferralPlan?: string }>;
     }>();
 
     relSnap.docs.forEach((relDoc) => {
@@ -92,6 +92,7 @@ export async function GET(request: Request) {
         referredTenantId,
         createdAt: relData.createdAt,
         tieredReward: relData.tieredReward === true,
+        proReferralPlan: relData.proReferralPlan,
       });
     });
 
@@ -177,6 +178,7 @@ export async function GET(request: Request) {
               : await calculateRewardRate(referrerData, referrerType, paymentPlan, referrerId, {
                   createdAt: rel.createdAt,
                   tieredReward: rel.tieredReward,
+                  proReferralPlan: rel.proReferralPlan,
                 });
             const oneTimeAmount = isOneTimeAffiliate ? getOneTimeRewardAmount(paymentPlan) : undefined;
             const amount = histData.amount || 0;

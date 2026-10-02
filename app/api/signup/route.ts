@@ -7,10 +7,14 @@ import { enforceRateLimit } from '@/lib/rate-limit';
 import { getReferrerDashboardUrl } from '@/lib/referrer-dashboard';
 import {
   AGENCY_RATE_OTHER,
-  PRO_REFERRAL_RATE,
   AFFILIATE_RECURRING_RATE_FIRST_YEAR,
   AFFILISHOP_RATE_FIRST_YEAR,
 } from '@/lib/constants';
+import {
+  getProReferralRate,
+  hasProReferralPlanBCapacity,
+  isProReferralPlan,
+} from '@/lib/pro-referral-policy';
 
 export const dynamic = 'force-dynamic';
 
@@ -134,6 +138,7 @@ export async function POST(request: Request) {
     let referrerName: string | null = null;
     let rewardRate: number = 0;
     let affiliateRewardTypeForRelation: string | null = null;
+    let proReferralPlanForRelation: 'a' | 'b' | null = null;
 
     if (refCode) {
       // プレフィックスで検索先を振り分け
@@ -214,15 +219,25 @@ export async function POST(request: Request) {
         if (!shopSnapshot.empty) {
           const doc = shopSnapshot.docs[0];
           const data = doc.data();
-          referrerId = doc.id;
-          referrerEmail = data.email;
-          referrerName = data.name || '紹介者';
 
           // role で判定（agency はこの時点では shops に残っている可能性もあるが、AGENCY- プレフィックスで先に処理済み）
           if (data.role === 'pro' || data.plan === 'pro') {
-            referrerType = 'pro';
-            rewardRate = PRO_REFERRAL_RATE;
+            const selectedPlan = isProReferralPlan(data.proReferralPlan)
+              ? data.proReferralPlan
+              : null;
+            const proRate = getProReferralRate(selectedPlan, String(plan || 'light').toLowerCase());
+            if (selectedPlan && proRate > 0) {
+              referrerId = doc.id;
+              referrerType = 'pro';
+              referrerEmail = data.email;
+              referrerName = data.name || '紹介者';
+              proReferralPlanForRelation = selectedPlan;
+              rewardRate = proRate;
+            }
           } else {
+            referrerId = doc.id;
+            referrerEmail = data.email;
+            referrerName = data.name || '紹介者';
             referrerType = 'shop';
             rewardRate = 0;
           }
@@ -248,7 +263,7 @@ export async function POST(request: Request) {
       bankAccount: bankAccount || null,
       // 紹介情報（変数を使用）
       referrerId: referrerId,
-      referredByCode: refCode || '',
+      referredByCode: referrerId ? refCode : '',
       referrerType: referrerType,
     };
 
@@ -267,25 +282,61 @@ export async function POST(request: Request) {
       ? (affiliateRewardTypeForRelation || 'recurring')
       : null;
 
-  // 単発型（affiliate かつ rewardRate 0）も通すため、条件を「referrerId があれば保存」に変更
-  await db.collection('referral_relations').add({
-    referrerId: referrerId,
+  let referralAccepted = true;
+  const relationRef = db.collection('referral_relations').doc();
+  const relationData = {
+    referrerId,
     referredTenantId: shopId,
-    rewardRate: rewardRate,
+    rewardRate,
     rewardType: relationRewardType,
     status: 'pending',
-    referrerType: referrerType,
+    referrerType,
     tieredReward: (referrerType === 'affiliate' && relationRewardType === 'recurring') || referrerType === 'affilishop',
+    ...(referrerType === 'pro' ? { proReferralPlan: proReferralPlanForRelation } : {}),
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
-  });
+  };
+
+  if (referrerType === 'pro' && proReferralPlanForRelation === 'b') {
+    const referrerRef = db.collection('shops').doc(referrerId);
+    referralAccepted = await db.runTransaction(async (transaction) => {
+      const [referrerDoc, relationSnapshot] = await Promise.all([
+        transaction.get(referrerRef),
+        transaction.get(db.collection('referral_relations')
+          .where('referrerId', '==', referrerId)
+          .where('referrerType', '==', 'pro')),
+      ]);
+      const currentPlan = referrerDoc.data()?.proReferralPlan;
+      if (
+        !isProReferralPlan(currentPlan) ||
+        currentPlan !== 'b' ||
+        !hasProReferralPlanBCapacity(relationSnapshot.docs.map((relation) => relation.data()))
+      ) {
+        return false;
+      }
+      transaction.create(relationRef, relationData);
+      return true;
+    });
+  } else {
+    await relationRef.set(relationData);
+  }
+
+  if (!referralAccepted) {
+    await shopRef.update({
+      referrerId: FieldValue.delete(),
+      referredByCode: FieldValue.delete(),
+      referrerType: FieldValue.delete(),
+    });
+    referrerId = null;
+    referrerType = null;
+  }
 
   // 紹介者への通知メール（ratePercent の表示を調整）
-  if (referrerEmail) {
+  if (referralAccepted && referrerEmail) {
     const ratePercent = referrerType === 'agency' && plan === 'pro'
       ? '月末のPRO決済成功件数に応じて30%・36%・45%を段階適用'
       : rewardRate > 0 ? `${(rewardRate * 100).toFixed(1)}%` : '初回のみ固定報酬';
-    const dashboardUrl = getReferrerDashboardUrl(referrerType);
+    const dashboardUrl = getReferrerDashboardUrl(referrerType || '');
 
     await sendEmail({
       to: referrerEmail,

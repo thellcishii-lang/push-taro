@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase-client';
 import PaymentFailuresSection from '@/components/PaymentFailuresSection';
+import { isProReferralPlan, type ProReferralPlan } from '@/lib/pro-referral-policy';
 
 interface ReferralShop {
   id: string;
@@ -33,6 +34,11 @@ export default function ProShopDashboardPage() {
   const [accessError, setAccessError] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [proReferralPlan, setProReferralPlan] = useState<ProReferralPlan | null>(null);
+  const [selectedReferralPlan, setSelectedReferralPlan] = useState<ProReferralPlan | ''>('');
+  const [confirmedReferralPlan, setConfirmedReferralPlan] = useState(false);
+  const [savingReferralPlan, setSavingReferralPlan] = useState(false);
+  const [referralPlanError, setReferralPlanError] = useState('');
 
   // 店舗情報
   const [shopId, setShopId] = useState<string | null>(null);
@@ -88,6 +94,7 @@ export default function ProShopDashboardPage() {
 
           setShopId(shop.id || null);
           setShopName(shop.name || '');
+          setProReferralPlan(isProReferralPlan(shop.proReferralPlan) ? shop.proReferralPlan : null);
           setReferralCode(shop.referralCode || '');
           setTotalEarnings(summary.totalEarnings || 0);
           setUnpaidReward(summary.unpaidReward || 0);
@@ -153,6 +160,30 @@ export default function ProShopDashboardPage() {
       alert('保存エラー: ' + err.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleConfirmReferralPlan = async () => {
+    if (!user || !isProReferralPlan(selectedReferralPlan) || !confirmedReferralPlan) return;
+    setSavingReferralPlan(true);
+    setReferralPlanError('');
+    try {
+      const idToken = await user.getIdToken();
+      const response = await fetch('/api/pro-shop/dashboard', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ plan: selectedReferralPlan }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || '報酬プランを保存できませんでした');
+      setProReferralPlan(selectedReferralPlan);
+    } catch (error: any) {
+      setReferralPlanError(error.message || '保存に失敗しました');
+    } finally {
+      setSavingReferralPlan(false);
     }
   };
 
@@ -227,6 +258,43 @@ export default function ProShopDashboardPage() {
         <Link href="/pro-shop" style={{ color: '#ff4500', textDecoration: 'none', fontWeight: 'bold' }}>
           ← PROコンソールへ戻る
         </Link>
+      </main>
+    );
+  }
+
+  if (!proReferralPlan) {
+    return (
+      <main style={{ maxWidth: '760px', margin: '40px auto', padding: '20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', color: '#1f2937' }}>
+        <h1 style={{ fontSize: '26px', margin: '0 0 8px' }}>PRO紹介報酬プランの設定</h1>
+        <p style={{ color: '#64748b', margin: '0 0 24px', lineHeight: 1.7 }}>紹介制度はどちらか一方を選択してください。確定後の変更はできません。</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
+          <label style={{ display: 'block', border: selectedReferralPlan === 'a' ? '2px solid #ea580c' : '1px solid #cbd5e1', borderRadius: '8px', padding: '20px', cursor: 'pointer', background: '#fff7ed' }}>
+            <input type="radio" name="proReferralPlan" value="a" checked={selectedReferralPlan === 'a'} onChange={() => setSelectedReferralPlan('a')} />
+            <strong style={{ display: 'block', fontSize: '18px', margin: '8px 0' }}>Aプラン</strong>
+            <span>どのプランでも何件でも紹介可能。報酬率は一律10%。</span>
+            <p style={{ margin: '12px 0 0', color: '#7c2d12' }}>紹介を続けると、PROプランの費用を実質無料にでき、さらに収益を得られる可能性があります。</p>
+          </label>
+          <label style={{ display: 'block', border: selectedReferralPlan === 'b' ? '2px solid #15803d' : '1px solid #cbd5e1', borderRadius: '8px', padding: '20px', cursor: 'pointer', background: '#f0fdf4' }}>
+            <input type="radio" name="proReferralPlan" value="b" checked={selectedReferralPlan === 'b'} onChange={() => setSelectedReferralPlan('b')} />
+            <strong style={{ display: 'block', fontSize: '18px', margin: '8px 0' }}>Bプラン</strong>
+            <span>PROプランのみ紹介可能。紹介枠は同時に2件まで、報酬率は1件につき20%。</span>
+            <p style={{ margin: '12px 0 0', color: '#166534' }}>PROを2件紹介すると、合計で月額費用の実質40%相当の報酬になります。本業の傍らで紹介する方におすすめです。</p>
+          </label>
+        </div>
+        <p style={{ margin: '20px 0 12px', color: '#b91c1c', fontWeight: 700 }}>途中からの変更は受け付けておりませんので、慎重にお選びください。</p>
+        <label style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', lineHeight: 1.6 }}>
+          <input type="checkbox" checked={confirmedReferralPlan} onChange={(event) => setConfirmedReferralPlan(event.target.checked)} />
+          <span>選択した報酬制度の内容に間違いないことを確認しました。</span>
+        </label>
+        {referralPlanError && <p role="alert" style={{ color: '#b91c1c' }}>{referralPlanError}</p>}
+        <button
+          type="button"
+          onClick={handleConfirmReferralPlan}
+          disabled={!selectedReferralPlan || !confirmedReferralPlan || savingReferralPlan}
+          style={{ marginTop: '18px', padding: '12px 24px', border: 0, borderRadius: '6px', background: '#ea580c', color: '#fff', fontWeight: 700, cursor: savingReferralPlan ? 'wait' : 'pointer', opacity: !selectedReferralPlan || !confirmedReferralPlan ? 0.5 : 1 }}
+        >
+          {savingReferralPlan ? '確定中...' : '報酬プランを確定する'}
+        </button>
       </main>
     );
   }

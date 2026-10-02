@@ -20,6 +20,18 @@ describe('agency monthly PRO rewards', () => {
     expect(await calculateRewardRate({}, 'agency', 'standard', 'agency')).toBe(0.18);
   });
 
+  it('applies the selected PRO referral plan only to relations created under that plan', async () => {
+    expect(await calculateRewardRate({ proReferralPlan: 'b' }, 'pro', 'pro', 'shop', {
+      createdAt: new Date(),
+    })).toBe(0.1);
+    expect(await calculateRewardRate({}, 'pro', 'pro', 'shop', {
+      proReferralPlan: 'b',
+    })).toBe(0.2);
+    expect(await calculateRewardRate({}, 'pro', 'standard', 'shop', {
+      proReferralPlan: 'b',
+    })).toBe(0);
+  });
+
   it('excludes failed payments and other plans from the PRO count', () => {
     expect(isSuccessfulProPayment({ result: 'success', plan: 'pro' }, 'light')).toBe(true);
     expect(isSuccessfulProPayment({ result: 'failed', plan: 'pro' }, 'pro')).toBe(false);

@@ -18,6 +18,10 @@ import {
   calculateRewardRate,
 } from './reward-calculator';
 import { getReferrerDashboardUrl } from '@/lib/referrer-dashboard';
+import {
+  hasProReferralPlanBCapacity,
+  isProReferralPlan,
+} from '@/lib/pro-referral-policy';
 
 const PLAN_PRICES: Record<string, number> = {
   light: 1980,
@@ -139,13 +143,14 @@ try {
         const affiliateRewardType =
           referrerType === 'affiliate' ? (referrerData.rewardType || 'recurring') : null;
 
-        let relationMeta: { createdAt?: any; tieredReward?: boolean };
+        let relationMeta: { createdAt?: any; tieredReward?: boolean; proReferralPlan?: string };
 
         if (!relSnap.empty) {
           const existingRelData = relSnap.docs[0].data();
           relationMeta = {
             createdAt: existingRelData.createdAt,
             tieredReward: existingRelData.tieredReward === true,
+            proReferralPlan: existingRelData.proReferralPlan,
           };
           await relSnap.docs[0].ref.update({
             status: 'active',
@@ -153,10 +158,23 @@ try {
           });
         } else {
           const isTiered = (referrerType === 'affiliate' && affiliateRewardType === 'recurring') || referrerType === 'affilishop';
-          relationMeta = { createdAt: new Date(), tieredReward: isTiered };
+          const selectedProPlan = isProReferralPlan(referrerData.proReferralPlan)
+            ? referrerData.proReferralPlan
+            : null;
+          if (referrerType === 'pro' && selectedProPlan === 'b' && plan !== 'pro') {
+            throw new Error('BプランではPROプラン以外を紹介できません');
+          }
+          relationMeta = {
+            createdAt: new Date(),
+            tieredReward: isTiered,
+            ...(referrerType === 'pro' && selectedProPlan
+              ? { proReferralPlan: selectedProPlan }
+              : {}),
+          };
           const effectiveRate = await calculateRewardRate(referrerData, referrerType, plan, referrerId, relationMeta);
 
-          await db.collection('referral_relations').add({
+          const relationRef = db.collection('referral_relations').doc();
+          const relationData = {
             referrerId,
             referredTenantId: shopId,
             rewardRate: effectiveRate,
@@ -164,8 +182,27 @@ try {
             rewardType: affiliateRewardType,
             status: 'active',
             tieredReward: isTiered,
+            ...(referrerType === 'pro' && selectedProPlan
+              ? { proReferralPlan: selectedProPlan }
+              : {}),
             createdAt: FieldValue.serverTimestamp(),
-          });
+          };
+
+          if (referrerType === 'pro' && selectedProPlan === 'b') {
+            const accepted = await db.runTransaction(async (transaction) => {
+              const relationSnapshot = await transaction.get(db.collection('referral_relations')
+                .where('referrerId', '==', referrerId)
+                .where('referrerType', '==', 'pro'));
+              if (!hasProReferralPlanBCapacity(relationSnapshot.docs.map((relation) => relation.data()))) {
+                return false;
+              }
+              transaction.create(relationRef, relationData);
+              return true;
+            });
+            if (!accepted) throw new Error('PRO紹介の上限に達しているため紹介関係を作成できません');
+          } else {
+            await relationRef.set(relationData);
+          }
         }
 
         // 4-2. payment_history に記録（月末バッチが拾う）

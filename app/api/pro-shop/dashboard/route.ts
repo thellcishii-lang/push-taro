@@ -11,6 +11,9 @@
  */
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
+import { sendEmail } from '@/lib/mailer';
+import { isProReferralPlan, PRO_REFERRAL_PLAN_LABELS } from '@/lib/pro-referral-policy';
 
 export const dynamic = 'force-dynamic';
 
@@ -83,7 +86,9 @@ export async function GET(request: Request) {
       if (!referredShopDoc.exists) continue;
 
       const referredShopData = referredShopDoc.data()!;
-      const relStatus = relData.status || 'pending';
+      const relStatus = relData.slotReleasedAt || referredShopData.status === 'canceled'
+        ? 'canceled'
+        : relData.status || 'pending';
       if (relStatus === 'active') activeCount++;
 
       // 利用開始日
@@ -153,6 +158,9 @@ export async function GET(request: Request) {
         name: shopData.name || '',
         referralCode: shopData.referralCode || '',
         bankAccount: shopData.bankAccount || null,
+        proReferralPlan: isProReferralPlan(shopData.proReferralPlan)
+          ? shopData.proReferralPlan
+          : null,
       },
       summary: {
         totalEarnings,
@@ -165,5 +173,69 @@ export async function GET(request: Request) {
   } catch (error: any) {
     console.error('[pro-shop/dashboard] エラー:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function POST(request: Request) {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
+  }
+
+  try {
+    const decoded = await authAdmin.verifyIdToken(authHeader.split('Bearer ')[1]);
+    const { plan } = await request.json();
+    if (!isProReferralPlan(plan)) {
+      return NextResponse.json({ error: '報酬プランを選択してください' }, { status: 400 });
+    }
+
+    const shopSnap = await db.collection('shops')
+      .where('ownerUid', '==', decoded.uid)
+      .where('plan', '==', 'pro')
+      .limit(1)
+      .get();
+    if (shopSnap.empty) {
+      return NextResponse.json({ error: 'PRO店舗情報が見つかりません' }, { status: 403 });
+    }
+
+    const shopDoc = shopSnap.docs[0];
+    const choice = await db.runTransaction(async (transaction) => {
+      const current = await transaction.get(shopDoc.ref);
+      const currentData = current.data() || {};
+      const currentPlan = currentData.proReferralPlan;
+      if (isProReferralPlan(currentPlan)) {
+        return {
+          status: currentPlan === plan ? 'already-selected' : 'locked',
+          needsEmail: !currentData.proReferralPlanEmailSentAt,
+        };
+      }
+      transaction.update(shopDoc.ref, { proReferralPlan: plan });
+      return { status: 'saved', needsEmail: true };
+    });
+
+    if (choice.status === 'locked') {
+      return NextResponse.json({ error: '報酬プランは確定済みのため変更できません' }, { status: 409 });
+    }
+
+    if (choice.needsEmail && shopDoc.data().email) {
+      await sendEmail({
+        to: shopDoc.data().email,
+        subject: '【Push-taro】PRO紹介報酬プラン確定のお知らせ',
+        html: `
+          <div style="font-family:sans-serif;padding:20px;">
+            <h2>PRO紹介報酬プランが確定しました</h2>
+            <p>報酬プランは<strong>${PRO_REFERRAL_PLAN_LABELS[plan]}</strong>です。</p>
+            <p>報酬関連はPROダッシュボードからご確認いただけます。</p>
+            <p><a href="${(process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com').replace(/\/$/, '')}/pro-shop/dashboard">PROダッシュボードを開く</a></p>
+          </div>
+        `,
+      });
+      await shopDoc.ref.update({ proReferralPlanEmailSentAt: FieldValue.serverTimestamp() });
+    }
+
+    return NextResponse.json({ success: true, plan });
+  } catch (error: any) {
+    console.error('[pro-shop/dashboard] 報酬プラン保存エラー:', error);
+    return NextResponse.json({ error: error.message || '保存に失敗しました' }, { status: 500 });
   }
 }

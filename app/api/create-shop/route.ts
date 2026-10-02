@@ -5,9 +5,9 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../lib/mailer';
 import {
   AGENCY_RATE_OTHER,
-  PRO_REFERRAL_RATE,
   AFFILIATE_RECURRING_RATE_FIRST_YEAR,
 } from '@/lib/constants';
+import { getProReferralRate, isProReferralPlan } from '@/lib/pro-referral-policy';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,6 +18,7 @@ async function resolveReferrerByCode(code: string): Promise<{
   referrerEmail: string | null;
   referrerName: string | null;
   affiliateRewardType: 'recurring' | 'one-time' | null;
+  proReferralPlan?: 'a' | 'b';
 } | null> {
   const trimmed = code.trim();
 
@@ -85,6 +86,7 @@ async function resolveReferrerByCode(code: string): Promise<{
     if (data.role === 'agency') {
       referrerType = 'agency';
     } else if (data.role === 'pro' || data.plan === 'pro') {
+      if (!isProReferralPlan(data.proReferralPlan)) return null;
       referrerType = 'pro';
     } else {
       referrerType = 'shop';
@@ -96,6 +98,7 @@ async function resolveReferrerByCode(code: string): Promise<{
       referrerEmail: data.email || null,
       referrerName: data.name || '紹介者',
       affiliateRewardType: null,
+      ...(referrerType === 'pro' ? { proReferralPlan: data.proReferralPlan } : {}),
     };
   }
 
@@ -112,7 +115,7 @@ function resolveRewardRate(
     return plan === 'pro' ? 0.30 : AGENCY_RATE_OTHER;
   }
   if (referrerType === 'pro') {
-    return PRO_REFERRAL_RATE;
+    return getProReferralRate('a', plan);
   }
   if (referrerType === 'affiliate') {
     return rewardType === 'one-time' ? 0 : AFFILIATE_RECURRING_RATE_FIRST_YEAR;
@@ -170,6 +173,13 @@ export async function POST(request: Request) {
       referrerInfo = await resolveReferrerByCode(referralCode);
     }
 
+    if (
+      referrerInfo?.referrerType === 'pro' &&
+      getProReferralRate(referrerInfo.proReferralPlan, 'light') === 0
+    ) {
+      referrerInfo = null;
+    }
+
     // ─── shops 作成 ───
     const shopRef = db.collection('shops').doc();
     const shopData: any = {
@@ -204,6 +214,9 @@ export async function POST(request: Request) {
         rewardRate,
         rewardType: referrerInfo.affiliateRewardType,
         referrerType: referrerInfo.referrerType,
+        ...(referrerInfo.referrerType === 'pro'
+          ? { proReferralPlan: referrerInfo.proReferralPlan }
+          : {}),
         status: 'pending',
         tieredReward: referrerInfo.referrerType === 'affiliate' && referrerInfo.affiliateRewardType === 'recurring',
         createdAt: FieldValue.serverTimestamp(),

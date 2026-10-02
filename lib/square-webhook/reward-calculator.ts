@@ -3,7 +3,6 @@ import { sendEmail } from '../mailer';
 import {
   AGENCY_RATE_PRO_TIERS,
   AGENCY_RATE_OTHER,
-  PRO_REFERRAL_RATE,
   AFFILIATE_RECURRING_RATE,
   AFFILIATE_RECURRING_RATE_FIRST_YEAR,
   AFFILIATE_FIRST_YEAR_MONTHS,
@@ -13,6 +12,7 @@ import {
   AFFILISHOP_FIRST_YEAR_MONTHS,
   WITHHOLDING_RATE,
 } from '../constants';
+import { getProReferralRate } from '../pro-referral-policy';
 
 // 紹介関係の開始日から現在までの経過月数（0始まり）
 function monthsElapsedSince(startDate: Date, now: Date): number {
@@ -42,7 +42,7 @@ export async function calculateRewardRate(
   referrerType: string,
   plan: string,
   referrerId: string,
-  relationMeta?: { createdAt?: any; tieredReward?: boolean }
+  relationMeta?: { createdAt?: any; tieredReward?: boolean; proReferralPlan?: string }
 ): Promise<number> {
   if (!referrerType || referrerType === 'shop') return 0;
 
@@ -54,7 +54,13 @@ export async function calculateRewardRate(
   }
 
   if (referrerType === 'pro') {
-    return PRO_REFERRAL_RATE;
+    const referralPlan = relationMeta
+      ? relationMeta.proReferralPlan ?? 'a'
+      : referrerData?.proReferralPlan ?? 'a';
+    return getProReferralRate(
+      referralPlan,
+      plan
+    );
   }
 
   if (referrerType === 'affiliate') {

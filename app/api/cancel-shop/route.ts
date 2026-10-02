@@ -7,6 +7,7 @@
  */
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { Client, Environment } from 'square';
 
 const squareClient = new Client({
@@ -61,12 +62,20 @@ if (shopData?.subscriptionId) {
     // ============================================================
     // Firestore 更新（Authユーザーは削除しない）
     // ============================================================
-    await shopRef.update({
+    const relations = await db.collection('referral_relations')
+      .where('referredTenantId', '==', shopId)
+      .get();
+    const batch = db.batch();
+    batch.update(shopRef, {
       status: 'canceled',
       canceledAt: new Date(),
       validUntil: validUntilDate,
       scheduledDeletionAt: validUntilDate,
     });
+    relations.docs.forEach((relation) => {
+      batch.update(relation.ref, { slotReleasedAt: FieldValue.serverTimestamp() });
+    });
+    await batch.commit();
 
     console.log(`[cancel-shop] 解約受付完了: ${shopId} / 有効期限: ${validUntilDate.toISOString().slice(0, 10)}`);
     console.log(`[cancel-shop] Authユーザーは有効期限まで保持されます: ${uid}`);
