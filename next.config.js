@@ -11,24 +11,15 @@ const nextConfig = {
   // 🔥 旧URL → 新URL のリダイレクト
   async redirects() {
     return [
-      // ★ 追加：www付きURL → wwwなしURL へ301リダイレクト
-      {
-        source: '/:path*',
-        has: [{ type: 'host', value: 'www.push-taro.com' }],
-        destination: 'https://push-taro.com/:path*',
-        permanent: true, // 301リダイレクト（SEO的にも正しい）
-      },
-
-      // 既存：旧URL → 新URL
       {
         source: '/program',
         destination: '/partners',
-        permanent: true,
+        permanent: true, // 301リダイレクト
       },
       {
         source: '/program/:path*',
         destination: '/partners/:path*',
-        permanent: true,
+        permanent: true, // サブパスも念のため
       },
     ];
   },
