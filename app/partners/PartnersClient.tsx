@@ -78,7 +78,7 @@ export default function PartnersClient() {
   const [promoModalOpen, setPromoModalOpen] = useState(false);
 
   return (
-    <div className="partners-page">
+    <main className="partners-page">
       {/* ナビゲーション */}
       <nav className="navbar">
         <div className="container">
@@ -1099,6 +1099,6 @@ export default function PartnersClient() {
         isOpen={promoModalOpen}
         onClose={() => setPromoModalOpen(false)}
       />
-    </div>
+    </main>
   );
 }
