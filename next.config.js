@@ -2,6 +2,7 @@
 const nextConfig = {
   // 🔥 ビルド時の静的生成を全体的に無効化
   output: 'standalone',
+  skipTrailingSlashRedirect: true,
 
   // 🔥 全てのページを動的に扱う（推奨）
   experimental: {
@@ -11,12 +12,6 @@ const nextConfig = {
   // 🔥 旧URL → 新URL のリダイレクト
   async redirects() {
     return [
-      {
-        source: '/:path*',
-        has: [{ type: 'host', value: 'www.push-taro.com' }],
-        destination: 'https://push-taro.com/:path*',
-        permanent: true,
-      },
       {
         source: '/program',
         destination: '/partners',
