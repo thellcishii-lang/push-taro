@@ -28,7 +28,11 @@ export async function POST(request: Request) {
     }
 
     const agencyDoc = await db.collection('agencies').doc(agencyId).get();
-    if (!agencyDoc.exists || agencyDoc.data()?.uid !== uid) {
+    if (
+      !agencyDoc.exists ||
+      agencyDoc.data()?.uid !== uid ||
+      agencyDoc.data()?.status !== 'active'
+    ) {
       return NextResponse.json({ error: '権限がありません' }, { status: 403 });
     }
 

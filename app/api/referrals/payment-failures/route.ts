@@ -40,7 +40,7 @@ export async function GET(request: Request) {
     let isAuthorized = false;
     if (referrerType === 'agency') {
       const doc = await db.collection('agencies').doc(referrerId).get();
-      if (doc.exists && doc.data()?.uid === uid) isAuthorized = true;
+      if (doc.exists && doc.data()?.uid === uid && doc.data()?.status === 'active') isAuthorized = true;
     } else if (referrerType === 'affiliate') {
       const doc = await db.collection('affiliates').doc(referrerId).get();
       if (doc.exists && doc.data()?.uid === uid) isAuthorized = true;

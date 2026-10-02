@@ -162,6 +162,12 @@ export async function POST(request: Request) {
     if (!agencyData) {
       return NextResponse.json({ error: '代理店データが不正です。' }, { status: 400 });
     }
+    if (agencyData.status !== 'pending_approval') {
+      return NextResponse.json(
+        { error: `審査中ではないため却下できません（${agencyData.status}）` },
+        { status: 400 }
+      );
+    }
 
     // ステータス更新
     await agencyRef.update({
@@ -171,6 +177,14 @@ export async function POST(request: Request) {
       rejectReason: reason || '',
       updatedAt: FieldValue.serverTimestamp(),
     });
+
+    if (agencyData.uid) {
+      try {
+        await authAdmin.updateUser(agencyData.uid, { disabled: true });
+      } catch (authError) {
+        console.error('[代理店却下] Authアカウント無効化失敗:', authError);
+      }
+    }
 
     // 却下メール送信
     await sendEmail({

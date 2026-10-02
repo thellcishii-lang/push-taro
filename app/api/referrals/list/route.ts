@@ -47,7 +47,11 @@ export async function GET(request: Request) {
     // agencies
     if (!referrerData) {
       const agencyDoc = await db.collection('agencies').doc(referrerId).get();
-      if (agencyDoc.exists && agencyDoc.data()?.uid === uid) {
+      if (
+        agencyDoc.exists &&
+        agencyDoc.data()?.uid === uid &&
+        agencyDoc.data()?.status === 'active'
+      ) {
         referrerData = { type: 'agency', ...agencyDoc.data() };
       }
     }

@@ -45,6 +45,11 @@ export async function handleAgencyPaymentSuccess(
   const agencyData = agencyDoc.data();
   const agencyId = agencyDoc.id;
 
+  if (!['approved_pending_payment', 'active'].includes(agencyData.status)) {
+    console.warn(`[代理店決済] 承認前または却下済みの決済を無視: ${agencyId} / status=${agencyData.status}`);
+    return { success: true, ignored: true };
+  }
+
   // 冪等性チェック
   if (paymentId) {
     const alreadyProcessed = await db.collection('agencies')
@@ -173,10 +178,15 @@ async function checkAndActivate(
     if (data?.uid) {
       try {
         newPassword = 'Pass-' + Math.random().toString(36).slice(-8) + 'A1!';
-        await authAdmin.updateUser(data.uid, { password: newPassword });
+        await authAdmin.updateUser(data.uid, { password: newPassword, disabled: false });
       } catch (authErr) {
         console.error('[代理店決済] パスワード再生成失敗:', authErr);
         newPassword = ''; // メールには載せない
+        try {
+          await authAdmin.updateUser(data.uid, { disabled: false });
+        } catch (enableErr) {
+          console.error('[代理店決済] Auth有効化失敗:', enableErr);
+        }
       }
     }
 

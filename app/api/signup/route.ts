@@ -178,6 +178,7 @@ export async function POST(request: Request) {
         // 代理店（agencies コレクション）
         const agencySnapshot = await db.collection('agencies')
           .where('referralCode', '==', refCode)
+          .where('status', '==', 'active')
           .limit(1)
           .get();
 

@@ -55,7 +55,11 @@ export async function POST(request: Request) {
       const snap = await db.collection('shops').where('email', '==', normalizedEmail).limit(1).get();
       exists = !snap.empty;
     } else if (role === 'agency') {
-      const snap = await db.collection('agencies').where('email', '==', normalizedEmail).limit(1).get();
+      const snap = await db.collection('agencies')
+        .where('email', '==', normalizedEmail)
+        .where('status', '==', 'active')
+        .limit(1)
+        .get();
       exists = !snap.empty;
     } else if (role === 'affiliate') {
       const snap = await db.collection('affiliates').where('email', '==', normalizedEmail).limit(1).get();

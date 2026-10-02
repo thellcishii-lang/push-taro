@@ -56,6 +56,7 @@ async function resolveReferrerByCode(code: string): Promise<{
   if (trimmed.startsWith('AGENCY-')) {
     const snap = await db.collection('agencies')
       .where('referralCode', '==', trimmed)
+      .where('status', '==', 'active')
       .limit(1)
       .get();
 

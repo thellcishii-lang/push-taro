@@ -89,6 +89,7 @@ try {
     email: normalizedEmail,
     password: generatedPassword,
     emailVerified: true,
+    disabled: true,
   });
 } catch (e: any) {
   if (e.code === 'auth/email-already-exists') {

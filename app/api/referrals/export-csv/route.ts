@@ -61,6 +61,9 @@ export async function GET(request: Request) {
     if (!ownerDoc.exists || ownerDoc.data()?.[ownerField] !== uid) {
       return NextResponse.json({ error: '権限がありません' }, { status: 403 });
     }
+    if (referrerType === 'agency' && ownerDoc.data()?.status !== 'active') {
+      return NextResponse.json({ error: '決済完了後にご利用いただけます' }, { status: 403 });
+    }
   }
 
   try {

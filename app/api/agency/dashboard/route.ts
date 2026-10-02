@@ -48,6 +48,9 @@ export async function GET(request: Request) {
     if (agencyData.uid !== uid && !isAdmin) {
       return NextResponse.json({ error: '権限がありません' }, { status: 403 });
     }
+    if (!isAdmin && agencyData.status !== 'active') {
+      return NextResponse.json({ error: '決済完了後に代理店機能をご利用いただけます' }, { status: 403 });
+    }
 
     // ============================================================
     // 紹介店舗一覧（referral_relations から）

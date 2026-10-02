@@ -18,6 +18,9 @@ export async function GET(request: Request) {
   }
 
   const agency = agencyDoc.data()!;
+  if (!['approved_pending_payment', 'active'].includes(agency.status)) {
+    return NextResponse.json({ error: '決済案内後にお手続きいただけます。' }, { status: 403 });
+  }
   const paid = type === 'initial'
     ? agency.initialPayment?.paid === true
     : agency.monthlyPayment?.status === 'active';

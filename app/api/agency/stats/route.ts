@@ -43,6 +43,9 @@ export async function GET(request: Request) {
     }
 
     const agencyData = agencyDoc.data()!;
+    if (!isAdmin && agencyData.status !== 'active') {
+      return NextResponse.json({ error: '決済完了後に代理店機能をご利用いただけます' }, { status: 403 });
+    }
 
     // ============================================================
     // 2. referral_relations から配下店舗IDを取得

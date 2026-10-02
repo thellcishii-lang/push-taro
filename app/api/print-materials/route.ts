@@ -16,6 +16,9 @@ export async function GET(req: NextRequest) {
     const agencyDoc = await db.collection('agencies').doc(uid).get();
     if (agencyDoc.exists) {
       const a = agencyDoc.data()!;
+      if (a.status !== 'active') {
+        return NextResponse.json({ error: '決済完了後にご利用いただけます' }, { status: 403 });
+      }
       return NextResponse.json({
         role: 'agency',
         companyName: a.companyName || '',

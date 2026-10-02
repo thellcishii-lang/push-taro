@@ -65,7 +65,10 @@ export async function GET(
         const referrerDoc = await db.collection(collection).doc(referrerId).get();
         if (referrerDoc.exists) {
           const referrerData = referrerDoc.data()!;
-          if (referrerData.uid === uid || referrerData.ownerUid === uid) {
+          if (
+            (referrerData.uid === uid || referrerData.ownerUid === uid) &&
+            (referrerType !== 'agency' || referrerData.status === 'active')
+          ) {
             hasAccess = true;
             break;
           }
