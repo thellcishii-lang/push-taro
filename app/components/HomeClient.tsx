@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { faqs } from '../data/faq';
 
 /* ============================================================
@@ -80,20 +81,7 @@ export default function HomeClient() {
       <nav className="navbar">
         <div className="navbar-inner">
           <a href="/" className="logo">
-            <svg className="logo-mark" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="logoGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="#ff6b6b" />
-                  <stop offset="100%" stopColor="#ff4500" />
-                </linearGradient>
-              </defs>
-              <circle cx="24" cy="24" r="23" fill="url(#logoGrad)" />
-              <path d="M24 8 L33 22 L28 22 L28 30 L20 30 L20 22 L15 22 Z" fill="#ffffff" />
-              <circle cx="24" cy="20" r="3" fill="#ff4500" opacity="0.5" />
-              <path d="M18 30 L14 38 L20 34 Z" fill="#ffffff" />
-              <path d="M30 30 L34 38 L28 34 Z" fill="#ffffff" />
-              <path d="M22 30 L24 40 L26 30 Z" fill="#fbbf24" />
-            </svg>
+            <Image className="logo-mark" src="/icon-192x192.png" alt="Push-taro ロゴ" width={34} height={34} priority />
             Push-taro<span className="dot">.</span>
             <small>実店舗のためのPush通知CRM</small>
           </a>
@@ -168,7 +156,9 @@ export default function HomeClient() {
           <div className="section-header reveal">
             <span className="section-tag">Why Now</span>
             <h2>なぜ、今、プッシュ通知なのか。</h2>
-            <p>2023年、iPhoneがWebアプリのプッシュ通知に対応。<br />これで国内のスマホ全般で使えるようになりました。</p>
+            <p>2023年、iPhoneがWebアプリのプッシュ通知に対応。<br />これで国内のスマホ全般で使えるようになりました。<br />
+              <a href="https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/" target="_blank" rel="noopener noreferrer">WebKitによる対応の発表</a>
+            </p>
           </div>
           <div className="timeline">
             <div className="timeline-item tilt-in">

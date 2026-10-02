@@ -12,6 +12,12 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.push-taro.com' }],
+        destination: 'https://push-taro.com/:path*',
+        permanent: true,
+      },
+      {
         source: '/program',
         destination: '/partners',
         permanent: true, // 301リダイレクト

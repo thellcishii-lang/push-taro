@@ -61,7 +61,7 @@ const organizationJsonLd = {
   '@id': `${appUrl}/#organization`,
   name: 'the合同会社',
   url: appUrl,
-  logo: `${appUrl}/logo.png`,
+  logo: `${appUrl}/icon-512x512.png`,
   address: {
     '@type': 'PostalAddress',
     postalCode: '357-0123',
