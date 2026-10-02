@@ -34,8 +34,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // --- 運用ノウハウ ---
     '/guide/case-studies',
     '/guide/ng-actions',
-    '/guide/segmentation',
-    '/guide/existing-customers',
+    '/guide/segmentation',        // ★ 追加
+    '/guide/existing-customers',  // ★ 追加
 
     // --- 業種別 ---
     '/guide/bakery',
