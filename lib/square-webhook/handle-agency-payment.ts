@@ -9,7 +9,6 @@
  * 両方完了で agencies.status = 'active'
  */
 import { NextResponse } from 'next/server';
-import crypto from 'crypto';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';

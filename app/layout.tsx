@@ -3,6 +3,11 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import Script from 'next/script';
 
+// 静的生成は意図的に無効化する。
+// クライアント用 Firebase 初期化がモジュール評価時に NEXT_PUBLIC_* 環境変数を
+// 必要とするため、これを外すとビルド時プリレンダーが auth/invalid-api-key で失敗する。
+export const dynamic = 'force-dynamic';
+
 const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-inter' });
 
 export const viewport: Viewport = {
