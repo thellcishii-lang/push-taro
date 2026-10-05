@@ -37,26 +37,29 @@ function ApplicationContent() {
 
   
 useEffect(() => {
+    // 申込受付メールのリンクに付与された署名付きトークン（機密情報取得に必要）
+    const token = searchParams.get('token');
+    const tokenQuery = token ? `&token=${encodeURIComponent(token)}` : '';
+
     // ============================================================
     // 優先度1：shopId があれば API から取得（後からでもOK）
     // ============================================================
     if (shopId) {
-      fetch(`/api/shop-info?shopId=${encodeURIComponent(shopId)}`)
+      fetch(`/api/shop-info?shopId=${encodeURIComponent(shopId)}${tokenQuery}`)
         .then((res) => res.json())
         .then((res) => {
-          if (res.success && res.shop) {
-            const shop = res.shop;
+          if (res.success) {
             setData({
-              companyName: shop.name || '',
-              email: shop.email || '',
-              phone: shop.phone || '',
-              address: shop.address || '',
-              invoiceNumber: shop.invoiceNumber || '',
-              plan: shop.plan || 'light',
-              bankAccount: shop.bankAccount || null,
+              companyName: res.name || '',
+              email: res.email || '',
+              phone: res.phone || '',
+              address: res.address || '',
+              invoiceNumber: res.invoiceNumber || '',
+              plan: res.plan || 'light',
+              bankAccount: res.bankAccount || null,
             });
           } else {
-            alert('申込データが見つかりません。');
+            alert('申込データが見つかりません。お申し込み時のメールに記載されたリンクからアクセスしてください。');
             router.push('/');
           }
         })
@@ -74,13 +77,13 @@ useEffect(() => {
       const partnerType = agencyId ? 'agency' : affiliateId ? 'affiliate' : 'affilishop';
       const partnerId = agencyId || affiliateId || affilishopId;
 
-      fetch(`/api/partner-info?type=${partnerType}&id=${encodeURIComponent(partnerId!)}`)
+      fetch(`/api/partner-info?type=${partnerType}&id=${encodeURIComponent(partnerId!)}${tokenQuery}`)
         .then((res) => res.json())
         .then((res) => {
           if (res.success && res.data) {
             setData(res.data);
           } else {
-            alert('申込データが見つかりません。');
+            alert('申込データが見つかりません。お申し込み時のメールに記載されたリンクからアクセスしてください。');
             router.push('/');
           }
         })
@@ -99,7 +102,7 @@ useEffect(() => {
       stored = sessionStorage.getItem(STORAGE_KEY[type]);
 　　   }
     if (!stored) {
-      alert('申込データが見つかりません。もう一度お申し込みください。');
+      alert('申込データが見つかりません。お申し込み時のメールに記載されたリンクからアクセスしてください。');
       router.push('/');
       return;
     }
@@ -108,7 +111,7 @@ useEffect(() => {
     } catch {
       router.push('/');
     }
-  }, [shopId, agencyId, affiliateId, affilishopId, type, router]);
+  }, [shopId, agencyId, affiliateId, affilishopId, type, router, searchParams]);
 
   // タブタイトル設定
   useEffect(() => {

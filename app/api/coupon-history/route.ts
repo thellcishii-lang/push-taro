@@ -1,11 +1,21 @@
 import { NextResponse } from 'next/server';
 import { authAdmin, db } from '@/lib/firebase-admin';
 import { couponDay } from '@/lib/coupon-day';
+import { enforceRateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
+    // レート制限: トークン総当たりによる顧客履歴の探索を防止
+    const retryAfter = await enforceRateLimit(request, 'coupon-history', 20, 10 * 60 * 1000);
+    if (retryAfter !== null) {
+      return NextResponse.json(
+        { error: 'Too Many Requests' },
+        { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const shopId = searchParams.get('shopId');
     const date = searchParams.get('date');

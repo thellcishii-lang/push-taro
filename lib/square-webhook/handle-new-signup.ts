@@ -9,6 +9,7 @@
  * 5. アフィリエイター・管理者への通知メール
  */
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
@@ -18,6 +19,7 @@ import {
   calculateRewardRate,
 } from './reward-calculator';
 import { getReferrerDashboardUrl } from '@/lib/referrer-dashboard';
+import { jstMonth } from '@/lib/coupon-day';
 import {
   hasProReferralPlanBCapacity,
   isProReferralPlan,
@@ -43,7 +45,7 @@ export async function handleNewSignup(
   // ============================================================
 // 1. Auth ユーザー作成
 // ============================================================
-const generatedPassword = 'Pass-' + Math.random().toString(36).slice(-8) + 'A1!';
+const generatedPassword = 'Pass-' + crypto.randomBytes(12).toString('base64url') + 'A1!';
 
 let userRecord;
 try {
@@ -207,7 +209,8 @@ try {
 
         // 4-2. payment_history に記録（月末バッチが拾う）
         const now = new Date();
-        const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        // JST基準で計算（サーバーTZ=UTC だと JST 月初 0:00〜8:59 が前月に計上される）
+        const currentMonth = jstMonth(now);
         const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
         const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
         const planAmount = PLAN_PRICES[plan] || 1980;

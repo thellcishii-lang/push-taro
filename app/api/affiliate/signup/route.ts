@@ -3,6 +3,7 @@ import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
 import { enforceRateLimit } from '@/lib/rate-limit';
+import { generatePrintToken } from '@/lib/print-token';
 
 // 紹介コード生成
 //   recurring（ストック型）: AF-S-XXXXXX
@@ -160,7 +161,9 @@ export async function POST(request: Request) {
     createdAffiliateId = docRef.id;
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
-    const applicationUrl = `${appUrl}/print/application?type=affiliate&affiliateId=${createdAffiliateId}`;
+    // 申込書（口座情報等を含む）へのアクセス用に署名付きトークンを付与
+    const printToken = generatePrintToken('affiliate', createdAffiliateId);
+    const applicationUrl = `${appUrl}/print/application?type=affiliate&affiliateId=${createdAffiliateId}${printToken ? `&token=${printToken}` : ''}`;
     const termsUrl = `${appUrl}/print/terms?type=affiliate`;
 
     // ============================================================

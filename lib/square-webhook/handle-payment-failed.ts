@@ -10,6 +10,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
+import { jstMonth } from '@/lib/coupon-day';
 
 const PLAN_PRICES: Record<string, number> = {
   light: 1980,
@@ -64,7 +65,8 @@ export async function handlePaymentFailed(body: any) {
   }
 
   const now = new Date();
-  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  // JST基準で計算（サーバーTZ=UTC だと JST 月初 0:00〜8:59 が前月に計上される）
+  const currentMonth = jstMonth(now);
   const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
   const plan = shopData?.plan || 'light';
@@ -136,9 +138,12 @@ async function sendFirstFailureEmails(shopId: string, shopData: any) {
     for (const relDoc of relSnap.docs) {
       const relData = relDoc.data();
       const referrerType = relData.referrerType || 'pro';
-      const referrerCollection = 
+      // reward-calculator の getReferrerCollection と同じマッピング。
+      // affilishop が欠けると shops を誤検索して通知が届かない。
+      const referrerCollection =
         referrerType === 'agency' ? 'agencies' :
         referrerType === 'affiliate' ? 'affiliates' :
+        referrerType === 'affilishop' ? 'affilishops' :
         'shops';
 
       const referrerDoc = await db.collection(referrerCollection).doc(relData.referrerId).get();

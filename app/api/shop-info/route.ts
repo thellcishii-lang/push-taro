@@ -1,6 +1,7 @@
 // app/api/shop-info/route.ts
 import { NextResponse } from 'next/server';
 import { db } from '../../../lib/firebase-admin';
+import { verifyPrintToken } from '../../../lib/print-token';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,18 +31,17 @@ export async function GET(request: Request) {
     }
 
         const data = doc.data();
-    return NextResponse.json({
+
+    // 申込書印刷用の機密情報（口座・住所等）は、署名付きトークンを
+    // 持つリクエスト（申込受付メールのリンク経由）にのみ返す。
+    // shopId 単体では公開情報のみ返却し、機密情報の漏洩を防ぐ。
+    const includeSensitive = verifyPrintToken('shop', cleanId, searchParams.get('token'));
+
+    const payload: Record<string, any> = {
       success: true,
       shopId: doc.id,
       name: data?.name || '登録店舗',
       status: data?.status || 'pending_payment',
-
-      // ── 申込書用の情報（★追加） ──
-      email: data?.email || '',
-      address: data?.address || '',
-      phone: data?.phone || '',
-      invoiceNumber: data?.invoiceNumber || '',
-      bankAccount: data?.bankAccount || null,
 
       // ── クーポン情報（全種別）──
       coupon: data?.coupon || null,
@@ -59,7 +59,17 @@ export async function GET(request: Request) {
       linkUrl: data?.linkUrl || '',
       iconUrl: data?.iconUrl || '',
       plan: data?.plan || 'free',
-    }, { status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' } });
+    };
+
+    if (includeSensitive) {
+      payload.email = data?.email || '';
+      payload.address = data?.address || '';
+      payload.phone = data?.phone || '';
+      payload.invoiceNumber = data?.invoiceNumber || '';
+      payload.bankAccount = data?.bankAccount || null;
+    }
+
+    return NextResponse.json(payload, { status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' } });
 
   } catch (error: any) {
     console.error('[shop-info] エラー:', error);

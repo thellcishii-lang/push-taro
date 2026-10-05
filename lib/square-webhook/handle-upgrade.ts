@@ -20,6 +20,20 @@ export async function handleUpgrade(
 
   // 🔥 A-5: upgradeTargetPlan を優先、フォールバックで targetPlan
   const targetPlan = upgradeShopData.upgradeTargetPlan || upgradeShopData.targetPlan;
+
+  // 対象プランが未設定/不正な場合、plan: undefined の書き込みで
+  // Firestore が例外を投げ webhook 全体が失敗するため、ここでスキップする
+  if (targetPlan !== 'standard' && targetPlan !== 'pro') {
+    console.error(`[アップグレード] 対象プランが不正のためスキップ: doc=${upgradeShopDoc.id}`, {
+      upgradeTargetPlan: upgradeShopData.upgradeTargetPlan,
+      targetPlan: upgradeShopData.targetPlan,
+    });
+    return NextResponse.json(
+      { success: false, error: 'invalid upgrade target plan' },
+      { status: 200 }
+    );
+  }
+
   const planName = targetPlan === 'pro' ? 'PRO' : 'スタンダード';
 
   // 🔥 A-6: upgradeData から bankAccount / invoiceNumber 等を昇格

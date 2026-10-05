@@ -3,6 +3,7 @@ import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
 import { enforceRateLimit } from '@/lib/rate-limit';
+import { generatePrintToken } from '@/lib/print-token';
 
 // 紹介コード生成（AGENCY-XXXXXX）
 function generateReferralCode(): string {
@@ -147,7 +148,9 @@ try {
         await db.collection('agencies').doc(userRecord.uid).set(agencyData);
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
-    const applicationUrl = `${appUrl}/print/application?type=agency&agencyId=${userRecord.uid}`;
+    // 申込書（口座情報等を含む）へのアクセス用に署名付きトークンを付与
+    const printToken = generatePrintToken('agency', userRecord.uid);
+    const applicationUrl = `${appUrl}/print/application?type=agency&agencyId=${userRecord.uid}${printToken ? `&token=${printToken}` : ''}`;
     const termsUrl = `${appUrl}/print/terms?type=agency`;
 
     // 登録完了メール（パスワード含む）

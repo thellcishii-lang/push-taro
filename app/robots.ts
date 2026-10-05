@@ -7,7 +7,26 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       // 通常の検索エンジン
-      { userAgent: '*', allow: '/' },
+      // 同名 userAgent グループが複数あると先頭グループだけ採用する
+      // クローラーがいるため（RFC 9309）、'*' は1グループに統合する。
+      // disallow は sitemap の除外方針と整合させる。
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: [
+          '/pro-shop',
+          '/shop',
+          '/agency',
+          '/affiliate',
+          '/affilishop',
+          '/subscribe',
+          '/notification-link',
+          '/payment',
+          '/system-admin',
+          '/print',
+          '/api/',
+        ],
+      },
 
       // ★ AI系クローラーを明示的に許可（引用されやすくする）
       { userAgent: 'GPTBot', allow: '/' },
@@ -18,12 +37,6 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: 'Claude-Web', allow: '/' },
       { userAgent: 'Google-Extended', allow: '/' },
       { userAgent: 'Applebot-Extended', allow: '/' },
-
-      // 管理画面・API は除外
-      {
-        userAgent: '*',
-        disallow: ['/pro-shop', '/agency', '/affilishop', '/api/'],
-      },
     ],
     sitemap: new URL('/sitemap.xml', appUrl).toString(),
     host: appUrl,

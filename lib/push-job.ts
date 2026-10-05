@@ -1,6 +1,7 @@
 import { FieldPath, FieldValue } from 'firebase-admin/firestore';
 import { db, messaging } from './firebase-admin';
 import { PLAN_LIMITS } from './constants';
+import { jstMonth } from './coupon-day';
 
 const CHUNK_SIZE = 450;
 const LEASE_MS = 2 * 60 * 1000;
@@ -164,7 +165,8 @@ export async function processPushJobBatch(jobId: string): Promise<'skipped' | 'p
   const lastCursor = subscriptions.docs[subscriptions.docs.length - 1].id;
   const planKey = String(shop.plan || 'standard');
   const limit = Number(shop.monthlyLimit || PLAN_LIMITS[planKey] || PLAN_LIMITS.standard);
-  const currentMonth = new Date().toISOString().slice(0, 7);
+  // JST基準で月を判定（UTCのままだと JST 1日 0:00〜8:59 が前月扱いになる）
+  const currentMonth = jstMonth(new Date());
   const currentMonthSent = shop.lastSentMonth === currentMonth ? Number(shop.currentMonthSent || 0) : 0;
   if (planKey !== 'pro' && currentMonthSent + tokens.length > limit) {
     await failJob(jobId, job.shopId, `今月の送信上限（${limit.toLocaleString()}件）を超えるため送信を停止しました`);
@@ -223,7 +225,22 @@ export async function processPushJobBatch(jobId: string): Promise<'skipped' | 'p
   await db.runTransaction(async (transaction) => {
     const latestJob = await transaction.get(jobRef);
     const latestShop = await transaction.get(db.collection('shops').doc(job.shopId));
+    if (!latestJob.exists) {
+      // ジョブが処理中に削除された場合は何もせず終了
+      return;
+    }
     const latestData = latestJob.data() as PushJob;
+    if (!latestShop.exists) {
+      // 店舗が削除された場合はジョブを失敗終了させ、
+      // processing 残留による再試行ループと配信ブロックを防ぐ
+      transaction.update(jobRef, {
+        status: 'failed',
+        error: '店舗ドキュメントが削除されたため送信を中断しました',
+        leaseUntil: FieldValue.delete(),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+      return;
+    }
     const latestShopData = latestShop.data()!;
     const latestMonthSent = latestShopData.lastSentMonth === currentMonth ? Number(latestShopData.currentMonthSent || 0) : 0;
     transaction.update(jobRef, {

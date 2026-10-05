@@ -172,8 +172,10 @@ export default function PaymentCheckContent() {
               📄 申込書・利用規約のダウンロード
             </p>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {/* shopId パラメータは付けず localStorage の申込データを参照させる。
+                  （機密情報を含むため、URL だけでは取得できない設計） */}
               <a
-                href={`/print/application?type=shop&shopId=${shopId}`}
+                href="/print/application?type=shop"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{

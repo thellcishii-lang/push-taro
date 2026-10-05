@@ -11,6 +11,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
+import { jstMonth } from '@/lib/coupon-day';
 
 const PLAN_PRICES: Record<string, number> = {
   light: 1980,
@@ -59,7 +60,8 @@ export async function handleRecurring(
   //    → 月末バッチがこのレコードを拾って報酬計算する
   // ============================================================
   const now = new Date();
-  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  // JST基準で計算（サーバーTZ=UTC だと JST 月初 0:00〜8:59 が前月に計上される）
+  const currentMonth = jstMonth(now);
   const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 

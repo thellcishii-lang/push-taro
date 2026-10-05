@@ -48,9 +48,11 @@ export async function exportHistoryToJSON(): Promise<string> {
 export async function importHistoryFromJSON(jsonString: string): Promise<void> {
   const data = JSON.parse(jsonString) as PushHistory[];
   await db.history.bulkAdd(
-    data.map((d) => ({
-      ...d,
-      sentAt: new Date(d.sentAt),
+    data.map(({ id: _ignoredId, ...rest }) => ({
+      // id は除外して自動採番に任せ、既存レコードとのキー衝突による
+      // BulkError（途中打ち切り）を防ぐ
+      ...rest,
+      sentAt: new Date(rest.sentAt),
     }))
   );
 }

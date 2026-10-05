@@ -4,6 +4,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../lib/mailer';
 import { notifyAdmins } from '@/lib/error-notifier';
 import { enforceRateLimit } from '@/lib/rate-limit';
+import { generatePrintToken } from '@/lib/print-token';
 import { getReferrerDashboardUrl } from '@/lib/referrer-dashboard';
 import {
   AGENCY_RATE_OTHER,
@@ -391,7 +392,9 @@ if (!paymentUrl) {
     // ============================================================
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
     const printType = plan === 'pro' ? 'pro-shop' : 'shop';
-    const applicationUrl = `${appUrl}/print/application?type=${printType}&shopId=${shopId}`;
+    // 申込書（口座情報等を含む）へのアクセス用に署名付きトークンを付与
+    const printToken = generatePrintToken('shop', shopId);
+    const applicationUrl = `${appUrl}/print/application?type=${printType}&shopId=${shopId}${printToken ? `&token=${printToken}` : ''}`;
     const termsUrl = `${appUrl}/print/terms?type=${printType}`;
 
     await sendEmail({

@@ -14,6 +14,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
 import { couponDay } from '@/lib/coupon-day';
+import { enforceRateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,6 +41,15 @@ const DEFAULT_USAGE = {
 
 export async function GET(request: Request) {
   try {
+    // レート制限: トークン総当たりによる購読状態の探索を防止
+    const retryAfter = await enforceRateLimit(request, 'subscribe-status', 20, 10 * 60 * 1000);
+    if (retryAfter !== null) {
+      return NextResponse.json(
+        { success: false, error: 'Too Many Requests' },
+        { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const shopId = searchParams.get('shopId');
     const token = searchParams.get('token');

@@ -12,6 +12,7 @@ import { db } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
 import { enforceRateLimit } from '@/lib/rate-limit';
+import { generatePrintToken } from '@/lib/print-token';
 
 // 紹介コード生成（ASHOP-XXXXXX）
 function generateReferralCode(): string {
@@ -120,7 +121,9 @@ export async function POST(request: Request) {
     const docRef = await db.collection('affilishops').add(affilishopData);
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
-    const applicationUrl = `${appUrl}/print/application?type=affilishop&affilishopId=${docRef.id}`;
+    // 申込書（口座情報等を含む）へのアクセス用に署名付きトークンを付与
+    const printToken = generatePrintToken('affilishop', docRef.id);
+    const applicationUrl = `${appUrl}/print/application?type=affilishop&affilishopId=${docRef.id}${printToken ? `&token=${printToken}` : ''}`;
     const termsUrl = `${appUrl}/print/terms?type=affilishop`;
 
     // 申込者への受付メール

@@ -11,6 +11,7 @@
  */
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
+import { verifyPrintToken } from '@/lib/print-token';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,6 +40,15 @@ export async function GET(request: Request) {
     return NextResponse.json(
       { success: false, error: 'id パラメータが必要です' },
       { status: 400, headers: { 'Cache-Control': 'no-store' } }
+    );
+  }
+
+  // 口座情報等の機密情報を含むため、申込受付メールのリンクに付与される
+  // 署名付きトークンを必須とする（ID を知っているだけでは取得不可）
+  if (!verifyPrintToken(type, id.trim(), searchParams.get('token'))) {
+    return NextResponse.json(
+      { success: false, error: 'アクセス権限がありません。お申し込み時のメールに記載されたリンクからアクセスしてください。' },
+      { status: 401, headers: { 'Cache-Control': 'no-store' } }
     );
   }
 

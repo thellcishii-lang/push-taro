@@ -9,6 +9,7 @@
  * 両方完了で agencies.status = 'active'
  */
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
@@ -177,7 +178,7 @@ async function checkAndActivate(
     let newPassword = '';
     if (data?.uid) {
       try {
-        newPassword = 'Pass-' + Math.random().toString(36).slice(-8) + 'A1!';
+        newPassword = 'Pass-' + crypto.randomBytes(12).toString('base64url') + 'A1!';
         await authAdmin.updateUser(data.uid, { password: newPassword, disabled: false });
       } catch (authErr) {
         console.error('[代理店決済] パスワード再生成失敗:', authErr);

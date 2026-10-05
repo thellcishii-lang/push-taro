@@ -1,11 +1,21 @@
 import { NextResponse } from 'next/server';
 import { messaging, db } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
+import { enforceRateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
+    // レート制限: トークン総当たりによる第三者の購読解除を防止
+    const retryAfter = await enforceRateLimit(request, 'unsubscribe', 10, 10 * 60 * 1000);
+    if (retryAfter !== null) {
+      return NextResponse.json(
+        { error: 'Too Many Requests' },
+        { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+      );
+    }
+
     const { token, shopId } = await request.json();
     if (!token || !shopId) {
       return NextResponse.json({ error: 'tokenとshopIdが必要です' }, { status: 400 });
