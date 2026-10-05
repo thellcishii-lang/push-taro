@@ -82,21 +82,31 @@ export async function GET(request: Request) {
     }
 
     // ============================================================
-    // 4. subscriptions から店舗ごとの配信許可人数を集計
+    // 4. subscriptions から配下店舗の購読者数を集計
+    //    全件スキャンではなく、配下店舗IDに限定してクエリする
     // ============================================================
-    const subsSnapshot = await db.collection('subscriptions').get();
     const subscriberCounts: Record<string, number> = {};
-
-    subsSnapshot.docs.forEach((doc) => {
-      const data = doc.data();
-      if (Array.isArray(data.shopIds)) {
-        data.shopIds.forEach((sId: string) => {
-          subscriberCounts[sId] = (subscriberCounts[sId] || 0) + 1;
+    if (shopIds.length > 0) {
+      // Firestore 'array-contains-any' は最大10件まで。配下店舗を分割してクエリ。
+      const CHUNK = 10;
+      for (let i = 0; i < shopIds.length; i += CHUNK) {
+        const chunk = shopIds.slice(i, i + CHUNK);
+        const snap = await db.collection('subscriptions')
+          .where('shopIds', 'array-contains-any', chunk)
+          .get();
+        snap.docs.forEach((doc) => {
+          const data = doc.data();
+          if (Array.isArray(data.shopIds)) {
+            data.shopIds.forEach((sId: string) => {
+              // この代理店の配下店舗のみカウント（他店舗の重複を除外）
+              if (relationMap[sId]) {
+                subscriberCounts[sId] = (subscriberCounts[sId] || 0) + 1;
+              }
+            });
+          }
         });
-      } else if (data.shopId) {
-        subscriberCounts[data.shopId] = (subscriberCounts[data.shopId] || 0) + 1;
       }
-    });
+    }
 
     // ============================================================
     // 5. 当月の集計

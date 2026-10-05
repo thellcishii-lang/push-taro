@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { authAdmin, db } from '@/lib/firebase-admin';
 import { couponDay } from '@/lib/coupon-day';
 import { enforceRateLimit } from '@/lib/rate-limit';
+import { verifyCustomerSession } from '@/lib/customer-session';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,7 +46,18 @@ export async function GET(request: Request) {
     }
 
     if (!token) return NextResponse.json({ error: 'token が必要です' }, { status: 400 });
-    const subscription = await db.collection('subscriptions').doc(token).get();
+
+    // セッショントークンを検証（FCMトークンをURLに載せない方式）
+    // 後方互換: 旧形式（生のFCMトークン）も許可するが、期限付きセッションを推奨
+    const session = verifyCustomerSession(token);
+    const fcmToken = session ? session.token : token;
+
+    // セッショントークンの場合は shopId の整合を確認
+    if (session && session.shopId !== shopId) {
+      return NextResponse.json({ error: '権限がありません' }, { status: 403 });
+    }
+
+    const subscription = await db.collection('subscriptions').doc(fcmToken).get();
     if (!subscription.exists || !subscription.data()?.shopIds?.includes(shopId)) {
       return NextResponse.json({ error: '購読が見つかりません' }, { status: 403 });
     }

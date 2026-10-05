@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
+import { verifyPrintToken } from '@/lib/print-token';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,6 +11,14 @@ export async function GET(request: Request) {
 
   if (!agencyId || (type !== 'initial' && type !== 'monthly')) {
     return NextResponse.json({ error: '決済情報が正しくありません。' }, { status: 400 });
+  }
+
+  // 決済状況・決済リンクの漏洩を防ぐため、署名付きトークンを必須とする
+  if (!verifyPrintToken('agency', agencyId.trim(), searchParams.get('token'))) {
+    return NextResponse.json(
+      { error: 'アクセス権限がありません。メール内のリンクからアクセスしてください。' },
+      { status: 401 }
+    );
   }
 
   const agencyDoc = await db.collection('agencies').doc(agencyId).get();

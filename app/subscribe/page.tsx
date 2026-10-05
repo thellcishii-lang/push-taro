@@ -56,6 +56,28 @@ export default function SubscribePage() {
   const [couponHistory, setCouponHistory] = useState<Array<{ id: string; title: string; usedAt: string | null }>>([]);
   const [couponHistoryError, setCouponHistoryError] = useState('');
   const [couponHistoryLoading, setCouponHistoryLoading] = useState(false);
+  const [sessionToken, setSessionToken] = useState<string>('');
+
+  // FCMトークンからセッショントークンを取得（期限付き・URLに載せても安全）
+  const ensureSessionToken = async (): Promise<string> => {
+    if (sessionToken) return sessionToken;
+    if (!fcmToken || !shopId) return '';
+    try {
+      const res = await fetch('/api/customer-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: fcmToken, shopId }),
+      });
+      const data = await res.json();
+      if (res.ok && data.sessionToken) {
+        setSessionToken(data.sessionToken);
+        return data.sessionToken;
+      }
+    } catch (err) {
+      console.error('セッショントークン取得エラー:', err);
+    }
+    return '';
+  };
 
   const loadCouponHistory = async () => {
     if (!shopId || !fcmToken) return;
@@ -63,7 +85,9 @@ export default function SubscribePage() {
     setCouponHistoryError('');
     try {
       const idToken = await auth.currentUser?.getIdToken();
-      const response = await fetch(`/api/coupon-history?shopId=${encodeURIComponent(shopId)}&token=${encodeURIComponent(fcmToken)}`, {
+      const session = await ensureSessionToken();
+      const tokenParam = session || fcmToken;
+      const response = await fetch(`/api/coupon-history?shopId=${encodeURIComponent(shopId)}&token=${encodeURIComponent(tokenParam)}`, {
         headers: idToken ? { Authorization: `Bearer ${idToken}` } : {},
       });
       const data = await response.json();
@@ -178,16 +202,24 @@ useEffect(() => {
       setFcmToken(savedToken);
       setIsRegistered(true);
 
-      // ユーザーのクーポン使用状況を取得
-      fetch(`/api/subscribe-status?shopId=${shopId}&token=${encodeURIComponent(savedToken)}`)
-        .then(res => res.json())
-        .then(data => {
+      // ユーザーのクーポン使用状況を取得（セッショントークン経由）
+      (async () => {
+        try {
+          const sessionRes = await fetch('/api/customer-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: savedToken, shopId }),
+          });
+          const sessionData = await sessionRes.json();
+          const tokenParam = sessionData.sessionToken || savedToken;
+          if (sessionData.sessionToken) setSessionToken(sessionData.sessionToken);
+
+          const res = await fetch(`/api/subscribe-status?shopId=${shopId}&token=${encodeURIComponent(tokenParam)}`);
+          const data = await res.json();
           console.log('ステータス確認結果:', data);
           if (data.success) {
             setCouponUsed(Boolean(data.firstCouponUsed || data.couponUsed));
             setNormalCouponUsed(data.normalCouponUsed === true);
-          }
-          if (data.success) {
             setLoyaltyCouponAvailable(data.loyaltyCouponAvailable === true);
             setLoyaltyAchievedAt(data.loyaltyAchievedAt || null);
             setStepUpIndex(data.stepUpIndex || 0);
@@ -203,8 +235,10 @@ useEffect(() => {
             setSavedBirthMonth(data.birthMonth || null);
             setSavedBirthDay(data.birthDay || null);
           }
-        })
-        .catch(err => console.error('ステータス確認エラー:', err));
+        } catch (err) {
+          console.error('ステータス確認エラー:', err);
+        }
+      })();
     }
     loadNotificationHistory();
   }
@@ -272,8 +306,10 @@ useEffect(() => {
 
     const refreshCouponStatus = async () => {
       try {
+        const session = await ensureSessionToken();
+        const tokenParam = session || fcmToken;
         const res = await fetch(
-          `/api/subscribe-status?shopId=${encodeURIComponent(shopId)}&token=${encodeURIComponent(fcmToken)}`
+          `/api/subscribe-status?shopId=${encodeURIComponent(shopId)}&token=${encodeURIComponent(tokenParam)}`
         );
         const data = await res.json();
         if (data.success) {

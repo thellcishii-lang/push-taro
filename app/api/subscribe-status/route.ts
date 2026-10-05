@@ -15,6 +15,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
 import { couponDay } from '@/lib/coupon-day';
 import { enforceRateLimit } from '@/lib/rate-limit';
+import { verifyCustomerSession } from '@/lib/customer-session';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,8 +62,21 @@ export async function GET(request: Request) {
       );
     }
 
+    // セッショントークンを検証（FCMトークンをURLに載せない方式）
+    // 後方互換: 旧形式（生のFCMトークン）も許可するが、期限付きセッションを推奨
+    const session = verifyCustomerSession(token);
+    const fcmToken = session ? session.token : token;
+
+    // セッショントークンの場合は shopId の整合を確認
+    if (session && session.shopId !== shopId) {
+      return NextResponse.json(
+        { success: false, error: '権限がありません' },
+        { status: 403 }
+      );
+    }
+
     // ─── subscriptions/{token} を取得 ───
-    const doc = await db.collection('subscriptions').doc(token).get();
+    const doc = await db.collection('subscriptions').doc(fcmToken).get();
 
     if (!doc.exists) {
       // 顧客が未登録 → デフォルト値を返す

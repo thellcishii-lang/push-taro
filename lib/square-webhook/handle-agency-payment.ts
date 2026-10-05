@@ -172,22 +172,17 @@ async function checkAndActivate(
     });
 
     // ============================================================
-    // 2. パスワードを再生成して Auth に反映
-    //    （申し込み時に作った PW は使わせない）
+    // 2. パスワードをリセットリンクに変更
+    //    平文パスワードをメールに載せないため、Firebaseのリセットリンクを送る
     // ============================================================
-    let newPassword = '';
-    if (data?.uid) {
+    let resetLink = '';
+    if (data?.uid && data?.email) {
       try {
-        newPassword = 'Pass-' + crypto.randomBytes(12).toString('base64url') + 'A1!';
-        await authAdmin.updateUser(data.uid, { password: newPassword, disabled: false });
+        await authAdmin.updateUser(data.uid, { disabled: false });
+        resetLink = await authAdmin.generatePasswordResetLink(data.email.trim().toLowerCase());
       } catch (authErr) {
-        console.error('[代理店決済] パスワード再生成失敗:', authErr);
-        newPassword = ''; // メールには載せない
-        try {
-          await authAdmin.updateUser(data.uid, { disabled: false });
-        } catch (enableErr) {
-          console.error('[代理店決済] Auth有効化失敗:', enableErr);
-        }
+        console.error('[代理店決済] Auth有効化/リセットリンク生成失敗:', authErr);
+        resetLink = '';
       }
     }
 
@@ -204,7 +199,12 @@ async function checkAndActivate(
           <p>代理店アカウントが正式に有効化されましたので、ご報告いたします。</p>
           <hr />
           <p><strong>ログインID（メールアドレス）:</strong> ${data.email}</p>
-          ${newPassword ? `<p><strong>パスワード:</strong> <code style="background:#f1f5f9;padding:4px 12px;border-radius:4px;font-weight:bold;font-size:16px;">${newPassword}</code></p>` : ''}
+          ${resetLink ? `<p>
+            <a href="${resetLink}" style="display:inline-block;padding:12px 24px;background:#3182ce;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
+              パスワードを設定してログイン
+            </a>
+          </p>
+          <p style="font-size:12px;color:#64748b;">※ このリンクの有効期限は1時間です。</p>` : ''}
           <p><strong>紹介コード:</strong> <code>${data.referralCode || '未設定'}</code></p>
           <hr />
           <p>

@@ -90,8 +90,17 @@ try {
   });
 
   // ============================================================
-  // 3. 本登録完了メール
+  // 3. 本登録完了メール（パスワードリセットリンク方式）
+  //    平文パスワードをメールに載せないため、Firebaseのリセットリンクを送る
   // ============================================================
+  let resetLink: string;
+  try {
+    resetLink = await authAdmin.generatePasswordResetLink(normalizedEmail);
+  } catch (e) {
+    console.error('[本登録] リセットリンク生成失敗:', e);
+    resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password`;
+  }
+
   await sendEmail({
     to: normalizedEmail,
     subject: '【Push-taro】決済完了・本登録完了のお知らせ',
@@ -100,16 +109,15 @@ try {
         <h2>${pendingShopData.name || '店舗'} 様</h2>
         <p>決済処理が完了して、本登録が完了いたしました。</p>
         <p>この度は、Push-taroにご登録頂き誠にありがとうございます。</p>
-        <p>下記のリンクより、お客様のメールアドレスとパスワードでログインしてください。</p>
+        <p>下記のリンクより、パスワードを設定してログインしてください。</p>
         <hr />
         <p>選択プラン: ${plan.toUpperCase()}</p>
         <p>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/${plan === 'pro' ? 'pro-shop' : 'shop'}" style="display:inline-block;padding:12px 24px;background:#ff4500;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
-            管理画面へログイン
+          <a href="${resetLink}" style="display:inline-block;padding:12px 24px;background:#ff4500;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;">
+            パスワードを設定してログイン
           </a>
         </p>
-        <p>ログインID: ${normalizedEmail}</p>
-        <p>パスワード: <code>${generatedPassword}</code></p>
+        <p style="font-size:12px;color:#64748b;">※ このリンクの有効期限は1時間です。</p>
         <hr />
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>

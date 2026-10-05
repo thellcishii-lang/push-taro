@@ -4,6 +4,7 @@
  */
 import { NextResponse } from 'next/server';
 import { generateTermsPDF } from '@/lib/pdf-generator';
+import { enforceRateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,6 +13,15 @@ type TermsType = typeof VALID_TYPES[number];
 
 export async function GET(request: Request) {
   try {
+    // レート制限: CPU負荷の高いPDF生成の乱打を防止
+    const retryAfter = await enforceRateLimit(request, 'generate-terms-pdf', 10, 10 * 60 * 1000);
+    if (retryAfter !== null) {
+      return NextResponse.json(
+        { error: 'Too Many Requests' },
+        { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const type = (searchParams.get('type') || 'shop') as TermsType;
 

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { messaging, db } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { enforceRateLimit } from '@/lib/rate-limit';
+import { verifyCustomerSession } from '@/lib/customer-session';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +22,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'tokenとshopIdが必要です' }, { status: 400 });
     }
 
-    const subscriptionRef = db.collection('subscriptions').doc(token);
+    // セッショントークンを検証（FCMトークンを直接受け取らない方式）
+    // 後方互換: 旧形式（生のFCMトークン）も許可するが、期限付きセッションを推奨
+    const session = verifyCustomerSession(token);
+    const fcmToken = session ? session.token : token;
+
+    // セッショントークンの場合は shopId の整合を確認
+    if (session && session.shopId !== shopId) {
+      return NextResponse.json({ error: '権限がありません' }, { status: 403 });
+    }
+
+    const subscriptionRef = db.collection('subscriptions').doc(fcmToken);
     const subscriptionDoc = await subscriptionRef.get();
     if (!subscriptionDoc.exists) {
       return NextResponse.json({ success: true }, { status: 200 });
@@ -34,7 +45,7 @@ export async function POST(request: Request) {
     }
 
     const topic = `shop_${shopId}_users`;
-    await messaging.unsubscribeFromTopic([token], topic);
+    await messaging.unsubscribeFromTopic([fcmToken], topic);
 
     const remainingShopIds = shopIds.filter((id: string) => id !== shopId);
     if (remainingShopIds.length === 0) {
@@ -57,7 +68,7 @@ export async function POST(request: Request) {
 
     const chunkRef = db.collection('shops').doc(shopId).collection('token_chunks').doc('chunk_1');
     await chunkRef.set({
-      tokens: FieldValue.arrayRemove(token),
+      tokens: FieldValue.arrayRemove(fcmToken),
       updatedAt: FieldValue.serverTimestamp(),
     }, { merge: true });
 

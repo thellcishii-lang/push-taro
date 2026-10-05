@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { sendEmail } from '@/lib/mailer';
 import { FieldValue } from 'firebase-admin/firestore';
+import { generatePrintToken } from '@/lib/print-token';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,8 +60,11 @@ export async function GET(request: Request) {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
 
     // メール内のリンクは必ず状態確認画面を経由させる。
-    const initialPaymentLink = `${appUrl}/agency/payment?agencyId=${encodeURIComponent(agencyId)}&type=initial`;
-    const monthlyPaymentLink = `${appUrl}/agency/payment?agencyId=${encodeURIComponent(agencyId)}&type=monthly`;
+    // 決済状況の漏洩を防ぐため、署名付きトークンを付与する。
+    const initialToken = generatePrintToken('agency', agencyId);
+    const monthlyToken = generatePrintToken('agency', agencyId);
+    const initialPaymentLink = `${appUrl}/agency/payment?agencyId=${encodeURIComponent(agencyId)}&type=initial${initialToken ? `&token=${initialToken}` : ''}`;
+    const monthlyPaymentLink = `${appUrl}/agency/payment?agencyId=${encodeURIComponent(agencyId)}&type=monthly${monthlyToken ? `&token=${monthlyToken}` : ''}`;
 
     // ============================================================
     // 3. 決済案内メール送信

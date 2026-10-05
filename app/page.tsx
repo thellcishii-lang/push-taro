@@ -67,7 +67,7 @@ const organizationJsonLd = {
     postalCode: '357-0123',
     addressRegion: '埼玉県',
     addressLocality: '飯能市',
-    streetAddress: '中下藤下郷23-21',
+    streetAddress: '中藤下郷23-21',
     addressCountry: 'JP',
   },
   contactPoint: {
