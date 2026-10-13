@@ -24,7 +24,9 @@ export default function GuideClient() {
           </p>
         </div>
 
-        {/* ① 店舗マーケティングの本質 */}
+        {/* ============================================================
+            ① 店舗マーケティングの本質
+        ============================================================ */}
         <section className="g-sec">
           <div className="g-sec-head">
             <span className="g-sec-num">1</span>
@@ -56,7 +58,9 @@ export default function GuideClient() {
           </div>
         </section>
 
-        {/* ② 機能別ガイド */}
+        {/* ============================================================
+            ② 機能別ガイド
+        ============================================================ */}
         <section className="g-sec">
           <div className="g-sec-head">
             <span className="g-sec-num">2</span>
@@ -125,7 +129,9 @@ export default function GuideClient() {
           </div>
         </section>
 
-        {/* ③ 業種別ガイド */}
+        {/* ============================================================
+            ③ 業種別ガイド
+        ============================================================ */}
         <section className="g-sec">
           <div className="g-sec-head">
             <span className="g-sec-num">3</span>
@@ -150,7 +156,9 @@ export default function GuideClient() {
           </div>
         </section>
 
-        {/* ④ テーマ別ガイド */}
+        {/* ============================================================
+            ④ テーマ別ガイド
+        ============================================================ */}
         <section className="g-sec">
           <div className="g-sec-head">
             <span className="g-sec-num">4</span>
@@ -164,15 +172,16 @@ export default function GuideClient() {
           </div>
         </section>
 
-        {/* ⑤ 運用ノウハウ */}
+        {/* ============================================================
+            ⑤ 運用ノウハウ
+        ============================================================ */}
         <section className="g-sec">
           <div className="g-sec-head">
             <span className="g-sec-num">5</span>
-            <div><h2>📚 運用ノウハウ</h2><p>安全な運用と成功事例</p></div>
+            <div><h2>📚 運用ノウハウ</h2><p>安全な運用のために</p></div>
           </div>
           <div className="g-grid">
             <Link href="/guide/ng-actions" className="g-card"><span className="g-card-icon">⚠️</span><h4>NG行為集</h4><p>炎上・離反を招く行為</p></Link>
-            <Link href="/guide/case-studies" className="g-card"><span className="g-card-icon">📈</span><h4>導入事例</h4><p>成果を出した店舗の事例</p></Link>
           </div>
         </section>
 
