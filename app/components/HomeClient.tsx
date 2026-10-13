@@ -354,6 +354,51 @@ export default function HomeClient() {
   </div>
 </section>
 
+               {/* ============================================================
+          GUIDE PROMO（実店舗の集客、その「後」）
+      ============================================================ */}
+      <section className="guide-promo guide-promo-2">
+        <div className="container">
+          <div className="guide-promo-card is-reverse reveal">
+            <div className="guide-promo-left">
+              <span className="guide-promo-tag">📖 深く読みたい方へ</span>
+              <h2 className="guide-promo-title">
+                実店舗の集客、<br />
+                全部やるのは当たり前。<br />
+                <span className="guide-promo-title-accent">問題は、その「後」。</span>
+              </h2>
+              <p className="guide-promo-text">
+                広告、ポータル、LP、SNS、LINE。<br />
+                どれも必要で、全部やる時代。<br />
+                でも、1回来店してくれたお客様への施策が、抜けている。
+              </p>
+              <ul className="guide-promo-list">
+                <li>LINE Businessの配信上限という、見えない壁</li>
+                <li>CVRを上げるには、繰り返しの検証が必要</li>
+                <li>Push-taroは、その壁をどう外したか</li>
+              </ul>
+              <Link href="/guide/store-marketing" className="guide-promo-btn">
+                詳しく読む
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+            </div>
+            <div className="guide-promo-right">
+              <div className="guide-promo-mock is-alt">
+                <div className="guide-promo-mock-head"></div>
+                <div className="guide-promo-mock-bar" style={{ width: '95%' }}></div>
+                <div className="guide-promo-mock-bar" style={{ width: '70%' }}></div>
+                <div className="guide-promo-mock-bar is-highlight" style={{ width: '88%' }}></div>
+                <div className="guide-promo-mock-bar" style={{ width: '60%' }}></div>
+                <div className="guide-promo-mock-bar" style={{ width: '80%' }}></div>
+                <div className="guide-promo-mock-bar" style={{ width: '75%' }}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ============================================================
           SETUP
       ============================================================ */}
