@@ -491,6 +491,65 @@ img { max-width: 100%; display: block; }
 }
 
 /* ============================================================
+   GUIDE PROMO 2（実店舗の集客、その「後」）
+============================================================ */
+.guide-promo-2 {
+  background: #fff;
+  border-top: 1px solid #e2e8f0;
+}
+
+.guide-promo-card.is-reverse {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.guide-promo-card.is-reverse .guide-promo-tag {
+  background: rgba(255,69,0,0.15);
+  color: #fd7e5a;
+  border: 1px solid rgba(255,69,0,0.4);
+}
+
+.guide-promo-card.is-reverse .guide-promo-title {
+  color: #fff;
+}
+
+.guide-promo-title-accent {
+  color: #fd7e5a;
+}
+
+.guide-promo-card.is-reverse .guide-promo-text {
+  color: #cbd5e1;
+}
+
+.guide-promo-card.is-reverse .guide-promo-list li {
+  color: #e2e8f0;
+  border-bottom-color: rgba(255,255,255,0.08);
+}
+
+.guide-promo-card.is-reverse .guide-promo-btn {
+  background: linear-gradient(135deg, #ff4500, #f97316);
+  box-shadow: 0 8px 24px rgba(255,69,0,0.35);
+}
+
+.guide-promo-mock.is-alt {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.1);
+}
+
+.guide-promo-mock.is-alt .guide-promo-mock-head {
+  background: rgba(255,255,255,0.15);
+}
+
+.guide-promo-mock.is-alt .guide-promo-mock-bar {
+  background: rgba(255,255,255,0.15);
+}
+
+.guide-promo-mock.is-alt .guide-promo-mock-bar.is-highlight {
+  background: linear-gradient(90deg, #ff4500, #f97316);
+}
+
+/* ============================================================
    SETUP
 ============================================================ */
 .setup-barrier {
