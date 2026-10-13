@@ -130,7 +130,8 @@ export default function HomeClient() {
           <div className="hero-stats">
             <div className="hero-stat tilt-in float">
               <div className="hero-stat-num">最大<span className="count-up" data-count="10">10</span><small>倍</small></div>
-              <div className="hero-stat-label">メルマガ比 開封率</div>
+              <div className="hero-stat-label">メルマガ比 クリック率</div>
+              <p className="hero-stat-note">開封率はメールの約3倍、クリック率は約10倍。</p>
             </div>
             <div className="hero-stat tilt-in float" style={{ transitionDelay: '0.1s' }}>
               <div className="hero-stat-num"><span className="count-up" data-count="7">7</span><small>種類</small></div>
@@ -560,7 +561,7 @@ export default function HomeClient() {
               <div className="feature-card tilt-in">
                 <div className="feature-card-icon">📢</div>
                 <h4>プッシュ通知</h4>
-                <p>登録したお客様全員に、一斉に通知を配信。開封率（送った通知が、どれくらい見られたかの割合）はメルマガの約10倍。</p>
+                <p>登録したお客様全員に、一斉に通知を配信。クリック率（送った通知が、どれくらい見られたかの割合）はメルマガの約10倍。</p>
               </div>
               <div className="feature-card tilt-in" style={{ transitionDelay: '0.05s' }}>
                 <div className="feature-card-icon">📱</div>
@@ -849,7 +850,7 @@ export default function HomeClient() {
               </thead>
               <tbody>
                 <tr>
-                  <td>開封率</td>
+                  <td>クリック率</td>
                   <td className="col-pushtaro"><strong>最大10倍</strong></td>
                   <td>△ ツール次第</td>
                   <td>○ 高い</td>
