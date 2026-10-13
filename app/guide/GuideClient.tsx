@@ -24,10 +24,42 @@ export default function GuideClient() {
           </p>
         </div>
 
-        {/* ① 機能別ガイド */}
+        {/* ① 店舗マーケティングの本質 */}
         <section className="g-sec">
           <div className="g-sec-head">
             <span className="g-sec-num">1</span>
+            <div>
+              <h2>🎓 店舗マーケティングの本質</h2>
+              <p>「なぜ、そうなのか」を理解する</p>
+            </div>
+          </div>
+
+          <div className="g-grid">
+            <Link href="/guide/store-marketing" className="g-card is-new">
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">📖</span>
+              <h4>実店舗の集客、その「後」</h4>
+              <p>広告・ポータル・LP・SNS・LINE。全部やる時代に、抜けているもの</p>
+            </Link>
+            <Link href="/guide/push-notification-metrics" className="g-card is-new">
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">📊</span>
+              <h4>プッシュ通知のCVRは、何%あればいいのか</h4>
+              <p>CTRとCVRのベンチマークを、データで解説</p>
+            </Link>
+            <Link href="/guide/ctr-to-cvr" className="g-card is-new">
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">🎯</span>
+              <h4>CTRを、CVRに繋げる方法</h4>
+              <p>衝動タップを、来店に変える3つの設計</p>
+            </Link>
+          </div>
+        </section>
+
+        {/* ② 機能別ガイド */}
+        <section className="g-sec">
+          <div className="g-sec-head">
+            <span className="g-sec-num">2</span>
             <div>
               <h2>🔧 機能別ガイド</h2>
               <p>「この機能は何ができるの？」から始める</p>
@@ -93,14 +125,13 @@ export default function GuideClient() {
           </div>
         </section>
 
-        {/* ② 業種別ガイド */}
+        {/* ③ 業種別ガイド */}
         <section className="g-sec">
           <div className="g-sec-head">
-            <span className="g-sec-num">2</span>
+            <span className="g-sec-num">3</span>
             <div><h2>🏪 業種別ガイド</h2><p>あなたの業種に合わせた活用方法</p></div>
           </div>
           <div className="g-grid">
-            {/* ★ NEW：パン屋（追加） */}
             <Link href="/guide/bakery" className="g-card is-new">
               <span className="g-card-new">NEW</span>
               <span className="g-card-icon">🥐</span>
@@ -119,10 +150,10 @@ export default function GuideClient() {
           </div>
         </section>
 
-        {/* ③ テーマ別ガイド */}
+        {/* ④ テーマ別ガイド */}
         <section className="g-sec">
           <div className="g-sec-head">
-            <span className="g-sec-num">3</span>
+            <span className="g-sec-num">4</span>
             <div><h2>🎯 テーマ別ガイド</h2><p>目的から逆引きで探す</p></div>
           </div>
           <div className="g-grid">
@@ -133,10 +164,10 @@ export default function GuideClient() {
           </div>
         </section>
 
-        {/* ④ 運用ノウハウ */}
+        {/* ⑤ 運用ノウハウ */}
         <section className="g-sec">
           <div className="g-sec-head">
-            <span className="g-sec-num">4</span>
+            <span className="g-sec-num">5</span>
             <div><h2>📚 運用ノウハウ</h2><p>安全な運用と成功事例</p></div>
           </div>
           <div className="g-grid">
