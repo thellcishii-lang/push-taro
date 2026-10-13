@@ -207,6 +207,13 @@ img { max-width: 100%; display: block; }
   font-size: 12px; color: #94a3b8;
   margin-top: 6px; font-weight: 600;
 }
+.hero-stat-note {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 6px;
+  line-height: 1.5;
+  font-weight: 500;
+}
 
 /* ============================================================
    WHY NOW
