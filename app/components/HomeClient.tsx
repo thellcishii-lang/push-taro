@@ -561,7 +561,7 @@ export default function HomeClient() {
               <div className="feature-card tilt-in">
                 <div className="feature-card-icon">📢</div>
                 <h4>プッシュ通知</h4>
-                <p>登録したお客様全員に、一斉に通知を配信。クリック率（送った通知が、どれくらい見られたかの割合）はメルマガの約10倍。</p>
+                <p>登録したお客様全員に、一斉に通知を配信。クリック率（送った通知が、どれくらいタップされたかの割合）はメルマガの約10倍。</p>
               </div>
               <div className="feature-card tilt-in" style={{ transitionDelay: '0.05s' }}>
                 <div className="feature-card-icon">📱</div>
