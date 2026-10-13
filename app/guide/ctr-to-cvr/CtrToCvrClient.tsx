@@ -279,7 +279,7 @@ export default function CtrToCvrClient() {
           </p>
 
           <div className="g-callout success">
-            <span class="ico">✅</span>
+            <span className="ico">✅</span>
             <div>
               <p><strong>理想は、この流れ</strong></p>
               <p>
