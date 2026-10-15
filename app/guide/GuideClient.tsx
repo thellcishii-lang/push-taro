@@ -37,25 +37,31 @@ export default function GuideClient() {
           </div>
 
           <div className="g-grid">
-            <Link href="/guide/store-marketing" className="g-card is-new">
-              <span className="g-card-new">NEW</span>
-              <span className="g-card-icon">📖</span>
-              <h4>実店舗の集客、その「後」</h4>
-              <p>広告・ポータル・LP・SNS・LINE。全部やる時代に、抜けているもの</p>
-            </Link>
-            <Link href="/guide/push-notification-metrics" className="g-card is-new">
-              <span className="g-card-new">NEW</span>
-              <span className="g-card-icon">📊</span>
-              <h4>プッシュ通知のCVRは、何%あればいいのか</h4>
-              <p>CTRとCVRのベンチマークを、データで解説</p>
-            </Link>
-            <Link href="/guide/ctr-to-cvr" className="g-card is-new">
-              <span className="g-card-new">NEW</span>
-              <span className="g-card-icon">🎯</span>
-              <h4>CTRを、CVRに繋げる方法</h4>
-              <p>衝動タップを、来店に変える3つの設計</p>
-            </Link>
-          </div>
+  <Link href="/guide/store-marketing" className="g-card is-new">
+    <span className="g-card-new">NEW</span>
+    <span className="g-card-icon">📖</span>
+    <h4>実店舗の集客、オススメの施策</h4>
+    <p>広告・ポータル・LP・SNS・LINE。全部やる時代に、抜けているもの</p>
+  </Link>
+  <Link href="/guide/existing-customers" className="g-card is-new">
+    <span className="g-card-new">NEW</span>
+    <span className="g-card-icon">👥</span>
+    <h4>既存客の囲い込み</h4>
+    <p>売上が頭打ちになる、本当の理由</p>
+  </Link>
+  <Link href="/guide/push-notification-metrics" className="g-card is-new">
+    <span className="g-card-new">NEW</span>
+    <span className="g-card-icon">📊</span>
+    <h4>プッシュ通知のCVRは、何%あればいいのか</h4>
+    <p>CTRとCVRのベンチマークを、データで解説</p>
+  </Link>
+  <Link href="/guide/ctr-to-cvr" className="g-card is-new">
+    <span className="g-card-new">NEW</span>
+    <span className="g-card-icon">🎯</span>
+    <h4>CTRを、CVRに繋げる方法</h4>
+    <p>衝動タップを、来店に変える3つの設計</p>
+  </Link>
+</div>
         </section>
 
         {/* ============================================================
