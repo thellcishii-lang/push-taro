@@ -91,7 +91,6 @@ const collectionJsonLd = {
   { '@type': 'Article', name: 'CTRを、CVRに繋げる方法', url: `${appUrl}/guide/ctr-to-cvr` },
   { '@type': 'Article', name: 'セグメント配信とは', url: `${appUrl}/guide/segmentation` },
 ],
-  ],
 };
 
 /* ============================================================
