@@ -488,37 +488,53 @@ export default function ExistingCustomersClient() {
           </div>
 
           {/* ============================================================
-              関連ガイド
-          ============================================================ */}
-          <div className="g-related">
-            <h3>関連ガイド</h3>
-            <div className="g-related-grid">
-              <Link href="/guide/features/qr-acquisition" className="g-related-card">
-                <span className="ico">📱</span>
-                <div>
-                  <div className="title">QRコード顧客獲得</div>
-                  <div className="sub">店頭から、SNSから、顧客を集める</div>
-                </div>
-                <span className="arrow">→</span>
-              </Link>
-              <Link href="/guide/themes/repeat" className="g-related-card">
-                <span className="ico">🔄</span>
-                <div>
-                  <div className="title">リピート施策</div>
-                  <div className="sub">3回来店で、お客様は定着する</div>
-                </div>
-                <span className="arrow">→</span>
-              </Link>
-              <Link href="/guide/segmentation" className="g-related-card">
-                <span className="ico">📊</span>
-                <div>
-                  <div className="title">セグメント配信とは</div>
-                  <div className="sub">実店舗では「使えない」理由</div>
-                </div>
-                <span className="arrow">→</span>
-              </Link>
-            </div>
-          </div>
+    関連ガイド
+============================================================ */}
+<div className="g-related">
+  <h3>関連ガイド</h3>
+  <div className="g-related-grid">
+    <Link href="/guide" className="g-related-card">
+      <span className="ico">📖</span>
+      <div>
+        <div className="title">ガイドTOPに戻る</div>
+        <div className="sub">すべてのガイドを見る</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
+    <Link href="/guide/store-marketing" className="g-related-card">
+      <span className="ico">📖</span>
+      <div>
+        <div className="title">実店舗の集客、オススメの施策</div>
+        <div className="sub">集客の全体像</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
+    <Link href="/guide/features/qr-acquisition" className="g-related-card">
+      <span className="ico">📱</span>
+      <div>
+        <div className="title">QRコード顧客獲得</div>
+        <div className="sub">店頭から、SNSから、顧客を集める</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
+    <Link href="/guide/themes/repeat" className="g-related-card">
+      <span className="ico">🔄</span>
+      <div>
+        <div className="title">リピート施策</div>
+        <div className="sub">3回来店で、お客様は定着する</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
+    <Link href="/guide/segmentation" className="g-related-card">
+      <span className="ico">📊</span>
+      <div>
+        <div className="title">セグメント配信とは</div>
+        <div className="sub">実店舗では「使えない」理由</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
+  </div>
+</div>
 
           {/* ============================================================
               CTA
