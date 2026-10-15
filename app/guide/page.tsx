@@ -85,6 +85,12 @@ const collectionJsonLd = {
     { '@type': 'Article', name: '機能別ガイド', url: `${appUrl}/guide/features` },
     { '@type': 'Article', name: '導入事例', url: `${appUrl}/guide/case-studies` },
     { '@type': 'Article', name: 'NG行為集', url: `${appUrl}/guide/ng-actions` },
+    { '@type': 'Article', name: '既存客の囲い込み', url: `${appUrl}/guide/existing-customers` },
+  { '@type': 'Article', name: '実店舗の集客、その「後」', url: `${appUrl}/guide/store-marketing` },
+  { '@type': 'Article', name: 'プッシュ通知の指標', url: `${appUrl}/guide/push-notification-metrics` },
+  { '@type': 'Article', name: 'CTRを、CVRに繋げる方法', url: `${appUrl}/guide/ctr-to-cvr` },
+  { '@type': 'Article', name: 'セグメント配信とは', url: `${appUrl}/guide/segmentation` },
+],
   ],
 };
 
