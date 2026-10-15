@@ -364,13 +364,13 @@ export default function HomeClient() {
               <span className="guide-promo-tag">📖 深く読みたい方へ</span>
               <h2 className="guide-promo-title">
                 実店舗の集客、<br />
-                全部やるのは当たり前。<br />
-                <span className="guide-promo-title-accent">問題は、その「後」。</span>
+                オススメの施策。<br />
+                <span className="guide-promo-title-accent">これが土台となる。</span>
               </h2>
               <p className="guide-promo-text">
                 広告、ポータル、LP、SNS、LINE。<br />
                 どれも必要で、全部やる時代。<br />
-                でも、1回来店してくれたお客様への施策が、抜けている。
+                でも、1回来店してくれたお客様への施策が、弱いのでは。
               </p>
               <ul className="guide-promo-list">
                 <li>LINE Businessの配信上限という、見えない壁</li>
