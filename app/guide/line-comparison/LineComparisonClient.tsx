@@ -357,13 +357,51 @@ export default function LineComparisonClient() {
             </div>
           </div>
 
-          <div className="g-callout warn">
+                    <div className="g-callout warn">
             <span className="ico">⚠️</span>
             <div>
               <p><strong>「通数を節約する」か、「クーポンを目立たせる」か。</strong></p>
               <p>LINEでは、この<strong>トレードオフ</strong>から逃れられません。</p>
             </div>
           </div>
+
+          {/* ★ ここに追加 */}
+          <p>
+            そして、この「配信数」の問題は、<br />
+            <strong>その店舗のCVR（来店率）を出すために、決定的に重要</strong>です。
+          </p>
+
+          <p>
+            CVRは、店舗ごとに違います。<br />
+            業種・商圏・客層・単価——あらゆる条件で変わるからです。<br />
+            だから、<strong>「毎週配信して、結果を見て、改善する」</strong>というサイクルを回さないと、<br />
+            自店舗のCVRは、永遠に見えてきません。
+          </p>
+
+          <div className="g-callout info">
+            <span className="ico">💡</span>
+            <div>
+              <p><strong>CVRについて、もっと詳しく知りたい方へ</strong></p>
+              <p>
+                プッシュ通知のCTR・CVRのベンチマーク、<br />
+                実店舗の来店CVRの目安、ECサイトとの比較は、<br />
+                別の記事で詳しく解説しています。
+              </p>
+            </div>
+          </div>
+
+          <Link href="/guide/push-notification-metrics" className="next-article">
+            <div className="next-article-icon">📊</div>
+            <div className="next-article-body">
+              <div className="next-article-label">詳しくはこちら</div>
+              <div className="next-article-title">プッシュ通知のCVRは、何%あればいいのか</div>
+              <div className="next-article-desc">
+                CTRとCVRのベンチマークを、データで解説。<br />
+                実店舗の来店CVR 3.88%、ECサイトのCVR 0.29%など、数字で見るプッシュ通知の実力。
+              </div>
+            </div>
+            <div className="next-article-arrow">→</div>
+          </Link>
 
           {/* ============================================================
               5. Push-taroの答え：完全分離
