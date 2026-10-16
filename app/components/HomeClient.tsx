@@ -1391,15 +1391,15 @@ export default function HomeClient() {
       ============================================================ */}
       <section className="cta-final" id="cta">
         <div className="cta-final-inner reveal">
-          <h2>
-            お客様に喜んで頂ける、<br />
-            お店づくりを、一緒に。
-          </h2>
-          <p>
-            Push-taroは、実店舗の「喜んで頂ける仕組み」を<br />
-            プッシュ通知 × CRM で自動化するプラットフォームです。<br />
-            まずはお気軽に、無料相談・資料請求から。
-          </p>
+  <h2>
+    お客様に喜んで頂ける、<br />
+    お店づくりを、一緒に。
+  </h2>
+  <p>
+    Push-taroは、実店舗の「喜んで頂ける仕組み」を<br />
+    プッシュ通知 × クーポンアプリ で自動化するプラットフォームです。<br />
+    まずはお気軽に、無料相談・資料請求から。
+  </p>
           <div className="cta-final-actions">
             <Link href="/signup" className="btn-primary">
               👑 今すぐ申し込む
@@ -1442,9 +1442,9 @@ export default function HomeClient() {
                 <span>Push-taro<span className="dot">.</span></span>
               </div>
               <p className="footer-desc">
-                実店舗のリピート施策を「プッシュ通知 × CRM」で自動化するSaaS。<br />
-                店舗リピーター育成のためのクーポンアプリ。
-              </p>
+  実店舗のリピート施策を「プッシュ通知 × クーポンアプリ」で自動化するSaaS。<br />
+  顧客データを集めず、QRコード一つで始められます。
+</p>
               <div className="footer-badge">
                 <span className="footer-badge-dot"></span>
                 2026年9月 サービス開始
