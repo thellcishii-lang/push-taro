@@ -562,9 +562,19 @@ export default function StoreMarketingClient() {
           </p>
 
           {/* 関連ガイド */}
-          <div className="g-related">
+<div className="g-related">
   <h3>次に読む</h3>
   <div className="g-related-grid">
+    {/* ★ ここに挿入 */}
+    <Link href="/guide/line-comparison" className="g-related-card is-next">
+      <span className="ico">📊</span>
+      <div>
+        <div className="title">LINE公式アカウントとの比較</div>
+        <div className="sub">配信上限という壁を、数字で解説</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
+    {/* ★ 挿入ここまで */}
     <Link href="/guide/push-notification-metrics" className="g-related-card is-next">
       <span className="ico">📊</span>
       <div>
@@ -597,7 +607,6 @@ export default function StoreMarketingClient() {
     </Link>
   </div>
 </div>
-
           {/* CTA */}
           <div className="g-cta">
             <h3>配信上限の壁を、外す。</h3>
