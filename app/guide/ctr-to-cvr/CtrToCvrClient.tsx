@@ -482,34 +482,48 @@ export default function CtrToCvrClient() {
           </p>
 
           <div className="g-related">
-            <h3>関連ガイド</h3>
-            <div className="g-related-grid">
-              <Link href="/guide/push-notification-metrics" className="g-related-card">
-                <span className="ico">📊</span>
-                <div>
-                  <div className="title">プッシュ通知のCVRは、何%あればいいのか</div>
-                  <div className="sub">この記事の、前提となる指標</div>
-                </div>
-                <span className="arrow">→</span>
-              </Link>
-              <Link href="/guide/features/coupon-first" className="g-related-card">
-                <span className="ico">🎫</span>
-                <div>
-                  <div className="title">初回クーポン</div>
-                  <div className="sub">登録のハードルを、クーポンで超える</div>
-                </div>
-                <span className="arrow">→</span>
-              </Link>
-              <Link href="/guide/features/coupon-repeat" className="g-related-card">
-                <span className="ico">🔄</span>
-                <div>
-                  <div className="title">連続クーポン</div>
-                  <div className="sub">来店サイクルを、自動で短縮</div>
-                </div>
-                <span className="arrow">→</span>
-              </Link>
-            </div>
-          </div>
+  <h3>この記事の前提</h3>
+  <div className="g-related-grid">
+    <Link href="/guide/push-notification-metrics" className="g-related-card">
+      <span className="ico">📊</span>
+      <div>
+        <div className="title">プッシュ通知のCVRは、何%あればいいのか</div>
+        <div className="sub">CTRとCVRのベンチマーク</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
+    <Link href="/guide/store-marketing" className="g-related-card">
+      <span className="ico">📖</span>
+      <div>
+        <div className="title">実店舗の集客、オススメの施策</div>
+        <div className="sub">この記事のさらに前提</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
+  </div>
+</div>
+
+<div className="g-related" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e2e8f0' }}>
+  <h3>具体的な機能</h3>
+  <div className="g-related-grid">
+    <Link href="/guide/features/coupon-first" className="g-related-card">
+      <span className="ico">🎫</span>
+      <div>
+        <div className="title">初回クーポン</div>
+        <div className="sub">登録のハードルを、クーポンで超える</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
+    <Link href="/guide/features/coupon-repeat" className="g-related-card">
+      <span className="ico">🔄</span>
+      <div>
+        <div className="title">連続クーポン</div>
+        <div class="sub">来店サイクルを、自動で短縮</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
+  </div>
+</div>
 
           <div className="g-cta">
             <h3>CTRを、CVRに繋げる設計を。</h3>
