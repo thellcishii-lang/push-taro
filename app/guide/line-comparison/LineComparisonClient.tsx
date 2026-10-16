@@ -22,35 +22,223 @@ export default function LineComparisonClient() {
         </div>
 
         <div className="g-hero">
-          <span className="g-badge">📊 数字で比較</span>
-          <h1>LINE公式アカウントの<br />配信上限と、Push-taroとの比較。</h1>
+          <span className="g-badge">📊 設計思想の違い</span>
+          <h1>LINE公式アカウントと、<br />Push-taroは、何が違うのか。</h1>
           <p>
             LINE Businessは、<strong>本当に素晴らしいツール</strong>です。<br />
             9,800万人が使う国民的インフラ。友だち登録という低いハードル。<br />
-            でも、<strong>「配信上限」という、見えない壁</strong>がある。<br />
-            この記事では、その壁を数字で整理します。
+            でも、<strong>「クーポンを届ける」という一点において</strong>、<br />
+            LINEとPush-taroは、<strong>根本的に設計が違います</strong>。
           </p>
         </div>
 
         <div className="g-content">
 
           {/* ============================================================
-              1. LINEの配信通数、正しく理解していますか
+              1. 決定的な違い：クーポンの届け方
           ============================================================ */}
-          <h2><span className="num">1</span>LINEの配信通数、正しく理解していますか</h2>
+          <h2><span className="num">1</span>決定的な違いは、「クーポンの届け方」</h2>
 
           <p>
-            LINE公式アカウントの配信通数は、<strong>「友だち数 × 配信回数」</strong>で消費されます。<br />
-            無料プランは月200通、ライトプランは月5,000通、スタンダードプランは月30,000通。
+            まず、結論から書きます。
           </p>
 
-          <div className="g-callout info">
-            <span className="ico">💡</span>
-            <div>
-              <p><strong>ここで、多くの人が誤解しているポイントがあります。</strong></p>
-              <p>「クーポンは別カウント？」「メッセージと一緒なら1通？」——実は、<strong>送り方によって通数が変わる</strong>のです。</p>
+          <div className="g-quote is-orange">
+            LINEは、「クーポンを届ける」＝「メッセージを送る」。<br /><br />
+            Push-taroは、「クーポンを発行する」＝「自動でお客様画面に反映」。<br /><br />
+            この違いが、すべての差を生みます。
+          </div>
+
+          <h3 className="g-h3">LINEの場合：クーポンを届けるたびに、1通消費する</h3>
+
+          <p>
+            LINEでクーポンを届けるには、<strong>必ずメッセージを送信</strong>する必要があります。<br />
+            クーポンを添付しようと、別送しようと、<strong>1通は消費する</strong>。
+          </p>
+
+          <div className="flow-compare">
+            <div className="flow-card">
+              <div className="flow-card-label">LINE</div>
+              <div className="flow-steps">
+                <div className="flow-step">
+                  <span className="flow-step-num">1</span>
+                  <span>クーポンを届けたい</span>
+                </div>
+                <div className="flow-arrow-down">↓</div>
+                <div className="flow-step is-ctr">
+                  <span className="flow-step-num">2</span>
+                  <span>メッセージを送信（1通消費）</span>
+                </div>
+                <div className="flow-arrow-down">↓</div>
+                <div className="flow-step">
+                  <span className="flow-step-num">3</span>
+                  <span>トーク画面に届く</span>
+                </div>
+                <div className="flow-arrow-down">↓</div>
+                <div className="flow-step">
+                  <span className="flow-step-num">4</span>
+                  <span>履歴を遡って探す</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flow-card is-push">
+              <div className="flow-card-label">PUSH-TARO</div>
+              <div className="flow-steps">
+                <div className="flow-step">
+                  <span className="flow-step-num">1</span>
+                  <span>クーポンを発行する</span>
+                </div>
+                <div className="flow-arrow-down">↓</div>
+                <div className="flow-step is-ctr">
+                  <span className="flow-step-num">2</span>
+                  <span>自動でお客様画面に反映（0通）</span>
+                </div>
+                <div className="flow-arrow-down">↓</div>
+                <div className="flow-step">
+                  <span className="flow-step-num">3</span>
+                  <span>クーポン専用画面に常時表示</span>
+                </div>
+                <div className="flow-arrow-down">↓</div>
+                <div className="flow-step">
+                  <span className="flow-step-num">4</span>
+                  <span>プッシュ通知は、任意</span>
+                </div>
+              </div>
             </div>
           </div>
+
+          <div className="g-callout success">
+            <span className="ico">✅</span>
+            <div>
+              <p><strong>Push-taroでは、「クーポンを届ける」と「通知を送る」が、完全に分離しています。</strong></p>
+              <p>
+                クーポンを発行するだけで、お客様の画面に自動反映。<br />
+                プッシュ通知は、<strong>「今週限定」「お久しぶり」など、特別な時だけ</strong>送る。<br />
+                これが、Push-taroの最も大きな違いです。
+              </p>
+            </div>
+          </div>
+
+          {/* ============================================================
+              2. 「クーポンは自動反映」が、何を変えるか
+          ============================================================ */}
+          <h2><span className="num">2</span>「クーポンは自動反映」が、何を変えるか</h2>
+
+          <p>
+            この設計の違いは、<strong>運用・コスト・お客様体験</strong>のすべてを変えます。
+          </p>
+
+          <h3 className="g-h3">① クーポン配信コストが、実質ゼロ</h3>
+
+          <p>
+            LINEでは、クーポンを届けるたびに通数がかかります。<br />
+            Push-taroでは、<strong>発行するだけなら0通</strong>。
+          </p>
+
+          <div className="g-table-wrap">
+            <table className="g-table">
+              <thead>
+                <tr>
+                  <th>アクション</th>
+                  <th>LINE</th>
+                  <th className="col-pushtaro">Push-taro</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>クーポン発行</td>
+                  <td className="no">メッセージ送信（1通）</td>
+                  <td className="col-pushtaro yes">0通</td>
+                </tr>
+                <tr>
+                  <td>クーポンの自動反映</td>
+                  <td className="no">なし</td>
+                  <td className="col-pushtaro yes">自動</td>
+                </tr>
+                <tr>
+                  <td>プッシュ通知</td>
+                  <td className="no">必須</td>
+                  <td className="col-pushtaro yes">任意</td>
+                </tr>
+                <tr>
+                  <td>クーポンの閲覧</td>
+                  <td>トーク履歴を遡る</td>
+                  <td className="col-pushtaro yes">専用画面に常時表示</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 className="g-h3">② プッシュ通知の使い方が、全く変わる</h3>
+
+          <p>
+            LINE：「通知＝クーポン送信」。<br />
+            Push-taro：「通知は<strong>必要な時だけ</strong>」。
+          </p>
+
+          <div className="g-table-wrap">
+            <table className="g-table">
+              <thead>
+                <tr>
+                  <th>クーポンの種類</th>
+                  <th>発行</th>
+                  <th>プッシュ通知</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>通常クーポン（会員様10%OFF）</td>
+                  <td className="yes">する</td>
+                  <td className="no">不要（常設）</td>
+                </tr>
+                <tr>
+                  <td>特別達成クーポン（3回来店で解放）</td>
+                  <td className="yes">自動発行</td>
+                  <td>任意（達成をお祝い）</td>
+                </tr>
+                <tr>
+                  <td>新作クーポン（今週限定）</td>
+                  <td className="yes">する</td>
+                  <td className="yes">する（今週限定を伝える）</td>
+                </tr>
+                <tr>
+                  <td>休眠復活クーポン</td>
+                  <td className="yes">自動発行</td>
+                  <td className="yes">する（お久しぶりを伝える）</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="g-quote is-orange">
+            常設クーポンは、<br />
+            発行するだけで、運用できる。<br /><br />
+            これが、LINEにはない、<br />
+            Push-taroの強みです。
+          </div>
+
+          <h3 className="g-h3">③ 「今、何が使えるか」が、一目でわかる</h3>
+
+          <p>
+            LINEでは、クーポンはトーク履歴に埋もれます。<br />
+            新しいメッセージが届くたびに、過去のクーポンは、下に流れていく。
+          </p>
+
+          <p>
+            Push-taroでは、<strong>クーポン専用画面</strong>に、有効なクーポンが常に一覧表示されます。<br />
+            お客様は、レジで「あのクーポン、どこだっけ？」と探す手間が、ありません。
+          </p>
+
+          {/* ============================================================
+              3. LINEの配信通数、正しく理解していますか
+          ============================================================ */}
+          <h2><span className="num">3</span>LINEの配信通数、正しく理解していますか</h2>
+
+          <p>
+            ここで、LINEの配信通数の仕組みを、正確に整理します。<br />
+            配信通数は、<strong>「友だち数 × 配信回数」</strong>で消費されます。
+          </p>
 
           <div className="g-table-wrap">
             <table className="g-table">
@@ -82,14 +270,7 @@ export default function LineComparisonClient() {
             でも、ここに<strong>LINEの隠れた弱点</strong>があります。
           </p>
 
-          {/* ============================================================
-              2. 「クーポンを別送」が招く、知られざる罠
-          ============================================================ */}
-          <h2><span className="num">2</span>「クーポンを別送」が招く、知られざる罠</h2>
-
-          <p>
-            「メッセージ + クーポン同時送信」で通数を節約すると、何が起きるか。
-          </p>
+          <h3 className="g-h3">「同時送信」の罠</h3>
 
           <div className="g-steps">
             <div className="g-step">
@@ -121,58 +302,61 @@ export default function LineComparisonClient() {
           </div>
 
           {/* ============================================================
-              3. Push-taroは、クーポン配信がカウント対象外
+              4. Push-taroの答え：完全分離
           ============================================================ */}
-          <h2><span className="num">3</span>Push-taroは、クーポン配信がカウント対象外</h2>
+          <h2><span className="num">4</span>Push-taroの答え：「クーポン」と「通知」を、完全分離する</h2>
 
           <p>
-            Push-taroでは、<strong>クーポンの配信は、通数カウントに含まれません</strong>。<br />
-            あくまで、プッシュ通知による配信のみが、カウント対象です。
+            Push-taroは、このトレードオフを、<strong>設計で解決</strong>しました。
           </p>
 
-          <div className="g-table-wrap">
-            <table className="g-table">
-              <thead>
-                <tr>
-                  <th>送信内容</th>
-                  <th>LINE</th>
-                  <th className="col-pushtaro">Push-taro</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>通常メッセージ / プッシュ通知</td>
-                  <td>1通</td>
-                  <td className="col-pushtaro">1通</td>
-                </tr>
-                <tr>
-                  <td>クーポン配信</td>
-                  <td className="no">1通</td>
-                  <td className="col-pushtaro yes">0通（カウント外）</td>
-                </tr>
-                <tr>
-                  <td>メッセージ + クーポン同時</td>
-                  <td>1通</td>
-                  <td className="col-pushtaro yes">1通</td>
-                </tr>
-              </tbody>
-            </table>
+          <div className="separation-diagram">
+            <div className="separation-col">
+              <div className="separation-head">
+                <span className="separation-icon">🎫</span>
+                <h4>クーポン発行</h4>
+              </div>
+              <div className="separation-body">
+                <p>管理画面で作成・有効化</p>
+                <p className="separation-result">→ 自動でお客様画面に反映</p>
+                <p className="separation-cost">0通</p>
+              </div>
+            </div>
+            <div className="separation-plus">＋</div>
+            <div className="separation-col">
+              <div className="separation-head">
+                <span className="separation-icon">📢</span>
+                <h4>プッシュ通知</h4>
+              </div>
+              <div className="separation-body">
+                <p>必要な時だけ送信</p>
+                <p className="separation-result">→ ホーム画面に通知</p>
+                <p className="separation-cost">1通（通知のみ）</p>
+              </div>
+            </div>
           </div>
 
           <p>
-            つまり、Push-taroなら——
+            <strong>「クーポンを発行する」と「通知を送る」は、別の操作です。</strong><br />
+            これにより、店舗は<strong>無駄な通数を消費せず</strong>、クーポンを自由に設計できます。
           </p>
 
-          <div className="g-quote is-orange">
-            プッシュ通知でクーポンの存在を伝え、<br />
-            クーポン画面を開いてもらう。<br /><br />
-            これが、<strong>通数を増やさずに</strong>できる。
+          <div className="g-callout info">
+            <span className="ico">💡</span>
+            <div>
+              <p><strong>「常設クーポン」という発想</strong></p>
+              <p>
+                たとえば、「会員様はいつでも10%OFF」というクーポン。<br />
+                LINEなら、定期的にメッセージを送り続けないと、見てもらえません。<br />
+                Push-taroなら、<strong>一度発行するだけで、ずっと使える</strong>。
+              </p>
+            </div>
           </div>
 
           {/* ============================================================
-              4. 登録者数別・コスト比較
+              5. 登録者数別・コスト比較
           ============================================================ */}
-          <h2><span className="num">4</span>登録者数別・コスト比較</h2>
+          <h2><span className="num">5</span>登録者数別・コスト比較</h2>
 
           <p>
             では、具体的な数字で見ていきましょう。<br />
@@ -222,7 +406,7 @@ export default function LineComparisonClient() {
                 </div>
                 <div className="cost-row">
                   <span>クーポン4回</span>
-                  <strong className="is-good">0通（カウント外）</strong>
+                  <strong className="is-good">0通（自動反映）</strong>
                 </div>
                 <div className="cost-verdict is-good">
                   ✅ 余裕あり。クーポンも自由に配信
@@ -274,7 +458,7 @@ export default function LineComparisonClient() {
                 </div>
                 <div className="cost-row">
                   <span>クーポン4回</span>
-                  <strong className="is-good">0通（カウント外）</strong>
+                  <strong className="is-good">0通（自動反映）</strong>
                 </div>
                 <div className="cost-verdict is-good">
                   ✅ 余裕あり。LINEの1/4の価格
@@ -326,7 +510,7 @@ export default function LineComparisonClient() {
                 </div>
                 <div className="cost-row">
                   <span>クーポン4回</span>
-                  <strong className="is-good">0通（カウント外）</strong>
+                  <strong className="is-good">0通（自動反映）</strong>
                 </div>
                 <div className="cost-verdict is-good">
                   ✅ LINEの1/5の価格。全クーポン機能が使える
@@ -344,9 +528,9 @@ export default function LineComparisonClient() {
           </div>
 
           {/* ============================================================
-              5. あなたの店舗は、どっち？
+              6. あなたの店舗は、どっち？
           ============================================================ */}
-          <h2><span className="num">5</span>あなたの店舗は、どっち？</h2>
+          <h2><span className="num">6</span>あなたの店舗は、どっち？</h2>
 
           <div className="g-table-wrap">
             <table className="g-table">
@@ -389,13 +573,13 @@ export default function LineComparisonClient() {
 
           <p>
             ただし、これは<strong>「配信コスト」だけの比較</strong>です。<br />
-            実際の判断には、通知の届き方・クーポンの使いやすさ・運用のシンプルさも含めて、総合的に考える必要があります。
+            実際の判断には、クーポンの使いやすさ・通知の届き方・運用のシンプルさも含めて、総合的に考える必要があります。
           </p>
 
           {/* ============================================================
-              6. まずSTANDARDから始める理由
+              7. まずSTANDARDから始める理由
           ============================================================ */}
-          <h2><span className="num">6</span>まずSTANDARDから始める理由</h2>
+          <h2><span className="num">7</span>まずSTANDARDから始める理由</h2>
 
           <p>
             Push-taroには、LIGHT・STANDARD・PROの3プランがあります。<br />
@@ -431,9 +615,9 @@ export default function LineComparisonClient() {
           </div>
 
           {/* ============================================================
-              7. 広告費の「循環」を作る
+              8. 広告費の「循環」を作る
           ============================================================ */}
-          <h2><span className="num">7</span>広告費の「循環」を作る</h2>
+          <h2><span className="num">8</span>広告費の「循環」を作る</h2>
 
           <p>
             最後に、もっと大きな話を。<br />
@@ -460,8 +644,8 @@ export default function LineComparisonClient() {
             <div className="cycle-step is-highlight">
               <div className="cycle-num">3</div>
               <div className="cycle-content">
-                <h4>プッシュ通知で、毎週リピート施策</h4>
-                <p>記憶に残る。習慣になる。リピートする。</p>
+                <h4>クーポンを発行して、プッシュ通知で届ける</h4>
+                <p>クーポンは自動反映。通知は、必要な時だけ</p>
               </div>
             </div>
             <div className="cycle-arrow">↓</div>
@@ -483,9 +667,9 @@ export default function LineComparisonClient() {
           </div>
 
           {/* ============================================================
-              8. まとめ
+              9. まとめ
           ============================================================ */}
-          <h2><span className="num">8</span>まとめ</h2>
+          <h2><span className="num">9</span>まとめ</h2>
 
           <div className="g-table-wrap">
             <table className="g-table">
@@ -498,9 +682,24 @@ export default function LineComparisonClient() {
               </thead>
               <tbody>
                 <tr>
-                  <td>配信通数の消費</td>
-                  <td>クーポンも1通</td>
-                  <td className="yes">クーポンはカウント外</td>
+                  <td>クーポンの届け方</td>
+                  <td>メッセージ送信（1通）</td>
+                  <td className="yes">自動でお客様画面に反映（0通）</td>
+                </tr>
+                <tr>
+                  <td>プッシュ通知の位置づけ</td>
+                  <td>クーポン送信と一体化</td>
+                  <td className="yes">完全に独立（任意）</td>
+                </tr>
+                <tr>
+                  <td>クーポンの閲覧</td>
+                  <td>トーク履歴を遡る</td>
+                  <td className="yes">専用画面に常時表示</td>
+                </tr>
+                <tr>
+                  <td>常設クーポン</td>
+                  <td>定期的に再送が必要</td>
+                  <td className="yes">発行するだけ</td>
                 </tr>
                 <tr>
                   <td>500人・月8回配信</td>
@@ -517,16 +716,6 @@ export default function LineComparisonClient() {
                   <td>¥50,000（プロ）</td>
                   <td className="yes">¥10,000（PRO・無制限）</td>
                 </tr>
-                <tr>
-                  <td>通知の届き方</td>
-                  <td>トーク画面（埋もれやすい）</td>
-                  <td className="yes">ホーム画面に直接表示</td>
-                </tr>
-                <tr>
-                  <td>クーポンの使いやすさ</td>
-                  <td>メッセージに添付</td>
-                  <td className="yes">独立したクーポン画面</td>
-                </tr>
               </tbody>
             </table>
           </div>
@@ -534,8 +723,8 @@ export default function LineComparisonClient() {
           <p>
             LINEは、素晴らしいツールです。<br />
             否定する気は、まったくありません。<br /><br />
-            ただ、<strong>「毎週配信する」という運用を前提にすると、配信上限が壁になる</strong>。<br />
-            その壁を外したのが、Push-taroです。
+            ただ、<strong>「クーポンを届ける」という一点において、設計が根本的に違う</strong>。<br />
+            その違いを理解した上で、あなたの店舗に合った方を選んでください。
           </p>
 
           {/* 関連ガイド */}
@@ -592,8 +781,8 @@ export default function LineComparisonClient() {
           <div className="g-cta">
             <h3>配信上限を、気にせず。</h3>
             <p>
-              Push-taroは、クーポン配信がカウント対象外。<br />
-              毎週のリピート施策を、自由に設計できます。
+              Push-taroは、クーポン発行が0通。<br />
+              プッシュ通知は、必要な時だけ。
             </p>
             <Link href="/signup" className="g-cta-btn">無料相談・資料請求 →</Link>
           </div>
