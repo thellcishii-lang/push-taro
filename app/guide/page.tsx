@@ -15,7 +15,6 @@ export const metadata: Metadata = {
     '飲食店 集客',
     'パン屋 集客',
     'カフェ 集客',
-    '美容サロン 集客',
     'クーポン 活用',
     '休眠復活',
     '誕生日クーポン',
@@ -75,7 +74,6 @@ const collectionJsonLd = {
   hasPart: [
   // 業種別ガイド
   { '@type': 'Article', name: 'パン屋・ベーカリー', url: `${appUrl}/guide/bakery` },
-  { '@type': 'Article', name: '美容室・サロン', url: `${appUrl}/guide/salon` },
   { '@type': 'Article', name: '飲食店・カフェ', url: `${appUrl}/guide/cafe` },
   { '@type': 'Article', name: 'マッサージ・エステ', url: `${appUrl}/guide/massage` },
   { '@type': 'Article', name: 'アパレル・雑貨', url: `${appUrl}/guide/apparel` },
