@@ -518,7 +518,7 @@ export default function CtrToCvrClient() {
       <span className="ico">🔄</span>
       <div>
         <div className="title">連続クーポン</div>
-        <div class="sub">来店サイクルを、自動で短縮</div>
+        <div className="sub">来店サイクルを、自動で短縮</div>
       </div>
       <span className="arrow">→</span>
     </Link>
