@@ -310,6 +310,57 @@ export default function HomeClient() {
         </div>
       </section>
 
+         {/* ============================================================
+    SECURITY
+============================================================ */}
+<section className="section security-section" id="security">
+  <div className="container">
+    <div className="section-header reveal">
+      <span className="section-tag">Security</span>
+      <h2>顧客情報を、取らない。<br />という安心。</h2>
+      <p>
+        大手企業の情報流出が、日常になっています。<br />
+        顧客情報を取れば取るほど、リスクは増える。<br />
+        Push-taroが保存するのは、<strong>電話番号だけ</strong>です。
+      </p>
+    </div>
+
+    <div className="security-compare">
+      <div className="security-card is-others tilt-in-left">
+        <span className="security-badge">他のツール</span>
+        <h4>保存する情報</h4>
+        <ul className="security-list">
+          <li>氏名・住所</li>
+          <li>生年月日・性別</li>
+          <li>購買履歴</li>
+          <li>クレジットカード情報</li>
+          <li>電話番号</li>
+        </ul>
+        <p className="security-note">漏洩時のリスク：<strong>最大</strong></p>
+      </div>
+
+      <div className="security-card is-push tilt-in-right">
+        <span className="security-badge is-push">Push-taro</span>
+        <h4>保存する情報</h4>
+        <ul className="security-list">
+          <li className="is-good">電話番号（SMS認証済み）</li>
+          <li className="is-no">氏名・住所</li>
+          <li className="is-no">生年月日・性別</li>
+          <li className="is-no">購買履歴</li>
+          <li className="is-no">クレジットカード情報</li>
+        </ul>
+        <p className="security-note">漏洩時のリスク：<strong className="is-good">最小</strong></p>
+      </div>
+    </div>
+
+    <div className="security-cta reveal">
+      <Link href="/guide/security" className="security-link">
+        🔒 なぜ、Push-taroは顧客情報を取らないのか
+      </Link>
+    </div>
+  </div>
+</section>
+
                {/* ============================================================
           GUIDE PROMO（実店舗の集客、その「後」）
       ============================================================ */}
