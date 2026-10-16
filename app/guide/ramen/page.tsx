@@ -156,25 +156,6 @@ export default function RamenGuidePage() {
             </div>
           </div>
 
-          <h2><span className="num">6</span>導入事例</h2>
-          <div className="g-card">
-            <h4>📍 東京都 ラーメン店 A様</h4>
-            <p style={{ marginBottom: 12 }}>
-              <strong>導入前：</strong>月商 80万円<br />
-              <strong>導入後：</strong>月商 <strong style={{ color: '#16a34a' }}>145万円</strong>
-            </p>
-            <p>限定ラーメンの週次配信で、週末の来店が大幅アップ。常連化も進みました。</p>
-          </div>
-
-          <div className="g-card">
-            <h4>📍 福岡県 ラーメン店 B様</h4>
-            <p style={{ marginBottom: 12 }}>
-              <strong>導入前：</strong>平日昼の稼働 40%<br />
-              <strong>導入後：</strong>平日昼の稼働 <strong style={{ color: '#16a34a' }}>72%</strong>
-            </p>
-            <p>平日ランチクーポンで、昼の稼働率が大幅に改善しました。</p>
-          </div>
-
           <div className="g-related">
             <h3>関連ガイド</h3>
             <div className="g-related-grid">
