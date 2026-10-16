@@ -39,9 +39,7 @@ export default function LineComparisonClient() {
           ============================================================ */}
           <h2><span className="num">1</span>決定的な違いは、「クーポンの届け方」</h2>
 
-          <p>
-            まず、結論から書きます。
-          </p>
+          <p>まず、結論から書きます。</p>
 
           <div className="g-quote is-orange">
             LINEは、「クーポンを届ける」＝「メッセージを送る」。<br /><br />
@@ -120,13 +118,79 @@ export default function LineComparisonClient() {
             </div>
           </div>
 
+          <div className="g-callout warn">
+            <span className="ico">⚠️</span>
+            <div>
+              <p><strong>「クーポン発行＝0通」は、STANDARD以上の機能です。</strong></p>
+              <p>
+                LIGHTプランは、<strong>初回クーポンのみ</strong>。<br />
+                「通常クーポン」「特別達成クーポン」などの定期配信クーポンは、STANDARD以上で使えます。
+              </p>
+            </div>
+          </div>
+
           {/* ============================================================
-              2. 「クーポンは自動反映」が、何を変えるか
+              2. プラン別のクーポン機能
           ============================================================ */}
-          <h2><span className="num">2</span>「クーポンは自動反映」が、何を変えるか</h2>
+          <h2><span className="num">2</span>プラン別のクーポン機能</h2>
 
           <p>
-            この設計の違いは、<strong>運用・コスト・お客様体験</strong>のすべてを変えます。
+            まず、Push-taroの3プランで、<strong>どのクーポンが使えるか</strong>を整理します。
+          </p>
+
+          <div className="g-table-wrap">
+            <table className="g-table">
+              <thead>
+                <tr>
+                  <th>プラン</th>
+                  <th>月額</th>
+                  <th>配信上限</th>
+                  <th>クーポン機能</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>LIGHT</strong></td>
+                  <td>¥1,980</td>
+                  <td>5,000通</td>
+                  <td className="no">初回クーポンのみ</td>
+                </tr>
+                <tr>
+                  <td><strong>STANDARD</strong></td>
+                  <td>¥3,800</td>
+                  <td>15,000通</td>
+                  <td className="yes">初回・通常・特別達成</td>
+                </tr>
+                <tr>
+                  <td><strong>PRO</strong></td>
+                  <td>¥10,000</td>
+                  <td>無制限</td>
+                  <td className="yes">全7種類</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="g-callout info">
+            <span className="ico">💡</span>
+            <div>
+              <p><strong>LIGHTは「プッシュ通知を送るだけ」のプラン</strong></p>
+              <p>
+                LIGHTは、<strong>QRコード登録・プッシュ通知・初回クーポン</strong>が基本機能。<br />
+                定期配信のクーポン（通常・達成）は、STANDARDから。<br />
+                <strong>「まず配信の習慣を作る」</strong>ための、入門プランです。
+              </p>
+            </div>
+          </div>
+
+          {/* ============================================================
+              3. 「クーポンは自動反映」が、何を変えるか
+          ============================================================ */}
+          <h2><span className="num">3</span>「クーポンは自動反映」が、何を変えるか</h2>
+
+          <p>
+            この設計の違いは、<strong>運用・コスト・お客様体験</strong>のすべてを変えます。<br />
+            以下は、<strong>STANDARD以上</strong>の話です。
           </p>
 
           <h3 className="g-h3">① クーポン配信コストが、実質ゼロ</h3>
@@ -142,7 +206,7 @@ export default function LineComparisonClient() {
                 <tr>
                   <th>アクション</th>
                   <th>LINE</th>
-                  <th className="col-pushtaro">Push-taro</th>
+                  <th className="col-pushtaro">Push-taro STANDARD+</th>
                 </tr>
               </thead>
               <tbody>
@@ -231,9 +295,9 @@ export default function LineComparisonClient() {
           </p>
 
           {/* ============================================================
-              3. LINEの配信通数、正しく理解していますか
+              4. LINEの配信通数、正しく理解していますか
           ============================================================ */}
-          <h2><span className="num">3</span>LINEの配信通数、正しく理解していますか</h2>
+          <h2><span className="num">4</span>LINEの配信通数、正しく理解していますか</h2>
 
           <p>
             ここで、LINEの配信通数の仕組みを、正確に整理します。<br />
@@ -302,9 +366,9 @@ export default function LineComparisonClient() {
           </div>
 
           {/* ============================================================
-              4. Push-taroの答え：完全分離
+              5. Push-taroの答え：完全分離
           ============================================================ */}
-          <h2><span className="num">4</span>Push-taroの答え：「クーポン」と「通知」を、完全分離する</h2>
+          <h2><span className="num">5</span>Push-taroの答え：「クーポン」と「通知」を、完全分離する</h2>
 
           <p>
             Push-taroは、このトレードオフを、<strong>設計で解決</strong>しました。
@@ -348,15 +412,15 @@ export default function LineComparisonClient() {
               <p>
                 たとえば、「会員様はいつでも10%OFF」というクーポン。<br />
                 LINEなら、定期的にメッセージを送り続けないと、見てもらえません。<br />
-                Push-taroなら、<strong>一度発行するだけで、ずっと使える</strong>。
+                Push-taroなら、<strong>一度発行するだけで、ずっと使える</strong>（STANDARD以上）。
               </p>
             </div>
           </div>
 
           {/* ============================================================
-              5. 登録者数別・コスト比較
+              6. 登録者数別・コスト比較
           ============================================================ */}
-          <h2><span className="num">5</span>登録者数別・コスト比較</h2>
+          <h2><span className="num">6</span>登録者数別・コスト比較</h2>
 
           <p>
             では、具体的な数字で見ていきましょう。<br />
@@ -364,6 +428,22 @@ export default function LineComparisonClient() {
           </p>
 
           <h3 className="g-h3">ケース①：登録者500人の場合</h3>
+
+          <p>
+            まず、<strong>LIGHTプラン</strong>（クーポンは初回のみ）と、<strong>STANDARDプラン</strong>（クーポン使い放題）の2段構えで見ます。
+          </p>
+
+          <div className="g-callout info">
+            <span className="ico">💡</span>
+            <div>
+              <p><strong>LIGHTプランの場合</strong></p>
+              <p>
+                クーポンは初回のみ。<br />
+                定期配信のクーポン（月4回）は使えないので、<strong>月8回すべてプッシュ通知</strong>。<br />
+                4,000通で、5,000通の範囲内。ギリギリ運用可能。
+              </p>
+            </div>
+          </div>
 
           <div className="cost-compare">
             <div className="cost-card is-line">
@@ -392,13 +472,13 @@ export default function LineComparisonClient() {
 
             <div className="cost-card is-push">
               <div className="cost-card-head">
-                <span className="cost-badge is-push">Push-taro LIGHT</span>
-                <span className="cost-amount">¥1,980<span className="cost-per">/月</span></span>
+                <span className="cost-badge is-push">Push-taro STANDARD</span>
+                <span className="cost-amount">¥3,800<span className="cost-per">/月</span></span>
               </div>
               <div className="cost-detail">
                 <div className="cost-row">
                   <span>配信上限</span>
-                  <strong>5,000通</strong>
+                  <strong>15,000通</strong>
                 </div>
                 <div className="cost-row">
                   <span>月8回配信 × 500人</span>
@@ -409,7 +489,7 @@ export default function LineComparisonClient() {
                   <strong className="is-good">0通（自動反映）</strong>
                 </div>
                 <div className="cost-verdict is-good">
-                  ✅ 余裕あり。クーポンも自由に配信
+                  ✅ 余裕あり。LINEの1/4の価格
                 </div>
               </div>
             </div>
@@ -528,29 +608,34 @@ export default function LineComparisonClient() {
           </div>
 
           {/* ============================================================
-              6. あなたの店舗は、どっち？
+              7. あなたの店舗は、どっち？
           ============================================================ */}
-          <h2><span className="num">6</span>あなたの店舗は、どっち？</h2>
+          <h2><span className="num">7</span>あなたの店舗は、どっち？</h2>
 
           <div className="g-table-wrap">
             <table className="g-table">
               <thead>
                 <tr>
-                  <th>登録者数</th>
+                  <th>登録者数・目的</th>
                   <th>推奨</th>
                   <th>理由</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>〜200人</td>
+                  <td>〜200人（配信のみ）</td>
                   <td className="yes">LINE 無料プラン</td>
                   <td>月200通で足りる。まずは無料で始める</td>
                 </tr>
                 <tr>
-                  <td>200〜600人</td>
-                  <td className="yes">LINE ライト or Push-taro LIGHT</td>
-                  <td>月¥1,980〜で、どちらも運用可能</td>
+                  <td>200〜600人（配信のみ）</td>
+                  <td className="yes">Push-taro LIGHT</td>
+                  <td>¥1,980で5,000通。クーポンは初回のみ</td>
+                </tr>
+                <tr>
+                  <td>200〜600人（クーポンも使いたい）</td>
+                  <td className="yes">Push-taro STANDARD</td>
+                  <td>¥3,800で15,000通。通常クーポンも使える</td>
                 </tr>
                 <tr>
                   <td>600〜1,500人</td>
@@ -577,9 +662,9 @@ export default function LineComparisonClient() {
           </p>
 
           {/* ============================================================
-              7. まずSTANDARDから始める理由
+              8. まずSTANDARDから始める理由
           ============================================================ */}
-          <h2><span className="num">7</span>まずSTANDARDから始める理由</h2>
+          <h2><span className="num">8</span>まずSTANDARDから始める理由</h2>
 
           <p>
             Push-taroには、LIGHT・STANDARD・PROの3プランがあります。<br />
@@ -590,19 +675,22 @@ export default function LineComparisonClient() {
             <div className="g-step">
               <div className="g-step-body">
                 <h4>STEP 1：LIGHT で、配信の習慣を作る</h4>
-                <p>まず「毎週配信する」という習慣を身につける。月5,000通で、500人規模までなら十分。</p>
+                <p>
+                  まず「毎週配信する」という習慣を身につける。月5,000通で、500人規模までなら十分。<br />
+                  ただし、クーポンは<strong>初回のみ</strong>。定期配信のクーポンは、STANDARDから。
+                </p>
               </div>
             </div>
             <div className="g-step">
               <div className="g-step-body">
                 <h4>STEP 2：STANDARD で、来店回数の施策を始める</h4>
-                <p>通常クーポン・特別達成クーポンで、「来てくれる人を大切にする」仕組みを追加。</p>
+                <p>通常クーポン・特別達成クーポンで、「来てくれる人を大切にする」仕組みを追加。ここからが、本番。</p>
               </div>
             </div>
             <div className="g-step">
               <div className="g-step-body">
                 <h4>STEP 3：PRO で、本格的なリピート施策へ</h4>
-                <p>ステップアップ・連続・誕生日・休眠復活。ここからが、本番。顧客が1,000人を超えたあたりが、切り替えの目安。</p>
+                <p>ステップアップ・連続・誕生日・休眠復活。顧客が1,000人を超えたあたりが、切り替えの目安。</p>
               </div>
             </div>
           </div>
@@ -615,9 +703,9 @@ export default function LineComparisonClient() {
           </div>
 
           {/* ============================================================
-              8. 広告費の「循環」を作る
+              9. 広告費の「循環」を作る
           ============================================================ */}
-          <h2><span className="num">8</span>広告費の「循環」を作る</h2>
+          <h2><span className="num">9</span>広告費の「循環」を作る</h2>
 
           <p>
             最後に、もっと大きな話を。<br />
@@ -667,9 +755,9 @@ export default function LineComparisonClient() {
           </div>
 
           {/* ============================================================
-              9. まとめ
+              10. まとめ
           ============================================================ */}
-          <h2><span className="num">9</span>まとめ</h2>
+          <h2><span className="num">10</span>まとめ</h2>
 
           <div className="g-table-wrap">
             <table className="g-table">
@@ -677,43 +765,51 @@ export default function LineComparisonClient() {
                 <tr>
                   <th>論点</th>
                   <th>LINE公式</th>
-                  <th>Push-taro</th>
+                  <th>Push-taro LIGHT</th>
+                  <th>Push-taro STANDARD+</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td>クーポンの届け方</td>
                   <td>メッセージ送信（1通）</td>
-                  <td className="yes">自動でお客様画面に反映（0通）</td>
+                  <td className="no">初回のみ</td>
+                  <td className="yes">自動反映（0通）</td>
+                </tr>
+                <tr>
+                  <td>定期配信クーポン</td>
+                  <td>1通</td>
+                  <td className="no">なし</td>
+                  <td className="yes">0通</td>
                 </tr>
                 <tr>
                   <td>プッシュ通知の位置づけ</td>
                   <td>クーポン送信と一体化</td>
+                  <td>配信の基本</td>
                   <td className="yes">完全に独立（任意）</td>
                 </tr>
                 <tr>
                   <td>クーポンの閲覧</td>
                   <td>トーク履歴を遡る</td>
+                  <td>トーク履歴を遡る</td>
                   <td className="yes">専用画面に常時表示</td>
-                </tr>
-                <tr>
-                  <td>常設クーポン</td>
-                  <td>定期的に再送が必要</td>
-                  <td className="yes">発行するだけ</td>
                 </tr>
                 <tr>
                   <td>500人・月8回配信</td>
                   <td>¥5,000〜（別送で上限超え）</td>
-                  <td className="yes">¥1,980（余裕あり）</td>
+                  <td>¥1,980（配信のみ）</td>
+                  <td className="yes">¥3,800（クーポン込）</td>
                 </tr>
                 <tr>
                   <td>1,500人・月8回配信</td>
                   <td>¥15,000（スタンダード）</td>
+                  <td className="no">配信のみ</td>
                   <td className="yes">¥3,800（STANDARD）</td>
                 </tr>
                 <tr>
                   <td>3,000人・月8回配信</td>
                   <td>¥50,000（プロ）</td>
+                  <td className="no">配信のみ</td>
                   <td className="yes">¥10,000（PRO・無制限）</td>
                 </tr>
               </tbody>
