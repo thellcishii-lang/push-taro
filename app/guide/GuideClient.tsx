@@ -167,7 +167,7 @@ export default function GuideClient() {
         ============================================================ */}
         <section className="g-sec">
           <div className="g-sec-head">
-            <span className="g-sec-num">5</span>
+            <span className="g-sec-num">4</span>
             <div><h2>📚 運用ノウハウ</h2><p>安全な運用のために</p></div>
           </div>
           <div className="g-grid">
