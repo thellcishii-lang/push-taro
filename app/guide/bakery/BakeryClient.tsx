@@ -25,216 +25,297 @@ export default function BakeryClient() {
           <span className="g-badge">🥐 パン屋・ベーカリー向け</span>
           <h1>パン屋・ベーカリーのための<br />Push-taro活用ガイド</h1>
           <p>
-            パン屋の最大の武器は<strong>「焼き立て」</strong>。<br />
-            「本日30個限定 生チョコ食パン15時から」——たった1通のプッシュ通知が、
-            午後のアイドルタイムを一番の売上時間に変えます。
+            パン屋の武器は、<strong>「焼きたて」だけじゃない</strong>。<br />
+            「今日は何だろう」という<strong>期待</strong>を、毎日届ける。<br />
+            通常メニュー以外の一手が、来店の習慣を作ります。
           </p>
         </div>
 
         <div className="g-content">
 
-          {/* ========== 1. なぜパン屋に効くのか ========== */}
-          <h2><span className="num">1</span>なぜパン屋に、プッシュ通知が効くのか</h2>
+          {/* ============================================================
+              1. パン屋の武器は、「今日は何だろう」という期待
+          ============================================================ */}
+          <h2><span className="num">1</span>パン屋の武器は、「今日は何だろう」という期待</h2>
+
           <p>
-            パン屋の最大の魅力は<strong>「焼き立て」</strong>。しかし、お客様は
-            「いつ、何が焼き上がるか」を知りません。
+            パン屋の多くが、「焼きたて」を売りにしています。<br />
+            でも、よく考えてください。
           </p>
+
+          <div className="g-quote is-orange">
+            パン屋は、その日に焼いたパンしか、売っていない。<br /><br />
+            つまり、「焼きたて」は、<strong>当たり前</strong>なんです。
+          </div>
+
           <p>
-            プッシュ通知なら、<strong>「15時に生チョコ食パンが焼き上がります」</strong>
-            と、リアルタイムで届けられます。これは、チラシやSNSでは真似できない即時性です。
+            お客様にとって、大事なのは「焼きたてかどうか」ではありません。<br />
+            <strong>「今日、何が焼けているか」</strong>。これが、知りたいことです。
           </p>
 
           <div className="g-callout info">
             <span className="ico">💡</span>
             <div>
-              <p><strong>「お店に行かなくとも、今日のパンがわかる」</strong></p>
-              <p>これが最大の来店動機。常連客の「今日は何があるかな」を、1通の通知で解決します。</p>
+              <p><strong>お客様の頭の中</strong></p>
+              <p>
+                「あのパン屋、今日は何があるかな」<br />
+                「生チョコ食パン、まだあるかな」<br />
+                「15時から、あれが出るらしい」<br /><br />
+                この<strong>「今日の情報」</strong>を、毎日届けるのが、プッシュ通知です。
+              </p>
             </div>
           </div>
 
-          {/* ========== 2. 基本編 ========== */}
-          <h2><span className="num">2</span>【基本編】毎日使える施策</h2>
-          <p>LIGHT / STANDARD プランでも十分効果が出る、基本の3つ。</p>
+          <p>
+            「今日は何だろう」という期待が、来店の動機になる。<br />
+            そして、毎日配信することで、<strong>来店の習慣</strong>が生まれます。
+          </p>
+
+          {/* ============================================================
+              2. 「通常メニュー以外」を、毎日届ける
+          ============================================================ */}
+          <h2><span className="num">2</span>「通常メニュー以外」を、毎日届ける</h2>
+
+          <p>
+            通常メニューだけでは、毎日配信する意味が薄い。<br />
+            <strong>「通常メニュー以外」</strong>があるから、毎日、配信する意味が生まれます。
+          </p>
+
+          <p>
+            パン屋が発信できる「通常メニュー以外」は、<strong>4つの型</strong>に分かれます。
+          </p>
 
           <div className="g-grid">
             <div className="g-card-simple">
-              <div className="g-icon-big">📢</div>
-              <h4>毎日10時の「本日のパン」</h4>
-              <p>朝の準備が終わる10時に、今日のラインナップを配信。お昼の来店動機を作ります。</p>
+              <div className="g-icon-big">📅</div>
+              <h4>日替わり</h4>
+              <p>曜日で変える。「水曜は明太ポテト」など、習慣になる。</p>
             </div>
             <div className="g-card-simple">
-              <div className="g-icon-big">🥐</div>
-              <h4>「本日30個限定」の数量限定</h4>
-              <p>数量限定は最も強い来店動機。「今日しか買えない」が行動を後押しします。</p>
+              <div className="g-icon-big">⏰</div>
+              <h4>数量限定 × 時間指定</h4>
+              <p>「本日30個限定、15時より販売開始」——最も強い来店動機。</p>
             </div>
             <div className="g-card-simple">
               <div className="g-icon-big">🔥</div>
-              <h4>焼き上がり時間の配信</h4>
-              <p>「今、焼き上がりました」を配信すると、近隣のお客様がすぐ動きます。</p>
+              <h4>SNSバズり再現</h4>
+              <p>「今、SNSで話題のアレ、作りました」——話題性が武器になる。</p>
+            </div>
+            <div className="g-card-simple">
+              <div className="g-icon-big">🍂</div>
+              <h4>季節限定</h4>
+              <p>「桜あんぱん、始めました」——年1回のお楽しみを作る。</p>
             </div>
           </div>
 
-          {/* ========== 3. 週次編 ========== */}
-          <h2><span className="num">3</span>【週次編】曜日で仕組化する</h2>
-          <p>曜日ごとにテーマを決めると、常連客の習慣になります。</p>
+          <p>
+            この4つを、<strong>組み合わせて、毎日配信する</strong>。<br />
+            これが、パン屋のプッシュ通知の、基本形です。
+          </p>
 
-          <div className="g-table-wrap">
-            <table className="g-table">
-              <thead>
-                <tr>
-                  <th>曜日</th>
-                  <th>テーマ</th>
-                  <th>配信例</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>月曜</td><td>週の始まりは食パン</td><td>「今週も始まりました。焼きたて食パン、いかがですか？」</td></tr>
-                <tr><td>水曜</td><td>週替わり惣菜パン</td><td>「今週の惣菜パンは、明太ポテト。」</td></tr>
-                <tr><td>金曜</td><td>週末限定の特別パン</td><td>「明日はお休み。週末限定の贅沢パン、いかがですか？」</td></tr>
-                <tr><td>土日</td><td>家族で楽しむパン</td><td>「お子様に人気の動物パン、本日限定でご用意。」</td></tr>
-              </tbody>
-            </table>
+          <div className="g-callout success">
+            <span className="ico">📢</span>
+            <div>
+              <p><strong>配信例</strong></p>
+              <p>
+                「【本日限定】<br />
+                <strong>今、SNSで話題の「生チョコ食パン」</strong>、<br />
+                当店オリジナルで作りました🍫<br /><br />
+                本日30個限定。<br />
+                <strong>15時より販売開始</strong>です。<br />
+                なくなり次第、終了。」
+              </p>
+            </div>
           </div>
 
-          {/* ========== 4. 季節編 ========== */}
-          <h2><span className="num">4</span>【季節編】年間9回のキャンペーン設計</h2>
+          {/* ============================================================
+              3. 毎日配信なら、LIGHT / STANDARDで十分
+          ============================================================ */}
+          <h2><span className="num">3</span>毎日配信なら、LIGHT / STANDARDで十分</h2>
+
           <p>
-            マクドナルド式の「定番 + 季節メニュー」。1年を4半期に分け、行事を被らないように配置。
+            「今日のパン」「焼き上がり」の毎日配信は、<br />
+            <strong>LIGHT / STANDARDプランで、十分</strong>です。
           </p>
 
           <div className="g-table-wrap">
             <table className="g-table">
               <thead>
                 <tr>
-                  <th>時期</th>
-                  <th>テーマ</th>
-                  <th>具体例</th>
+                  <th>登録者数</th>
+                  <th>推奨プラン</th>
+                  <th>月間配信上限</th>
                 </tr>
               </thead>
               <tbody>
-                <tr><td>1月〜2月</td><td>バレンタイン</td><td>チョコ系パン、ハート型限定パン</td></tr>
-                <tr><td>3月〜4月</td><td>桜・春</td><td>桜あんぱん、いちごパン</td></tr>
-                <tr><td>5月</td><td>ゴールデンウィーク</td><td>家族向けの特別セット</td></tr>
-                <tr><td>6月〜8月</td><td>夏・冷たいパン</td><td>冷やしクリームパン、塩パン</td></tr>
-                <tr><td>9月〜10月</td><td>秋・ハロウィン</td><td>かぼちゃパン、紫いもパン</td></tr>
-                <tr><td>11月〜12月</td><td>クリスマス</td><td>シュトーレン、クリスマス限定パン</td></tr>
+                <tr>
+                  <td>〜500人</td>
+                  <td className="yes">LIGHT（¥1,980）</td>
+                  <td>5,000通</td>
+                </tr>
+                <tr>
+                  <td>〜1,500人</td>
+                  <td className="yes">STANDARD（¥3,800）</td>
+                  <td>15,000通</td>
+                </tr>
+                <tr>
+                  <td>1,500人以上</td>
+                  <td className="yes">PRO（¥10,000）</td>
+                  <td>無制限</td>
+                </tr>
               </tbody>
             </table>
           </div>
 
+          <p>
+            500人に毎日配信（月30回）しても、15,000通。<br />
+            STANDARDプランで、余裕を持って運用できます。
+          </p>
+
           <div className="g-callout info">
             <span className="ico">💡</span>
             <div>
-              <p><strong>ポイント：</strong>ハロウィン〜バレンタインは行事が満載なので、被らないように4半期で配置。年間9回のキャンペーン時期が自然と生まれます。</p>
+              <p><strong>クーポンなしでも、来店動機は作れる</strong></p>
+              <p>
+                「本日のパン」「焼き上がり」「数量限定」——<br />
+                <strong>クーポンを配らなくても、来店の理由は作れます</strong>。<br />
+                むしろ、毎日の情報発信の方が、クーポンより効果が高いケースも。
+              </p>
             </div>
           </div>
 
-          {/* ========== 5. 応用編 ========== */}
-          <h2><span className="num">5</span>【応用編】テスト販売にも使える</h2>
+          {/* ============================================================
+              4. 常連には、PROでクーポンを仕込む
+          ============================================================ */}
+          <h2><span className="num">4</span>常連には、PROでクーポンを仕込む</h2>
+
           <p>
-            新しいパンを開発した時、いきなり本メニュー化するのはリスク。
-            まず<strong>数量限定でテスト販売</strong>し、反応を見ます。
+            毎日配信で、来店の習慣ができたら、次は<strong>ファン化</strong>です。<br />
+            PROプランなら、常連向けのクーポンを、自動で仕込めます。
           </p>
 
           <div className="g-steps">
             <div className="g-step">
               <div className="g-step-body">
-                <h4>試作パンを開発</h4>
-                <p>季節の素材を使った新商品を試作。</p>
+                <h4>連続クーポン</h4>
+                <p>来店ごとに、次回使えるクーポンを自動配信。来店サイクルを、自然に短縮。</p>
               </div>
             </div>
             <div className="g-step">
               <div className="g-step-body">
-                <h4>数量限定で配信</h4>
-                <p>「本日20個限定」で反応をチェック。</p>
+                <h4>特別達成クーポン</h4>
+                <p>N回来店で、特別クーポンを解放。「あと1回」の心理で、来店を後押し。</p>
               </div>
             </div>
             <div className="g-step">
               <div className="g-step-body">
-                <h4>開封率と完売を確認</h4>
-                <p>50%以上の開封率 + 完売なら成功。</p>
+                <h4>記念日・誕生日クーポン</h4>
+                <p>年1回の特別な日に、自動でお祝いクーポンを配信。</p>
               </div>
             </div>
             <div className="g-step">
               <div className="g-step-body">
-                <h4>本メニュー化</h4>
-                <p>定番商品としてラインナップに追加。</p>
+                <h4>休眠復活クーポン</h4>
+                <p>しばらく来ていないお客様に、自動で復帰クーポンを配信。</p>
               </div>
             </div>
           </div>
 
-          {/* ========== 6. 1日の運用手順 ========== */}
-          <h2><span className="num">6</span>パン屋の1日、運用手順</h2>
-          <p>毎日のルーティンに組み込めば、5分で運用完了。</p>
+          <div className="g-quote is-orange">
+            「今日の情報」＋「クーポン」で、<br />
+            常連が、もっと来てくれる。
+          </div>
+
+          <p>
+            毎日の情報発信で、来店の習慣を作る。<br />
+            そして、クーポンで、常連をファンに変えていく。
+          </p>
+
+          {/* ============================================================
+              5. Push-taroなら、これが全部、簡単に仕込める
+          ============================================================ */}
+          <h2><span className="num">5</span>Push-taroなら、これが全部、簡単に仕込める</h2>
+
+          <p>
+            「今日のパン」を毎日配信。<br />
+            「数量限定」「SNSバズり再現」を、画像付きで。<br />
+            「連続クーポン」「誕生日クーポン」を、自動で。
+          </p>
+
+          <p>
+            これらすべてを、<strong>特別な知識も、マーケティング専任チームもなく、仕込めます</strong>。
+          </p>
 
           <div className="g-table-wrap">
             <table className="g-table">
               <thead>
                 <tr>
-                  <th>時刻</th>
-                  <th>アクション</th>
-                  <th>内容</th>
+                  <th>施策</th>
+                  <th>使う機能</th>
+                  <th>プラン</th>
                 </tr>
               </thead>
               <tbody>
-                <tr><td>08:00</td><td>朝の準備</td><td>今日のラインナップと焼き上がり時間を確認</td></tr>
-                <tr><td>10:00</td><td>「本日のパン」配信</td><td>今日のラインナップをプッシュ通知</td></tr>
-                <tr><td>12:00</td><td>焼き上がり告知</td><td>「クロワッサン焼き上がりました」を即時配信</td></tr>
-                <tr><td>15:00</td><td>数量限定告知</td><td>「生チョコ食パン30個限定」を配信</td></tr>
-                <tr><td>17:00</td><td>翌日予告</td><td>「明日は〇〇を焼きます」で翌日の来店動機を作る</td></tr>
+                <tr>
+                  <td>今日のパン配信</td>
+                  <td>プッシュ通知</td>
+                  <td className="yes">全プラン</td>
+                </tr>
+                <tr>
+                  <td>初回クーポン</td>
+                  <td>初回クーポン</td>
+                  <td className="yes">全プラン</td>
+                </tr>
+                <tr>
+                  <td>常連クーポン</td>
+                  <td>連続・達成</td>
+                  <td className="yes">STANDARD+</td>
+                </tr>
+                <tr>
+                  <td>ファン化クーポン</td>
+                  <td>誕生日・休眠復活</td>
+                  <td className="yes">PRO</td>
+                </tr>
               </tbody>
             </table>
           </div>
 
-          {/* ========== 7. 黄金律 ========== */}
-          <h2><span className="num">7</span>パン屋のための3つの黄金律</h2>
+          <p>
+            店頭に、QRコードを置くだけ。<br />
+            お客様は、スマホで読み取って、通知を許可する。<br />
+            ——これで、毎日の配信が、始められます。
+          </p>
 
-          <div className="g-grid">
-            <div className="g-card-simple">
-              <div className="g-icon-big">1️⃣</div>
-              <h4>クーポン配信は週2回まで</h4>
-              <p>毎日送ると通知OFFにされます。焼き上がり告知は毎日OK、クーポンは週2回まで。</p>
-            </div>
-            <div className="g-card-simple">
-              <div className="g-icon-big">2️⃣</div>
-              <h4>「焼き立て」に勝る情報なし</h4>
-              <p>「今、焼き上がりました」は、パン屋にしか出せない最強の情報。即時性が命です。</p>
-            </div>
-            <div className="g-card-simple">
-              <div className="g-icon-big">3️⃣</div>
-              <h4>クーポンなしでも動く</h4>
-              <p>焼き上がり告知、季節メニュー、数量限定。クーポンがなくとも来店動機は作れます。</p>
+          <div className="g-callout success">
+            <span className="ico">✅</span>
+            <div>
+              <p><strong>パン屋のリピート施策を、シンプルに。</strong></p>
+              <p>
+                「今日は何だろう」という期待を、毎日届ける。<br />
+                それが、パン屋の、一番強い集客です。
+              </p>
             </div>
           </div>
 
-          {/* ========== 9. FAQ ========== */}
-          <h2><span className="num">8</span>よくあるご質問</h2>
-          <div className="g-faq">
-            <details className="g-faq-item">
-              <summary>パン屋のプッシュ通知は毎日送ってもいいですか？</summary>
-              <p>焼き上がり時間や本日のパンの告知であれば毎日配信しても効果があります。ただしクーポン配信は週2回までが適正です。</p>
-            </details>
-            <details className="g-faq-item">
-              <summary>パン屋でプッシュ通知は何を送ればいいですか？</summary>
-              <p>「本日30個限定 生チョコ食パン15時から」のような数量限定告知、焼き上がり時間、季節メニューが効果的です。</p>
-            </details>
-            <details className="g-faq-item">
-              <summary>テスト販売にプッシュ通知は使えますか？</summary>
-              <p>はい。新商品を数量限定で告知し、反応を見てから本メニュー化する判断材料として活用できます。</p>
-            </details>
-            <details className="g-faq-item">
-              <summary>LIGHT プランでも十分ですか？</summary>
-              <p>はい。焼き上がり告知や本日のパン配信は、LIGHT / STANDARD プランで十分効果が出ます。</p>
-            </details>
-            <details className="g-faq-item">
-              <summary>お客様はアプリをインストール必要ですか？</summary>
-              <p>不要です。QRコードを読み取って通知を許可するだけ。名前や住所の登録もありません。</p>
-            </details>
-          </div>
-
-          {/* ========== 関連ガイド ========== */}
+          {/* ============================================================
+              関連ガイド
+          ============================================================ */}
           <div className="g-related">
-            <h3>関連ガイド</h3>
+            <h3>次に読む</h3>
+            <div className="g-related-grid">
+              <Link href="/guide/line-comparison" className="g-related-card is-next">
+                <span className="ico">📊</span>
+                <div>
+                  <div className="title">LINE公式アカウントとの比較</div>
+                  <div className="sub">配信上限という壁を、数字で解説</div>
+                </div>
+                <span className="arrow">→</span>
+              </Link>
+            </div>
+          </div>
+
+          <div className="g-related" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e2e8f0' }}>
+            <h3>あわせて読みたい</h3>
             <div className="g-related-grid">
               <Link href="/guide/cafe" className="g-related-card">
                 <span className="ico">☕</span>
@@ -263,11 +344,13 @@ export default function BakeryClient() {
             </div>
           </div>
 
-          {/* ========== CTA ========== */}
+          {/* ============================================================
+              CTA
+          ============================================================ */}
           <div className="g-cta">
-            <h3>パン屋のリピート施策を、仕組みに。</h3>
-            <p>「本日30個限定」「焼き立て」の即時配信で、常連客を育てましょう。</p>
-            <Link href="/contact" className="g-cta-btn">無料相談 →</Link>
+            <h3>パン屋の「今日の情報」を、仕組みに。</h3>
+            <p>「本日のパン」「数量限定」「SNSバズり再現」——毎日の情報を、Push-taroで。</p>
+            <Link href="/signup" className="g-cta-btn">無料相談 →</Link>
           </div>
 
         </div>
