@@ -73,6 +73,12 @@ export default function GuideClient() {
     <h4>既存客の囲い込み</h4>
     <p>売上が頭打ちになる、本当の理由</p>
   </Link>
+  <Link href="/guide/security" className="g-card is-new">
+  <span className="g-card-new">NEW</span>
+  <span className="g-card-icon">🔒</span>
+  <h4>なぜ、顧客情報を取らないのか</h4>
+  <p>情報流出の時代に、漏れるリスクを最小化する</p>
+</Link>
 </div>
         </section>
 
