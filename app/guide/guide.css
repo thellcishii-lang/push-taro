@@ -69,3 +69,28 @@
   .g-nav-cta { padding: 8px 14px; font-size: 12px; }
   .g-feature-grid { grid-template-columns: 1fr; }
 }
+
+/* app/guide/guide.css に追加 */
+
+/* 次に読むカードを強調 */
+.g-related-card.is-next {
+  border-color: #ff4500;
+  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  box-shadow: 0 8px 20px rgba(255,69,0,0.10);
+}
+
+.g-related-card.is-next:hover {
+  border-color: #ff4500;
+  transform: translateX(4px);
+  box-shadow: 0 12px 28px rgba(255,69,0,0.18);
+}
+
+.g-related-card.is-next .title {
+  color: #c2410c;
+  font-size: 15px;
+}
+
+.g-related-card.is-next .arrow {
+  color: #ff4500;
+  font-size: 18px;
+}
