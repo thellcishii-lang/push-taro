@@ -265,8 +265,8 @@ export default function SecurityClient() {
 
 <p>
   電話番号も、個人情報保護法上は、<strong>個人情報</strong>です。<br />
-  Push-taroは、「絶対に漏れない」とは、言いません。<br />
-  でも、<strong>漏れる情報を、最小限にしている</strong>。これは、他のツールには、真似できないことです。
+  現代のハッカー集団の攻撃がある中で、どんなアプリでも「絶対に漏れない」とは、言いきれません。<br />
+  でも、<strong>漏れる情報を、最小限にすること</strong>。そして、ハッカー集団が盗んだとしても電話番号だけではなんの情報にもなりません。
 </p>
 
 <div className="g-callout success">
