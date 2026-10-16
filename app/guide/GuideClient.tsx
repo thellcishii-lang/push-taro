@@ -61,6 +61,12 @@ export default function GuideClient() {
     <h4>CTRを、CVRに繋げる方法</h4>
     <p>衝動タップを、来店に変える3つの設計</p>
   </Link>
+  <Link href="/guide/segmentation" className="g-card is-new">
+    <span className="g-card-new">NEW</span>
+    <span className="g-card-icon">📊</span>
+    <h4>セグメント配信とは</h4>
+    <p>実店舗では「使えない」理由を、数字で解説</p>
+  </Link>
 </div>
         </section>
 
