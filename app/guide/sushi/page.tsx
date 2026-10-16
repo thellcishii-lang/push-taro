@@ -156,25 +156,6 @@ export default function SushiGuidePage() {
             </div>
           </div>
 
-          <h2><span className="num">6</span>導入事例</h2>
-          <div className="g-card">
-            <h4>📍 東京都 寿司店 A様</h4>
-            <p style={{ marginBottom: 12 }}>
-              <strong>導入前：</strong>記念日利用 月3組<br />
-              <strong>導入後：</strong>記念日利用 月<strong style={{ color: '#16a34a' }}>12組</strong>
-            </p>
-            <p>誕生日クーポンと記念日登録の仕組みで、特別な日の利用が4倍に。</p>
-          </div>
-
-          <div className="g-card">
-            <h4>📍 北海道 寿司店 B様</h4>
-            <p style={{ marginBottom: 12 }}>
-              <strong>導入前：</strong>常連客 50名<br />
-              <strong>導入後：</strong>常連客 <strong style={{ color: '#16a34a' }}>130名</strong>
-            </p>
-            <p>旬のネタ配信で、常連客の来店頻度が大幅アップ。平日の稼働も改善。</p>
-          </div>
-
           <div className="g-related">
             <h3>関連ガイド</h3>
             <div className="g-related-grid">
