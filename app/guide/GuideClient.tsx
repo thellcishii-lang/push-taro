@@ -163,22 +163,6 @@ export default function GuideClient() {
         </section>
 
         {/* ============================================================
-            ④ テーマ別ガイド
-        ============================================================ */}
-        <section className="g-sec">
-          <div className="g-sec-head">
-            <span className="g-sec-num">4</span>
-            <div><h2>🎯 テーマ別ガイド</h2><p>目的から逆引きで探す</p></div>
-          </div>
-          <div className="g-grid">
-            <Link href="/guide/themes/new-customer" className="g-card"><span className="g-card-icon">🆕</span><h4>新規顧客の獲得</h4><p>QRコードと初回クーポンで顧客リスト構築</p></Link>
-            <Link href="/guide/themes/repeat" className="g-card"><span className="g-card-icon">🔄</span><h4>リピート施策</h4><p>3回来店で定着する仕組み</p></Link>
-            <Link href="/guide/themes/dormant" className="g-card"><span className="g-card-icon">💤</span><h4>休眠顧客の復活</h4><p>離反客を自動で呼び戻す</p></Link>
-            <Link href="/guide/themes/birthday" className="g-card"><span className="g-card-icon">🎂</span><h4>記念日・誕生日</h4><p>年1回の特別クーポン</p></Link>
-          </div>
-        </section>
-
-        {/* ============================================================
             ⑤ 運用ノウハウ
         ============================================================ */}
         <section className="g-sec">
