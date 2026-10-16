@@ -73,6 +73,7 @@ const collectionJsonLd = {
   publisher: { '@id': `${appUrl}/#organization` },
   hasPart: [
   // 業種別ガイド
+  { '@type': 'Article', name: 'スーパー・小売店', url: `${appUrl}/guide/super` },
   { '@type': 'Article', name: 'パン屋・ベーカリー', url: `${appUrl}/guide/bakery` },
   { '@type': 'Article', name: '飲食店・カフェ', url: `${appUrl}/guide/cafe` },
   { '@type': 'Article', name: 'アパレル・雑貨', url: `${appUrl}/guide/apparel` },
