@@ -563,34 +563,40 @@ export default function StoreMarketingClient() {
 
           {/* 関連ガイド */}
           <div className="g-related">
-            <h3>関連ガイド</h3>
-            <div className="g-related-grid">
-              <Link href="/guide/push-notification-metrics" className="g-related-card">
-                <span className="ico">📊</span>
-                <div>
-                  <div className="title">プッシュ通知のCVRは、何%あればいいのか</div>
-                  <div className="sub">CTRとCVRのベンチマーク</div>
-                </div>
-                <span className="arrow">→</span>
-              </Link>
-              <Link href="/guide/ctr-to-cvr" className="g-related-card">
-                <span className="ico">🎯</span>
-                <div>
-                  <div className="title">CTRを、CVRに繋げる方法</div>
-                  <div className="sub">衝動タップを、来店に変える</div>
-                </div>
-                <span className="arrow">→</span>
-              </Link>
-              <Link href="/guide/existing-customers" className="g-related-card">
-                <span className="ico">📖</span>
-                <div>
-                  <div className="title">既存客の囲い込み</div>
-                  <div className="sub">売上が頭打ちになる本当の理由</div>
-                </div>
-                <span className="arrow">→</span>
-              </Link>
-            </div>
-          </div>
+  <h3>次に読む</h3>
+  <div className="g-related-grid">
+    <Link href="/guide/push-notification-metrics" className="g-related-card is-next">
+      <span className="ico">📊</span>
+      <div>
+        <div className="title">プッシュ通知のCVRは、何%あればいいのか</div>
+        <div className="sub">CTRとCVRのベンチマークを、データで解説</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
+  </div>
+</div>
+
+<div className="g-related" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e2e8f0' }}>
+  <h3>あわせて読みたい</h3>
+  <div className="g-related-grid">
+    <Link href="/guide/existing-customers" className="g-related-card">
+      <span className="ico">👥</span>
+      <div>
+        <div className="title">既存客の囲い込み</div>
+        <div className="sub">売上が頭打ちになる、本当の理由</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
+    <Link href="/guide/segmentation" className="g-related-card">
+      <span className="ico">📊</span>
+      <div>
+        <div className="title">セグメント配信とは</div>
+        <div className="sub">実店舗では「使えない」理由</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
+  </div>
+</div>
 
           {/* CTA */}
           <div className="g-cta">
