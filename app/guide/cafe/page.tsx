@@ -154,25 +154,6 @@ export default function CafeGuidePage() {
             <div className="g-card-simple"><div className="g-icon-big">👥</div><h4>グループ利用</h4><p>「4名様以上で1名無料」など、宴会需要を狙ったクーポン。</p></div>
           </div>
 
-          <h2><span className="num">6</span>導入事例</h2>
-          <div className="g-card">
-            <h4>📍 東京都 カフェ A様</h4>
-            <p style={{ marginBottom: 12 }}>
-              <strong>導入前：</strong>平日14時〜17時の稼働率 30%<br />
-              <strong>導入後：</strong>平日14時〜17時の稼働率 <strong style={{ color: '#16a34a' }}>65%</strong>
-            </p>
-            <p>「カフェタイム限定クーポン」を14時に自動配信。近隣のオフィスワーカーが来店するように。</p>
-          </div>
-
-          <div className="g-card">
-            <h4>📍 大阪府 居酒屋 B様</h4>
-            <p style={{ marginBottom: 12 }}>
-              <strong>導入前：</strong>リピート率 25%<br />
-              <strong>導入後：</strong>リピート率 <strong style={{ color: '#16a34a' }}>58%</strong>
-            </p>
-            <p>連続クーポンと誕生日クーポンで、常連客が自然と増加。日雇いスタッフの接客負担も軽減。</p>
-          </div>
-
           <div className="g-related">
             <h3>関連ガイド</h3>
             <div className="g-related-grid">
