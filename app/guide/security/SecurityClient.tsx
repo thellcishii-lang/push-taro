@@ -204,7 +204,6 @@ export default function SecurityClient() {
           </p>
 
           {/* 5 */}
-          {/* 5 */}
 <h2><span className="num">5</span>現代のハッカー集団は、AIで攻めてくる</h2>
 
 <p>
