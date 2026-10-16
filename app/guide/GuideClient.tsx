@@ -67,6 +67,12 @@ export default function GuideClient() {
     <h4>セグメント配信とは</h4>
     <p>実店舗では「使えない」理由を、数字で解説</p>
   </Link>
+  <Link href="/guide/existing-customers" className="g-card is-new">
+    <span className="g-card-new">NEW</span>
+    <span className="g-card-icon">👥</span>
+    <h4>既存客の囲い込み</h4>
+    <p>売上が頭打ちになる、本当の理由</p>
+  </Link>
 </div>
         </section>
 
