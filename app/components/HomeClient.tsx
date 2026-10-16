@@ -310,50 +310,6 @@ export default function HomeClient() {
         </div>
       </section>
 
-      {/* ============================================================
-    GUIDE PROMO（既存客の囲い込み）
-============================================================ */}
-<section className="guide-promo">
-  <div className="container">
-    <div className="guide-promo-card reveal">
-      <div className="guide-promo-left">
-        <span className="guide-promo-tag">📖 深く読みたい方へ</span>
-        <h2 className="guide-promo-title">
-          「既存客への囲い込みについて」<br />
-          じっくり解説しています。
-        </h2>
-        <p className="guide-promo-text">
-          なぜ既存客の囲い込みが必要なのか。<br />
-          本質を理解して、内容を整理する。<br />
-          ポイントでは動かない、その本質。
-        </p>
-        <ul className="guide-promo-list">
-          <li>売上が頭打ちになる、本当の原因</li>
-          <li>2つの課題の、正しい分け方</li>
-          <li>「囲い込み」ではなく「楽しんでもらう」</li>
-        </ul>
-        <Link href="/guide/existing-customers" className="guide-promo-btn">
-          詳しく読む
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </Link>
-      </div>
-      <div className="guide-promo-right">
-        <div className="guide-promo-mock">
-          <div className="guide-promo-mock-head"></div>
-          <div className="guide-promo-mock-bar" style={{ width: '90%' }}></div>
-          <div className="guide-promo-mock-bar" style={{ width: '75%' }}></div>
-          <div className="guide-promo-mock-bar" style={{ width: '85%' }}></div>
-          <div className="guide-promo-mock-bar is-highlight" style={{ width: '60%' }}></div>
-          <div className="guide-promo-mock-bar" style={{ width: '80%' }}></div>
-          <div className="guide-promo-mock-bar" style={{ width: '70%' }}></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
                {/* ============================================================
           GUIDE PROMO（実店舗の集客、その「後」）
       ============================================================ */}
