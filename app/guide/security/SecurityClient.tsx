@@ -204,34 +204,81 @@ export default function SecurityClient() {
           </p>
 
           {/* 5 */}
-          <h2><span className="num">5</span>それでも、完璧ではない。だから、正直に。</h2>
+          {/* 5 */}
+<h2><span className="num">5</span>現代のハッカー集団は、AIで攻めてくる</h2>
 
-          <p>
-            ここで、<strong>正直に書きます</strong>。
-          </p>
+<p>
+  ここで、<strong>現代のセキュリティ事情</strong>を、正直にお伝えします。
+</p>
 
-          <div className="g-callout warn">
-            <span className="ico">⚠️</span>
-            <div>
-              <p><strong>「絶対に、漏れない」とは、言いません。</strong></p>
-              <p>
-                電話番号も、個人情報保護法上は、<strong>個人情報</strong>です。<br />
-                漏洩すれば、報告義務が生じる可能性もあります。<br /><br />
-                Push-taroが言えるのは、<strong>「漏れる情報を、最小限にしている」</strong>ということ。
-              </p>
-            </div>
-          </div>
+<p>
+  今、ハッカー集団は、<strong>最新鋭のAIを使い、あの手この手で攻めてくる</strong>。<br />
+  対策をすれば、新しい手口が出てくる。<br />
+  これは、<strong>永遠に続く、いたちごっこ</strong>です。
+</p>
 
-          <p>
-            でも、これは、他のツールには、<strong>真似できない</strong>ことです。<br />
-            氏名・住所・購買履歴を取るツールは、<strong>リスクを減らせない</strong>。
-          </p>
+<div className="g-callout danger">
+  <span className="ico">🚨</span>
+  <div>
+    <p><strong>どれだけ対策をしても、「絶対に安心」とは言い切れない。</strong></p>
+    <p>
+      これが、<strong>現代のセキュリティの、現実</strong>です。<br />
+      大手企業が、巨額を投じて対策しても、漏れる。<br />
+      「対策の量」では、もう、勝てない時代になっています。
+    </p>
+  </div>
+</div>
 
-          <div className="g-quote is-orange">
-            漏れる情報を、最小化する。<br /><br />
-            これが、Push-taroの、<br />
-            最も誠実な、セキュリティ対策です。
-          </div>
+<h3 className="g-h3">だから、発想を変える</h3>
+
+<p>
+  「対策を、もっと強くする」——これは、<strong>いたちごっこの中で戦い続ける</strong>ということ。<br />
+  Push-taroは、<strong>別の方向</strong>から、この問題を解きました。
+</p>
+
+<div className="g-steps">
+  <div className="g-step">
+    <div className="g-step-body">
+      <h4>① 守るものを、減らす</h4>
+      <p>氏名・住所・購買履歴を、そもそも取らない。守る対象を、最小化する。</p>
+    </div>
+  </div>
+  <div className="g-step">
+    <div className="g-step-body">
+      <h4>② 攻撃対象を、小さくする</h4>
+      <p>「電話番号だけ」なら、ハッカーが狙う価値も、小さくなる。</p>
+    </div>
+  </div>
+  <div className="g-step">
+    <div className="g-step-body">
+      <h4>③ 万が一の被害を、最小化する</h4>
+      <p>漏れても、電話番号だけ。名前も住所も、クレジットカードも漏れない。</p>
+    </div>
+  </div>
+</div>
+
+<div className="g-quote is-orange">
+  守るものを、減らす。<br />
+  これが、いたちごっこに、<br />
+  勝つ、唯一の方法です。
+</div>
+
+<p>
+  電話番号も、個人情報保護法上は、<strong>個人情報</strong>です。<br />
+  Push-taroは、「絶対に漏れない」とは、言いません。<br />
+  でも、<strong>漏れる情報を、最小限にしている</strong>。これは、他のツールには、真似できないことです。
+</p>
+
+<div className="g-callout success">
+  <span className="ico">✅</span>
+  <div>
+    <p><strong>「対策を強くする」のではなく、「取らない」。</strong></p>
+    <p>
+      攻められる前提で、被害を最小化する。<br />
+      これが、AI時代の、最も誠実なセキュリティ対策です。
+    </p>
+  </div>
+</div>
 
           <div className="g-callout success">
             <span className="ico">✅</span>
