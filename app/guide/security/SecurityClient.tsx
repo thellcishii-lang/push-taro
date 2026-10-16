@@ -280,18 +280,6 @@ export default function SecurityClient() {
   </div>
 </div>
 
-          <div className="g-callout success">
-            <span className="ico">✅</span>
-            <div>
-              <p><strong>顧客情報を、取らない、という選択。</strong></p>
-              <p>
-                Push-taroは、「取れるから取る」を、やめました。<br />
-                実店舗に、本当に必要なものだけを、シンプルに。<br />
-                それが、結果として、最も強いセキュリティになります。
-              </p>
-            </div>
-          </div>
-
           {/* 関連 */}
           <div className="g-related">
             <h3>次に読む</h3>
