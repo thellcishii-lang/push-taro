@@ -95,6 +95,7 @@ const collectionJsonLd = {
   { '@type': 'Article', name: 'プッシュ通知のCVRは、何%あればいいのか', url: `${appUrl}/guide/push-notification-metrics` },
   { '@type': 'Article', name: 'CTRを、CVRに繋げる方法', url: `${appUrl}/guide/ctr-to-cvr` },
   { '@type': 'Article', name: 'セグメント配信とは', url: `${appUrl}/guide/segmentation` },
+  { '@type': 'Article', name: '既存客の囲い込み', url: `${appUrl}/guide/existing-customers` },
 ],
 };
 
