@@ -156,6 +156,12 @@ export default function GuideClient() {
             <div><h2>🏪 業種別ガイド</h2><p>あなたの業種に合わせた活用方法</p></div>
           </div>
           <div className="g-grid">
+            <Link href="/guide/super" className="g-card is-new">
+  <span className="g-card-new">NEW</span>
+  <span className="g-card-icon">🛒</span>
+  <h4>スーパー・小売店</h4>
+  <p>チラシを、プッシュ通知に置き換える</p>
+</Link>
             <Link href="/guide/bakery" className="g-card is-new">
               <span className="g-card-new">NEW</span>
               <span className="g-card-icon">🥐</span>
