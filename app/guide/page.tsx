@@ -77,9 +77,6 @@ const collectionJsonLd = {
   { '@type': 'Article', name: '飲食店・カフェ', url: `${appUrl}/guide/cafe` },
   { '@type': 'Article', name: 'マッサージ・エステ', url: `${appUrl}/guide/massage` },
   { '@type': 'Article', name: 'アパレル・雑貨', url: `${appUrl}/guide/apparel` },
-  { '@type': 'Article', name: 'バー・居酒屋', url: `${appUrl}/guide/izakaya` },
-  { '@type': 'Article', name: 'ラーメン店', url: `${appUrl}/guide/ramen` },
-  { '@type': 'Article', name: '寿司店', url: `${appUrl}/guide/sushi` },
   { '@type': 'Article', name: 'スナック・パブ', url: `${appUrl}/guide/snack` },
 
   // 機能別・運用
