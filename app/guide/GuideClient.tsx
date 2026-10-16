@@ -165,9 +165,6 @@ export default function GuideClient() {
             <Link href="/guide/cafe" className="g-card"><span className="g-card-icon">☕</span><h4>飲食店・カフェ</h4><p>雨の日割引・常連客のファン化</p></Link>
             <Link href="/guide/massage" className="g-card"><span className="g-card-icon">💆</span><h4>マッサージ・エステ</h4><p>来店サイクルの可視化</p></Link>
             <Link href="/guide/apparel" className="g-card"><span className="g-card-icon">👕</span><h4>アパレル・雑貨</h4><p>新商品入荷・セール告知</p></Link>
-            <Link href="/guide/izakaya" className="g-card"><span className="g-card-icon">🍺</span><h4>バー・居酒屋</h4><p>グループ利用と常連の習慣化</p></Link>
-            <Link href="/guide/ramen" className="g-card"><span className="g-card-icon">🍜</span><h4>ラーメン店</h4><p>限定メニューとリピート施策</p></Link>
-            <Link href="/guide/sushi" className="g-card"><span className="g-card-icon">🍣</span><h4>寿司店</h4><p>記念日利用と旬のネタ</p></Link>
             <Link href="/guide/snack" className="g-card"><span className="g-card-icon">🍸</span><h4>スナック・パブ</h4><p>常連客と紹介の仕組み</p></Link>
           </div>
         </section>
