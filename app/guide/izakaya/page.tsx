@@ -156,25 +156,6 @@ export default function IzakayaGuidePage() {
             </div>
           </div>
 
-          <h2><span className="num">6</span>導入事例</h2>
-          <div className="g-card">
-            <h4>📍 東京都 居酒屋 A様</h4>
-            <p style={{ marginBottom: 12 }}>
-              <strong>導入前：</strong>平日稼働率 35%<br />
-              <strong>導入後：</strong>平日稼働率 <strong style={{ color: '#16a34a' }}>62%</strong>
-            </p>
-            <p>平日限定クーポンの配信で、月〜木の稼働率が大幅アップ。</p>
-          </div>
-
-          <div className="g-card">
-            <h4>📍 大阪府 バー B様</h4>
-            <p style={{ marginBottom: 12 }}>
-              <strong>導入前：</strong>常連客 40名<br />
-              <strong>導入後：</strong>常連客 <strong style={{ color: '#16a34a' }}>85名</strong>
-            </p>
-            <p>連続クーポンと日本酒入荷の配信で、常連化が促進。</p>
-          </div>
-
           <div className="g-related">
             <h3>関連ガイド</h3>
             <div className="g-related-grid">
