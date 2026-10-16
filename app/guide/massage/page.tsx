@@ -150,25 +150,6 @@ export default function MassageGuidePage() {
             <div className="g-card-simple"><div className="g-icon-big">💆</div><h4>リピートポイント</h4><p>来店ごとにポイントが貯まる仕組み。</p></div>
           </div>
 
-          <h2><span className="num">6</span>導入事例</h2>
-          <div className="g-card">
-            <h4>📍 東京都 リラクゼーションサロン A様</h4>
-            <p style={{ marginBottom: 12 }}>
-              <strong>導入前：</strong>リピート率 35%<br />
-              <strong>導入後：</strong>リピート率 <strong style={{ color: '#16a34a' }}>68%</strong>
-            </p>
-            <p>連続クーポンと休眠復活クーポンの自動配信で、リピート率が約2倍に。スタッフの手間も大幅削減。</p>
-          </div>
-
-          <div className="g-card">
-            <h4>📍 大阪府 エステサロン B様</h4>
-            <p style={{ marginBottom: 12 }}>
-              <strong>導入前：</strong>休眠顧客率 55%<br />
-              <strong>導入後：</strong>休眠顧客率 <strong style={{ color: '#16a34a' }}>28%</strong>
-            </p>
-            <p>「3ヶ月来ていない顧客」への復活クーポン配信で、多くの顧客が戻ってきた。月商が安定。</p>
-          </div>
-
           <div className="g-related">
             <h3>関連ガイド</h3>
             <div className="g-related-grid">
