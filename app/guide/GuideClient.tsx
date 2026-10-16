@@ -43,6 +43,12 @@ export default function GuideClient() {
     <h4>実店舗の集客、オススメの施策</h4>
     <p>広告・ポータル・LP・SNS・LINE。全部やる時代に、抜けているもの</p>
   </Link>
+  <Link href="/guide/line-comparison" className="g-card is-new">
+      <span className="g-card-new">NEW</span>
+      <span className="g-card-icon">📊</span>
+      <h4>LINE公式アカウントとの比較</h4>
+      <p>配信上限という壁を、数字で解説</p>
+  </Link>
   <Link href="/guide/push-notification-metrics" className="g-card is-new">
     <span className="g-card-new">NEW</span>
     <span className="g-card-icon">📊</span>
