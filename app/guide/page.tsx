@@ -75,7 +75,6 @@ const collectionJsonLd = {
   // 業種別ガイド
   { '@type': 'Article', name: 'パン屋・ベーカリー', url: `${appUrl}/guide/bakery` },
   { '@type': 'Article', name: '飲食店・カフェ', url: `${appUrl}/guide/cafe` },
-  { '@type': 'Article', name: 'マッサージ・エステ', url: `${appUrl}/guide/massage` },
   { '@type': 'Article', name: 'アパレル・雑貨', url: `${appUrl}/guide/apparel` },
   { '@type': 'Article', name: 'スナック・パブ', url: `${appUrl}/guide/snack` },
 
