@@ -81,10 +81,10 @@ export default function HomeClient() {
       <nav className="navbar">
         <div className="navbar-inner">
           <a href="/" className="logo">
-            <Image className="logo-mark" src="/icon-192x192.png" alt="Push-taro ロゴ" width={34} height={34} priority />
-            Push-taro<span className="dot">.</span>
-            <small>実店舗のためのPush通知CRM</small>
-          </a>
+  <Image className="logo-mark" src="/icon-192x192.png" alt="Push-taro ロゴ" width={34} height={34} priority />
+  Push-taro<span className="dot">.</span>
+  <small>実店舗のためのプッシュ通知 × クーポンアプリ</small>
+</a>
           <div className="nav-links">
             <a href="#why-now">なぜ今</a>
             <a href="#philosophy">思想</a>
@@ -108,16 +108,17 @@ export default function HomeClient() {
             2026年9月 正式リリース・先行登録受付中
           </div>
           <h1 className="reveal" style={{ transitionDelay: '0.1s' }}>
-            実店舗のリピートを、<br />
-            <span className="gradient">&quot;プッシュ通知 × CRM&quot;</span> で仕組化。
-          </h1>
-          <p className="hero-lead reveal" style={{ transitionDelay: '0.2s' }}>
-            高機能なマーケティングツールは、<br />
-            使いこなすために専門チームが必要です。<br />
-            <strong>Push-taroは、違います。</strong><br />
-            全員に同じ施策から始めて、<br />
-            来てくれる人に、感謝をカタチに。
-          </p>
+  実店舗のリピートを、<br />
+  <span className="gradient">&quot;プッシュ通知 × クーポンアプリ&quot;</span> で。
+</h1>
+<p className="hero-lead reveal" style={{ transitionDelay: '0.2s' }}>
+  高機能なマーケティングツールは、<br />
+  使いこなすために専門チームが必要です。<br />
+  <strong>Push-taroは、違います。</strong><br />
+  顧客データを集めず、QRコード一つ。<br />
+  全員に同じ施策から始めて、<br />
+  来てくれる人に、感謝をカタチに。
+</p>
           <div className="hero-cta reveal" style={{ transitionDelay: '0.3s' }}>
             <Link href="/signup" className="btn-primary">
               今すぐ申し込む
@@ -148,6 +149,46 @@ export default function HomeClient() {
           </div>
         </div>
       </section>
+
+   {/* ============================================================
+    WHAT IS
+============================================================ */}
+<section className="section what-is-section" id="what-is">
+  <div className="container">
+    <div className="what-is-card reveal">
+      <span className="section-tag">What is Push-taro</span>
+      <h2>Push-taroとは</h2>
+      <p className="what-is-lead">
+        Push-taroは、実店舗のための<strong>「プッシュ通知 × クーポンアプリ」</strong>です。<br />
+        顧客データを集めず、QRコード一つで始められる、<br />
+        新しいカタチのリピート施策ツール。
+      </p>
+      <div className="what-is-points">
+        <div className="what-is-point">
+          <span className="what-is-point-icon">📢</span>
+          <div>
+            <strong>プッシュ通知</strong>
+            <p>ホーム画面に、直接届く</p>
+          </div>
+        </div>
+        <div className="what-is-point">
+          <span className="what-is-point-icon">🎫</span>
+          <div>
+            <strong>クーポンアプリ</strong>
+            <p>クーポンは、自動で反映</p>
+          </div>
+        </div>
+        <div className="what-is-point">
+          <span className="what-is-point-icon">🔒</span>
+          <div>
+            <strong>顧客情報を、取らない</strong>
+            <p>電話番号だけ。漏れるリスクを最小化</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* ============================================================
           WHY NOW
