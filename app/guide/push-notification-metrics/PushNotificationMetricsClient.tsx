@@ -668,34 +668,46 @@ export default function PushNotificationMetricsClient() {
           </p>
 
           <div className="g-related">
-            <h3>関連ガイド</h3>
-            <div className="g-related-grid">
-              <Link href="/guide/ctr-to-cvr" className="g-related-card">
-                <span className="ico">🎯</span>
-                <div>
-                  <div className="title">CTRを、CVRに繋げる方法</div>
-                  <div className="sub">この記事の、次のステップ</div>
-                </div>
-                <span className="arrow">→</span>
-              </Link>
-              <Link href="/guide/store-marketing" className="g-related-card">
-                <span className="ico">📖</span>
-                <div>
-                  <div className="title">実店舗の集客、その「後」</div>
-                  <div className="sub">店舗集客の、本当の問題</div>
-                </div>
-                <span className="arrow">→</span>
-              </Link>
-              <Link href="/guide/ng-actions" className="g-related-card">
-                <span className="ico">⚠️</span>
-                <div>
-                  <div className="title">NG行為集</div>
-                  <div className="sub">配信の質を下げないために</div>
-                </div>
-                <span className="arrow">→</span>
-              </Link>
-            </div>
-          </div>
+  <h3>この記事の前提</h3>
+  <div className="g-related-grid">
+    <Link href="/guide/store-marketing" className="g-related-card">
+      <span className="ico">📖</span>
+      <div>
+        <div className="title">実店舗の集客、オススメの施策</div>
+        <div className="sub">なぜ、1回目の来店客が大事なのか</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
+  </div>
+</div>
+
+<div className="g-related" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e2e8f0' }}>
+  <h3>次に読む</h3>
+  <div className="g-related-grid">
+    <Link href="/guide/ctr-to-cvr" className="g-related-card is-next">
+      <span className="ico">🎯</span>
+      <div>
+        <div className="title">CTRを、CVRに繋げる方法</div>
+        <div className="sub">衝動タップを、来店に変える3つの設計</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
+  </div>
+</div>
+
+<div className="g-related" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e2e8f0' }}>
+  <h3>あわせて読みたい</h3>
+  <div className="g-related-grid">
+    <Link href="/guide/ng-actions" className="g-related-card">
+      <span className="ico">⚠️</span>
+      <div>
+        <div className="title">NG行為集</div>
+        <div className="sub">配信の質を下げないために</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
+  </div>
+</div>
 
           <div className="g-cta">
             <h3>配信上限を、気にせず。</h3>
