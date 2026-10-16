@@ -149,25 +149,6 @@ export default function ApparelGuidePage() {
             <div className="g-card-simple"><div className="g-icon-big">💝</div><h4>ギフト特集</h4><p>母の日・父の日など、ギフト需要を狙う。</p></div>
           </div>
 
-          <h2><span className="num">6</span>導入事例</h2>
-          <div className="g-card">
-            <h4>📍 東京都 セレクトショップ A様</h4>
-            <p style={{ marginBottom: 12 }}>
-              <strong>導入前：</strong>新作売上 月50万円<br />
-              <strong>導入後：</strong>新作売上 月<strong style={{ color: '#16a34a' }}>120万円</strong>
-            </p>
-            <p>新作入荷を画像付き通知で配信することで、発売初週の売上が大幅アップ。買い逃しが減少。</p>
-          </div>
-
-          <div className="g-card">
-            <h4>📍 大阪府 雑貨店 B様</h4>
-            <p style={{ marginBottom: 12 }}>
-              <strong>導入前：</strong>リピート率 20%<br />
-              <strong>導入後：</strong>リピート率 <strong style={{ color: '#16a34a' }}>48%</strong>
-            </p>
-            <p>連続クーポンと季節キャンペーンで、定期的に来店する顧客が増加。売上が安定。</p>
-          </div>
-
           <div className="g-related">
             <h3>関連ガイド</h3>
             <div className="g-related-grid">
