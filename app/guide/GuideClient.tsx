@@ -87,6 +87,11 @@ export default function GuideClient() {
               <div className="g-feature-info"><h4>初回クーポン</h4><p>新規顧客の獲得と来店動機</p></div>
               <span className="g-feature-tag is-all">全プラン</span>
             </Link>
+            <Link href="/guide/features/qr-acquisition" className="g-feature-card">
+              <span className="g-feature-icon">📱</span>
+              <div className="g-feature-info"><h4>QRコード顧客獲得</h4><p>店頭POPから顧客リストを自動構築</p></div>
+              <span className="g-feature-tag is-all">全プラン</span>
+            </Link>
             <Link href="/guide/features/coupon-normal" className="g-feature-card">
               <span className="g-feature-icon">🎟️</span>
               <div className="g-feature-info"><h4>通常クーポン</h4><p>何度でも使える常設クーポン</p></div>
@@ -116,11 +121,6 @@ export default function GuideClient() {
               <span className="g-feature-icon">💤</span>
               <div className="g-feature-info"><h4>休眠復活クーポン</h4><p>離反顧客を自動で呼び戻す</p></div>
               <span className="g-feature-tag is-pro">PRO</span>
-            </Link>
-            <Link href="/guide/features/qr-acquisition" className="g-feature-card">
-              <span className="g-feature-icon">📱</span>
-              <div className="g-feature-info"><h4>QRコード顧客獲得</h4><p>店頭POPから顧客リストを自動構築</p></div>
-              <span className="g-feature-tag is-all">全プラン</span>
             </Link>
             <Link href="/guide/features/scheduled-push" className="g-feature-card">
               <span className="g-feature-icon">📅</span>
