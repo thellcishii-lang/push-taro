@@ -1985,3 +1985,66 @@ img { max-width: 100%; display: block; }
   .what-is-card { padding: 32px 24px; }
   .what-is-points { grid-template-columns: 1fr; }
 }
+
+/* ============================================================
+   WHAT IS 価格ダイジェスト
+============================================================ */
+.what-is-price {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: -16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+.price-short {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--orange-light);
+  border: 2px solid var(--orange);
+  border-radius: 12px;
+  padding: 10px 20px;
+  min-width: 140px;
+}
+.price-short.is-pro {
+  background: #fff7ed;
+}
+.price-short span {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--slate-600);
+  margin-bottom: 2px;
+}
+.price-short strong {
+  font-family: var(--font-en);
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--orange);
+  line-height: 1;
+}
+.price-link {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--slate-700);
+  text-decoration: none;
+  padding: 10px 20px;
+  border-bottom: 2px solid var(--slate-300);
+  transition: all 0.2s;
+}
+.price-link:hover {
+  color: var(--orange);
+  border-color: var(--orange);
+}
+
+@media (max-width: 768px) {
+  .what-is-price {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .price-link {
+    border-bottom: none;
+    text-decoration: underline;
+  }
+}
