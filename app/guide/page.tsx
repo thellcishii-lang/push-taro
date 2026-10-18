@@ -5,34 +5,37 @@ import GuideClient from './GuideClient';
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 
 export const metadata: Metadata = {
-  title: '実店舗のためのプッシュ通知 活用ガイド｜業種別・機能別｜Push-taro',
+  title: '実店舗のプッシュ通知・クーポン活用ガイド｜業種別・機能別の実践ノウハウ｜Push-taro',
   description:
-    '実店舗のプッシュ通知・CRM活用ガイド。パン屋・飲食店・カフェ・美容サロンなど業種別の実践マニュアルと、クーポン・休眠復活・誕生日配信などの機能別ガイドを網羅。現場から導いたノウハウを公開。',
+    'スーパー・パン屋・カフェ・アパレル・スナックなど業種別の活用法から、クーポン自動配信・休眠復活などの機能別マニュアルまで網羅。LINE公式の配信上限との比較、PWAの仕組み、顧客情報を取らないセキュリティ設計まで、実店舗のリピート施策に必要なノウハウを徹底解説します。',
   keywords: [
     '実店舗 プッシュ通知',
-    'プッシュ通知 活用',
-    '店舗 CRM ガイド',
-    '飲食店 集客',
+    'プッシュ通知 活用 ガイド',
+    '店舗 集客 ノウハウ',
+    'LINE 配信上限 比較',
+    'PWA プッシュ通知',
+    '店舗 クーポン 活用',
+    'スーパー 集客',
     'パン屋 集客',
     'カフェ 集客',
-    'クーポン 活用',
-    '休眠復活',
-    '誕生日クーポン',
+    'アパレル 集客',
+    'スナック 集客',
+    '休眠復活 クーポン',
     'Push-taro',
   ],
   alternates: { canonical: '/guide' },
   openGraph: {
     type: 'website',
     locale: 'ja_JP',
-    title: '実店舗のためのプッシュ通知 活用ガイド｜Push-taro',
+    title: '実店舗のプッシュ通知・クーポン活用ガイド｜Push-taro',
     description:
-      '業種別・機能別の実践マニュアル。現場から導いたノウハウを公開。',
+      '業種別・機能別の実践マニュアル。LINE比較、PWA、セキュリティまで、実店舗のリピート施策に必要なノウハウを公開。',
     url: '/guide',
     siteName: 'Push-taro',
   },
   twitter: {
     card: 'summary_large_image',
-    title: '実店舗のためのプッシュ通知 活用ガイド｜Push-taro',
+    title: '実店舗のプッシュ通知・クーポン活用ガイド｜Push-taro',
     description: '業種別・機能別の実践マニュアル。現場から導いたノウハウ。',
   },
   robots: {
