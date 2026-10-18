@@ -120,14 +120,14 @@ export default function HomeClient() {
   来てくれる人に、感謝をカタチに。
 </p>
           <div className="hero-cta reveal" style={{ transitionDelay: '0.3s' }}>
-            <Link href="/signup" className="btn-primary">
-              今すぐ申し込む
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </Link>
-            <a href="#why-now" className="btn-secondary">なぜ今なのか見る</a>
-          </div>
+  <Link href="/signup" className="btn-primary">
+    今すぐ申し込む
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  </Link>
+  <a href="#pricing" className="btn-secondary">料金プランを見る</a>
+</div>
           <div className="hero-stats">
             <div className="hero-stat tilt-in float">
               <div className="hero-stat-num">最大<span className="count-up" data-count="10">10</span><small>倍</small></div>
