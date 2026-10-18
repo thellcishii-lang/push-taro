@@ -2057,3 +2057,69 @@ img { max-width: 100%; display: block; }
     display: none;
   }
 }
+
+/* ============================================================
+   WHY COUPON 具体例
+============================================================ */
+.coupon-example-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto 48px; /* 下のフローとの余白 */
+}
+.coupon-example {
+  padding: 24px 28px;
+  border-radius: 16px;
+  border: 2px solid;
+}
+.coupon-example.is-bad {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+.coupon-example.is-good {
+  background: #f0fdf4;
+  border-color: #86efac;
+  box-shadow: 0 8px 24px rgba(22,163,74,0.08);
+}
+.coupon-example-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 900;
+  margin-bottom: 16px;
+}
+.coupon-example.is-bad .coupon-example-title { color: #991b1b; }
+.coupon-example.is-good .coupon-example-title { color: #14532d; }
+.coupon-example-title .icon { font-size: 18px; }
+.coupon-example-text {
+  font-size: 14.5px;
+  line-height: 1.8;
+  margin-bottom: 12px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 10px;
+}
+.coupon-example.is-bad .coupon-example-text { color: #7f1d1d; }
+.coupon-example.is-good .coupon-example-text { color: #14532d; }
+.coupon-example.is-good .coupon-example-text strong {
+  color: #16a34a;
+  background: #dcfce7;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.coupon-example-result {
+  font-size: 13.5px;
+  font-weight: 700;
+  margin: 0;
+}
+.coupon-example.is-bad .coupon-example-result { color: #991b1b; opacity: 0.8; }
+.coupon-example.is-good .coupon-example-result { color: #14532d; }
+
+@media (max-width: 768px) {
+  .coupon-example-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
