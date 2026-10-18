@@ -163,6 +163,19 @@ export default function HomeClient() {
         顧客データを集めず、QRコード一つで始められる、<br />
         新しいカタチのリピート施策ツール。
       </p>
+       
+      <div className="what-is-price">
+        <div className="price-short">
+          <span>5,000通なら</span>
+          <strong>¥1,980</strong>
+        </div>
+        <div className="price-short is-pro">
+          <span>配信無制限なら</span>
+          <strong>¥10,000</strong>
+        </div>
+        <a href="#pricing" className="price-link">詳しくはこちら →</a>
+      </div>
+
       <div className="what-is-points">
         <div className="what-is-point">
           <span className="what-is-point-icon">📢</span>
@@ -245,8 +258,8 @@ export default function HomeClient() {
         <div className="container">
           <div className="section-header reveal">
             <span className="section-tag">Why Coupon</span>
-            <h2>プッシュ通知だけでは、<br />効果は出ません。</h2>
-            <p>大事なのは、「お得」とセットで届けること。</p>
+            <h2>プッシュ通知 × クーポンで、<br />来店の理由を作る。</h2>
+            <p>「お知らせ」だけでは、見てもらえない。<br />「お得」とセットで届けるから、来店に繋がる。</p>
           </div>
           <div className="why-coupon-flow">
             <div className="wc-step tilt-in">
