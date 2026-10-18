@@ -72,7 +72,13 @@ export default function GuideClient() {
   <span className="g-card-icon">🔒</span>
   <h4>なぜ、顧客情報を取らないのか</h4>
   <p>情報流出の時代に、漏れるリスクを最小化する</p>
-</Link>
+　　　　</Link>
+  <Link href="/guide/what-is-pwa" className="g-card is-new">
+  <span className="g-card-new">NEW</span>
+  <span className="g-card-icon">📱</span>
+  <h4>実店舗のためのPWA入門</h4>
+  <p>なぜiPhoneで「ホーム画面に追加」が必要なのか？</p>
+　　　　</Link>
 </div>
         </section>
 
