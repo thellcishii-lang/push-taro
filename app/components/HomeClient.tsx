@@ -650,8 +650,11 @@ export default function HomeClient() {
         <div className="container">
           <div className="section-header reveal">
             <span className="section-tag">Features</span>
-            <h2>機能は、段階的に使えばいい。</h2>
-            <p>最初から全部を使いこなす必要はありません。<br />まずは「全員に配る」から始めて、少しずつ育てていきましょう。</p>
+            <h2>必要な機能から、<br />選べる3つのステップ。</h2>
+            <p>
+  「全員に配る」「常連を大切にする」「もっと極める」。<br />
+  お店の状況に合わせて、必要なものから導入できます。
+</p>
           </div>
 
           <div className="feature-group">
