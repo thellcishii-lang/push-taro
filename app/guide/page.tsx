@@ -91,6 +91,7 @@ const collectionJsonLd = {
   { '@type': 'Article', name: 'CTRを、CVRに繋げる方法', url: `${appUrl}/guide/ctr-to-cvr` },
   { '@type': 'Article', name: 'セグメント配信とは', url: `${appUrl}/guide/segmentation` },
   { '@type': 'Article', name: 'なぜ、顧客情報を取らないのか', url: `${appUrl}/guide/security` },
+  { '@type': 'Article', name: '実店舗のためのPWA入門', url: `${appUrl}/guide/what-is-pwa` },
 ],
 };
 
