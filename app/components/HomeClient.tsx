@@ -261,6 +261,37 @@ export default function HomeClient() {
             <h2>プッシュ通知 × クーポンで、<br />来店の理由を作る。</h2>
             <p>「お知らせ」だけでは、見てもらえない。<br />「お得」とセットで届けるから、来店に繋がる。</p>
           </div>
+
+             {/* ★ 具体例の比較 */}
+    <div className="coupon-example-grid reveal">
+      <div className="coupon-example is-bad">
+        <h4 className="coupon-example-title">
+          <span className="icon">❌</span> お知らせだけ（ダメな例）
+        </h4>
+        <div className="coupon-example-text">
+          「本日も元気に営業中！<br />
+          イチゴタルトが焼き上がりました🍓」
+        </div>
+        <p className="coupon-example-result">
+          → 「ふーん」で終わってしまう。
+        </p>
+      </div>
+      
+      <div className="coupon-example is-good">
+        <h4 className="coupon-example-title">
+          <span className="icon">✅</span> お得とセット（Push-taroの例）
+        </h4>
+        <div className="coupon-example-text">
+          「【15時まで限定】<br />
+          焼き立てイチゴタルト<strong>50円引きクーポン</strong>が届きました！<br />
+          お会計時に提示してください🍰」
+        </div>
+        <p className="coupon-example-result">
+          → 「じゃあ、15時までに行こうかな」と繋がる。
+        </p>
+      </div>
+    </div>
+           
           <div className="why-coupon-flow">
             <div className="wc-step tilt-in">
               <div className="wc-num">1</div>
@@ -994,12 +1025,12 @@ export default function HomeClient() {
                   <td>△ あり</td>
                 </tr>
                 <tr>
-                  <td>セグメント配信</td>
-                  <td className="col-pushtaro">○ あえて非搭載</td>
-                  <td>○ 搭載</td>
-                  <td>○ 搭載</td>
-                  <td>○ 搭載</td>
-                </tr>
+  <td>セグメント配信</td>
+  <td className="col-pushtaro"><strong>○ あえて非搭載</strong><br /><small style={{ color: '#64748b' }}>実店舗では不要</small></td>
+  <td>△ 専門知識が不可欠</td>
+  <td>△ 費用対効果が合いにくい</td>
+  <td>△ 設定が複雑</td>
+</tr>
                 <tr>
                   <td>月額</td>
                   <td className="col-pushtaro"><strong>¥1,980〜</strong></td>
