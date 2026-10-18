@@ -2048,3 +2048,12 @@ img { max-width: 100%; display: block; }
     text-decoration: underline;
   }
 }
+
+@media (max-width: 768px) {
+  /* 既存のスタイル... */
+  
+  /* ★ 追加：スマホではロゴの説明文を非表示 */
+  .logo small {
+    display: none;
+  }
+}
