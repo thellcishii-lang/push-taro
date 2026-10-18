@@ -114,31 +114,51 @@ const softwareJsonLd = {
     '休眠復活クーポン',
     '予約配信・定期配信',
   ],
-  offers: [
+    offers: [
     {
       '@type': 'Offer',
       name: 'LIGHT',
       price: '1980',
       priceCurrency: 'JPY',
-      description: '月間配信上限5,000通',
+      description: '月間5,000通まで配信可能。初回クーポン、QRコード登録などの基本機能。',
       url: `${appUrl}/#pricing`,
+      priceSpecification: {
+        '@type': 'UnitPriceSpecification',
+        price: '1980',
+        priceCurrency: 'JPY',
+        unitCode: 'MON',
+        billingIncrement: 1,
+      },
     },
     {
       '@type': 'Offer',
       name: 'STANDARD',
       price: '3800',
       priceCurrency: 'JPY',
-      description: '月間配信上限15,000通',
+      description: '月間15,000通まで配信可能。通常クーポン、特別達成クーポン、店頭ポップ印刷機能。',
       url: `${appUrl}/#pricing`,
+      priceSpecification: {
+        '@type': 'UnitPriceSpecification',
+        price: '3800',
+        priceCurrency: 'JPY',
+        unitCode: 'MON',
+        billingIncrement: 1,
+      },
     },
     {
       '@type': 'Offer',
       name: 'PRO',
       price: '10000',
       priceCurrency: 'JPY',
-      description: '配信無制限',
+      description: '配信無制限。全7種類のクーポン機能、予約配信、紹介報酬制度。',
       url: `${appUrl}/#pricing`,
-    },
+      priceSpecification: {
+        '@type': 'UnitPriceSpecification',
+        price: '10000',
+        priceCurrency: 'JPY',
+        unitCode: 'MON',
+        billingIncrement: 1,
+      }, 
   ],
 };
 
