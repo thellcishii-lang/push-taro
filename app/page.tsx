@@ -114,7 +114,7 @@ const softwareJsonLd = {
     '休眠復活クーポン',
     '予約配信・定期配信',
   ],
-    offers: [
+      offers: [
     {
       '@type': 'Offer',
       name: 'LIGHT',
@@ -129,7 +129,7 @@ const softwareJsonLd = {
         unitCode: 'MON',
         billingIncrement: 1,
       },
-    },
+    }, // ★ ここ（Offerの閉じ括弧）が抜けていました
     {
       '@type': 'Offer',
       name: 'STANDARD',
@@ -144,7 +144,7 @@ const softwareJsonLd = {
         unitCode: 'MON',
         billingIncrement: 1,
       },
-    },
+    }, // ★ ここも同様
     {
       '@type': 'Offer',
       name: 'PRO',
@@ -158,7 +158,8 @@ const softwareJsonLd = {
         priceCurrency: 'JPY',
         unitCode: 'MON',
         billingIncrement: 1,
-      }, 
+      },
+    }, // ★ ここも同様
   ],
 };
 
