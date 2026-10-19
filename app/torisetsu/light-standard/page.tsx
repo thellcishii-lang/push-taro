@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-export default function TorisetsuBasic() {
+export default function TorisetsuBasicClient() {
   return (
     <>
       <nav className="t-nav">
