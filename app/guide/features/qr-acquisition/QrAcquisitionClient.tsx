@@ -4,7 +4,7 @@ import Link from 'next/link';
 import BrandLogo from '@/components/BrandLogo';
 import '../../industry.css'; // ★ 共通CSSを読み込み
 
-export default function CouponFirstClient() {
+export default function QrAcquisitionClient() {
   return (
     <>
       <nav className="g-nav">
