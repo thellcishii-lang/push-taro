@@ -4,12 +4,14 @@ import Link from 'next/link';
 import BrandLogo from '@/components/BrandLogo';
 import '../../industry.css'; // ★ 共通CSSを読み込み
 
-export default function CouponNormalClient() {
+export default function CouponRepeatClient() {
   return (
     <>
-      {/* nav部分はそのまま */}
       <nav className="g-nav">
-        {/* ... */}
+        <div className="g-nav-inner">
+          <BrandLogo />
+          <Link href="/signup" className="g-nav-cta">今すぐ申し込む →</Link>
+        </div>
       </nav>
 
       <main className="g-main">
