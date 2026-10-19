@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import BrandLogo from '@/components/BrandLogo';
-import '../../industry.css';
+import '../industry.css';
 
 export default function FeaturesClient() {
   return (
