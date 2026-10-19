@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import BrandLogo from '@/components/BrandLogo';
-import './features.css'; // ★ 専用CSSを読み込む
+import '../features.css'; // ★ 専用CSSを読み込む
 
 export default function FeaturesClient() {
   return (
