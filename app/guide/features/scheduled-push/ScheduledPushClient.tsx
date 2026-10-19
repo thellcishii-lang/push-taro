@@ -4,7 +4,7 @@ import Link from 'next/link';
 import BrandLogo from '@/components/BrandLogo';
 import '../../industry.css'; // ★ 共通CSSを読み込み
 
-export default function ScheduledPushFeature() {
+export default function ScheduledPushClient() {
   return (
     <>
       <nav className="g-nav">
