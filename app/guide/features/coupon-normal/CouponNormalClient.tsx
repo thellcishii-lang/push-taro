@@ -155,3 +155,6 @@ export default function CouponNormalClient() {
           </div>
         </div>
       </main>
+      </>
+  );
+}
