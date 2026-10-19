@@ -151,11 +151,6 @@ export default function CouponRepeatClient() {
                 <div><div className="title">ステップアップクーポン</div><div className="sub">段階的に特典アップ</div></div>
                 <span className="arrow">→</span>
               </Link>
-              <Link href="/guide/themes/repeat" className="g-related-card">
-                <span className="ico">📈</span>
-                <div><div className="title">リピート施策</div><div className="sub">テーマ別ガイド</div></div>
-                <span className="arrow">→</span>
-              </Link>
             </div>
           </div>
 
