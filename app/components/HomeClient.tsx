@@ -164,7 +164,7 @@ export default function HomeClient() {
         新しいカタチのリピート施策ツール。
       </p>
        
-      <div className="what-is-price">
+            <div className="what-is-price">
         <div className="price-short">
           <span>5,000通なら</span>
           <strong>¥1,980</strong>
@@ -173,7 +173,12 @@ export default function HomeClient() {
           <span>配信無制限なら</span>
           <strong>¥10,000</strong>
         </div>
-        <a href="#pricing" className="price-link">詳しくはこちら →</a>
+        <a href="#pricing" className="price-link">
+          詳しい料金を見る
+          <svg className="price-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </a>
       </div>
 
       <div className="what-is-points">
@@ -1307,6 +1312,70 @@ export default function HomeClient() {
           </div>
         </div>
       </section>
+
+      {/* ============================================================
+    MULTI-STORE
+============================================================ */}
+<section className="section multi-store-section" id="multi-store">
+  <div className="container">
+    <div className="section-header reveal">
+      <span className="section-tag">Multi-Store</span>
+      <h2>複数店舗・多店舗展開の方へ</h2>
+      <p>
+        1店舗からチェーン展開まで。<br />
+        Push-taroは、店舗規模に合わせた柔軟な運用が可能です。
+      </p>
+    </div>
+
+    <div className="multi-store-grid">
+      <div className="multi-store-card tilt-in">
+        <div className="multi-store-icon">🏪</div>
+        <h3>複数店舗・複数レジへの対応</h3>
+        <p>
+          1つのアカウントで、同時にいくつもの端末（レジ）でログインして使用できます。複数レジの配備にも対応しています。
+        </p>
+        <div className="multi-store-note">
+          <strong>※注意点：</strong>
+          データが送信・消し込みデータが端末ごとに独立するため、集計時はそれぞれの端末からエクスポートする必要があります。
+        </div>
+      </div>
+
+      <div className="multi-store-card tilt-in" style={{ transitionDelay: '0.1s' }}>
+        <div className="multi-store-icon">📢</div>
+        <h3>全店舗に同じ内容を一斉配信</h3>
+        <p>
+          本部から全店舗のお客様へ、同じクーポンやお知らせを一斉に送信したい場合。
+        </p>
+        <div className="multi-store-note">
+          この場合、単一のアカウントで全店舗の登録者を管理します。<br />
+          配信規模（合計の登録者数）が<strong>上限5万件を超えるかどうか</strong>がプラン選定のポイントになります。
+        </div>
+      </div>
+
+      <div className="multi-store-card tilt-in" style={{ transitionDelay: '0.2s' }}>
+        <div className="multi-store-icon">📝</div>
+        <h3>店舗ごとに違う内容を配信</h3>
+        <p>
+          各店舗のスタッフが、それぞれの店舗に合わせたクーポンや日替わり情報を配信したい場合。
+        </p>
+        <div className="multi-store-note">
+          店舗ごとに個別でお申し込みいただくか、<br />
+          本部で一括管理できる「本部機能」をご希望の場合は<strong>別途ご相談</strong>を承ります。
+        </div>
+      </div>
+    </div>
+
+    <div className="multi-store-cta reveal">
+      <p>本部機能の導入や、全社一括の費用体系など、貴社の運営体制に合わせたご提案をいたします。</p>
+      <Link href="/contact" className="btn-primary">
+        多店舗展開について相談する
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </Link>
+    </div>
+  </div>
+</section>
 
        {/* ============================================================
           PRO REFERRAL
