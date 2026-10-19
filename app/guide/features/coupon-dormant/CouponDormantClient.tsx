@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import BrandLogo from '@/components/BrandLogo';
-import '../../industry.css'; // ★ 共通CSSを読み込み
+import '../../industry.css';
 
 export default function CouponDormantClient() {
   return (
@@ -27,8 +27,8 @@ export default function CouponDormantClient() {
           <span className="g-badge is-pro">🔥 PRO 限定</span>
           <h1>💤 休眠復活クーポン</h1>
           <p>
-            最終来店から<strong>N日以上経過したお客様を自動抽出</strong>し、
-            特別な復帰クーポンを自動配信。離反しかけた顧客を、確実に呼び戻します。
+            最後にQRコードを読み取ってから<strong>指定した日数（例: 60日）が経過したお客様を自動抽出</strong>し、
+            特別な復帰クーポンを自動配信します。離反しかけた顧客を、確実に呼び戻します。
           </p>
         </div>
 
@@ -36,15 +36,15 @@ export default function CouponDormantClient() {
 
           <h2 className="g-h2"><span className="num">1</span>この機能でできること</h2>
           <div className="g-feature-list">
-            <div className="g-feature-item"><span className="ico">🔍</span><div><strong>休眠顧客を自動抽出</strong><p>最終来店から指定日数が経過した顧客を、システムが自動で検出。</p></div></div>
-            <div className="g-feature-item"><span className="ico">📢</span><div><strong>自動で復帰クーポン配信</strong><p>特別なクーポンと共に、お久しぶりの通知をお届け。</p></div></div>
-            <div className="g-feature-item"><span className="ico">📅</span><div><strong>再送信間隔を自動制御</strong><p>同じ人にしつこく送らないよう、システムが30日間隔で制御。</p></div></div>
-            <div className="g-feature-item"><span className="ico">🎯</span><div><strong>休眠判定日数を自由に設定</strong><p>業種に合わせて「30日」「60日」「90日」などを選択可能。</p></div></div>
+            <div className="g-feature-item"><span className="ico">🔍</span><div><strong>休眠顧客を自動抽出</strong><p>最終来店（QR読み取り）から指定日数が経過した顧客を、システムが自動で検出します。</p></div></div>
+            <div className="g-feature-item"><span className="ico">📢</span><div><strong>自動で復帰クーポン配信</strong><p>特別なクーポンと共に、お久しぶりの通知をお届けします。</p></div></div>
+            <div className="g-feature-item"><span className="ico">📅</span><div><strong>再送信間隔を自動制御</strong><p>同じ人にしつこく送らないよう、システムが30日間隔で制御します。</p></div></div>
+            <div className="g-feature-item"><span className="ico">🎯</span><div><strong>休眠判定日数を自由に設定</strong><p>業種に合わせて「30日」「60日」「90日」などを選択可能です。</p></div></div>
           </div>
 
           <h2 className="g-h2"><span className="num">2</span>仕組み</h2>
           <div className="g-flow">
-            <div className="g-flow-item"><div className="g-flow-circle">来店</div><p>クーポン利用</p></div>
+            <div className="g-flow-item"><div className="g-flow-circle">来店</div><p>QR読み取り</p></div>
             <div className="g-flow-arrow">→</div>
             <div className="g-flow-item"><div className="g-flow-circle">60日経過</div><p>自動検知</p></div>
             <div className="g-flow-arrow">→</div>
@@ -148,12 +148,94 @@ export default function CouponDormantClient() {
             </table>
           </div>
 
-          <h2 className="g-h2"><span className="num">7</span>業種別の活用例</h2>
+          {/* ============================================================
+              本質と心理
+          ============================================================ */}
+          <h2 className="g-h2"><span className="num">7</span>なぜ、「無料特典」が効くのか？</h2>
+          
+          <p className="g-desc">
+            お客様が来なくなったのには、必ず理由があります（忙しい、忘れた、少し遠い、など）。
+            だからこそ、休眠復活クーポンは「単なる値引き」ではなく、<strong>「また足を運ぶきっかけ」</strong>として設計することが重要です。
+          </p>
+
+          <div className="g-callout success">
+            <span className="ico">💡</span>
+            <div>
+              <p><strong>「タダで貰える」というハードルの低さと、お客様の心理</strong></p>
+              <p>
+                「〇〇が無料で貰える」という特典は、お客様の心理的なハードルを極限まで下げます。<br />
+                しかし、<strong>「無料目当ての冷やかし」はほとんどいません。</strong><br />
+                なぜなら、わざわざ足を運ぶ手間をかけるお客様は、お店のことを好意的に覚えているからです。<br />
+                結果として、無料特典をきっかけに来店し、<strong>「ついでに他の商品も買ってくれる」</strong>という温かい循環が生まれます。
+              </p>
+            </div>
+          </div>
+
+          <div className="g-quote is-orange">
+            少し遠くても足を運びたくなる。<br />
+            近くに似た店があっても、<br />
+            「あのお店」と選ばれる。<br /><br />
+            そんな「ミシュラン的な引力」を、<br />
+            休眠復活からもう一度思い出してもらう。
+          </div>
+
+          <div className="g-callout info">
+            <span className="ico">💡</span>
+            <div>
+              <p><strong>店舗のコンセプト × プッシュ通知</strong></p>
+              <p>
+                「わざわざ行きたい」と思わせる店舗のコンセプトや商品力は、プッシュ通知とは別の話です。<br />
+                例えば、<strong>パンに力を入れているスーパー</strong>は、それ自体が強い来店動機になっています。<br />
+                プッシュ通知の役割は、その素晴らしい店舗の価値を<strong>「お客様に思い出してもらうこと」</strong>。土台となる店舗力があるからこそ、休眠復活の一手が最大の効果を発揮します。
+              </p>
+            </div>
+          </div>
+
+          {/* ============================================================
+              業種別活用例
+          ============================================================ */}
+          <h2 className="g-h2"><span className="num">8</span>業種別のリアルな活用例</h2>
           <div className="g-grid">
-            <Link href="/guide/salon" className="g-card"><span className="g-card-icon">💇</span><h4>美容室・サロン</h4><p>「3ヶ月来店なし → 20%OFF」</p></Link>
-            <Link href="/guide/cafe" className="g-card"><span className="g-card-icon">☕</span><h4>飲食店・カフェ</h4><p>「1ヶ月来店なし → ドリンク無料」</p></Link>
-            <Link href="/guide/massage" className="g-card"><span className="g-card-icon">💆</span><h4>マッサージ</h4><p>「3ヶ月来店なし → 30%OFF」</p></Link>
-            <Link href="/guide/snack" className="g-card"><span className="g-card-icon">🍸</span><h4>スナック・パブ</h4><p>「2ヶ月来店なし → 1杯無料」</p></Link>
+            <Link href="/guide/super" className="g-card">
+              <span className="g-card-icon">🛒</span>
+              <h4>スーパー・小売店</h4>
+              <p>
+                <strong>総額値引きより「商品限定」で。</strong><br />
+                60日以上来店がないお客様へ「お好きな商品3品まで30%OFF」を配信。また、<strong>パンに力を入れているスーパーなら「人気の惣菜パン1つ無料」</strong>など、お店の強みをフックにして「もらいに行こう」と来店のハードルを下げます。
+              </p>
+            </Link>
+            <Link href="/guide/apparel" className="g-card">
+              <span className="g-card-icon">👕</span>
+              <h4>アパレル・雑貨</h4>
+              <p>
+                <strong>60日スパンで「一品20%OFF」。</strong><br />
+                「そういえば最近行ってないな」と思い出してもらうために、対象を絞ったクーポンを配信。AI動画を見て「実物を触りに行こう」という動機に繋げます。
+              </p>
+            </Link>
+            <Link href="/guide/snack" className="g-card">
+              <span className="g-card-icon">🍸</span>
+              <h4>スナック・パブ</h4>
+              <p>
+                <strong>「ボトル1本サービス」で背中を押す。</strong><br />
+                足が遠のいた常連客へ、ママからの「お久しぶり」メッセージと共に。ボトルサービスは「行ってみようかな」という強い動機になります。
+              </p>
+            </Link>
+            <Link href="/guide/cafe" className="g-card">
+              <span className="g-card-icon">☕</span>
+              <h4>飲食店・カフェ</h4>
+              <p>
+                <strong>「デザートサービス」が効果的。</strong><br />
+                ランチやディナーで来なくなったお客様へ。「次回来たらデザート無料」など、通常の食事にプラスアルファする特典が喜ばれます。
+              </p>
+            </Link>
+            <Link href="/guide/bakery" className="g-card">
+              <span className="g-card-icon">🥐</span>
+              <h4>パン屋・ベーカリー</h4>
+              <p>
+                <strong>「来てくれたら、無料で進呈」の心理。</strong><br />
+                しばらく来ていないお客様へ、翌日使える「食パン1斤無料」や「人気の惣菜パン1つ無料」を配信。「もらいに行くついでに、つい他のパンも買ってしまう」という、温かい来店動機を作ります。
+              </p>
+            </Link>
           </div>
 
           <div className="g-related">
@@ -167,6 +249,11 @@ export default function CouponDormantClient() {
               <Link href="/guide/features/coupon-loyalty" className="g-related-card">
                 <span className="ico">🏆</span>
                 <div><div className="title">特別達成クーポン</div><div className="sub">N回来店で解放</div></div>
+                <span className="arrow">→</span>
+              </Link>
+              <Link href="/guide/features/coupon-repeat" className="g-related-card">
+                <span className="ico">🔄</span>
+                <div><div className="title">連続クーポン</div><div className="sub">消込で次回分発行</div></div>
                 <span className="arrow">→</span>
               </Link>
             </div>
