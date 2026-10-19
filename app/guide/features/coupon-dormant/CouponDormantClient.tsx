@@ -169,11 +169,6 @@ export default function CouponDormantClient() {
                 <div><div className="title">特別達成クーポン</div><div className="sub">N回来店で解放</div></div>
                 <span className="arrow">→</span>
               </Link>
-              <Link href="/guide/themes/dormant" className="g-related-card">
-                <span className="ico">💤</span>
-                <div><div className="title">休眠顧客の復活</div><div className="sub">テーマ別ガイド</div></div>
-                <span className="arrow">→</span>
-              </Link>
             </div>
           </div>
 
