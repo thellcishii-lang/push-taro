@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import BrandLogo from '@/components/BrandLogo';
-import '../features.css'; // ★ 専用CSSを読み込む
+import './features.css'; // ★ 専用CSSを読み込む
 
 export default function FeaturesClient() {
   return (
@@ -15,6 +15,17 @@ export default function FeaturesClient() {
       </nav>
 
       <main className="g-main">
+        <div className="g-breadcrumb">
+          <Link href="/guide">ガイド</Link>
+          <span className="sep">/</span>
+          <span className="current">機能別ガイド</span>
+        </div>
+
+        <div className="g-hero">
+          <span className="g-badge">Features</span>
+          <h1>機能別ガイド</h1>
+          <p>各機能の「何ができるか」「どう使うか」「おすすめの設定」を、実際の画面イメージとともに解説します。</p>
+        </div>
 
         <h2 className="g-h2">📢 配信・通知系</h2>
         <div className="g-feature-grid">
@@ -82,7 +93,7 @@ export default function FeaturesClient() {
         <div className="g-feature-grid">
           <Link href="/guide/features/referral" className="g-feature-card">
             <span className="g-feature-icon">🤝</span>
-            <div className="g-feature-info"><h4>紹介報酬</h4><p>他店舗を紹介で毎月10%還元</p></div>
+            <div className="g-feature-info"><h4>紹介報酬</h4><p>他店舗を紹介で毎月報酬還元</p></div>
             <span className="g-feature-tag is-pro">PRO</span>
           </Link>
         </div>
@@ -95,9 +106,9 @@ export default function FeaturesClient() {
               <div><div className="title">ガイドTOP</div><div className="sub">全体を見る</div></div>
               <span className="arrow">→</span>
             </Link>
-            <Link href="/guide/salon" className="g-related-card">
-              <span className="ico">💇</span>
-              <div><div className="title">業種別ガイド</div><div className="sub">美容室・サロン向け</div></div>
+            <Link href="/guide/line-comparison" className="g-related-card">
+              <span className="ico">📊</span>
+              <div><div className="title">LINE公式アカウントとの比較</div><div className="sub">配信上限という壁</div></div>
               <span className="arrow">→</span>
             </Link>
           </div>
