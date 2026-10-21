@@ -1,8 +1,6 @@
 /* ============================================================
    app/lp.css  完全リファクタリング版
-   - 未使用クラスを全て削除
-   - 新LP（HomeClient.tsx）で使うクラスのみ収録
-   ============================================================ */
+============================================================ */
 
 /* ============================================================
    RESET & BASE
@@ -491,7 +489,7 @@ img { max-width: 100%; display: block; }
 }
 
 /* ============================================================
-   GUIDE PROMO 2（実店舗の集客、その「後」）
+   GUIDE PROMO 2
 ============================================================ */
 .guide-promo-2 {
   background: #fff;
@@ -1112,7 +1110,7 @@ img { max-width: 100%; display: block; }
   color: #94a3b8; margin-top: 20px; font-weight: 600;
 }
 
-/* ---- Screen Customize（新規） ---- */
+/* ---- Screen Customize ---- */
 .screen-customize {
   display: flex; gap: 24px;
   max-width: 900px; margin: 56px auto 0;
@@ -1134,7 +1132,7 @@ img { max-width: 100%; display: block; }
 .screen-customize-body strong { color: #c2410c; font-weight: 900; }
 
 /* ============================================================
-   COMPARISON（他社比較）
+   COMPARISON
 ============================================================ */
 .compare-table-wrap {
   max-width: 1000px; margin: 0 auto 32px;
@@ -1987,9 +1985,6 @@ img { max-width: 100%; display: block; }
 }
 
 @media (max-width: 768px) {
-  /* 既存のスタイル... */
-  
-  /* ★ 追加：スマホではロゴの説明文を非表示 */
   .logo small {
     display: none;
   }
@@ -2003,7 +1998,7 @@ img { max-width: 100%; display: block; }
   grid-template-columns: 1fr 1fr;
   gap: 24px;
   max-width: 900px;
-  margin: 0 auto 48px; /* 下のフローとの余白 */
+  margin: 0 auto 48px;
 }
 .coupon-example {
   padding: 24px 28px;
@@ -2139,131 +2134,49 @@ img { max-width: 100%; display: block; }
 }
 
 /* ============================================================
-   WHAT IS 価格ダイジェスト（リッチ版）
+   WHAT IS Q&A（AI検索対策）
 ============================================================ */
-.what-is-price {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  margin-top: -10px;
-  margin-bottom: 40px;
-  flex-wrap: wrap;
-}
-
-.price-short {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
-  border: 2px solid var(--orange);
+.what-is-qa {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border: 1px solid #bae6fd;
   border-radius: 16px;
-  padding: 14px 28px;
-  min-width: 170px;
-  box-shadow: 0 8px 24px rgba(255, 69, 0, 0.15);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-  overflow: hidden;
-  cursor: default;
+  padding: 24px 32px;
+  margin-top: 8px;
+  margin-bottom: 40px;
+  text-align: left;
 }
-
-/* 光沢アニメーション */
-.price-short::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%);
-  transform: skewX(-20deg);
-  animation: price-shine 4s infinite;
-  z-index: 0;
-  pointer-events: none;
-}
-
-@keyframes price-shine {
-  0% { left: -100%; }
-  20% { left: 100%; }
-  100% { left: 100%; }
-}
-
-/* 内側の背景グラデーション */
-.price-short::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, #fff7ed, #ffedd5);
-  z-index: 0;
-}
-.price-short.is-pro::before {
-  background: linear-gradient(135deg, #fff7ed, #fed7aa);
-}
-
-.price-short > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* ホバー時の動き */
-.price-short:hover {
-  transform: translateY(-4px) scale(1.03);
-  box-shadow: 0 12px 32px rgba(255, 69, 0, 0.25);
-}
-
-.price-short span {
-  font-size: 13px;
-  font-weight: 800;
-  color: #c2410c;
-  margin-bottom: 4px;
-}
-
-.price-short strong {
-  font-family: var(--font-en);
-  font-size: 28px;
+.what-is-qa-q {
+  font-size: 16px;
   font-weight: 900;
-  color: var(--orange);
-  line-height: 1;
-  letter-spacing: -1px;
-}
-
-/* 詳しくはこちらリンク */
-.price-link {
+  color: #0f172a;
+  margin: 0 0 12px;
   display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 15px;
+  align-items: flex-start;
+  gap: 8px;
+}
+.what-is-qa-q .q-mark {
+  color: #0284c7;
+  font-family: var(--font-en);
+  font-size: 20px;
+  line-height: 1;
+}
+.what-is-qa-a {
+  font-size: 14.5px;
+  color: #334155;
+  line-height: 1.9;
+  margin: 0 0 16px;
+}
+.what-is-qa-a strong {
+  color: #0f172a;
   font-weight: 800;
-  color: var(--slate-700);
+}
+.what-is-qa-link {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 800;
+  color: #0284c7;
   text-decoration: none;
-  padding: 12px 24px;
-  border-radius: 30px;
-  background: var(--slate-100);
-  transition: all 0.2s;
 }
-
-.price-link:hover {
-  background: var(--slate-200);
-  color: var(--orange);
-}
-
-.price-arrow {
-  transition: transform 0.3s ease;
-}
-
-.price-link:hover .price-arrow {
-  transform: translateX(4px);
-}
-
-/* スマホ用 */
-@media (max-width: 768px) {
-  .what-is-price {
-    flex-direction: column;
-    gap: 16px;
-  }
-  .price-short {
-    width: 100%;
-    max-width: 280px;
-  }
+.what-is-qa-link:hover {
+  text-decoration: underline;
 }
