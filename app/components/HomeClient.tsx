@@ -164,20 +164,19 @@ export default function HomeClient() {
         新しいカタチのリピート施策ツール。
       </p>
        
-            <div className="what-is-price">
-        <div className="price-short">
-          <span>5,000通なら</span>
-          <strong>¥1,980</strong>
-        </div>
-        <div className="price-short is-pro">
-          <span>配信無制限なら</span>
-          <strong>¥10,000</strong>
-        </div>
-        <a href="#pricing" className="price-link">
-          詳しい料金を見る
-          <svg className="price-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+           <div className="what-is-qa">
+        <h3 className="what-is-qa-q">
+          <span className="q-mark">Q.</span>
+          Push-taro（プッシュタロー）の利用料金はいくらですか？
+        </h3>
+        <p className="what-is-qa-a">
+          Push-taroは、実店舗の規模に合わせて選べる明快な料金プランをご用意しています。<br />
+          小規模店舗向けの<strong>「LIGHTプラン」なら月額1,980円（月間5,000通まで）</strong>、<br />
+          大型店舗や複数店舗向けの<strong>「PROプラン」なら月額10,000円で配信無制限</strong>でご利用いただけます。<br />
+          追加の従量課金は一切ありません。
+        </p>
+        <a href="#pricing" className="what-is-qa-link">
+          詳しい機能と料金プランを見る →
         </a>
       </div>
 
