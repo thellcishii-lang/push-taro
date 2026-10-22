@@ -7,8 +7,8 @@ import './lp.css';
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 
 export const metadata: Metadata = {
-  title: '店舗・テナント向け プッシュ通知 × クーポンアプリ｜Push-taro',
- description:
+  title: 'LINEの配信制限でお困りなら｜店舗向けプッシュ通知×クーポンアプリ Push-taro',
+  description:
     'LINE公式アカウントの配信上限（月5,000通など）でお困りではありませんか？Push-taroは、実店舗のためのプッシュ通知×クーポンアプリ。クーポン配信は通数にカウントされず、PROプランなら配信無制限。月額1,980円〜、従量課金なしで始められます。',
   keywords: [
     '店舗 プッシュ通知',
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ja_JP',
-    title: '店舗・テナント向け プッシュ通知 × クーポンアプリ｜Push-taro',
+    title: 'LINEの配信制限でお困りなら｜店舗向けプッシュ通知×クーポンアプリ Push-taro',
     description:
       '店舗リピーター育成のためのクーポン自動配信・QR消込・休眠復活を標準搭載。月額1,980円〜、従量課金なし。',
     url: '/',
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: '店舗・テナント向け プッシュ通知 × クーポンアプリ｜Push-taro',
+    title: 'LINEの配信制限でお困りなら｜店舗向けプッシュ通知×クーポンアプリ',
     description:
       '店舗リピーター育成のためのクーポン自動配信・QR消込・休眠復活を標準搭載。月額1,980円〜。',
   },
@@ -94,12 +94,13 @@ const softwareJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
   name: 'Push-taro',
+  alternateName: 'プッシュタロー',
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web',
   url: appUrl,
   inLanguage: 'ja-JP',
   description:
-    '実店舗のリピート施策を「プッシュ通知 × CRM」で自動化するSaaS。7種類のクーポン自動配信、QR消込、休眠復活、誕生日配信を標準搭載。',
+    '実店舗のリピート施策を「プッシュ通知 × クーポンアプリ」で自動化するSaaS。顧客データを集めず、QRコード一つで始められる。全7種類のクーポン自動配信、QR消込、休眠復活、誕生日配信を標準搭載。',
   provider: { '@id': `${appUrl}/#organization` },
   featureList: [
     'プッシュ通知（全デバイス対応）',
@@ -114,53 +115,39 @@ const softwareJsonLd = {
     '休眠復活クーポン',
     '予約配信・定期配信',
   ],
-      offers: [
-    {
-      '@type': 'Offer',
-      name: 'LIGHT',
-      price: '1980',
-      priceCurrency: 'JPY',
-      description: '月間5,000通まで配信可能。初回クーポン、QRコード登録などの基本機能。',
-      url: `${appUrl}/#pricing`,
-      priceSpecification: {
-        '@type': 'UnitPriceSpecification',
+  offers: {
+    '@type': 'AggregateOffer',
+    priceCurrency: 'JPY',
+    lowPrice: '1980',
+    highPrice: '10000',
+    offerCount: '3',
+    offers: [
+      {
+        '@type': 'Offer',
+        name: 'LIGHT',
         price: '1980',
         priceCurrency: 'JPY',
-        unitCode: 'MON',
-        billingIncrement: 1,
+        description: '月間5,000通まで配信可能。初回クーポン、QRコード登録などの基本機能。',
+        url: `${appUrl}/#pricing`,
       },
-    }, // ★ ここ（Offerの閉じ括弧）が抜けていました
-    {
-      '@type': 'Offer',
-      name: 'STANDARD',
-      price: '3800',
-      priceCurrency: 'JPY',
-      description: '月間15,000通まで配信可能。通常クーポン、特別達成クーポン、店頭ポップ印刷機能。',
-      url: `${appUrl}/#pricing`,
-      priceSpecification: {
-        '@type': 'UnitPriceSpecification',
+      {
+        '@type': 'Offer',
+        name: 'STANDARD',
         price: '3800',
         priceCurrency: 'JPY',
-        unitCode: 'MON',
-        billingIncrement: 1,
+        description: '月間15,000通まで配信可能。通常クーポン、特別達成クーポン、店頭ポップ印刷機能。',
+        url: `${appUrl}/#pricing`,
       },
-    }, // ★ ここも同様
-    {
-      '@type': 'Offer',
-      name: 'PRO',
-      price: '10000',
-      priceCurrency: 'JPY',
-      description: '配信無制限。全7種類のクーポン機能、予約配信、紹介報酬制度。',
-      url: `${appUrl}/#pricing`,
-      priceSpecification: {
-        '@type': 'UnitPriceSpecification',
+      {
+        '@type': 'Offer',
+        name: 'PRO',
         price: '10000',
         priceCurrency: 'JPY',
-        unitCode: 'MON',
-        billingIncrement: 1,
+        description: '配信無制限。全7種類のクーポン機能、予約配信、紹介報酬制度。',
+        url: `${appUrl}/#pricing`,
       },
-    }, // ★ ここも同様
-  ],
+    ],
+  },
 };
 
 const faqJsonLd = {
