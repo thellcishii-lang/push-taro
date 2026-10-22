@@ -177,6 +177,8 @@ export default function GuideClient() {
             <Link href="/guide/cafe" className="g-card"><span className="g-card-icon">☕</span><h4>飲食店・カフェ</h4><p>雨の日割引・常連客のファン化</p></Link>
             <Link href="/guide/apparel" className="g-card"><span className="g-card-icon">👕</span><h4>アパレル・雑貨</h4><p>新商品入荷・セール告知</p></Link>
             <Link href="/guide/snack" className="g-card"><span className="g-card-icon">🍸</span><h4>スナック・パブ</h4><p>常連客と紹介の仕組み</p></Link>
+            <Link href="/guide/food-loss" className="g-card is-new"><span className="g-card-new">NEW</span><span className="g-card-icon">♻️</span><h4>フードロス削減</h4><p>廃棄ロスを売上に変える、通知とmottECOの活用</p>
+</Link>
           </div>
         </section>
 
