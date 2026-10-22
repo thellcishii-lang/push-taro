@@ -81,11 +81,13 @@ const collectionJsonLd = {
   { '@type': 'Article', name: '飲食店・カフェ', url: `${appUrl}/guide/cafe` },
   { '@type': 'Article', name: 'アパレル・雑貨', url: `${appUrl}/guide/apparel` },
   { '@type': 'Article', name: 'スナック・パブ', url: `${appUrl}/guide/snack` },
+  { '@type': 'Article', name: 'フードロス削減', url: `${appUrl}/guide/food-loss` },
 
   // 機能別・運用
   { '@type': 'Article', name: '機能別ガイド', url: `${appUrl}/guide/features` },
   { '@type': 'Article', name: '導入事例', url: `${appUrl}/guide/case-studies` },
   { '@type': 'Article', name: 'NG行為集', url: `${appUrl}/guide/ng-actions` },
+    
 
   // 店舗マーケティングの本質
   { '@type': 'Article', name: '実店舗の集客、オススメの施策', url: `${appUrl}/guide/store-marketing` },
