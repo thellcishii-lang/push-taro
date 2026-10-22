@@ -33,26 +33,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     // --- 運用ノウハウ ---
     '/guide/case-studies',
+    '/guide/ctr-to-cvr',
+    '/guide/existing-customers',
+    '/guide/line-comparison',
     '/guide/ng-actions',
-    '/guide/segmentation',        // ★ 追加
-    '/guide/existing-customers',  // ★ 追加
+    '/guide/push-notification-metrics',
+    '/guide/security',
+    '/guide/segmentation',
+    '/guide/store-marketing',
+    '/guide/super',
+    '/guide/what-is-pwa',
 
     // --- 業種別 ---
     '/guide/bakery',
     '/guide/cafe',
-    '/guide/izakaya',
-    '/guide/ramen',
-    '/guide/sushi',
-    '/guide/salon',
     '/guide/massage',
     '/guide/snack',
     '/guide/apparel',
-
-    // --- テーマ別 ---
-    '/guide/themes/new-customer',
-    '/guide/themes/repeat',
-    '/guide/themes/birthday',
-    '/guide/themes/dormant',
   ].map((path) => ({ path, priority: 0.7, freq: 'monthly' as const }));
 
   // ③ 取扱説明書（priority 0.5）

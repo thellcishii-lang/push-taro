@@ -7,9 +7,9 @@ import './lp.css';
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 
 export const metadata: Metadata = {
-  title: 'LINEの配信制限でお困りなら｜店舗向けプッシュ通知×クーポンアプリ Push-taro',
+  title: '店舗集客・リピーター施策ならPush-taro｜通知×クーポン',
   description:
-    'LINE公式アカウントの配信上限（月5,000通など）でお困りではありませんか？Push-taroは、実店舗のためのプッシュ通知×クーポンアプリ。クーポン配信は通数にカウントされず、PROプランなら配信無制限。月額1,980円〜、従量課金なしで始められます。',
+    'LINE公式アカウントの配信上限や従量課金に悩む店舗向け。Push-taroは、プッシュ通知とクーポンで実店舗のリピーターづくりを支援します。QRコード登録やクーポン自動配信に対応し、月額1,980円から。',
   keywords: [
     '店舗 プッシュ通知',
     'テナント プッシュ通知',
@@ -29,17 +29,17 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ja_JP',
-    title: 'LINEの配信制限でお困りなら｜店舗向けプッシュ通知×クーポンアプリ Push-taro',
+    title: '店舗集客・リピーター施策ならPush-taro｜通知×クーポン',
     description:
-      '店舗リピーター育成のためのクーポン自動配信・QR消込・休眠復活を標準搭載。月額1,980円〜、従量課金なし。',
+      'LINE公式アカウントの配信上限や従量課金に悩む店舗向け。プッシュ通知とクーポンで実店舗のリピーターづくりを支援。月額1,980円から。',
     url: '/',
     siteName: 'Push-taro',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'LINEの配信制限でお困りなら｜店舗向けプッシュ通知×クーポンアプリ',
+    title: '店舗集客・リピーター施策ならPush-taro｜通知×クーポン',
     description:
-      '店舗リピーター育成のためのクーポン自動配信・QR消込・休眠復活を標準搭載。月額1,980円〜。',
+      'プッシュ通知とクーポンで実店舗のリピーターづくりを支援。QRコード登録やクーポン自動配信に対応し、月額1,980円から。',
   },
   robots: {
     index: true,

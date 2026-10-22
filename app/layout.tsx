@@ -22,9 +22,9 @@ const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
-  title: '実店舗のリピート施策をPush通知で自動化 | Push-taro',
+  title: '店舗集客・リピーター施策ならPush-taro｜通知×クーポン',
   description:
-    '実店舗のリピート施策を「プッシュ通知×CRM」で自動化するSaaS。7種類のクーポン自動配信・QR消込・休眠復活を標準搭載。月額1,980円〜。',
+    'LINE公式アカウントの配信上限や従量課金に悩む店舗向け。Push-taroは、プッシュ通知とクーポンで実店舗のリピーターづくりを支援します。QRコード登録やクーポン自動配信に対応し、月額1,980円から。',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
