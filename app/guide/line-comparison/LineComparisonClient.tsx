@@ -403,6 +403,65 @@ export default function LineComparisonClient() {
             <div className="next-article-arrow">→</div>
           </Link>
 
+                    {/* ============================================================
+              NEW: LINEの料金プランと配信上限
+          ============================================================ */}
+          <h2><span className="num">4.5</span>LINE公式アカウントの料金プランと配信上限</h2>
+          <p>
+            まずは、皆様がお使いの（あるいは導入を検討している）LINE公式アカウントの「配信上限」を正確に把握しておきましょう。
+          </p>
+
+          <div className="g-table-wrap">
+            <table className="g-table">
+              <thead>
+                <tr>
+                  <th>プラン</th>
+                  <th>月額（税別）</th>
+                  <th>配信上限</th>
+                  <th>Push-taroとの比較</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>コミュニケーション</strong></td>
+                  <td>無料</td>
+                  <td className="no">月200通</td>
+                  <td>1回の配信で終わる</td>
+                </tr>
+                <tr>
+                  <td><strong>ライト</strong></td>
+                  <td>¥5,000</td>
+                  <td className="no">月5,000通</td>
+                  <td>登録者500人なら月10回で終了</td>
+                </tr>
+                <tr>
+                  <td><strong>スタンダード</strong></td>
+                  <td>¥15,000</td>
+                  <td className="no">月30,000通</td>
+                  <td>クーポン別送で通数が足りなくなる</td>
+                </tr>
+                <tr>
+                  <td><strong>プロ</strong></td>
+                  <td>¥50,000</td>
+                  <td>無制限</td>
+                  <td className="yes">Push-taro PRO（¥10,000）の5倍の価格</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="g-callout info">
+            <span className="ico">💡</span>
+            <div>
+              <p><strong>ここが落とし穴！「セグメント配信」の限界</strong></p>
+              <p>
+                「セグメント配信で対象を絞れば、通数を節約できる」と考える方もいます。<br />
+                しかし、配信対象を分ける手間がかかる上に、実店舗の場合「顧客の属性情報」が少ないため、セグメントを分けること自体が困難です。<br />
+                さらに、通数を節約するために配信を控えると、<strong>一番大切な「お客様との接触頻度」が減ってしまいます。</strong>
+              </p>
+            </div>
+          </div>
+
           {/* ============================================================
               5. Push-taroの答え：完全分離
           ============================================================ */}
