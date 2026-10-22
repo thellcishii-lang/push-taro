@@ -1312,26 +1312,26 @@ export default function HomeClient() {
         </div>
       </section>
 
-      {/* ============================================================
+     {/* ============================================================
     MULTI-STORE
 ============================================================ */}
 <section className="section multi-store-section" id="multi-store">
   <div className="container">
     <div className="section-header reveal">
-      <span className="section-tag">Multi-Store</span>
-      <h2>複数店舗・多店舗展開の方へ</h2>
+      <span className="section-tag">Multi-Store / Franchise</span>
+      <h2>フランチャイズ本部・<br />中堅チェーンの方へ。</h2>
       <p>
-        1店舗からチェーン展開まで。<br />
-        Push-taroは、店舗規模に合わせた柔軟な運用が可能です。
+        自社アプリの開発に、数百万円かけていませんか？<br />
+        Push-taroなら、<strong>月額1万円で配信無制限</strong>のプッシュ通知環境が、最短即日で手に入ります。
       </p>
     </div>
 
     <div className="multi-store-grid">
       <div className="multi-store-card tilt-in">
-        <div className="multi-store-icon">🏪</div>
-        <h3>複数店舗・複数レジへの対応</h3>
+        <div className="multi-store-icon">🏢</div>
+        <h3>自社システム開発は、もう不要</h3>
         <p>
-          1つのアカウントで、同時にいくつもの端末（レジ）でログインして使用できます。複数レジの配備にも対応しています。
+          多店舗展開で顧客アプリを作ると、開発費数百万円と数ヶ月の期間がかかります。Push-taroはPROプラン（月1万円）で配信無制限。圧倒的低コストで運用できます。
         </p>
         <div className="multi-store-note">
           <strong>※注意点：</strong>
@@ -1340,7 +1340,7 @@ export default function HomeClient() {
       </div>
 
       <div className="multi-store-card tilt-in" style={{ transitionDelay: '0.1s' }}>
-        <div className="multi-store-icon">📢</div>
+        <div className="multi-store-icon">🏪</div>
         <h3>全店舗に同じ内容を一斉配信</h3>
         <p>
           本部から全店舗のお客様へ、同じクーポンやお知らせを一斉に送信したい場合。
@@ -1364,10 +1364,40 @@ export default function HomeClient() {
       </div>
     </div>
 
+    {/* フランチャイズ・チェーン向けのユースケース */}
+    <div className="fc-usecases reveal" style={{ marginTop: '40px', maxWidth: '1100px', margin: '40px auto 48px' }}>
+      <h3 style={{ fontSize: '20px', fontWeight: '900', textAlign: 'center', marginBottom: '24px', color: '#0f172a' }}>
+        フランチャイズ・チェーン店での活用例
+      </h3>
+      <div className="fc-usecase-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+        <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '2px solid #e2e8f0' }}>
+          <div style={{ fontSize: '32px', marginBottom: '12px' }}>🛒</div>
+          <h4 style={{ fontSize: '16px', fontWeight: '900', marginBottom: '8px', color: '#0f172a' }}>コンビニ・小売のフードロス対策</h4>
+          <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.8', margin: 0 }}>
+            「賞味期限間近のお弁当・パンを半額」と当日の夕方にプッシュ通知。廃棄ロスを削減し、お客様の来店動機を作ります。
+          </p>
+        </div>
+        <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '2px solid #e2e8f0' }}>
+          <div style={{ fontSize: '32px', marginBottom: '12px' }}>🤝</div>
+          <h4 style={{ fontSize: '16px', fontWeight: '900', marginBottom: '8px', color: '#0f172a' }}>FCオーナー同士の紹介制度</h4>
+          <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.8', margin: 0 }}>
+            PROプランの「紹介制度（2件で40%OFF）」を活用。隣の店舗のオーナーと一緒に始めれば、<strong>実質月額6,600円</strong>で導入可能です。
+          </p>
+        </div>
+        <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', border: '2px solid #e2e8f0' }}>
+          <div style={{ fontSize: '32px', marginBottom: '12px' }}>🏢</div>
+          <h4 style={{ fontSize: '16px', fontWeight: '900', marginBottom: '8px', color: '#0f172a' }}>中堅チェーンの本部一括導入</h4>
+          <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.8', margin: 0 }}>
+            本部機能を利用して全店舗の売上を可視化。多店舗を運営する企業様は、個別に最適な運用プランをご提案いたします。
+          </p>
+        </div>
+      </div>
+    </div>
+
     <div className="multi-store-cta reveal">
-      <p>本部機能の導入や、全社一括の費用体系など、貴社の運営体制に合わせたご提案をいたします。</p>
+      <p>本部機能の導入や、FC全体への一括導入、貴社の運営体制に合わせたご提案をいたします。</p>
       <Link href="/contact" className="btn-primary">
-        多店舗展開について相談する
+        多店舗・FC展開について相談する
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
