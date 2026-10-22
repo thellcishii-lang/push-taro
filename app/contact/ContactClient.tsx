@@ -8,10 +8,13 @@ import './contact.css';
 export default function ContactClient() {
   const [formData, setFormData] = useState({
     name: '',
+    furigana: '',  // 追加
+    phone: '',     // 追加
     email: '',
     company: '',
     category: '導入のご相談',
     message: '',
+    website: '',   // ハニーポット用（Bot対策）
   });
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
@@ -24,9 +27,45 @@ export default function ContactClient() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. ハニーポットチェック（Botは全てのinputを埋めようとするため、これが埋まっていたら弾く）
+    if (formData.website !== '') {
+      alert('スパムの疑いがあるため、送信をブロックしました。');
+      return;
+    }
+
+    // 2. 名前のバリデーション（漢字・ひらがな・カタカナのみ）
+    const nameRegex = /^[a-zA-Z0-9\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF\s]+$/;
+    if (!nameRegex.test(formData.name)) {
+      alert('お名前は日本語（漢字・ひらがな・カタカナ）で入力してください。');
+      return;
+    }
+
+    // 3. フリガナのバリデーション（全角カタカナのみ）
+    const furiganaRegex = /^[\u30A0-\u30FF\s]+$/;
+    if (!furiganaRegex.test(formData.furigana)) {
+      alert('フリガナは全角カタカナで入力してください。');
+      return;
+    }
+
+    // 4. 電話番号のバリデーション（数字とハイフンのみ）
+    const phoneRegex = /^[0-9-]{10,13}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      alert('電話番号はハイフンありの10〜13桁で入力してください（例: 090-1234-5678）。');
+      return;
+    }
+
+    // 5. お問い合わせ内容のバリデーション（日本語が含まれているか）
+    const jpRegex = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/;
+    if (!jpRegex.test(formData.message)) {
+      alert('お問い合わせ内容は日本語で入力してください。');
+      return;
+    }
+
     setSending(true);
 
     try {
+      // ※API側でも同じバリデーションをかけるのがセオリーです
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -91,6 +130,20 @@ export default function ContactClient() {
             <form className="c-form" onSubmit={handleSubmit}>
               <h2>お問い合わせフォーム</h2>
 
+              {/* ハニーポット（スパム対策・ユーザーには見えない） */}
+              <div style={{ display: 'none' }} aria-hidden="true">
+                <label htmlFor="website">Webサイト（入力しないでください）</label>
+                <input
+                  type="text"
+                  id="website"
+                  name="website"
+                  value={formData.website}
+                  onChange={handleChange}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
+
               <div className="c-field">
                 <label htmlFor="category">お問い合わせ種別 <span className="required">必須</span></label>
                 <select
@@ -122,7 +175,21 @@ export default function ContactClient() {
                     required
                   />
                 </div>
+                <div className="c-field">
+                  <label htmlFor="furigana">フリガナ <span className="required">必須</span></label>
+                  <input
+                    type="text"
+                    id="furigana"
+                    name="furigana"
+                    value={formData.furigana}
+                    onChange={handleChange}
+                    placeholder="ヤマダ タロウ"
+                    required
+                  />
+                </div>
+              </div>
 
+              <div className="c-field-row">
                 <div className="c-field">
                   <label htmlFor="company">会社名・店舗名</label>
                   <input
@@ -132,6 +199,18 @@ export default function ContactClient() {
                     value={formData.company}
                     onChange={handleChange}
                     placeholder="株式会社サンプル / Patisserie Taro"
+                  />
+                </div>
+                <div className="c-field">
+                  <label htmlFor="phone">電話番号 <span className="required">必須</span></label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="090-1234-5678"
+                    required
                   />
                 </div>
               </div>
