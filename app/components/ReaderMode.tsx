@@ -5,97 +5,35 @@ import { useEffect, useState, useRef } from 'react';
 export default function ReaderMode() {
   const [isAutoScrolling, setIsAutoScrolling] = useState(false);
   const [showControls, setShowControls] = useState(false);
+  
+  // スクロールの速度（1フレームあたりのピクセル数）調整用
   const scrollSpeed = 0.8; 
   
-  // ★ 修正: useRefの初期値を明示的に指定 (number | undefined)
   const requestRef = useRef<number | undefined>(undefined);
   const previousTimeRef = useRef<number | undefined>(undefined);
   const isUserScrolling = useRef(false);
 
-  // ① カラオケエフェクト（見出しと段落のみ対象）
-  useEffect(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) return;
-
-    const targets = document.querySelectorAll('main h1, main h2, main h3, main p');
-    
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const el = entry.target as HTMLElement;
-          if (!el.classList.contains('karaoke-active') && !el.dataset.animated) {
-            el.dataset.animated = 'true';
-            applyKaraokeEffect(el);
-            observer.unobserve(el);
-          }
-        }
-      });
-    }, { threshold: 0.5 });
-
-    targets.forEach((target) => observer.observe(target));
-
-    return () => observer.disconnect();
-  }, []);
-
-  // app/components/ReaderMode.tsx 内
-
-    // カラオケアニメーション関数（元の色のまま透明度を変える）
-  const applyKaraokeEffect = (el: HTMLElement) => {
-    const text = el.innerText;
-    // 1文字ずつ配列化
-    const chars = text.split('');
-    
-    el.innerHTML = '';
-    el.classList.add('karaoke-active');
-
-    let delay = 0;
-    chars.forEach((char) => {
-      const span = document.createElement('span');
-      span.textContent = char;
-      
-      // 改行の場合はそのまま表示
-      if (char === '\n') {
-        span.style.display = 'block';
-        span.style.height = '0';
-      }
-      
-      // 未読（これから読む）文字は透明にする（色は変えない）
-      span.style.opacity = '0.2'; 
-      span.style.transition = 'opacity 0.3s ease';
-      el.appendChild(span);
-
-      // 文字が1つずつ、少し遅れて元の色になる（読んでいる感覚）
-      setTimeout(() => {
-        span.style.opacity = '1'; // 既読（読んだ）文字は元の色に戻る
-      }, delay);
-
-      // 1文字あたりの時間（0.15秒）
-      delay += 150; 
-      
-      // 句読点が来たら「一息」置く（0.4秒追加）
-      if (['、', '。', '！', '？'].includes(char)) {
-        delay += 400;
-      }
-    });
-  };
-
-  // ② オートスクロール機能
+  // ① オートスクロールのメイン処理
   const scroll = (time: number) => {
     if (previousTimeRef.current !== undefined && isAutoScrolling && !isUserScrolling.current) {
       const deltaTime = time - previousTimeRef.current;
-      const pixelsToScroll = scrollSpeed * (deltaTime / 16.6);
+      // 60fpsを基準にスクロール量を計算
+      const pixelsToScroll = scrollSpeed * (deltaTime / 16.6); 
       window.scrollBy(0, pixelsToScroll);
 
+      // ページの最下部に達したら停止
       if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight - 10) {
         setIsAutoScrolling(false);
       }
     }
     previousTimeRef.current = time;
+    
     if (isAutoScrolling) {
       requestRef.current = requestAnimationFrame(scroll);
     }
   };
 
+  // ② オートスクロールの開始・停止
   useEffect(() => {
     if (isAutoScrolling) {
       previousTimeRef.current = undefined;
@@ -106,21 +44,25 @@ export default function ReaderMode() {
     };
   }, [isAutoScrolling]);
 
-  // ③ ユーザー操作の検知
+  // ③ ユーザー操作の検知とUI表示
   useEffect(() => {
     let controlTimer: NodeJS.Timeout;
 
     const handleUserScroll = (e: WheelEvent | TouchEvent) => {
       let isScrollingUp = false;
       if (e.type === 'wheel') {
+        // マウスホイールを上に回した場合
         isScrollingUp = (e as WheelEvent).deltaY < 0;
       } else if (e.type === 'touchmove') {
+        // スマホで指で触ってスクロールした場合（簡易判定）
         isScrollingUp = true; 
       }
 
       if (isScrollingUp) {
-        setIsAutoScrolling(false);
+        // 上に戻ったら即座にオートスクロールを停止
+        setIsAutoScrolling(false); 
       } else {
+        // 下に手動で進めた場合は、一時的にオートスクロールの干渉を止める（1秒間）
         isUserScrolling.current = true;
         setTimeout(() => { isUserScrolling.current = false; }, 1000);
       }
@@ -129,6 +71,7 @@ export default function ReaderMode() {
     window.addEventListener('wheel', handleUserScroll, { passive: true });
     window.addEventListener('touchmove', handleUserScroll, { passive: true });
 
+    // ページを開いて3秒後にコントロールUIを表示
     controlTimer = setTimeout(() => {
       setShowControls(true);
     }, 3000);
@@ -151,9 +94,7 @@ export default function ReaderMode() {
         </button>
       </div>
 
-            <style jsx global>{`
-        /* .karaoke-active span の色はJSで制御するため、CSSでの色指定は不要 */
-
+      <style jsx global>{`
         .reader-controls {
           position: fixed;
           bottom: 24px;
