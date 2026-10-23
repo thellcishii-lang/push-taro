@@ -15,29 +15,35 @@ export default function ReaderMode() {
   const scrollSpeed = 2; 
 
   // ① スクロール処理（iOS対応のため setInterval と scrollTo を使用）
+   // ① スクロール処理（iOS対応・チカチカ防止版）
   useEffect(() => {
     if (isAutoScrolling) {
-      // iOSのスクロールブロックを解除するためのハック（微小スクロール）
-      window.scrollTo(0, window.scrollY + 1);
+      // ★ 追加：自動スクロール中はCSSのスムーズスクロールを無効化する
+      const originalScrollBehavior = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = 'auto';
+
+      // iOSのスクロールブロックを解除するためのハック
+      window.scrollBy(0, 1);
 
       scrollInterval.current = setInterval(() => {
-        // ユーザーが手動でスクロールしている間はスキップ
         if (isUserInteracted.current) return;
 
-        // ★ 変更：固定の1pxではなく、scrollSpeed分だけ下にスクロール
-        window.scrollTo(0, window.scrollY + scrollSpeed);
+        // ★ 変更：scrollTo ではなく scrollBy を使い、滑らかに動かす
+        window.scrollBy(0, scrollSpeed);
 
         // ページの最下部に達したら停止
         if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight - 10) {
           setIsAutoScrolling(false);
         }
-      }, 30); // 30ミリ秒間隔
-    }
+      }, 16); // ★ 変更：16ミリ秒間隔（約60fps）にして滑らかにする
 
-    return () => {
-      if (scrollInterval.current) clearInterval(scrollInterval.current);
-    };
-  }, [isAutoScrolling]); // ※scrollSpeedは定数なので依存配列になくても動きますが、厳密には入れるべきです
+      // クリーンアップ時にCSSの設定を元に戻す
+      return () => {
+        if (scrollInterval.current) clearInterval(scrollInterval.current);
+        document.documentElement.style.scrollBehavior = originalScrollBehavior;
+      };
+    }
+  }, [isAutoScrolling]);
 
   // ② ユーザー操作の検知とUI表示
   useEffect(() => {
