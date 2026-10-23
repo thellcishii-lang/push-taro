@@ -151,10 +151,9 @@ export default function ReaderMode() {
         </button>
       </div>
 
-      <style jsx global>{`
-        .karaoke-active span {
-          transition: opacity 0.4s ease-out;
-        }
+            <style jsx global>{`
+        /* .karaoke-active span の色はJSで制御するため、CSSでの色指定は不要 */
+
         .reader-controls {
           position: fixed;
           bottom: 24px;
