@@ -5,14 +5,15 @@ import { useEffect, useState, useRef } from 'react';
 export default function ReaderMode() {
   const [isAutoScrolling, setIsAutoScrolling] = useState(false);
   const [showControls, setShowControls] = useState(false);
-  const scrollSpeed = 0.8; // 1フレームあたりのスクロール量（調整可能）
-  const requestRef = useRef<number>();
-  const previousTimeRef = useRef<number>();
+  const scrollSpeed = 0.8; 
+  
+  // ★ 修正: useRefの初期値を明示的に指定 (number | undefined)
+  const requestRef = useRef<number | undefined>(undefined);
+  const previousTimeRef = useRef<number | undefined>(undefined);
   const isUserScrolling = useRef(false);
 
   // ① カラオケエフェクト（見出しと段落のみ対象）
   useEffect(() => {
-    // prefers-reduced-motion の確認
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
@@ -36,10 +37,8 @@ export default function ReaderMode() {
     return () => observer.disconnect();
   }, []);
 
-  // カラオケアニメーション関数（文字を分割して順番にハイライト）
   const applyKaraokeEffect = (el: HTMLElement) => {
     const text = el.innerText;
-    // 句読点で分割し、一息置くための配列を作成
     const chars = text.split(/(?=[、。！？])|(?<=[、。！？])/);
     
     el.innerHTML = '';
@@ -54,15 +53,12 @@ export default function ReaderMode() {
       span.style.opacity = '0.3';
       el.appendChild(span);
 
-      // 文字が表示されるアニメーション（IntersectionObserverで画面内に入ったら）
       setTimeout(() => {
         span.style.opacity = '1';
       }, delay);
 
-      // 1文字あたりの時間（日本語は1文字約0.15秒）
       delay += 150; 
       
-      // 句読点が来たら一息置く（0.4秒追加）
       if (['、', '。', '！', '？'].includes(char)) {
         delay += 400;
       }
@@ -73,10 +69,9 @@ export default function ReaderMode() {
   const scroll = (time: number) => {
     if (previousTimeRef.current !== undefined && isAutoScrolling && !isUserScrolling.current) {
       const deltaTime = time - previousTimeRef.current;
-      const pixelsToScroll = scrollSpeed * (deltaTime / 16.6); // 60fps基準
+      const pixelsToScroll = scrollSpeed * (deltaTime / 16.6);
       window.scrollBy(0, pixelsToScroll);
 
-      // ページの最下部に達したら停止
       if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight - 10) {
         setIsAutoScrolling(false);
       }
@@ -93,29 +88,25 @@ export default function ReaderMode() {
       requestRef.current = requestAnimationFrame(scroll);
     }
     return () => {
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+      if (requestRef.current !== undefined) cancelAnimationFrame(requestRef.current);
     };
   }, [isAutoScrolling]);
 
-  // ③ ユーザー操作の検知（戻る＋3秒後のUI表示）
+  // ③ ユーザー操作の検知
   useEffect(() => {
     let controlTimer: NodeJS.Timeout;
 
-    // マウスホイール・タッチ操作で一時停止
     const handleUserScroll = (e: WheelEvent | TouchEvent) => {
-      // 上方向へのスクロール（戻る）を検知
       let isScrollingUp = false;
       if (e.type === 'wheel') {
         isScrollingUp = (e as WheelEvent).deltaY < 0;
       } else if (e.type === 'touchmove') {
-        // タッチの場合は簡易的に全ての手動スクロールを検知
         isScrollingUp = true; 
       }
 
       if (isScrollingUp) {
-        setIsAutoScrolling(false); // 戻ったら停止
+        setIsAutoScrolling(false);
       } else {
-        // 下方向への手動スクロールの場合は一時停止（進んだ位置から再開できるように）
         isUserScrolling.current = true;
         setTimeout(() => { isUserScrolling.current = false; }, 1000);
       }
@@ -124,7 +115,6 @@ export default function ReaderMode() {
     window.addEventListener('wheel', handleUserScroll, { passive: true });
     window.addEventListener('touchmove', handleUserScroll, { passive: true });
 
-    // 表示から3秒後にコントロールUIを出す
     controlTimer = setTimeout(() => {
       setShowControls(true);
     }, 3000);
@@ -138,7 +128,6 @@ export default function ReaderMode() {
 
   return (
     <>
-      {/* コントロールUI */}
       <div className={`reader-controls ${showControls ? 'is-visible' : ''}`}>
         <button 
           onClick={() => setIsAutoScrolling(!isAutoScrolling)}
@@ -148,7 +137,6 @@ export default function ReaderMode() {
         </button>
       </div>
 
-      {/* CSSアニメーション用（全ページに適用される） */}
       <style jsx global>{`
         .karaoke-active span {
           transition: opacity 0.4s ease-out;
