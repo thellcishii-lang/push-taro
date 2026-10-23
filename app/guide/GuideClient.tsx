@@ -37,49 +37,49 @@ export default function GuideClient() {
           </div>
 
           <div className="g-grid">
-  <Link href="/guide/store-marketing" className="g-card is-new">
-    <span className="g-card-new">NEW</span>
-    <span className="g-card-icon">📖</span>
-    <h4>実店舗の集客、オススメの施策</h4>
-    <p>広告・ポータル・LP・SNS・LINE。全部やる時代に、抜けているもの</p>
-  </Link>
-  <Link href="/guide/line-comparison" className="g-card is-new">
-      <span className="g-card-new">NEW</span>
-      <span className="g-card-icon">📊</span>
-      <h4>LINE公式アカウントとの比較</h4>
-      <p>配信上限という壁を、数字で解説</p>
-  </Link>
-  <Link href="/guide/push-notification-metrics" className="g-card is-new">
-    <span className="g-card-new">NEW</span>
-    <span className="g-card-icon">📊</span>
-    <h4>プッシュ通知のCVRは、何%あればいいのか</h4>
-    <p>CTRとCVRのベンチマークを、データで解説</p>
-  </Link>
-  <Link href="/guide/ctr-to-cvr" className="g-card is-new">
-    <span className="g-card-new">NEW</span>
-    <span className="g-card-icon">🎯</span>
-    <h4>CTRを、CVRに繋げる方法</h4>
-    <p>衝動タップを、来店に変える3つの設計</p>
-  </Link>
-  <Link href="/guide/segmentation" className="g-card is-new">
-    <span className="g-card-new">NEW</span>
-    <span className="g-card-icon">📊</span>
-    <h4>セグメント配信とは</h4>
-    <p>実店舗では「使えない」理由を、数字で解説</p>
-  </Link>
-  <Link href="/guide/security" className="g-card is-new">
-  <span className="g-card-new">NEW</span>
-  <span className="g-card-icon">🔒</span>
-  <h4>なぜ、顧客情報を取らないのか</h4>
-  <p>情報流出の時代に、漏れるリスクを最小化する</p>
-　　　　</Link>
-  <Link href="/guide/what-is-pwa" className="g-card is-new">
-  <span className="g-card-new">NEW</span>
-  <span className="g-card-icon">📱</span>
-  <h4>実店舗のためのPWA入門</h4>
-  <p>なぜiPhoneで「ホーム画面に追加」が必要なのか？</p>
-　　　　</Link>
-</div>
+            <Link href="/guide/store-marketing" className="g-card is-new">
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">📖</span>
+              <h4>実店舗の集客、オススメの施策</h4>
+              <p>広告・ポータル・LP・SNS・LINE。全部やる時代に、抜けているもの</p>
+            </Link>
+            <Link href="/guide/line-comparison" className="g-card is-new">
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">📊</span>
+              <h4>LINE公式アカウントとの比較</h4>
+              <p>配信上限という壁を、数字で解説</p>
+            </Link>
+            <Link href="/guide/push-notification-metrics" className="g-card is-new">
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">📊</span>
+              <h4>プッシュ通知のCVRは、何%あればいいのか</h4>
+              <p>CTRとCVRのベンチマークを、データで解説</p>
+            </Link>
+            <Link href="/guide/ctr-to-cvr" className="g-card is-new">
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">🎯</span>
+              <h4>CTRを、CVRに繋げる方法</h4>
+              <p>衝動タップを、来店に変える3つの設計</p>
+            </Link>
+            <Link href="/guide/segmentation" className="g-card is-new">
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">📊</span>
+              <h4>セグメント配信とは</h4>
+              <p>実店舗では「使えない」理由を、数字で解説</p>
+            </Link>
+            <Link href="/guide/security" className="g-card is-new">
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">🔒</span>
+              <h4>なぜ、顧客情報を取らないのか</h4>
+              <p>情報流出の時代に、漏れるリスクを最小化する</p>
+            </Link>
+            <Link href="/guide/what-is-pwa" className="g-card is-new">
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">📱</span>
+              <h4>実店舗のためのPWA入門</h4>
+              <p>なぜiPhoneで「ホーム画面に追加」が必要なのか？</p>
+            </Link>
+          </div>
         </section>
 
         {/* ============================================================
@@ -163,27 +163,43 @@ export default function GuideClient() {
           </div>
           <div className="g-grid">
             <Link href="/guide/super" className="g-card is-new">
-  <span className="g-card-new">NEW</span>
-  <span className="g-card-icon">🛒</span>
-  <h4>スーパー・小売店</h4>
-  <p>チラシを、プッシュ通知に置き換える</p>
-</Link>
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">🛒</span>
+              <h4>スーパー・小売店</h4>
+              <p>チラシを、プッシュ通知に置き換える</p>
+            </Link>
             <Link href="/guide/bakery" className="g-card is-new">
               <span className="g-card-new">NEW</span>
               <span className="g-card-icon">🥐</span>
               <h4>パン屋・ベーカリー</h4>
               <p>数量限定告知・焼き立て配信・テスト販売</p>
             </Link>
-            <Link href="/guide/cafe" className="g-card"><span className="g-card-icon">☕</span><h4>飲食店・カフェ</h4><p>雨の日割引・常連客のファン化</p></Link>
-            <Link href="/guide/apparel" className="g-card"><span className="g-card-icon">👕</span><h4>アパレル・雑貨</h4><p>新商品入荷・セール告知</p></Link>
-            <Link href="/guide/snack" className="g-card"><span className="g-card-icon">🍸</span><h4>スナック・パブ</h4><p>常連客と紹介の仕組み</p></Link>
-            <Link href="/guide/food-loss" className="g-card is-new"><span className="g-card-new">NEW</span><span className="g-card-icon">♻️</span><h4>フードロス削減</h4><p>廃棄ロスを売上に変える、通知とmottECOの活用</p>
-</Link>
+            <Link href="/guide/cafe" className="g-card">
+              <span className="g-card-icon">☕</span>
+              <h4>飲食店・カフェ</h4>
+              <p>雨の日割引・常連客のファン化</p>
+            </Link>
+            <Link href="/guide/apparel" className="g-card">
+              <span className="g-card-icon">👕</span>
+              <h4>アパレル・雑貨</h4>
+              <p>新商品入荷・セール告知</p>
+            </Link>
+            <Link href="/guide/snack" className="g-card">
+              <span className="g-card-icon">🍸</span>
+              <h4>スナック・パブ</h4>
+              <p>常連客と紹介の仕組み</p>
+            </Link>
+            <Link href="/guide/food-loss" className="g-card is-new">
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">♻️</span>
+              <h4>フードロス削減</h4>
+              <p>廃棄ロスを売上に変える、通知とmottECOの活用</p>
+            </Link>
           </div>
         </section>
 
         {/* ============================================================
-            ⑤ 運用ノウハウ
+            ④ 運用ノウハウ
         ============================================================ */}
         <section className="g-sec">
           <div className="g-sec-head">
@@ -191,7 +207,11 @@ export default function GuideClient() {
             <div><h2>📚 運用ノウハウ</h2><p>安全な運用のために</p></div>
           </div>
           <div className="g-grid">
-            <Link href="/guide/ng-actions" className="g-card"><span className="g-card-icon">⚠️</span><h4>NG行為集</h4><p>炎上・離反を招く行為</p></Link>
+            <Link href="/guide/ng-actions" className="g-card">
+              <span className="g-card-icon">⚠️</span>
+              <h4>NG行為集</h4>
+              <p>炎上・離反を招く行為</p>
+            </Link>
           </div>
         </section>
 
