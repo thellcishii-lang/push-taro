@@ -69,35 +69,32 @@ const collectionJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
   name: '実店舗のためのプッシュ通知 活用ガイド',
-  description:
-    '業種別・機能別の実践マニュアル。現場から導いたノウハウを公開。',
+  description: '業種別・機能別の実践マニュアル。現場から導いたノウハウを公開。',
   url: `${appUrl}/guide`,
   inLanguage: 'ja-JP',
   publisher: { '@id': `${appUrl}/#organization` },
   hasPart: [
-  // 業種別ガイド
-  { '@type': 'Article', name: 'スーパー・小売店', url: `${appUrl}/guide/super` },
-  { '@type': 'Article', name: 'パン屋・ベーカリー', url: `${appUrl}/guide/bakery` },
-  { '@type': 'Article', name: '飲食店・カフェ', url: `${appUrl}/guide/cafe` },
-  { '@type': 'Article', name: 'アパレル・雑貨', url: `${appUrl}/guide/apparel` },
-  { '@type': 'Article', name: 'スナック・パブ', url: `${appUrl}/guide/snack` },
-  { '@type': 'Article', name: 'フードロス削減', url: `${appUrl}/guide/food-loss` },
+    // 業種別ガイド
+    { '@type': 'Article', name: 'スーパー・小売店', url: `${appUrl}/guide/super` },
+    { '@type': 'Article', name: 'パン屋・ベーカリー', url: `${appUrl}/guide/bakery` },
+    { '@type': 'Article', name: '飲食店・カフェ', url: `${appUrl}/guide/cafe` },
+    { '@type': 'Article', name: 'アパレル・雑貨', url: `${appUrl}/guide/apparel` },
+    { '@type': 'Article', name: 'スナック・パブ', url: `${appUrl}/guide/snack` },
+    { '@type': 'Article', name: 'フードロス削減', url: `${appUrl}/guide/food-loss` },
 
-  // 機能別・運用
-  { '@type': 'Article', name: '機能別ガイド', url: `${appUrl}/guide/features` },
-  { '@type': 'Article', name: '導入事例', url: `${appUrl}/guide/case-studies` },
-  { '@type': 'Article', name: 'NG行為集', url: `${appUrl}/guide/ng-actions` },
-    
+    // 機能別・運用
+    { '@type': 'Article', name: '機能別ガイド', url: `${appUrl}/guide/features` },
+    { '@type': 'Article', name: 'NG行為集', url: `${appUrl}/guide/ng-actions` },
 
-  // 店舗マーケティングの本質
-  { '@type': 'Article', name: '実店舗の集客、オススメの施策', url: `${appUrl}/guide/store-marketing` },
-  { '@type': 'Article', name: 'LINE公式アカウントとの比較', url: `${appUrl}/guide/line-comparison` },
-  { '@type': 'Article', name: 'プッシュ通知のCVRは、何%あればいいのか', url: `${appUrl}/guide/push-notification-metrics` },
-  { '@type': 'Article', name: 'CTRを、CVRに繋げる方法', url: `${appUrl}/guide/ctr-to-cvr` },
-  { '@type': 'Article', name: 'セグメント配信とは', url: `${appUrl}/guide/segmentation` },
-  { '@type': 'Article', name: 'なぜ、顧客情報を取らないのか', url: `${appUrl}/guide/security` },
-  { '@type': 'Article', name: '実店舗のためのPWA入門', url: `${appUrl}/guide/what-is-pwa` },
-],
+    // 店舗マーケティングの本質
+    { '@type': 'Article', name: '実店舗の集客、オススメの施策', url: `${appUrl}/guide/store-marketing` },
+    { '@type': 'Article', name: 'LINE公式アカウントとの比較', url: `${appUrl}/guide/line-comparison` },
+    { '@type': 'Article', name: 'プッシュ通知のCVRは、何%あればいいのか', url: `${appUrl}/guide/push-notification-metrics` },
+    { '@type': 'Article', name: 'CTRを、CVRに繋げる方法', url: `${appUrl}/guide/ctr-to-cvr` },
+    { '@type': 'Article', name: 'セグメント配信とは', url: `${appUrl}/guide/segmentation` },
+    { '@type': 'Article', name: 'なぜ、顧客情報を取らないのか', url: `${appUrl}/guide/security` },
+    { '@type': 'Article', name: '実店舗のためのPWA入門', url: `${appUrl}/guide/what-is-pwa` },
+  ],
 };
 
 /* ============================================================
