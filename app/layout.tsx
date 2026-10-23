@@ -2,6 +2,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import Script from 'next/script';
+import ReaderMode from './components/ReaderMode'; // ★ 1. インポートを追加
 
 // 静的生成は意図的に無効化する。
 // クライアント用 Firebase 初期化がモジュール評価時に NEXT_PUBLIC_* 環境変数を
@@ -36,6 +37,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja" className={inter.variable} suppressHydrationWarning>
       <body style={{ margin: 0, background: '#fafafa' }}>
+        
+        {/* ★ 2. ReaderModeをここに配置（全ページに適用されます） */}
+        <ReaderMode />
+
         {children}
 
         {/* Google Analytics 4 */}
