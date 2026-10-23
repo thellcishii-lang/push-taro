@@ -3,73 +3,54 @@
 import { useEffect, useState, useRef } from 'react';
 
 export default function ReaderMode() {
-  const [isAutoScrolling, setIsAutoScrolling] = useState(false);
+  // ★ 初期値を true にして、開いた瞬間から自動スクロールを開始する
+  const [isAutoScrolling, setIsAutoScrolling] = useState(true);
   const [showControls, setShowControls] = useState(false);
   
-  // スクロールの速度（1フレームあたりのピクセル数）調整用
-  const scrollSpeed = 0.8; 
-  
-  const requestRef = useRef<number | undefined>(undefined);
-  const previousTimeRef = useRef<number | undefined>(undefined);
-  const isUserScrolling = useRef(false);
+  const scrollInterval = useRef<NodeJS.Timeout | undefined>(undefined);
+  const isUserInteracted = useRef(false);
 
-  // ① オートスクロールのメイン処理
-  const scroll = (time: number) => {
-    if (previousTimeRef.current !== undefined && isAutoScrolling && !isUserScrolling.current) {
-      const deltaTime = time - previousTimeRef.current;
-      // 60fpsを基準にスクロール量を計算
-      const pixelsToScroll = scrollSpeed * (deltaTime / 16.6); 
-      window.scrollBy(0, pixelsToScroll);
-
-      // ページの最下部に達したら停止
-      if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight - 10) {
-        setIsAutoScrolling(false);
-      }
-    }
-    previousTimeRef.current = time;
-    
-    if (isAutoScrolling) {
-      requestRef.current = requestAnimationFrame(scroll);
-    }
-  };
-
-  // ② オートスクロールの開始・停止
+  // ① スクロール処理（iOS対応のため setInterval と scrollTo を使用）
   useEffect(() => {
     if (isAutoScrolling) {
-      previousTimeRef.current = undefined;
-      requestRef.current = requestAnimationFrame(scroll);
+      // iOSのスクロールブロックを解除するためのハック（微小スクロール）
+      window.scrollTo(0, window.scrollY + 1);
+
+      scrollInterval.current = setInterval(() => {
+        // ユーザーが手動でスクロールしている間はスキップ
+        if (isUserInteracted.current) return;
+
+        // 現在の位置から1px下にスクロール（iOSでも動きやすい）
+        window.scrollTo(0, window.scrollY + 1);
+
+        // ページの最下部に達したら停止
+        if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight - 10) {
+          setIsAutoScrolling(false);
+        }
+      }, 30); // 30ミリ秒ごとに1pxスクロール（約33px/秒のゆっくりした速度）
     }
+
     return () => {
-      if (requestRef.current !== undefined) cancelAnimationFrame(requestRef.current);
+      if (scrollInterval.current) clearInterval(scrollInterval.current);
     };
   }, [isAutoScrolling]);
 
-  // ③ ユーザー操作の検知とUI表示
+  // ② ユーザー操作の検知とUI表示
   useEffect(() => {
     let controlTimer: NodeJS.Timeout;
 
-    const handleUserScroll = (e: WheelEvent | TouchEvent) => {
-      let isScrollingUp = false;
-      if (e.type === 'wheel') {
-        // マウスホイールを上に回した場合
-        isScrollingUp = (e as WheelEvent).deltaY < 0;
-      } else if (e.type === 'touchmove') {
-        // スマホで指で触ってスクロールした場合（簡易判定）
-        isScrollingUp = true; 
-      }
-
-      if (isScrollingUp) {
-        // 上に戻ったら即座にオートスクロールを停止
-        setIsAutoScrolling(false); 
-      } else {
-        // 下に手動で進めた場合は、一時的にオートスクロールの干渉を止める（1秒間）
-        isUserScrolling.current = true;
-        setTimeout(() => { isUserScrolling.current = false; }, 1000);
-      }
+    const handleUserScroll = () => {
+      // ユーザーが操作したら即座に停止
+      setIsAutoScrolling(false);
+      
+      // 少しの間（1秒間）は自動スクロールの干渉を止める
+      isUserInteracted.current = true;
+      setTimeout(() => { isUserInteracted.current = false; }, 1000);
     };
 
     window.addEventListener('wheel', handleUserScroll, { passive: true });
     window.addEventListener('touchmove', handleUserScroll, { passive: true });
+    window.addEventListener('keydown', handleUserScroll, { passive: true }); // キーボード操作も検知
 
     // ページを開いて3秒後にコントロールUIを表示
     controlTimer = setTimeout(() => {
@@ -79,6 +60,7 @@ export default function ReaderMode() {
     return () => {
       window.removeEventListener('wheel', handleUserScroll);
       window.removeEventListener('touchmove', handleUserScroll);
+      window.removeEventListener('keydown', handleUserScroll);
       clearTimeout(controlTimer);
     };
   }, []);
