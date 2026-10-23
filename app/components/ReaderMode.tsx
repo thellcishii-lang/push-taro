@@ -3,12 +3,16 @@
 import { useEffect, useState, useRef } from 'react';
 
 export default function ReaderMode() {
-  // ★ 初期値を true にして、開いた瞬間から自動スクロールを開始する
+  // 初期値を true にして、開いた瞬間から自動スクロールを開始する
   const [isAutoScrolling, setIsAutoScrolling] = useState(true);
   const [showControls, setShowControls] = useState(false);
   
   const scrollInterval = useRef<NodeJS.Timeout | undefined>(undefined);
   const isUserInteracted = useRef(false);
+
+  // ★ ここに追加：スクロール速度（1回の移動ピクセル数）
+  // 1: ゆっくり(約33px/秒) / 2: 普通(約66px/秒) / 3: 少し早い(約99px/秒)
+  const scrollSpeed = 2; 
 
   // ① スクロール処理（iOS対応のため setInterval と scrollTo を使用）
   useEffect(() => {
@@ -20,20 +24,20 @@ export default function ReaderMode() {
         // ユーザーが手動でスクロールしている間はスキップ
         if (isUserInteracted.current) return;
 
-        // 現在の位置から1px下にスクロール（iOSでも動きやすい）
-        window.scrollTo(0, window.scrollY + 1);
+        // ★ 変更：固定の1pxではなく、scrollSpeed分だけ下にスクロール
+        window.scrollTo(0, window.scrollY + scrollSpeed);
 
         // ページの最下部に達したら停止
         if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight - 10) {
           setIsAutoScrolling(false);
         }
-      }, 30); // 30ミリ秒ごとに1pxスクロール（約33px/秒のゆっくりした速度）
+      }, 30); // 30ミリ秒間隔
     }
 
     return () => {
       if (scrollInterval.current) clearInterval(scrollInterval.current);
     };
-  }, [isAutoScrolling]);
+  }, [isAutoScrolling]); // ※scrollSpeedは定数なので依存配列になくても動きますが、厳密には入れるべきです
 
   // ② ユーザー操作の検知とUI表示
   useEffect(() => {
@@ -50,7 +54,7 @@ export default function ReaderMode() {
 
     window.addEventListener('wheel', handleUserScroll, { passive: true });
     window.addEventListener('touchmove', handleUserScroll, { passive: true });
-    window.addEventListener('keydown', handleUserScroll, { passive: true }); // キーボード操作も検知
+    window.addEventListener('keydown', handleUserScroll, { passive: true });
 
     // ページを開いて3秒後にコントロールUIを表示
     controlTimer = setTimeout(() => {
