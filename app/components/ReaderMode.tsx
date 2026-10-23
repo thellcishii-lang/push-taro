@@ -37,28 +37,42 @@ export default function ReaderMode() {
     return () => observer.disconnect();
   }, []);
 
+  // app/components/ReaderMode.tsx 内
+
+  // カラオケアニメーション関数（一文字ずつ色を変える）
   const applyKaraokeEffect = (el: HTMLElement) => {
     const text = el.innerText;
-    const chars = text.split(/(?=[、。！？])|(?<=[、。！？])/);
+    // 句読点も一文字として扱いたいので、単純に1文字ずつ配列化
+    const chars = text.split('');
     
     el.innerHTML = '';
     el.classList.add('karaoke-active');
-    el.style.opacity = '0.3';
 
     let delay = 0;
     chars.forEach((char) => {
       const span = document.createElement('span');
       span.textContent = char;
+      // 改行の場合はそのまま表示
+      if (char === '\n') {
+        span.style.display = 'block';
+        span.style.height = '0'; // 改行用の隙間
+      }
+      
+      // 未読（これから読む）文字は薄いグレー
+      span.style.color = '#94a3b8'; 
+      // 色が変わるスピード
       span.style.transition = 'color 0.3s ease';
-      span.style.opacity = '0.3';
       el.appendChild(span);
 
+      // 文字が1つずつ、少し遅れて色が変わる（読んでいる感覚）
       setTimeout(() => {
-        span.style.opacity = '1';
+        span.style.color = '#0f172a'; // 既読（読んだ）文字は濃い黒（または自店のブランドカラー）
       }, delay);
 
+      // 1文字あたりの時間（日本語は1文字約0.15秒）
       delay += 150; 
       
+      // 句読点が来たら「一息」置く（0.4秒追加）
       if (['、', '。', '！', '？'].includes(char)) {
         delay += 400;
       }
