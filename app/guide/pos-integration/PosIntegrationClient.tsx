@@ -54,7 +54,7 @@ export default function PosIntegrationClient() {
               <p>同じ店舗の複数レジから、同じAPIキーで利用できます。</p>
             </div>
             <div className="g-card-simple">
-              <div classN="g-icon-big">🔒</div>
+              <div className="g-icon-big">👥</div>
               <h4>安全なAPIキー認証</h4>
               <p>店舗ごとに発行されるAPIキーで認証します。</p>
             </div>
@@ -120,7 +120,7 @@ export default function PosIntegrationClient() {
           {/* ============================================================
               3. 複数レジ対応
           ============================================================ */}
-          <h2><span class="num">3</span>複数レジへの対応</h2>
+          <h2><span className="num">3</span>複数レジへの対応</h2>
 
           <p>
             1店舗に複数のレジがある場合でも、<strong>APIキーは1つ</strong>で対応できます。<br />
@@ -157,7 +157,7 @@ export default function PosIntegrationClient() {
           </div>
 
           <div className="g-callout success">
-            <span class="ico">✅</span>
+            <span className="ico">✅</span>
             <div>
               <p><strong>レジごとに個別のAPIキーを発行する必要はありません。</strong></p>
               <p>
