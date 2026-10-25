@@ -310,7 +310,15 @@ export default function ShopPage() {
       );
     } catch (err: any) {
       console.error('カメラ起動エラー:', err);
-      alert('❌ カメラの起動に失敗しました。\n' + err);
+      const name = err?.name || '';
+      const message = err?.message || String(err);
+      if (name === 'NotAllowedError' || message.includes('Permission')) {
+        alert('📷 カメラの使用が許可されていません。\nブラウザの設定から、このサイトのカメラ利用を「許可」にしてください。');
+      } else if (name === 'NotFoundError' || message.includes('not found')) {
+        alert('📷 カメラが見つかりません。\nカメラ付きの端末でお試しください。');
+      } else {
+        alert('❌ カメラの起動に失敗しました。\n' + message);
+      }
     } finally {
       setScanLoading(false);
     }
@@ -328,6 +336,26 @@ export default function ShopPage() {
     }
     (window as any).__html5QrCode = null;
   };
+
+  useEffect(() => {
+    if (!scanOpen || scanResult) return;
+
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      if (cancelled) return;
+      try {
+        await startCamera();
+      } catch (err) {
+        if (!cancelled) console.error('カメラ自動起動エラー:', err);
+      }
+    }, 100);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scanOpen, scanResult]);
 
   const handleRedeemCoupon = async (qrDataStr: string) => {
     try {
@@ -1076,7 +1104,7 @@ export default function ShopPage() {
                     disabled={scanLoading}
                     style={{ width: '100%', padding: '12px', background: scanLoading ? '#ccc' : '#16a34a', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '16px', cursor: scanLoading ? 'not-allowed' : 'pointer' }}
                   >
-                    {scanLoading ? 'カメラ初期化中...' : '📷 カメラを起動する'}
+                    {scanLoading ? 'カメラ初期化中...' : '📷 カメラを再起動する'}
                   </button>
                   <button
                     onClick={async () => { await stopCamera(); setScanOpen(false); }}
