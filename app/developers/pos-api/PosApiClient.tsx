@@ -20,7 +20,7 @@ export default function PosApiClient() {
 
       <main className="dev-container">
         <div className="dev-breadcrumb">
-          <Link href="/">ホーム</Link> / <Link href="/developers">Developers</Link> / POS連携 API
+          <Link href="/">ホーム</Link> / Developers / POS連携 API
         </div>
 
         <div className="dev-hero">
@@ -78,7 +78,7 @@ export default function PosApiClient() {
                 <tr>
                   <td><code>Idempotency-Key</code></td>
                   <td>redeemのみ必須</td>
-                  <td>UUID形式の冪等キー。同じキーの再送は、前回の結果を返します。</td>
+                  <td>UUID形式の冪等キー。同じクーポン・同じキーの再送は、保存済みの成功結果を返します。別のクーポンに同じキーを使うと409になります。</td>
                 </tr>
               </tbody>
             </table>
@@ -94,6 +94,7 @@ export default function PosApiClient() {
           </div>
           <p className="dev-text">
             店舗で現在有効なクーポンの一覧を取得します。POSのマスタ同期などに利用できます。
+            これは店舗の設定一覧で、顧客ごとの使用可否は検証APIで確認してください。期限切れは除外され、予約クーポンにはcouponIdが付きます。
           </p>
           <h3>レスポンス</h3>
           <div className="code-block">
@@ -102,7 +103,8 @@ export default function PosApiClient() {
   "coupons": [
     { "couponType": "first", "title": "初回限定 10%OFF" },
     { "couponType": "normal", "title": "会員様 5%OFF" },
-    { "couponType": "loyalty", "title": "3回達成 20%OFF" }
+    { "couponType": "loyalty", "title": "3回達成 20%OFF" },
+    { "couponType": "scheduled", "couponId": "scheduled-123", "title": "週末特典" }
   ]
 }`}
             </pre>
@@ -119,6 +121,7 @@ export default function PosApiClient() {
           <p className="dev-text">
             QRコードの内容を送信し、そのクーポンが有効かどうかを確認します。<br />
             <strong>消込は行わない</strong>ため、会計前の確認に利用できます。
+            確認後に別のレジで使用される場合もあるため、会計時には消込APIの成功を必ず確認してください。
           </p>
           <h3>リクエストボディ</h3>
           <div className="code-block">
@@ -159,6 +162,8 @@ export default function PosApiClient() {
           <p className="dev-text">
             QRコードの内容を送信し、クーポンの消込を確定します。<br />
             このエンドポイントには、<strong><code>Idempotency-Key</code> ヘッダが必須</strong>です。
+            1回の消込操作ごとにUUIDを作り、通信切断や500エラー時の再送には同じUUIDとQRデータを使ってください。
+            消込・利用履歴・成功結果は一括保存されます。同じキーでの再送時はidempotent: trueが返ります。
           </p>
           <h3>リクエストヘッダ</h3>
           <div className="code-block">
@@ -196,11 +201,11 @@ export default function PosApiClient() {
                 </tr>
               </thead>
               <tbody>
-                <tr><td><code>400</code></td><td>リクエストの形式が正しくない、または必須パラメータ不足</td></tr>
+                <tr><td><code>400</code></td><td>形式不正、必須パラメータ不足、クーポン無効、未達成・未配布など</td></tr>
                 <tr><td><code>401</code></td><td>APIキーが無効、または認証ヘッダがない</td></tr>
-                <tr><td><code>403</code></td><td>QRコードの店舗とAPIキーの店舗が一致しない</td></tr>
-                <tr><td><code>404</code></td><td>顧客が見つからない</td></tr>
-                <tr><td><code>409</code></td><td>クーポンがすでに使用済み（冪等キー重複時は200で前回結果を返却）</td></tr>
+                <tr><td><code>403</code></td><td>店舗不一致、顧客の店舗登録なし、または許可されていないレジ</td></tr>
+                <tr><td><code>404</code></td><td>店舗・顧客・予約クーポンが見つからない</td></tr>
+                <tr><td><code>409</code></td><td>使用済み、当日併用不可、または別のQRデータで同じ冪等キーを使用（同じQRの成功再送は200）</td></tr>
                 <tr><td><code>410</code></td><td>クーポンの有効期限切れ</td></tr>
                 <tr><td><code>500</code></td><td>サーバー内部エラー</td></tr>
               </tbody>
@@ -229,22 +234,26 @@ const qrPayload = JSON.stringify({
 const verify = await axios.post(
   'https://push-taro.com/api/pos/v1/verify',
   { qrPayload },
-  { headers: { Authorization: \`Bearer \${API_KEY}\` } }
+  {
+    headers: { Authorization: \`Bearer \${API_KEY}\` },
+    validateStatus: (status) => status < 500
+  }
 );
 
 if (!verify.data.valid) {
-  console.error('クーポンが無効です:', verify.data.error);
-  return;
+  throw new Error(verify.data.error || 'クーポンが無効です');
 }
 
 // 2. 消込
+// 通信失敗時は、このキーを変えずに同じリクエストを再送する。
+const idempotencyKey = randomUUID();
 const redeem = await axios.post(
   'https://push-taro.com/api/pos/v1/redeem',
   { qrPayload },
   {
     headers: {
       Authorization: \`Bearer \${API_KEY}\`,
-      'Idempotency-Key': randomUUID(),
+      'Idempotency-Key': idempotencyKey,
       'X-POS-Terminal-Id': 'register-01'
     }
   }
@@ -253,6 +262,20 @@ const redeem = await axios.post(
 console.log('消込完了:', redeem.data.couponTitle);`}
             </pre>
           </div>
+        </section>
+
+        <section className="dev-section">
+          <h2>運用前の確認</h2>
+          <p className="dev-text">
+            このAPIはクーポンの確認・消込を行います。割引率・値引額の計算や会計への適用はPOS側で設定してください。
+            会計を確定する際に消込を行い、成功するまで特典適用を確定しないでください。
+            確定後の消込取消APIはありません。通信失敗時は新しいキーでやり直さず、保存した冪等キーで結果を確認してください。
+          </p>
+          <p className="dev-text">
+            本番運用前にテスト用顧客で、検証だけでは使用済みにならないこと、消込後の顧客画面・使用履歴への反映、
+            同じキーでの再送、別レジからの重複利用、キー失効後の401を確認してください。
+            顧客画面は表示中なら通常10秒ごと、または画面復帰時に使用状況を更新します。
+          </p>
         </section>
 
         {/* フッターリンク */}

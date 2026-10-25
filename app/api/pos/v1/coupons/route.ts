@@ -1,71 +1,43 @@
-// app/api/pos/v1/coupons/route.ts
-/**
- * POS連携: 有効クーポン一覧
- *
- * GET /api/pos/v1/coupons
- */
 import { NextResponse } from 'next/server';
 import { authenticatePosRequest, isPosAuthError } from '@/lib/pos-api-auth';
+import { couponDateEnd, toDate } from '@/lib/redeem-coupon-core';
+import { posErrorResponse } from '@/lib/pos-api';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-  const auth = await authenticatePosRequest(request);
-  if (isPosAuthError(auth)) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  try {
+    const auth = await authenticatePosRequest(request);
+    if (isPosAuthError(auth)) return NextResponse.json({ error: auth.error }, { status: auth.status });
+    const shop = auth.shopData;
+    const now = Date.now();
+    const coupons: Array<{ couponType: string; title: string; couponId?: string }> = [];
+    const active = (date: Date | null) => !date || date.getTime() >= now;
+    for (const [type, config, fallback] of [
+      ['first', shop.coupon, '初回限定クーポン'],
+      ['normal', shop.normalCoupon, '通常クーポン'],
+      ['loyalty', shop.loyaltyCoupon, '特別達成クーポン'],
+      ['repeat', shop.proCoupons?.repeat, '連続クーポン'],
+      ['birthday', shop.proCoupons?.birthday, '記念日・お誕生日クーポン'],
+      ['dormant', shop.proCoupons?.dormant, '復帰クーポン'],
+    ] as const) {
+      if (config?.enabled !== true) continue;
+      const expiry = config.expiresAt ? couponDateEnd(config.expiresAt)
+        : config.expireType === 'date' && config.expireDate ? couponDateEnd(config.expireDate) : null;
+      if (active(expiry)) coupons.push({ couponType: type, title: config.title || fallback });
+    }
+    const stepUp = shop.proCoupons?.stepUp;
+    if (stepUp?.enabled === true && stepUp.steps?.some((step: FirebaseFirestore.DocumentData) =>
+      active(step.expireType === 'date' && step.expireDate ? couponDateEnd(step.expireDate) : null))) {
+      coupons.push({ couponType: 'step-up', title: stepUp.title || 'ステップアップクーポン' });
+    }
+    for (const coupon of shop.scheduledCoupons || []) {
+      if (coupon.id && active(toDate(coupon.expiresAt))) {
+        coupons.push({ couponType: 'scheduled', couponId: coupon.id, title: coupon.title || '予約クーポン' });
+      }
+    }
+    return NextResponse.json({ coupons }, { headers: { 'Cache-Control': 'no-store' } });
+  } catch (error) {
+    return posErrorResponse(error);
   }
-
-  const shopData = auth.shopData;
-  const coupons: Array<{ couponType: string; title: string }> = [];
-
-  if (shopData.coupon?.enabled) {
-    coupons.push({
-      couponType: 'first',
-      title: shopData.coupon.title || '初回限定クーポン',
-    });
-  }
-
-  if (shopData.normalCoupon?.enabled) {
-    coupons.push({
-      couponType: 'normal',
-      title: shopData.normalCoupon.title || '通常クーポン',
-    });
-  }
-
-  if (shopData.loyaltyCoupon?.enabled) {
-    coupons.push({
-      couponType: 'loyalty',
-      title: shopData.loyaltyCoupon.title || '特別達成クーポン',
-    });
-  }
-
-  if (shopData.proCoupons?.stepUp?.enabled) {
-    coupons.push({
-      couponType: 'step-up',
-      title: shopData.proCoupons.stepUp.title || 'ステップアップクーポン',
-    });
-  }
-  if (shopData.proCoupons?.repeat?.enabled) {
-    coupons.push({
-      couponType: 'repeat',
-      title: shopData.proCoupons.repeat.title || '連続クーポン',
-    });
-  }
-  if (shopData.proCoupons?.birthday?.enabled) {
-    coupons.push({
-      couponType: 'birthday',
-      title: shopData.proCoupons.birthday.title || '記念日・お誕生日クーポン',
-    });
-  }
-  if (shopData.proCoupons?.dormant?.enabled) {
-    coupons.push({
-      couponType: 'dormant',
-      title: shopData.proCoupons.dormant.title || '休眠復活クーポン',
-    });
-  }
-
-  return NextResponse.json(
-    { coupons },
-    { headers: { 'Cache-Control': 'no-store' } }
-  );
 }

@@ -36,6 +36,7 @@ export function verifyPosApiKey(key: string, storedHash: string): boolean {
   try {
     const salt = Buffer.from(parts[0], 'hex');
     const expectedHash = Buffer.from(parts[1], 'hex');
+    if (salt.length !== SALT_BYTES || expectedHash.length !== HASH_BYTES) return false;
     const actualHash = crypto.scryptSync(key, salt, expectedHash.length);
     return (
       actualHash.length === expectedHash.length &&

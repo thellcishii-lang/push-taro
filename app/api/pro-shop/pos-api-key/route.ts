@@ -6,7 +6,7 @@
  * - GET:    現在のキー情報（keyPrefix のみ、平文は返さない）
  * - DELETE: キー失効
  *
- * 参照元: app/pro-shop/page.tsx（将来「POS連携」タブから呼ぶ）
+ * 参照元: components/PosIntegrationSection.tsx
  */
 import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
@@ -33,6 +33,17 @@ async function authenticateProOwner(
     return { error: NextResponse.json({ error: '無効なトークンです' }, { status: 401 }) };
   }
 
+  const requestedShopId = new URL(request.url).searchParams.get('shopId');
+  if (requestedShopId) {
+    if (requestedShopId.includes('/')) {
+      return { error: NextResponse.json({ error: '店舗IDが不正です' }, { status: 400 }) };
+    }
+    const doc = await db.collection('shops').doc(requestedShopId).get();
+    if (!doc.exists || doc.data()?.ownerUid !== uid || doc.data()?.plan !== 'pro') {
+      return { error: NextResponse.json({ error: 'このPRO店舗の操作権限がありません' }, { status: 403 }) };
+    }
+    return { shopId: doc.id, uid };
+  }
   const shopSnap = await db
     .collection('shops')
     .where('ownerUid', '==', uid)
@@ -56,10 +67,9 @@ async function authenticateProOwner(
 // POST: 新規発行
 // ============================================================
 export async function POST(request: Request) {
-  const auth = await authenticateProOwner(request);
-  if ('error' in auth) return auth.error;
-
   try {
+    const auth = await authenticateProOwner(request);
+    if ('error' in auth) return auth.error;
     const { key, keyHash, keyPrefix } = generatePosApiKey();
 
     await db.collection('shops').doc(auth.shopId).update({
@@ -79,7 +89,7 @@ export async function POST(request: Request) {
       key,          // ★ この1回だけ表示
       keyPrefix,
       message: 'APIキーを発行しました。このキーは再表示できません。必ず安全な場所に保管してください。',
-    });
+    }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error: any) {
     console.error('[pos-api-key] 発行エラー:', error);
     return NextResponse.json(
@@ -93,10 +103,9 @@ export async function POST(request: Request) {
 // GET: 現在のキー情報
 // ============================================================
 export async function GET(request: Request) {
-  const auth = await authenticateProOwner(request);
-  if ('error' in auth) return auth.error;
-
   try {
+    const auth = await authenticateProOwner(request);
+    if ('error' in auth) return auth.error;
     const shopDoc = await db.collection('shops').doc(auth.shopId).get();
     const posApi = shopDoc.data()?.posApi;
 
@@ -109,7 +118,7 @@ export async function GET(request: Request) {
         lastUsedAt: null,
         revokedAt: null,
         terminals: [],
-      });
+      }, { headers: { 'Cache-Control': 'no-store' } });
     }
 
     return NextResponse.json({
@@ -120,7 +129,7 @@ export async function GET(request: Request) {
       lastUsedAt: posApi.lastUsedAt?.toDate?.()?.toISOString() || null,
       revokedAt: posApi.revokedAt?.toDate?.()?.toISOString() || null,
       terminals: Array.isArray(posApi.terminals) ? posApi.terminals : [],
-    });
+    }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error: any) {
     console.error('[pos-api-key] 取得エラー:', error);
     return NextResponse.json(
@@ -134,10 +143,9 @@ export async function GET(request: Request) {
 // DELETE: キー失効
 // ============================================================
 export async function DELETE(request: Request) {
-  const auth = await authenticateProOwner(request);
-  if ('error' in auth) return auth.error;
-
   try {
+    const auth = await authenticateProOwner(request);
+    if ('error' in auth) return auth.error;
     const shopDoc = await db.collection('shops').doc(auth.shopId).get();
     const posApi = shopDoc.data()?.posApi;
 

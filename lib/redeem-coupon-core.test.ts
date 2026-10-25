@@ -1,22 +1,60 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Firestore } from 'firebase-admin/firestore';
+import { FieldValue, Firestore } from 'firebase-admin/firestore';
 
 const mocks = vi.hoisted(() => ({
   update: vi.fn(),
   set: vi.fn(),
   add: vi.fn(),
   usage: {} as Record<string, unknown>,
+  shop: {} as Record<string, unknown>,
+  receipts: new Map<string, FirebaseFirestore.DocumentData>(),
+  shopIds: ['shop'],
+  failCommit: false,
+  queue: Promise.resolve() as Promise<unknown>,
 }));
 
 vi.mock('./firebase-admin', () => ({
   authAdmin: {},
   db: {
-    runTransaction: async (callback: (transaction: unknown) => Promise<unknown>) => callback({
-      get: async () => ({ data: () => ({ couponUsage: { shop: mocks.usage } }) }),
-      update: (_ref: unknown, data: unknown) => mocks.update(data),
-      set: mocks.set,
-    }),
-    collection: () => ({ doc: () => ({ collection: () => ({ add: mocks.add }) }) }),
+    runTransaction: (callback: (transaction: unknown) => Promise<unknown>) => {
+      const run = mocks.queue.then(async () => {
+        const writes: Array<{ kind: string; ref: FirebaseFirestore.DocumentReference; data: FirebaseFirestore.DocumentData }> = [];
+        const result = await callback({
+          get: async (ref: FirebaseFirestore.DocumentReference) => {
+            if (writes.length) throw new Error('Firestore reads must precede writes');
+            const data = ref.path.startsWith('pos_api_logs/') ? mocks.receipts.get(ref.path)
+              : ref.path.startsWith('subscriptions/') ? { shopIds: mocks.shopIds, couponUsage: { shop: mocks.usage } }
+                : mocks.shop;
+            return { exists: !!data, data: () => data };
+          },
+          update: (ref: FirebaseFirestore.DocumentReference, data: FirebaseFirestore.DocumentData) => writes.push({ kind: 'update', ref, data }),
+          set: (ref: FirebaseFirestore.DocumentReference, data: FirebaseFirestore.DocumentData) => writes.push({ kind: 'set', ref, data }),
+        });
+        if (mocks.failCommit && writes.length) throw new Error('commit failed');
+        for (const { kind, ref, data } of writes) {
+          if (kind === 'update') {
+            mocks.update(data);
+            const next = { ...mocks.usage };
+            for (const [path, value] of Object.entries(data)) {
+              const field = path.replace('couponUsage.shop.', '');
+              if (value instanceof FieldValue && value.isEqual(FieldValue.serverTimestamp())) next[field] = new Date();
+              else if (field === 'totalVisits') next[field] = Number(next[field] || 0) + 1;
+              else next[field] = value;
+            }
+            mocks.usage = next;
+          } else if (ref.path.startsWith('pos_api_logs/')) {
+            mocks.set(ref, data);
+            mocks.receipts.set(ref.path, data);
+          } else {
+            mocks.add(data);
+          }
+        }
+        return result;
+      });
+      mocks.queue = run.catch(() => undefined);
+      return run;
+    },
+    collection: (name: string) => new Firestore({ projectId: 'coupon-tests' }).collection(name),
   },
 }));
 
@@ -25,8 +63,7 @@ import { DEFAULT_USAGE, redeemCouponCore, RedeemCouponParams } from './redeem-co
 function params(couponType: string, usage: Record<string, unknown> = {}): RedeemCouponParams {
   mocks.usage = { ...DEFAULT_USAGE, ...usage };
   const usageRef = new Firestore({ projectId: 'coupon-tests' }).doc('subscriptions/token');
-  vi.spyOn(usageRef, 'update').mockImplementation(mocks.update);
-  return {
+  const input: RedeemCouponParams = {
     shopId: 'shop', token: 'token', couponType, couponId: 'scheduled-1', scannedBy: 'owner',
     usageRef,
     usageData: { couponUsage: { shop: mocks.usage } },
@@ -41,10 +78,18 @@ function params(couponType: string, usage: Record<string, unknown> = {}): Redeem
       scheduledCoupons: [{ id: 'scheduled-1' }],
     },
   };
+  mocks.shop = input.shopData;
+  return input;
 }
 
 describe('coupon redemption', () => {
-  beforeEach(() => { vi.clearAllMocks(); });
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.receipts.clear();
+    mocks.shopIds = ['shop'];
+    mocks.failCommit = false;
+    mocks.queue = Promise.resolve();
+  });
 
   it.each([
     ['first', {}, 'firstCouponUsedAt'],
@@ -65,9 +110,9 @@ describe('coupon redemption', () => {
 
   it('records a normal coupon ID in its transaction', async () => {
     await redeemCouponCore(params('normal'));
-    expect(mocks.set).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
-      couponUsage: { shop: expect.objectContaining({ normalCouponUsedCouponId: 'normal-1' }) },
-    }), { merge: true });
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
+      'couponUsage.shop.normalCouponUsedCouponId': 'normal-1',
+    }));
   });
 
   it.each([
@@ -171,5 +216,102 @@ describe('coupon redemption', () => {
     expect(mocks.add).toHaveBeenCalledWith(expect.objectContaining({
       couponType: type, userToken: 'token', scannedBy: 'pos:terminal-1',
     }));
+  });
+
+  function withReceipt(input: RedeemCouponParams, hash = 'payload-hash', key = 'retry-key'): RedeemCouponParams {
+    return { ...input, idempotency: {
+      ref: new Firestore({ projectId: 'coupon-tests' }).doc(`pos_api_logs/${key}`),
+      payloadHash: hash, terminalId: 'register-01',
+    } };
+  }
+
+  it('commits concurrent retries exactly once and replays the full response', async () => {
+    const input = withReceipt(params('normal'));
+    input.shopData.loyaltyCoupon.targetCount = 1;
+    const [first, retry] = await Promise.all([redeemCouponCore(input), redeemCouponCore(input)]);
+    expect(first.responseExtra.loyaltyUnlocked).toBe(true);
+    expect(retry).toEqual({ ...first, idempotent: true });
+    expect(mocks.update).toHaveBeenCalledTimes(1);
+    expect(mocks.add).toHaveBeenCalledTimes(1);
+    expect(mocks.receipts.size).toBe(1);
+    expect(mocks.usage.totalVisits).toBe(1);
+  });
+
+  it('rejects reuse of the same receipt for a different payload', async () => {
+    const input = withReceipt(params('first'));
+    await redeemCouponCore(input);
+    await expect(redeemCouponCore(withReceipt(input, 'different'))).rejects.toMatchObject({
+      code: 'IDEMPOTENCY_CONFLICT', status: 409,
+    });
+    expect(mocks.add).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not partially consume a coupon when the atomic commit fails', async () => {
+    const input = withReceipt(params('first'));
+    mocks.failCommit = true;
+    await expect(redeemCouponCore(input)).rejects.toThrow('commit failed');
+    expect(mocks.usage.firstCouponUsedAt).toBeNull();
+    expect(mocks.add).not.toHaveBeenCalled();
+    expect(mocks.receipts.size).toBe(0);
+    mocks.failCommit = false;
+    await redeemCouponCore(input);
+    expect(mocks.add).toHaveBeenCalledTimes(1);
+  });
+
+  it('prevents simultaneous owner and POS consumption of the same first coupon', async () => {
+    const input = params('first');
+    const results = await Promise.allSettled([
+      redeemCouponCore(input), redeemCouponCore(withReceipt(input)),
+    ]);
+    expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
+    expect(mocks.add).toHaveBeenCalledTimes(1);
+    expect(mocks.usage.totalVisits).toBe(1);
+  });
+
+  it('validates against current transaction data instead of a stale caller snapshot', async () => {
+    const input = params('first');
+    mocks.usage.firstCouponUsedAt = new Date();
+    input.usageData = { couponUsage: { shop: { ...DEFAULT_USAGE } } };
+    await expect(redeemCouponCore(input)).rejects.toMatchObject({ code: 'COUPON_ALREADY_USED' });
+  });
+
+  it('rejects a customer not registered to the shop', async () => {
+    const input = params('first');
+    mocks.shopIds = ['other-shop'];
+    await expect(redeemCouponCore(input)).rejects.toMatchObject({ status: 403 });
+  });
+
+  it.each(['first', 'normal', 'loyalty', 'birthday', 'dormant'])('rejects disabled %s coupons', async (type) => {
+    const input = params(type, { birthdayNotifiedYear: String(new Date().getFullYear()), dormantNotifiedAt: new Date(), loyaltyCouponAvailable: true });
+    const config = type === 'first' ? input.shopData.coupon : type === 'normal' ? input.shopData.normalCoupon
+      : type === 'loyalty' ? input.shopData.loyaltyCoupon : input.shopData.proCoupons[type];
+    config.enabled = false;
+    await expect(redeemCouponCore(input)).rejects.toMatchObject({ code: 'COUPON_DISABLED' });
+  });
+
+  it('rejects a key revoked between authentication and the transaction', async () => {
+    const input = params('first');
+    input.posKeyHash = 'key-hash';
+    input.shopData.plan = 'pro';
+    input.shopData.posApi = { keyHash: 'key-hash', revokedAt: new Date() };
+    await expect(redeemCouponCore(input)).rejects.toMatchObject({ status: 401 });
+  });
+
+  it('uses Japanese midnight for date-based expiry', async () => {
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date('2026-10-25T15:00:00Z'));
+      const input = params('first');
+      input.shopData.coupon.expiresAt = '2026-10-25';
+      await expect(redeemCouponCore(input)).rejects.toMatchObject({ code: 'COUPON_EXPIRED' });
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('keeps normal visit counts without unlocking a disabled loyalty offer', async () => {
+    const input = params('normal');
+    delete input.shopData.loyaltyCoupon;
+    await redeemCouponCore(input);
+    expect(mocks.usage.normalCouponVisitCount).toBe(1);
+    expect(mocks.usage.loyaltyCouponAvailable).toBe(false);
   });
 });

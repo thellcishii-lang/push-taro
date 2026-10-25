@@ -15,6 +15,7 @@ import ImageUploader from '../../components/ImageUploader';
 import { Html5Qrcode } from 'html5-qrcode';
 import ShopPopSection from '@/components/print/ShopPopSection';
 import CouponHistorySection from '../../components/CouponHistorySection';
+import PosIntegrationSection from '@/components/PosIntegrationSection';
 
 export default function ProShopPage() {
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function ProShopPage() {
   const [shopIconUrl, setShopIconUrl] = useState('');
 
   // タブ管理
-  const [activeTab, setActiveTab] = useState<'push' | 'shop' | 'pro' | 'reserve'>('push');
+  const [activeTab, setActiveTab] = useState<'push' | 'shop' | 'pro' | 'reserve' | 'pos'>('push');
 
   // 即時通知
   const [title, setTitle] = useState('');
@@ -869,7 +870,18 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
         >
           📅 予約配信
         </button>
+        <button
+          onClick={() => setActiveTab('pos')}
+          style={{
+            padding: '10px 16px', border: 'none',
+            borderBottom: activeTab === 'pos' ? '3px solid #0284c7' : '3px solid transparent',
+            background: 'none', fontWeight: 'bold', color: activeTab === 'pos' ? '#0284c7' : '#64748b',
+            cursor: 'pointer', fontSize: '15px', whiteSpace: 'nowrap',
+          }}
+        >POS連携</button>
       </div>
+
+      {activeTab === 'pos' && shopId && <PosIntegrationSection key={shopId} shopId={shopId} user={user} />}
 
       {/* ━━━ 即時通知タブ ━━━ */}
       {activeTab === 'push' && (

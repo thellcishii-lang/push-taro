@@ -31,14 +31,14 @@ export async function authenticatePosRequest(
   }
 
   const apiKey = authHeader.slice('Bearer '.length).trim();
-  if (!apiKey.startsWith('pt_live_')) {
+  if (!/^pt_live_[0-9a-f]{32}$/.test(apiKey)) {
     return { status: 401, error: '無効なAPIキーです' };
   }
 
-  // PRO店舗から keyHash を検索
+  // 表示用プレフィックスで候補を絞り、全PRO店舗のハッシュ照合を避ける。
   const shopsSnap = await db
     .collection('shops')
-    .where('plan', '==', 'pro')
+    .where('posApi.keyPrefix', '==', apiKey.slice(0, 12))
     .get();
 
   let matchedShopId: string | null = null;
@@ -47,7 +47,7 @@ export async function authenticatePosRequest(
   for (const doc of shopsSnap.docs) {
     const data = doc.data();
     const posApi = data.posApi;
-    if (!posApi?.keyHash || posApi.revokedAt) continue;
+    if (data.plan !== 'pro' || !posApi?.keyHash || posApi.revokedAt) continue;
     if (verifyPosApiKey(apiKey, posApi.keyHash)) {
       matchedShopId = doc.id;
       matchedShopData = data;
@@ -64,7 +64,7 @@ export async function authenticatePosRequest(
     ? matchedShopData.posApi.terminals
     : [];
 
-  if (terminals.length > 0 && terminalId && !terminals.includes(terminalId)) {
+  if (terminals.length > 0 && (!terminalId || !terminals.includes(terminalId))) {
     return { status: 403, error: '未登録のレジ識別子です' };
   }
 
