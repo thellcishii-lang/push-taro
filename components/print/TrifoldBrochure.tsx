@@ -121,7 +121,7 @@ export default function TrifoldBrochure({ data }: Props) {
               </svg>
               <div className="tf-back-logo">Push-taro<span>.</span></div>
             </div>
-            <div className="tf-back-tagline">実店舗のためのPush通知CRM</div>
+            <div className="tf-back-tagline">実店舗向けプッシュ通知・クーポンアプリ</div>
           </div>
 
           <div className="tf-back-spacer" />
@@ -194,7 +194,7 @@ export default function TrifoldBrochure({ data }: Props) {
           </div>
 
           <div className="tf-cover-mid">
-            <div className="tf-cover-lead">実店舗のためのPush通知CRM</div>
+            <div className="tf-cover-lead">実店舗向けプッシュ通知・クーポンアプリ</div>
             <h1 className="tf-cover-catch">
               お客様に<br />
               喜んで頂ける<br />

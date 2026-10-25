@@ -185,7 +185,7 @@ useEffect(() => {
                 </svg>
                 <div>
                   <div className="pdf-logo-text">Push-taro<span>.</span></div>
-                  <div className="pdf-logo-sub">実店舗のためのPush通知CRM</div>
+                  <div className="pdf-logo-sub">実店舗向けプッシュ通知・クーポンアプリ</div>
                 </div>
               </div>
               <div className="pdf-header-title">

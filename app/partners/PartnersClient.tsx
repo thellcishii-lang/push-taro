@@ -339,7 +339,7 @@ export default function PartnersClient() {
           <div className="strength-reason-icon">⚡</div>
           <div>
             <h4>安いだけじゃない</h4>
-            <p>プッシュ通知・クーポン・CRM機能を本格搭載。価格に見合わない、圧倒的な機能群。</p>
+            <p>プッシュ通知・クーポン機能を本格搭載。価格に見合わない、圧倒的な機能群。</p>
           </div>
         </div>
         <div className="strength-reason">
@@ -684,13 +684,13 @@ export default function PartnersClient() {
           <div className="competitor-grid">
             <div className="competitor-card tilt-in">
               <div className="name push-taro">🔥 Push-taro</div>
-              <div className="tagline">実店舗特化型CRM + 収益化プログラム</div>
+              <div className="tagline">実店舗特化型クーポンアプリ + 収益化プログラム</div>
               <ul className="feature-list">
                 <li><span>代理店制度</span><span className="val yes">✅ 充実 (30〜45%/18%)</span></li>
                 <li><span>紹介制度</span><span className="val yes">✅ 10%継続</span></li>
                 <li><span>アフィリエイト</span><span className="val yes">✅ 初年度8%継続 or 一括</span></li>
                 <li><span>収益化プログラム数</span><span className="val best">3つ</span></li>
-                <li><span>ターゲット</span><span className="val">実店舗CRM</span></li>
+                <li><span>ターゲット</span><span className="val">実店舗向けクーポンアプリ</span></li>
               </ul>
             </div>
 
@@ -887,7 +887,7 @@ export default function PartnersClient() {
                     <div className="ov-back-mark"></div>
                     <div className="ov-back-name">Push-taro<span>.</span></div>
                   </div>
-                  <div className="ov-back-tag">実店舗のためのPush通知CRM</div>
+                  <div className="ov-back-tag">実店舗向けプッシュ通知・クーポンアプリ</div>
                   <div className="ov-offer">
                     <div className="ov-offer-badge">SPECIAL OFFER</div>
                     <div className="ov-offer-title">このコードで<br /><span>限定特典</span>を<br />受け取れます</div>
@@ -909,7 +909,7 @@ export default function PartnersClient() {
                     </div>
                   </div>
                   <div className="ov-cover-mid">
-                    <div className="ov-cover-lead">実店舗のためのPush通知CRM</div>
+                    <div className="ov-cover-lead">実店舗向けプッシュ通知・クーポンアプリ</div>
                     <div className="ov-cover-catch">お客様に<br />喜んで頂ける<br /><span>お店づくりの<br />お手伝い。</span></div>
                   </div>
                 </div>
@@ -918,7 +918,7 @@ export default function PartnersClient() {
               <div className="ov-item ov-a4">
                 <div className="ov-a4-front">
                   <div className="ov-a4-logo"><div className="ov-a4-mark"></div><div className="ov-a4-name">Push-taro<span>.</span></div></div>
-                  <div className="ov-a4-lead">実店舗のためのPush通知CRM</div>
+                  <div className="ov-a4-lead">実店舗向けプッシュ通知・クーポンアプリ</div>
                   <div className="ov-a4-catch">お客様に<br />喜んで頂ける<br /><span>お店づくりの<br />お手伝い。</span></div>
                   <div className="ov-a4-stats">
                     <div><strong>6<small>倍</small></strong><span>開封率</span></div>
@@ -934,7 +934,7 @@ export default function PartnersClient() {
                   <div className="ov-card-name">Push-taro<span>.</span></div>
                 </div>
                 <div className="ov-card-catch">お客様に喜んで頂ける<br /><span>お店づくりのお手伝い。</span></div>
-                <div className="ov-card-sub">実店舗のためのPush通知CRM</div>
+                <div className="ov-card-sub">実店舗向けプッシュ通知・クーポンアプリ</div>
               </div>
 
               <div className="ov-item ov-a5">
@@ -1043,7 +1043,7 @@ export default function PartnersClient() {
                 <span>Push-taro<span className="dot">.</span></span>
               </div>
               <p className="footer-desc">
-                実店舗のリピート施策を「プッシュ通知 × CRM」で自動化するSaaS。<br />
+                実店舗のリピート施策を「プッシュ通知 × クーポンアプリ」で自動化するSaaS。<br />
                 代理店パートナーとして、あなたのネットワークを毎月の安定収益に。
               </p>
               <div className="footer-badge">

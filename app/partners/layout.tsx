@@ -6,7 +6,7 @@ const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 export const metadata: Metadata = {
   title: '【公式】販売代理店パートナー募集｜在庫ゼロで始めるストックビジネス｜Push-taro',
   description:
-    '実店舗のリピート施策を「プッシュ通知×CRM」で自動化するPush-taroの販売パートナー募集。紹介店舗の月額から最大45%の継続報酬。在庫・店舗・スタッフ不要、初期費用30万円（キャンペーン）で始められるストックビジネスです。',
+    '実店舗のリピート施策を「プッシュ通知×クーポンアプリ」で自動化するPush-taroの販売パートナー募集。紹介店舗の月額から最大45%の継続報酬。在庫・店舗・スタッフ不要、初期費用30万円（キャンペーン）で始められるストックビジネスです。',
   keywords: [
     'ストックビジネス',
     '代理店募集',
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     '継続報酬',
     'ストック収入',
     '店舗DX',
-    '実店舗 CRM',
+    '実店舗 クーポンアプリ',
   ],
   alternates: { canonical: '/partners' },
   openGraph: {

@@ -4,12 +4,12 @@ import SecurityClient from './SecurityClient';
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 
 export const metadata: Metadata = {
-  title: 'なぜ、Push-taroは顧客情報を取らないのか｜電話番号だけの、新しいCRM｜Push-taro',
+  title: 'なぜ、Push-taroは顧客情報を取らないのか｜電話番号だけで使えるクーポンアプリ｜Push-taro',
   description:
     '大手企業の情報流出が日常になる中、顧客情報を取れば取るほど、リスクは増えます。Push-taroが保存するのは、電話番号だけ。氏名・住所・購買履歴・クレジットカード情報は、一切取りません。漏洩時のリスクを最小化する設計思想を解説します。',
   keywords: [
     '顧客情報 漏洩 対策',
-    'CRM セキュリティ',
+    'クーポンアプリ セキュリティ',
     '顧客情報 取らない',
     '個人情報保護',
     '電話番号 のみ',
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'なぜ、Push-taroは顧客情報を取らないのか｜Push-taro',
-    description: '電話番号だけの、新しいCRM。',
+    description: '電話番号だけで使える、顧客情報を集めないクーポンアプリ。',
   },
   robots: {
     index: true,

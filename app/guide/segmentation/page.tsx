@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     'セグメント配信 必要',
     'A/Bテスト 小規模',
     'プッシュ通知 セグメント',
-    'CRM シンプル',
+    'プッシュ通知 クーポン 配信',
     'Push-taro',
   ],
   alternates: { canonical: '/guide/segmentation' },

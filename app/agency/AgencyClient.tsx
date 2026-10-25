@@ -159,7 +159,7 @@ export default function AgencyClient() {
       <nav style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontSize: '20px', fontWeight: '800', color: '#1a202c' }}>
           <Link href="/" style={{ color: '#1a202c', textDecoration: 'none' }}>
-            Push-taro<span style={{ color: '#3182ce', fontSize: '14px', marginLeft: '8px', fontWeight: 'normal' }}>本格派CRMツール</span>
+            Push-taro<span style={{ color: '#3182ce', fontSize: '14px', marginLeft: '8px', fontWeight: 'normal' }}>クーポンアプリ</span>
           </Link>
         </div>
       </nav>
@@ -393,7 +393,7 @@ export default function AgencyClient() {
             <div style={{ background: '#f8fafc', border: '1px solid #cbd5e0', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
               <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1a202c', marginBottom: '8px' }}>代理店利用規約（全文）</h3>
               <div style={{ height: '220px', overflowY: 'auto', fontSize: '12px', color: '#4a5568', background: '#ffffff', padding: '14px', borderRadius: '6px', border: '1px solid #e2e8f0', lineHeight: '1.8', marginBottom: '12px' }}>
-                <p style={{ margin: '0 0 10px 0' }}><strong>第1条（総則および目的）</strong><br />本規約は、Push-taro（以下「当社」）が提供するLINE風Web Push通知・CRMサービス（以下「本サービス」）の販売パートナー（以下「代理店」）との間の権利義務関係および取扱い条件を定めるものです。</p>
+                <p style={{ margin: '0 0 10px 0' }}><strong>第1条（総則および目的）</strong><br />本規約は、Push-taro（以下「当社」）が提供するLINE風Web Push通知・クーポンアプリサービス（以下「本サービス」）の販売パートナー（以下「代理店」）との間の権利義務関係および取扱い条件を定めるものです。</p>
                 <p style={{ margin: '0 0 10px 0' }}><strong>第2条（契約の成立）</strong><br />代理店希望者が本申込みフォームより申請を行い、当社の審査を通過した上で、加盟金および初月代理店月額費用の決済を完了した時点で本契約が成立します。</p>
                 <p style={{ margin: '0 0 10px 0' }}><strong>第3条（加盟金および月額費用）</strong><br />1. 代理店は加盟金（初期費用）として 300,000円（税別）を支払うものとします。<br />2. 代理店は月額システム利用・管理費として 30,000円/月（税別）を毎月当社に支払うものとします。</p>
                 <p style={{ margin: '0 0 10px 0' }}><strong>第4条（成果報酬の支払い・相殺管理）</strong><br />1. 当社は、代理店の紹介コードを経由して契約・維持されているアクティブな店舗（顧客）数に応じて、所定の還元率に基づく紹介報酬を算定します。<br />2. 発生した紹介報酬は、毎月末日締め・翌月末日払いとし、代理店が指定する銀行口座へ振込にてお支払いします。<br />3. 代理店月額費用は、当社指定の決済手段（Square等）により別途お支払いいただくものとし、紹介報酬との相殺は行いません。</p>

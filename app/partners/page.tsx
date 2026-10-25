@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     'アフィリエイト',
     '紹介報酬',
     'プッシュ通知',
-    'CRM',
+    'クーポンアプリ',
     '実店舗',
     'Push-taro',
   ],

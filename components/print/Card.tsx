@@ -46,7 +46,7 @@ export default function Card({ data }: Props) {
               お客様に喜んで頂ける<br />
               <span className="accent">お店づくりのお手伝い。</span>
             </h1>
-            <div className="cd-sub">実店舗のためのPush通知CRM</div>
+            <div className="cd-sub">実店舗向けプッシュ通知・クーポンアプリ</div>
           </div>
 
           <div className="cd-front-foot">

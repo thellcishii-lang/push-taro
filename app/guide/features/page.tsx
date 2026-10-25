@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     'QRコード 顧客獲得',
     '休眠復活 クーポン',
     '予約配信 機能',
-    '店舗 CRM 機能',
+    '店舗 クーポンアプリ 機能',
   ],
   alternates: { canonical: '/guide/features' },
   openGraph: {

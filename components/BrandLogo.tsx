@@ -76,7 +76,7 @@ export default function BrandLogo({ className = '' }: BrandLogoProps) {
     margin: '0 0 0 8px',
   }}
 >
-  実店舗のためのPush通知CRM
+  実店舗向けプッシュ通知・クーポンアプリ
 </small>
       </Link>
     </>

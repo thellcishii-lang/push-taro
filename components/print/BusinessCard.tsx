@@ -53,7 +53,7 @@ export default function BusinessCard({ data }: Props) {
               お客様に喜んで頂ける<br />
               <span className="accent">お店づくりのお手伝い。</span>
             </h1>
-            <div className="bc-sub">実店舗のためのPush通知CRM</div>
+            <div className="bc-sub">実店舗向けプッシュ通知・クーポンアプリ</div>
           </div>
 
           <div className="bc-front-foot">

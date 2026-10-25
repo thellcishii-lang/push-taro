@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     '3回来店 リピーター',
     '実店舗 売上 頭打ち',
     'SNS 集客 限界',
-    '実店舗 CRM',
+    '実店舗 クーポンアプリ',
     'Push-taro',
   ],
   alternates: { canonical: '/guide/existing-customers' },

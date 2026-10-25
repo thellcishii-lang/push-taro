@@ -140,7 +140,7 @@ export default function AffilishopPage() {
       <nav style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontSize: '20px', fontWeight: '800', color: '#1a202c' }}>
           <Link href="/" style={{ color: '#1a202c', textDecoration: 'none' }}>
-            Push-taro<span style={{ color: '#0ea5e9', fontSize: '14px', marginLeft: '8px', fontWeight: 'normal' }}>本格派CRMツール</span>
+            Push-taro<span style={{ color: '#0ea5e9', fontSize: '14px', marginLeft: '8px', fontWeight: 'normal' }}>クーポンアプリ</span>
           </Link>
         </div>
       </nav>

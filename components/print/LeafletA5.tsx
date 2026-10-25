@@ -37,7 +37,7 @@ export default function LeafletA5({ data }: Props) {
           <div className="a5-badge">先行登録受付中</div>
         </div>
         <div className="a5-front-mid">
-          <div className="a5-lead">実店舗のためのPush通知CRM</div>
+          <div className="a5-lead">実店舗向けプッシュ通知・クーポンアプリ</div>
           <h1 className="a5-catch">
             お客様に<br />喜んで頂ける<br />
             <span className="accent">お店づくりの<br />お手伝い。</span>

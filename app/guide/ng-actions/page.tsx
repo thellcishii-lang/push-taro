@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     '店舗 メルマガ うざい',
     'プッシュ通知 配信 頻度',
     'クーポン 配信 スパム',
-    '店舗 CRM 運用',
+    '店舗 クーポンアプリ 運用',
     'Push-taro',
   ],
   alternates: { canonical: '/guide/ng-actions' },

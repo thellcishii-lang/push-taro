@@ -37,7 +37,7 @@ export default function LeafletA4({ data }: Props) {
           <div className="a4-badge">先行登録受付中</div>
         </div>
         <div className="a4-front-mid">
-          <div className="a4-lead">実店舗のためのPush通知CRM</div>
+          <div className="a4-lead">実店舗向けプッシュ通知・クーポンアプリ</div>
           <h1 className="a4-catch">
             お客様に<br />喜んで頂ける<br />
             <span className="accent">お店づくりの<br />お手伝い。</span>
