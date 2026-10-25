@@ -40,6 +40,7 @@ export async function addToLoyaltyCount(
   shopData: FirebaseFirestore.DocumentData,
   shopId: string,
   shouldCount: boolean,
+  dryRun: boolean = false,
 ) {
   if (!shouldCount || shopData.loyaltyCoupon?.enabled !== true) return false;
 
@@ -52,6 +53,7 @@ export async function addToLoyaltyCount(
     const canRepeat = shopData.loyaltyCoupon?.repeatEnabled === true;
     unlocked = targetCount > 0 && nextVisitCount >= targetCount &&
       (canRepeat || currentUsage.loyaltyAchieved !== true);
+    if (dryRun) return;
     transaction.set(usageRef, {
       couponUsage: {
         [shopId]: {
@@ -76,6 +78,7 @@ export async function recordSameDayCouponUse(
   usageRef: FirebaseFirestore.DocumentReference,
   shopId: string,
   sameDayCombinable: boolean,
+  dryRun: boolean = false,
 ) {
   await db.runTransaction(async (transaction) => {
     const currentDoc = await transaction.get(usageRef);
@@ -87,6 +90,7 @@ export async function recordSameDayCouponUse(
     )) {
       throw new Error('COUPON_NOT_COMBINABLE_TODAY');
     }
+    if (dryRun) return;
     transaction.update(usageRef, {
       [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
       [`couponUsage.${shopId}.lastCouponSameDayCombinable`]: sameDayCombinable,
@@ -106,6 +110,7 @@ export interface RedeemCouponParams {
   usageRef: FirebaseFirestore.DocumentReference;
   usageData: FirebaseFirestore.DocumentData;
   scannedBy: string;          // 監査用のUID（店舗オーナー or POS）
+  dryRun?: boolean;           // true の場合は検証のみ（書き込みなし）
 }
 
 export interface RedeemCouponResult {
@@ -115,7 +120,7 @@ export interface RedeemCouponResult {
 }
 
 export async function redeemCouponCore(params: RedeemCouponParams): Promise<RedeemCouponResult> {
-  const { shopId, couponType, token, couponId, shopData, usageRef, usageData, scannedBy } = params;
+  const { shopId, couponType, token, couponId, shopData, usageRef, usageData, scannedBy, dryRun = false } = params;
   const storedUsage = usageData.couponUsage?.[shopId] || DEFAULT_USAGE;
   const stepUpCampaignId = shopData.proCoupons?.stepUp?.campaignId;
   const usage = stepUpCampaignId && storedUsage.stepUpCampaignId !== stepUpCampaignId
@@ -151,12 +156,14 @@ export async function redeemCouponCore(params: RedeemCouponParams): Promise<Rede
     if (expiresAt && new Date(`${expiresAt}T23:59:59`).getTime() < Date.now()) {
       throw new RedeemError('COUPON_EXPIRED', '⚠️ この初回限定クーポンは有効期限切れです！', 400);
     }
-    await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable);
-    await usageRef.update({
-      [`couponUsage.${shopId}.firstCouponUsedAt`]: FieldValue.serverTimestamp(),
-      [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
-      [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
-    });
+    await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable, dryRun);
+    if (!dryRun) {
+      await usageRef.update({
+        [`couponUsage.${shopId}.firstCouponUsedAt`]: FieldValue.serverTimestamp(),
+        [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
+        [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
+      });
+    }
   }
 
   // ─── 通常クーポン ───
@@ -180,6 +187,7 @@ export async function redeemCouponCore(params: RedeemCouponParams): Promise<Rede
       const targetCount = Number(shopData.loyaltyCoupon?.targetCount || 0);
       const nextVisitCount = Number(currentUsage.normalCouponVisitCount || 0) + 1;
       loyaltyUnlocked = targetCount > 0 && nextVisitCount >= targetCount;
+      if (dryRun) return;
       transaction.set(usageRef, {
         couponUsage: {
           [shopId]: {
@@ -216,14 +224,16 @@ export async function redeemCouponCore(params: RedeemCouponParams): Promise<Rede
         throw new RedeemError('COUPON_EXPIRED', '⚠️ この特別達成クーポンは有効期限切れです！', 400);
       }
     }
-    await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable);
-    await usageRef.update({
-      [`couponUsage.${shopId}.loyaltyCouponAvailable`]: false,
-      [`couponUsage.${shopId}.loyaltyAchieved`]: shopData.loyaltyCoupon?.repeatEnabled !== true,
-      [`couponUsage.${shopId}.loyaltyAchievedAt`]: FieldValue.serverTimestamp(),
-      [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
-      [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
-    });
+    await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable, dryRun);
+    if (!dryRun) {
+      await usageRef.update({
+        [`couponUsage.${shopId}.loyaltyCouponAvailable`]: false,
+        [`couponUsage.${shopId}.loyaltyAchieved`]: shopData.loyaltyCoupon?.repeatEnabled !== true,
+        [`couponUsage.${shopId}.loyaltyAchievedAt`]: FieldValue.serverTimestamp(),
+        [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
+        [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
+      });
+    }
   }
 
   // ─── ステップアップクーポン ───
@@ -243,20 +253,22 @@ export async function redeemCouponCore(params: RedeemCouponParams): Promise<Rede
     couponTitle = currentStep?.title || `ステップ${currentIndex + 1}`;
     const nextIndex = currentIndex + 1;
     const nextStep = steps[nextIndex];
-    await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable);
-    await usageRef.update({
-      [`couponUsage.${shopId}.stepUpIndex`]: nextIndex,
-      ...(stepUpCampaignId ? { [`couponUsage.${shopId}.stepUpCampaignId`]: stepUpCampaignId } : {}),
-      [`couponUsage.${shopId}.stepUpIndexUpdatedAt`]: FieldValue.serverTimestamp(),
-      [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
-      [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
-    });
+    await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable, dryRun);
+    if (!dryRun) {
+      await usageRef.update({
+        [`couponUsage.${shopId}.stepUpIndex`]: nextIndex,
+        ...(stepUpCampaignId ? { [`couponUsage.${shopId}.stepUpCampaignId`]: stepUpCampaignId } : {}),
+        [`couponUsage.${shopId}.stepUpIndexUpdatedAt`]: FieldValue.serverTimestamp(),
+        [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
+        [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
+      });
+    }
     if (nextStep) {
       responseExtra.nextStep = { title: nextStep.title, index: nextIndex + 1 };
     } else {
       responseExtra.allStepsCompleted = true;
     }
-    if (await addToLoyaltyCount(usageRef, shopData, shopId, currentStep.loyaltyCountable ?? currentStep.combinable === true)) {
+    if (await addToLoyaltyCount(usageRef, shopData, shopId, currentStep.loyaltyCountable ?? currentStep.combinable === true, dryRun)) {
       responseExtra.loyaltyUnlocked = true;
     }
   }
@@ -289,6 +301,7 @@ export async function redeemCouponCore(params: RedeemCouponParams): Promise<Rede
       if (!canCombineWithLastCoupon(toDate(currentUsage.lastCouponUsedAt), currentUsage.lastCouponSameDayCombinable, sameDayCombinable)) {
         throw new Error('COUPON_NOT_COMBINABLE_TODAY');
       }
+      if (dryRun) return;
       transaction.update(usageRef, {
         ...(repeat.campaignId ? { [`couponUsage.${shopId}.repeatCampaignId`]: repeat.campaignId } : {}),
         [`couponUsage.${shopId}.repeatCouponActiveUntil`]: activeUntil,
@@ -299,7 +312,7 @@ export async function redeemCouponCore(params: RedeemCouponParams): Promise<Rede
       });
     });
     responseExtra.nextRepeatCouponUntil = activeUntil?.toISOString() || null;
-    if (await addToLoyaltyCount(usageRef, shopData, shopId, repeat.loyaltyCountable ?? repeat.combinable === true)) {
+    if (await addToLoyaltyCount(usageRef, shopData, shopId, repeat.loyaltyCountable ?? repeat.combinable === true, dryRun)) {
       responseExtra.loyaltyUnlocked = true;
     }
   }
@@ -315,13 +328,15 @@ export async function redeemCouponCore(params: RedeemCouponParams): Promise<Rede
     if (String(usage.birthdayCouponUsedYear) === currentYear) {
       throw new RedeemError('COUPON_ALREADY_USED', '⚠️ このお誕生日クーポンはすでに使用済みです！', 400);
     }
-    await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable);
-    await usageRef.update({
-      [`couponUsage.${shopId}.birthdayCouponUsedYear`]: currentYear,
-      [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
-      [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
-    });
-    if (await addToLoyaltyCount(usageRef, shopData, shopId, birthday.loyaltyCountable ?? birthday.combinable === true)) {
+    await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable, dryRun);
+    if (!dryRun) {
+      await usageRef.update({
+        [`couponUsage.${shopId}.birthdayCouponUsedYear`]: currentYear,
+        [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
+        [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
+      });
+    }
+    if (await addToLoyaltyCount(usageRef, shopData, shopId, birthday.loyaltyCountable ?? birthday.combinable === true, dryRun)) {
       responseExtra.loyaltyUnlocked = true;
     }
   }
@@ -341,13 +356,15 @@ export async function redeemCouponCore(params: RedeemCouponParams): Promise<Rede
     if (expiresAt.getTime() < Date.now()) {
       throw new RedeemError('COUPON_EXPIRED', '⚠️ この休眠復活クーポンは有効期限切れです！', 400);
     }
-    await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable);
-    await usageRef.update({
-      [`couponUsage.${shopId}.dormantCouponUsedAt`]: FieldValue.serverTimestamp(),
-      [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
-      [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
-    });
-    if (await addToLoyaltyCount(usageRef, shopData, shopId, dormant.loyaltyCountable ?? dormant.combinable === true)) {
+    await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable, dryRun);
+    if (!dryRun) {
+      await usageRef.update({
+        [`couponUsage.${shopId}.dormantCouponUsedAt`]: FieldValue.serverTimestamp(),
+        [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
+        [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
+      });
+    }
+    if (await addToLoyaltyCount(usageRef, shopData, shopId, dormant.loyaltyCountable ?? dormant.combinable === true, dryRun)) {
       responseExtra.loyaltyUnlocked = true;
     }
   }
@@ -365,13 +382,15 @@ export async function redeemCouponCore(params: RedeemCouponParams): Promise<Rede
       throw new RedeemError('COUPON_ALREADY_USED', 'この予約クーポンは使用済みです', 400);
     }
     couponTitle = scheduledCoupon.title || '予約クーポン';
-    await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable);
-    await usageRef.update({
-      [`couponUsage.${shopId}.scheduledCouponUsedIds`]: FieldValue.arrayUnion(couponId),
-      [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
-      [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
-    });
-    if (await addToLoyaltyCount(usageRef, shopData, shopId, scheduledCoupon.loyaltyCountable === true)) {
+    await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable, dryRun);
+    if (!dryRun) {
+      await usageRef.update({
+        [`couponUsage.${shopId}.scheduledCouponUsedIds`]: FieldValue.arrayUnion(couponId),
+        [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
+        [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
+      });
+    }
+    if (await addToLoyaltyCount(usageRef, shopData, shopId, scheduledCoupon.loyaltyCountable === true, dryRun)) {
       responseExtra.loyaltyUnlocked = true;
     }
   }
@@ -380,24 +399,26 @@ export async function redeemCouponCore(params: RedeemCouponParams): Promise<Rede
     throw new RedeemError('COUPON_UNKNOWN_TYPE', `未対応のクーポンタイプです: ${couponType}`, 400);
   }
 
-  // ─── 利用ログの書き込み ───
-  let customerPhone = '';
-  if (usageData.customerUid) {
-    try {
-      customerPhone = (await authAdmin.getUser(usageData.customerUid)).phoneNumber || '';
-    } catch (error) {
-      console.error('[redeem-coupon-core] 電話番号取得失敗:', error);
+  // ─── 利用ログの書き込み（dryRun 時はスキップ）───
+  if (!dryRun) {
+    let customerPhone = '';
+    if (usageData.customerUid) {
+      try {
+        customerPhone = (await authAdmin.getUser(usageData.customerUid)).phoneNumber || '';
+      } catch (error) {
+        console.error('[redeem-coupon-core] 電話番号取得失敗:', error);
+      }
     }
+    await db.collection('shops').doc(shopId).collection('coupon_logs').add({
+      couponType,
+      couponTitle,
+      userToken: token,
+      customerUid: usageData.customerUid || null,
+      customerPhone,
+      usedAt: FieldValue.serverTimestamp(),
+      scannedBy,
+    });
   }
-  await db.collection('shops').doc(shopId).collection('coupon_logs').add({
-    couponType,
-    couponTitle,
-    userToken: token,
-    customerUid: usageData.customerUid || null,
-    customerPhone,
-    usedAt: FieldValue.serverTimestamp(),
-    scannedBy,
-  });
 
   return {
     couponTitle,
