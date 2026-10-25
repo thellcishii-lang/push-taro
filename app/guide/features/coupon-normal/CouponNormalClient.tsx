@@ -37,7 +37,7 @@ export default function CouponNormalClient() {
           <h2 className="g-h2"><span className="num">1</span>この機能でできること</h2>
           <div className="g-feature-list">
             <div className="g-feature-item"><span className="ico">♾️</span><div><strong>何度でも使える</strong><p>同じお客様が繰り返し使えます。来店のたびに割引・特典を提供。</p></div></div>
-            <div className="g-feature-item"><span className="ico">📅</span><div><strong>有効期限を設定</strong><p>「2026年末まで」など期間を設け、季節キャンペーンにも使えます。</p></div></div>
+            <div className="g-feature-item"><span className="ico">📅</span><div><strong>有効期限を設定</strong><p>「2026年末まで」など期間を設け、季節キャンペーンにも使えます。使用済み・期限切れのクーポンは削除ボタンで非表示にでき、日本時間で使用日・期限日の翌日には自動で非表示になります。使用履歴や二重使用防止の記録は残ります。</p></div></div>
             <div className="g-feature-item"><span className="ico">🎯</span><div><strong>会員特典として運用</strong><p>「会員様はいつでも10%OFF」など、登録のメリットを継続的に提供。</p></div></div>
             <div className="g-feature-item"><span className="ico">📊</span><div><strong>利用回数を追跡</strong><p>誰が何回使ったかが記録され、特別達成クーポンのカウントにも使われます。</p></div></div>
           </div>

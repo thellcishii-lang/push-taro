@@ -50,14 +50,17 @@ describe('coupon status after redemption', () => {
       shop: {
         firstCouponUsedAt: now,
         normalCouponUsedCouponId: 'normal-1',
+        normalCouponUsedAt: timestamp('2026-10-24T03:00:00Z'),
         loyaltyCouponAvailable: false,
         stepUpCampaignId: 'step-1', stepUpIndex: 2,
         repeatCampaignId: 'repeat-1',
         repeatCouponUsedAt: { toDate: () => now },
         repeatCouponActiveUntil: timestamp('2099-01-01T00:00:00Z'),
         birthdayCouponUsedYear: String(now.getFullYear()),
+        birthdayCouponUsedAt: timestamp('2026-10-24T04:00:00Z'),
         dormantCouponUsedAt: now,
         scheduledCouponUsedIds: ['scheduled-1'],
+        scheduledCouponUsedAt: { 'scheduled-1': timestamp('2026-10-24T05:00:00Z') },
       },
     };
     const response = await GET(request());
@@ -68,6 +71,10 @@ describe('coupon status after redemption', () => {
       repeatCouponActiveUntil: '2099-01-01T00:00:00.000Z',
       birthdayCouponUsed: true, dormantCouponUsed: true,
       scheduledCouponUsedIds: ['scheduled-1'],
+      normalCouponUsedAt: '2026-10-24T03:00:00.000Z',
+      birthdayCouponUsedAt: '2026-10-24T04:00:00.000Z',
+      dormantCouponUsedAt: now.toISOString(),
+      scheduledCouponUsedAt: { 'scheduled-1': '2026-10-24T05:00:00.000Z' },
     });
   });
 
@@ -122,5 +129,11 @@ describe('coupon status after redemption', () => {
     const response = await GET(request());
     expect(response.status).toBe(429);
     expect(response.headers.get('Retry-After')).toBe('30');
+  });
+
+  it('asks the client to reissue an expired session instead of treating it as an unknown customer', async () => {
+    mocks.verifyCustomerSession.mockReturnValue(null);
+    const response = await GET(new Request('https://example.com/api/subscribe-status?shopId=shop&token=payload.signature'));
+    expect(response.status).toBe(401);
   });
 });

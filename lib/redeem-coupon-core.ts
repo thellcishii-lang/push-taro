@@ -332,6 +332,7 @@ export async function redeemCouponCore(params: RedeemCouponParams): Promise<Rede
     if (!dryRun) {
       await usageRef.update({
         [`couponUsage.${shopId}.birthdayCouponUsedYear`]: currentYear,
+        [`couponUsage.${shopId}.birthdayCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
       });
@@ -386,6 +387,7 @@ export async function redeemCouponCore(params: RedeemCouponParams): Promise<Rede
     if (!dryRun) {
       await usageRef.update({
         [`couponUsage.${shopId}.scheduledCouponUsedIds`]: FieldValue.arrayUnion(couponId),
+        [`couponUsage.${shopId}.scheduledCouponUsedAt.${couponId}`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
       });

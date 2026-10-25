@@ -7,6 +7,7 @@ import { getMessaging, isSupported, onMessage } from 'firebase/messaging';
 import { QRCodeSVG } from 'qrcode.react';
 import { auth } from '../../lib/firebase-client';
 import { ConfirmationResult, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import CouponDisplay, { couponExpiry } from './CouponDisplay';
 
 export default function SubscribePage() {
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
@@ -26,11 +27,8 @@ export default function SubscribePage() {
   const [birthdaySetMessage, setBirthdaySetMessage] = useState('');
   const [historyTab, setHistoryTab] = useState<'notifications' | 'coupons'>('notifications');
   const [couponUsed, setCouponUsed] = useState(false);
-  const [couponExpired, setCouponExpired] = useState(false);
   const [normalCouponUsed, setNormalCouponUsed] = useState(false);
-  const [normalCouponExpired, setNormalCouponExpired] = useState(false);
   const [loyaltyCouponAvailable, setLoyaltyCouponAvailable] = useState(false);
-  const [loyaltyCouponExpired, setLoyaltyCouponExpired] = useState(false);
   const [loyaltyAchievedAt, setLoyaltyAchievedAt] = useState<string | null>(null);
   const [stepUpIndex, setStepUpIndex] = useState(0);
   const [stepUpIndexAppearedAt, setStepUpIndexAppearedAt] = useState<string | null>(null);
@@ -42,7 +40,13 @@ export default function SubscribePage() {
   const [dormantCouponUsed, setDormantCouponUsed] = useState(false);
   const [dormantNotifiedAt, setDormantNotifiedAt] = useState<string | null>(null);
   const [scheduledCouponUsedIds, setScheduledCouponUsedIds] = useState<string[]>([]);
-  const [hiddenCouponTypes, setHiddenCouponTypes] = useState<string[]>([]);
+  const [couponNow, setCouponNow] = useState(() => Date.now());
+  const [couponUsedAt, setCouponUsedAt] = useState<{
+    normal: string | null;
+    birthday: string | null;
+    dormant: string | null;
+    scheduled: Record<string, string | null>;
+  }>({ normal: null, birthday: null, dormant: null, scheduled: {} });
   const [customerUid, setCustomerUid] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
@@ -58,31 +62,70 @@ export default function SubscribePage() {
   const lastCouponStatus = useRef('');
   const [couponHistoryError, setCouponHistoryError] = useState('');
   const [couponHistoryLoading, setCouponHistoryLoading] = useState(false);
-  const sessionCache = useRef<{ shopId: string; fcmToken: string; token: string } | null>(null);
+  const sessionRequest = useRef<Promise<string> | null>(null);
+  const sessionRetryAt = useRef(0);
   const [couponStatusLoaded, setCouponStatusLoaded] = useState(false);
   const [couponStatusError, setCouponStatusError] = useState('');
 
-  // FCMトークンからセッショントークンを取得（期限付き・URLに載せても安全）
+  const sessionStorageKey = `push_taro_session_${shopId}`;
+  const clearSessionToken = () => {
+    try { localStorage.removeItem(sessionStorageKey); } catch {}
+  };
+
+  // FCMトークンからセッショントークンを取得（期限付き・URLに載せても安全）。
+  // 端末に保存して期限の1時間前まで再利用し、発行APIのレート制限枠を消費しない。
   const ensureSessionToken = async (): Promise<string> => {
-    const cached = sessionCache.current;
-    if (cached?.shopId === shopId && cached.fcmToken === fcmToken) return cached.token;
     if (!fcmToken || !shopId) return '';
     try {
-      const res = await fetch('/api/customer-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: fcmToken, shopId }),
-      });
-      const data = await res.json();
-      if (res.ok && data.sessionToken) {
-        sessionCache.current = { shopId, fcmToken, token: data.sessionToken };
-        return data.sessionToken;
+      const cached = JSON.parse(localStorage.getItem(sessionStorageKey) || 'null');
+      if (cached?.fcmToken === fcmToken && typeof cached.token === 'string' && cached.exp - 60 * 60 * 1000 > Date.now()) {
+        return cached.token;
       }
-      throw new Error(data.error || 'セッショントークンを取得できませんでした');
-    } catch (err) {
-      console.error('セッショントークン取得エラー:', err);
+    } catch {}
+    if (sessionRequest.current) return sessionRequest.current;
+    if (Date.now() < sessionRetryAt.current) return '';
+
+    sessionRequest.current = (async () => {
+      try {
+        const res = await fetch('/api/customer-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: fcmToken, shopId }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.sessionToken) {
+          let exp = Date.now() + 12 * 60 * 60 * 1000;
+          try {
+            const payload = JSON.parse(atob(String(data.sessionToken).split('.')[0].replace(/-/g, '+').replace(/_/g, '/')));
+            if (typeof payload.exp === 'number') exp = payload.exp;
+          } catch {}
+          localStorage.setItem(sessionStorageKey, JSON.stringify({ fcmToken, token: data.sessionToken, exp }));
+          return data.sessionToken as string;
+        }
+        sessionRetryAt.current = Date.now() + Math.max(30, Number(res.headers.get('Retry-After')) || 60) * 1000;
+        throw new Error(data.error || 'セッショントークンを取得できませんでした');
+      } catch (err) {
+        if (sessionRetryAt.current <= Date.now()) sessionRetryAt.current = Date.now() + 60 * 1000;
+        console.error('セッショントークン取得エラー:', err);
+        return '';
+      } finally {
+        sessionRequest.current = null;
+      }
+    })();
+    return sessionRequest.current;
+  };
+
+  // 外部リンクは「顧客画面へ戻る」ボタン付きの中継ページで開く（ホーム画面アプリから戻れなくなるのを防ぐ）
+  const withReturnButton = (rawUrl: string) => {
+    try {
+      const url = new URL(rawUrl, window.location.origin);
+      if (url.origin === window.location.origin) return `${url.pathname}${url.search}${url.hash}`;
+      if (url.protocol !== 'https:' && url.protocol !== 'http:') return '#';
+      const params = new URLSearchParams({ target: url.toString(), returnTo: `/subscribe?s=${encodeURIComponent(shopId)}` });
+      return `/notification-link?${params.toString()}`;
+    } catch {
+      return '#';
     }
-    return '';
   };
 
   const loadCouponHistory = async () => {
@@ -91,11 +134,18 @@ export default function SubscribePage() {
     setCouponHistoryError('');
     try {
       const idToken = await auth.currentUser?.getIdToken();
-      const session = await ensureSessionToken();
-      const tokenParam = session || fcmToken;
-      const response = await fetch(`/api/coupon-history?shopId=${encodeURIComponent(shopId)}&token=${encodeURIComponent(tokenParam)}`, {
-        headers: idToken ? { Authorization: `Bearer ${idToken}` } : {},
-      });
+      const requestHistory = async () => {
+        const session = await ensureSessionToken();
+        return fetch(`/api/coupon-history?shopId=${encodeURIComponent(shopId)}&token=${encodeURIComponent(session || fcmToken)}`, {
+          headers: idToken ? { Authorization: `Bearer ${idToken}` } : {},
+          cache: 'no-store',
+        });
+      };
+      let response = await requestHistory();
+      if (response.status === 401) {
+        clearSessionToken();
+        response = await requestHistory();
+      }
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || '履歴を取得できませんでした');
       setCouponHistory(data.histories);
@@ -215,32 +265,6 @@ useEffect(() => {
 }, [shopId]);
 
   useEffect(() => {
-    const expiresAt = shopData?.coupon?.expiresAt;
-    setCouponExpired(Boolean(expiresAt && new Date(`${expiresAt}T23:59:59`).getTime() < Date.now()));
-    const normalExpiresAt = shopData?.normalCoupon?.expiresAt;
-    setNormalCouponExpired(Boolean(normalExpiresAt && new Date(`${normalExpiresAt}T23:59:59`).getTime() < Date.now()));
-    const loyalty = shopData?.loyaltyCoupon;
-    const loyaltyExpiredAt = loyalty?.expireType === 'date' ? loyalty.expireDate : '';
-    const loyaltyExpiresByDate = Boolean(loyaltyExpiredAt && new Date(`${loyaltyExpiredAt}T23:59:59`).getTime() < Date.now());
-    const loyaltyExpiresByDays = loyalty?.expireType === 'days' && loyaltyAchievedAt
-      ? new Date(loyaltyAchievedAt).getTime() + Math.max(1, Number(loyalty.expireDays) || 1) * 24 * 60 * 60 * 1000 < Date.now()
-      : false;
-    setLoyaltyCouponExpired(loyaltyExpiresByDate || loyaltyExpiresByDays);
-  }, [shopData, loyaltyAchievedAt]);
-
-  useEffect(() => {
-    if (!shopId) return;
-    const saved = localStorage.getItem(`push_taro_hidden_coupons_${shopId}`);
-    setHiddenCouponTypes(saved ? JSON.parse(saved) : []);
-  }, [shopId]);
-
-  const hideCoupon = (couponType: string) => {
-    const next = Array.from(new Set([...hiddenCouponTypes, couponType]));
-    setHiddenCouponTypes(next);
-    localStorage.setItem(`push_taro_hidden_coupons_${shopId}`, JSON.stringify(next));
-  };
-
-  useEffect(() => {
     if (!shopId || !fcmToken || !isRegistered) return;
 
     let disposed = false;
@@ -284,6 +308,33 @@ useEffect(() => {
     };
   }, [shopId, fcmToken, isRegistered]);
 
+  // 期限切れ・使用済みクーポンを翌日に自動で非表示にするため、状態取得とは独立して
+  // 日本時間の日付変更時と画面復帰時に現在時刻を更新する。
+  useEffect(() => {
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
+    let timeoutId: number | undefined;
+    const tick = () => {
+      const now = Date.now();
+      setCouponNow(now);
+      const nextJstMidnight = (Math.floor((now + JST_OFFSET_MS) / DAY_MS) + 1) * DAY_MS - JST_OFFSET_MS;
+      window.clearTimeout(timeoutId);
+      // スリープ復帰などでタイマーがずれても1分以内に追いつく
+      timeoutId = window.setTimeout(tick, Math.min(nextJstMidnight - now + 1_000, 60_000));
+    };
+    const handleVisible = () => {
+      if (document.visibilityState === 'visible') tick();
+    };
+    tick();
+    document.addEventListener('visibilitychange', handleVisible);
+    window.addEventListener('focus', handleVisible);
+    return () => {
+      window.clearTimeout(timeoutId);
+      document.removeEventListener('visibilitychange', handleVisible);
+      window.removeEventListener('focus', handleVisible);
+    };
+  }, []);
+
   // 通知機能の対応状況にかかわらず、店舗での消し込みを反映する。
   useEffect(() => {
     if (!shopId || !fcmToken || !isRegistered) return;
@@ -291,24 +342,39 @@ useEffect(() => {
     let disposed = false;
     let refreshing = false;
     let retryAt = 0;
+    let loaded = false;
+    let consecutiveFailures = 0;
     setCouponStatusLoaded(false);
     setCouponStatusError('');
 
     const refreshCouponStatus = async () => {
+      setCouponNow(Date.now());
       if (refreshing || Date.now() < retryAt) return;
       refreshing = true;
       try {
-        const session = await ensureSessionToken();
-        const tokenParam = session || fcmToken;
-        const res = await fetch(
-          `/api/subscribe-status?shopId=${encodeURIComponent(shopId)}&token=${encodeURIComponent(tokenParam)}`,
-          { cache: 'no-store' },
-        );
+        const requestStatus = async () => {
+          const session = await ensureSessionToken();
+          return fetch(
+            `/api/subscribe-status?shopId=${encodeURIComponent(shopId)}&token=${encodeURIComponent(session || fcmToken)}`,
+            { cache: 'no-store' },
+          );
+        };
+        let res = await requestStatus();
+        if (res.status === 401) {
+          // セッション期限切れ: 保存済みセッションを破棄して取り直す
+          clearSessionToken();
+          res = await requestStatus();
+        }
         if (res.status === 429) {
           retryAt = Date.now() + Math.max(10, Number(res.headers.get('Retry-After')) || 60) * 1000;
         }
-        const data = await res.json();
-        if (!res.ok || !data.success) throw new Error(data.error || 'クーポン状態を取得できませんでした');
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) {
+          throw Object.assign(new Error(data.error || 'クーポン状態を取得できませんでした'), {
+            status: res.status,
+            retryAfter: Number(res.headers.get('Retry-After')) || 0,
+          });
+        }
         if (!disposed) {
           setCouponUsed(Boolean(data.firstCouponUsed || data.couponUsed));
           setNormalCouponUsed(data.normalCouponUsed === true);
@@ -324,8 +390,16 @@ useEffect(() => {
           setDormantCouponUsed(data.dormantCouponUsed === true);
           setDormantNotifiedAt(data.dormantNotifiedAt || null);
           setScheduledCouponUsedIds(data.scheduledCouponUsedIds || []);
+          setCouponUsedAt({
+            normal: data.normalCouponUsedAt || null,
+            birthday: data.birthdayCouponUsedAt || null,
+            dormant: data.dormantCouponUsedAt || null,
+            scheduled: data.scheduledCouponUsedAt || {},
+          });
           setSavedBirthMonth(data.birthMonth || null);
           setSavedBirthDay(data.birthDay || null);
+          loaded = true;
+          consecutiveFailures = 0;
           setCouponStatusLoaded(true);
           setCouponStatusError('');
           const statusSignature = JSON.stringify(data);
@@ -336,7 +410,21 @@ useEffect(() => {
         }
       } catch (err) {
         console.error('クーポン状態の自動更新エラー:', err);
-        if (!disposed) setCouponStatusError('クーポンの使用状況を確認できません。通信状況を確認してください。自動で再試行します。');
+        consecutiveFailures += 1;
+        // 一度取得できていれば、一時的な失敗ではクーポンを隠さない（使用済み判定は消し込み時にサーバーで必ず行う）
+        if (!disposed && (!loaded || consecutiveFailures >= 3)) {
+          // 原因を画面から判別できるよう、失敗の種類ごとに文言を分ける
+          const { status: failedStatus, retryAfter } = err as { status?: number; retryAfter?: number };
+          setCouponStatusError(
+            failedStatus === 429
+              ? `アクセスが集中しているため、クーポンの使用状況を確認できません。約${Math.max(1, Math.ceil((retryAfter || 60) / 60))}分後に自動で再確認します。（429）`
+              : failedStatus === 403
+                ? 'この店舗の通知登録が見つからないため、クーポンの使用状況を確認できません。お手数ですが通知登録をやり直してください。（403）'
+                : failedStatus
+                  ? `サーバーでエラーが発生したため、クーポンの使用状況を確認できません。自動で再試行します。（${failedStatus}）`
+                  : 'クーポンの使用状況を確認できません。通信状況を確認してください。自動で再試行します。',
+          );
+        }
       } finally {
         refreshing = false;
       }
@@ -641,7 +729,7 @@ useEffect(() => {
 )}
 <h2 style={{ margin: '0 0 8px 0' }}>{shopData?.name}</h2>
           {shopData?.linkUrl && (
-            <a href={shopData.linkUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', padding: '10px 18px', background: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold' }}>
+            <a href={withReturnButton(shopData.linkUrl)} style={{ display: 'inline-block', padding: '10px 18px', background: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold' }}>
               🌐 サイトはこちらから
             </a>
           )}
@@ -686,14 +774,21 @@ useEffect(() => {
           </div>
         )}
 
-        {couponStatusError && <p role="alert" style={{ color: '#dc2626' }}>{couponStatusError}</p>}
-        {!couponStatusLoaded && !couponStatusError && <p>クーポンの使用状況を確認中...</p>}
-        {couponStatusLoaded && !couponStatusError && <>
+        {couponStatusError && <p role="alert" style={{ fontSize: '13px', color: '#b45309', background: '#fffbeb', border: '1px solid #fde68a', padding: '10px 12px', borderRadius: '8px' }}>{couponStatusError}</p>}
+        {!couponStatusLoaded && !couponStatusError && <p style={{ fontSize: '13px', color: '#94a3b8', textAlign: 'center' }}>クーポンの使用状況を確認中...</p>}
+        {couponStatusLoaded && <>
         {/* �🎁 初回限定クーポンエリア */}
-{shopData?.coupon?.enabled && !couponUsed && !hiddenCouponTypes.includes('first') && (
-  <div style={{ background: couponExpired ? '#f1f5f9' : '#fff3e0', border: couponExpired ? '1px solid #cbd5e1' : '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
-    <span style={{ fontSize: '11px', background: couponExpired ? '#64748b' : '#e65100', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>初回限定</span>
-    <h3 style={{ margin: '6px 0 8px 0', color: couponExpired ? '#64748b' : '#e65100' }}>
+{shopData?.coupon?.enabled && !couponUsed && (
+  <CouponDisplay
+    key={`first:${shopData.coupon.expiresAt || ''}`}
+    storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:first:${shopData.coupon.expiresAt || ''}`}
+    legacyHiddenKey="first" shopId={shopId}
+    title={shopData.coupon.title || '初回限定クーポン'} now={couponNow}
+    expiresAt={couponExpiry({ expireType: 'date', expireDate: shopData.coupon.expiresAt }, null)}
+  >
+  <div style={{ background: '#fff3e0', border: '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
+    <span style={{ fontSize: '11px', background: '#e65100', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>初回限定</span>
+    <h3 style={{ margin: '6px 0 8px 0', color: '#e65100' }}>
       🎁 {shopData.coupon.title || '初回限定クーポン'}
     </h3>
 
@@ -701,112 +796,110 @@ useEffect(() => {
       <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {shopData.coupon.expiresAt}</p>
     )}
 
-    {couponExpired ? (
-      <div style={{ padding: '12px', background: '#e2e8f0', borderRadius: '6px', color: '#475569', fontWeight: 'bold', fontSize: '14px', marginTop: '10px' }}>
-        ⚠️ こちらのクーポンは有効期限切れです
-      </div>
-    ) : (
-      <>
         <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>{shopData.coupon.description}</p>
         <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
           <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'first', token: fcmToken })} size={150} />
         </div>
         <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
-      </>
-    )}
   </div>
+  </CouponDisplay>
 )}
 
 {/* 🎟️ 常設：通常クーポンエリア（STANDARD / PRO プラン限定） */}
-{shopData?.normalCoupon?.enabled && !hiddenCouponTypes.includes(`normal:${shopData.normalCoupon.couponId || 'legacy'}`) && (
-  <div style={{ background: normalCouponUsed || normalCouponExpired ? '#f1f5f9' : '#f0fdf4', border: normalCouponUsed || normalCouponExpired ? '1px solid #cbd5e1' : '1px dashed #4ade80', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
-    <span style={{ fontSize: '11px', background: normalCouponUsed || normalCouponExpired ? '#64748b' : '#16a34a', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>通常クーポン</span>
-    <h3 style={{ margin: '6px 0 8px 0', color: normalCouponUsed || normalCouponExpired ? '#64748b' : '#15803d' }}>
+{shopData?.normalCoupon?.enabled && (
+  <CouponDisplay
+    key={`normal:${shopData.normalCoupon.couponId || 'legacy'}`}
+    storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:normal:${shopData.normalCoupon.couponId || 'legacy'}:${shopData.normalCoupon.expiresAt || ''}`}
+    legacyHiddenKey={`normal:${shopData.normalCoupon.couponId || 'legacy'}`} shopId={shopId}
+    title={shopData.normalCoupon.title || '通常クーポン'} now={couponNow}
+    expiresAt={couponExpiry({ expireType: 'date', expireDate: shopData.normalCoupon.expiresAt }, null)}
+    used={normalCouponUsed} usedAt={couponUsedAt.normal}
+  >
+  <div style={{ background: '#f0fdf4', border: '1px dashed #4ade80', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
+    <span style={{ fontSize: '11px', background: '#16a34a', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>通常クーポン</span>
+    <h3 style={{ margin: '6px 0 8px 0', color: '#15803d' }}>
       🎟️ {shopData.normalCoupon.title || '通常クーポン'}
     </h3>
     {shopData.normalCoupon.expiresAt && (
       <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {shopData.normalCoupon.expiresAt}</p>
     )}
-    {normalCouponUsed ? (
-      <div style={{ padding: '12px', background: '#e2e8f0', borderRadius: '6px', color: '#475569', fontSize: '14px', marginTop: '10px' }}>
-        <strong>✅ こちらのクーポンは使用済みです</strong>
-        <button type="button" onClick={() => hideCoupon(`normal:${shopData.normalCoupon.couponId || 'legacy'}`)} style={{ display: 'block', margin: '10px auto 0', padding: '7px 12px', background: '#64748b', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>削除</button>
-      </div>
-    ) : normalCouponExpired ? (
-      <div style={{ padding: '12px', background: '#e2e8f0', borderRadius: '6px', color: '#475569', fontWeight: 'bold', fontSize: '14px', marginTop: '10px' }}>⚠️ こちらのクーポンは有効期限切れです</div>
-    ) : (
-      <>
         <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>{shopData.normalCoupon.description}</p>
         <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
           <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'normal', token: fcmToken })} size={150} />
         </div>
         <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
-      </>
-    )}
   </div>
+  </CouponDisplay>
 )}
-{shopData?.proCoupons?.birthday?.enabled && birthdayCouponAvailable && !hiddenCouponTypes.includes('birthday') && (
-  <div style={{ background: birthdayCouponUsed ? '#f1f5f9' : '#fff7ed', border: birthdayCouponUsed ? '1px solid #cbd5e1' : '1px dashed #fb923c', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
-    <span style={{ fontSize: '11px', background: birthdayCouponUsed ? '#64748b' : '#ea580c', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>記念日、お誕生日クーポン</span>
-    <h3 style={{ margin: '6px 0 8px 0', color: birthdayCouponUsed ? '#64748b' : '#c2410c' }}>🎂 {shopData.proCoupons.birthday.title || '記念日、お誕生日クーポン'}</h3>
-    {birthdayCouponUsed ? (
-      <div style={{ padding: '12px', background: '#e2e8f0', borderRadius: '6px', color: '#475569', fontSize: '14px', marginTop: '10px' }}>
-        <strong>✅ こちらのクーポンは使用済みです</strong>
-        <button type="button" onClick={() => hideCoupon('birthday')} style={{ display: 'block', margin: '10px auto 0', padding: '7px 12px', background: '#64748b', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>削除</button>
-      </div>
-    ) : <>
+{shopData?.proCoupons?.birthday?.enabled && birthdayCouponAvailable && (
+  <CouponDisplay
+    key={`birthday:${new Date(couponNow).getFullYear()}`}
+    storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:birthday:${new Date(couponNow).getFullYear()}`}
+    shopId={shopId} title={shopData.proCoupons.birthday.title || '記念日、お誕生日クーポン'}
+    now={couponNow} used={birthdayCouponUsed} usedAt={couponUsedAt.birthday}
+  >
+  <div style={{ background: '#fff7ed', border: '1px dashed #fb923c', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
+    <span style={{ fontSize: '11px', background: '#ea580c', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>記念日、お誕生日クーポン</span>
+    <h3 style={{ margin: '6px 0 8px 0', color: '#c2410c' }}>🎂 {shopData.proCoupons.birthday.title || '記念日、お誕生日クーポン'}</h3>
       <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>{shopData.proCoupons.birthday.message || '特別な日のクーポンです。'}</p>
       <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
         <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'birthday', token: fcmToken })} size={150} />
       </div>
       <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
-    </>}
   </div>
+  </CouponDisplay>
 )}
-{shopData?.proCoupons?.dormant?.enabled && dormantCouponAvailable && !hiddenCouponTypes.includes('dormant') && (
-  <div style={{ background: dormantCouponUsed ? '#f1f5f9' : '#f8fafc', border: dormantCouponUsed ? '1px solid #cbd5e1' : '1px dashed #94a3b8', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
+{shopData?.proCoupons?.dormant?.enabled && dormantCouponAvailable && (
+  <CouponDisplay
+    key={`dormant:${dormantNotifiedAt}`}
+    storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:dormant:${dormantNotifiedAt}`}
+    shopId={shopId} title={shopData.proCoupons.dormant.title || '復帰クーポン'} now={couponNow}
+    expiresAt={couponExpiry({ ...shopData.proCoupons.dormant, expireType: 'days' }, dormantNotifiedAt, 14)}
+    used={dormantCouponUsed} usedAt={couponUsedAt.dormant}
+  >
+  <div style={{ background: '#f8fafc', border: '1px dashed #94a3b8', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
     <span style={{ fontSize: '11px', background: '#64748b', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>休眠復活クーポン</span>
     <h3 style={{ margin: '6px 0 8px 0', color: '#475569' }}>💤 {shopData.proCoupons.dormant.title || '復帰クーポン'}</h3>
     <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {dormantNotifiedAt ? new Date(new Date(dormantNotifiedAt).getTime() + Math.max(1, Number(shopData.proCoupons.dormant.expireDays) || 14) * 24 * 60 * 60 * 1000).toLocaleDateString('ja-JP') : `配信から ${Math.max(1, Number(shopData.proCoupons.dormant.expireDays) || 14)} 日間`}</p>
-    {dormantCouponUsed ? (
-      <div style={{ padding: '12px', background: '#e2e8f0', borderRadius: '6px', color: '#475569', fontSize: '14px', marginTop: '10px' }}>
-        <strong>✅ こちらのクーポンは使用済みです</strong>
-        <button type="button" onClick={() => hideCoupon('dormant')} style={{ display: 'block', margin: '10px auto 0', padding: '7px 12px', background: '#64748b', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>削除</button>
-      </div>
-    ) : <>
       <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>{shopData.proCoupons.dormant.message || 'お久しぶりの方限定クーポンです。'}</p>
       <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
         <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'dormant', token: fcmToken })} size={150} />
       </div>
       <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
-    </>}
   </div>
+  </CouponDisplay>
 )}
-{(shopData?.scheduledCoupons || []).filter((coupon: any) => (!coupon.expiresAt || new Date(coupon.expiresAt).getTime() >= Date.now()) && !hiddenCouponTypes.includes(`scheduled:${coupon.id}`)).map((coupon: any) => {
+{(shopData?.scheduledCoupons || []).map((coupon: any) => {
   const used = scheduledCouponUsedIds.includes(coupon.id);
   return (
-    <div key={coupon.id} style={{ background: used ? '#f1f5f9' : '#fefce8', border: used ? '1px solid #cbd5e1' : '1px dashed #eab308', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
-      <span style={{ fontSize: '11px', background: used ? '#64748b' : '#ca8a04', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>予約クーポン</span>
-      <h3 style={{ margin: '6px 0 8px 0', color: used ? '#64748b' : '#854d0e' }}>🎫 {coupon.title || '予約クーポン'}</h3>
+    <CouponDisplay
+      key={coupon.id}
+      storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:scheduled:${coupon.id}:${coupon.expiresAt || ''}`}
+      legacyHiddenKey={`scheduled:${coupon.id}`} shopId={shopId}
+      title={coupon.title || '予約クーポン'} now={couponNow}
+      expiresAt={coupon.expiresAt ? new Date(coupon.expiresAt).getTime() : null}
+      used={used} usedAt={couponUsedAt.scheduled[coupon.id]}
+    >
+    <div style={{ background: '#fefce8', border: '1px dashed #eab308', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
+      <span style={{ fontSize: '11px', background: '#ca8a04', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>予約クーポン</span>
+      <h3 style={{ margin: '6px 0 8px 0', color: '#854d0e' }}>🎫 {coupon.title || '予約クーポン'}</h3>
       {coupon.expiresAt && <p style={{ fontSize: '12px', color: '#64748b' }}>有効期限: {new Date(coupon.expiresAt).toLocaleDateString('ja-JP')}</p>}
-      {used ? (
-        <div style={{ padding: '12px', background: '#e2e8f0', borderRadius: '6px', color: '#475569', fontWeight: 'bold' }}>
-          <strong>✅ こちらのクーポンは使用済みです</strong>
-          <button type="button" onClick={() => hideCoupon(`scheduled:${coupon.id}`)} style={{ display: 'block', margin: '10px auto 0', padding: '7px 12px', background: '#64748b', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>削除</button>
-        </div>
-      ) : (
-        <>
           <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>{coupon.body}</p>
           <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
             <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'scheduled', couponId: coupon.id, token: fcmToken })} size={150} />
           </div>
           <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
-        </>
-      )}
     </div>
+    </CouponDisplay>
   );
 })}
-{shopData?.proCoupons?.stepUp?.enabled && shopData.proCoupons.stepUp.steps?.[stepUpIndex] && !hiddenCouponTypes.includes(`step-up:${shopData.proCoupons.stepUp.campaignId || 'legacy'}`) && (
+{shopData?.proCoupons?.stepUp?.enabled && shopData.proCoupons.stepUp.steps?.[stepUpIndex] && (
+  <CouponDisplay
+    key={`step-up:${shopData.proCoupons.stepUp.campaignId || 'legacy'}:${stepUpIndex}`}
+    storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:step-up:${shopData.proCoupons.stepUp.campaignId || 'legacy'}:${stepUpIndex}:${stepUpIndexAppearedAt || ''}`}
+    shopId={shopId} title={shopData.proCoupons.stepUp.steps[stepUpIndex].title || `ステップ${stepUpIndex + 1}`}
+    now={couponNow} expiresAt={couponExpiry(shopData.proCoupons.stepUp.steps[stepUpIndex], stepUpIndexAppearedAt)}
+  >
   <div style={{ background: '#f5f3ff', border: '1px dashed #8b5cf6', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
     <span style={{ fontSize: '11px', background: '#7c3aed', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>ステップアップクーポン</span>
     <h3 style={{ margin: '6px 0 8px 0', color: '#6d28d9' }}>🐾 {shopData.proCoupons.stepUp.steps[stepUpIndex].title || `ステップ${stepUpIndex + 1}`}</h3>
@@ -818,8 +911,15 @@ useEffect(() => {
     </div>
     <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
   </div>
+  </CouponDisplay>
 )}
-{shopData?.proCoupons?.repeat?.enabled && !hiddenCouponTypes.includes(`repeat:${shopData.proCoupons.repeat.campaignId || 'legacy'}`) && (
+{shopData?.proCoupons?.repeat?.enabled && (
+  <CouponDisplay
+    key={`repeat:${shopData.proCoupons.repeat.campaignId || 'legacy'}:${repeatCouponActiveUntil || ''}`}
+    storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:repeat:${shopData.proCoupons.repeat.campaignId || 'legacy'}:${repeatCouponActiveUntil || ''}`}
+    shopId={shopId} title={shopData.proCoupons.repeat.title || '連続クーポン'} now={couponNow}
+    expiresAt={couponExpiry(shopData.proCoupons.repeat, null) ?? (repeatCouponActiveUntil ? new Date(repeatCouponActiveUntil).getTime() : null)}
+  >
   <div style={{ background: '#eff6ff', border: '1px dashed #0ea5e9', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
     <span style={{ fontSize: '11px', background: '#0284c7', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>連続クーポン</span>
     <h3 style={{ margin: '6px 0 8px 0', color: '#0369a1' }}>🔄 {shopData.proCoupons.repeat.title || '連続クーポン'}</h3>
@@ -832,27 +932,29 @@ useEffect(() => {
       <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
     </>}
   </div>
+  </CouponDisplay>
 )}
-{shopData?.loyaltyCoupon?.enabled && loyaltyCouponAvailable && !hiddenCouponTypes.includes('loyalty') && (
-  <div style={{ background: loyaltyCouponExpired ? '#f1f5f9' : '#fff7ed', border: loyaltyCouponExpired ? '1px solid #cbd5e1' : '1px dashed #fb923c', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
-    <span style={{ fontSize: '11px', background: loyaltyCouponExpired ? '#64748b' : '#ea580c', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>特別達成クーポン</span>
-    <h3 style={{ margin: '6px 0 8px 0', color: loyaltyCouponExpired ? '#64748b' : '#c2410c' }}>
+{shopData?.loyaltyCoupon?.enabled && loyaltyCouponAvailable && (
+  <CouponDisplay
+    key={`loyalty:${loyaltyAchievedAt || ''}`}
+    storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:loyalty:${loyaltyAchievedAt || ''}:${shopData.loyaltyCoupon.expireDate || ''}`}
+    shopId={shopId} title={shopData.loyaltyCoupon.title || '特別達成クーポン'} now={couponNow}
+    expiresAt={couponExpiry(shopData.loyaltyCoupon, loyaltyAchievedAt)}
+  >
+  <div style={{ background: '#fff7ed', border: '1px dashed #fb923c', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
+    <span style={{ fontSize: '11px', background: '#ea580c', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>特別達成クーポン</span>
+    <h3 style={{ margin: '6px 0 8px 0', color: '#c2410c' }}>
       🏆 {shopData.loyaltyCoupon.title || '特別達成クーポン'}
     </h3>
     {shopData.loyaltyCoupon.expireType === 'date' && shopData.loyaltyCoupon.expireDate && <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {shopData.loyaltyCoupon.expireDate}</p>}
     {shopData.loyaltyCoupon.expireType === 'days' && <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {loyaltyAchievedAt ? new Date(new Date(loyaltyAchievedAt).getTime() + Math.max(1, Number(shopData.loyaltyCoupon.expireDays) || 1) * 24 * 60 * 60 * 1000).toLocaleDateString('ja-JP') : `出現から ${Math.max(1, Number(shopData.loyaltyCoupon.expireDays) || 1)} 日間`}</p>}
-    {loyaltyCouponExpired ? (
-      <div style={{ padding: '12px', background: '#e2e8f0', borderRadius: '6px', color: '#475569', fontWeight: 'bold', fontSize: '14px' }}>⚠️ こちらのクーポンは有効期限切れです</div>
-    ) : (
-      <>
         <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>通常クーポンを規定回数ご利用いただいた特典です。</p>
         <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
           <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'loyalty', token: fcmToken })} size={150} />
         </div>
         <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
-      </>
-    )}
   </div>
+  </CouponDisplay>
 )}
         </>}
         {/* 📜 【履歴エリア】通知履歴 / クーポン使用履歴をタブで切り替え */}
@@ -942,7 +1044,7 @@ useEffect(() => {
                       </div>
                       {item.body && <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#475569', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{item.body}</p>}
                       {item.url && item.url !== '/' && (
-                        <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginTop: '6px', fontSize: '12px', fontWeight: 600, color: '#2563eb', textDecoration: 'none' }}>
+                        <a href={withReturnButton(item.url)} style={{ display: 'inline-block', marginTop: '6px', fontSize: '12px', fontWeight: 600, color: '#2563eb', textDecoration: 'none' }}>
                           詳細を見る →
                         </a>
                       )}

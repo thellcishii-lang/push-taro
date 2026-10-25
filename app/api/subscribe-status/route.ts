@@ -20,6 +20,15 @@ import { createHash } from 'node:crypto';
 
 export const dynamic = 'force-dynamic';
 
+function couponDate(value: unknown): string | null {
+  if (value == null) return null;
+  if (typeof value === 'object' && 'toDate' in value && typeof value.toDate === 'function') {
+    return couponDate(value.toDate());
+  }
+  const date = value instanceof Date ? value : typeof value === 'string' ? new Date(value) : null;
+  return date && Number.isFinite(date.getTime()) ? date.toISOString() : null;
+}
+
 // デフォルト値（既存顧客の遅延マイグレーション用）
 const DEFAULT_USAGE = {
   firstCouponUsedAt: null,
@@ -69,6 +78,11 @@ export async function GET(request: Request) {
         { success: false, error: 'Too Many Requests' },
         { status: 429, headers: { 'Retry-After': String(retryAfter) } }
       );
+    }
+
+    // 署名付きセッション形式（FCMトークンは '.' を含まない）なのに検証できない場合は期限切れとして再発行を促す
+    if (!session && token.includes('.')) {
+      return NextResponse.json({ success: false, error: 'セッションの有効期限が切れました' }, { status: 401 });
     }
 
     // セッショントークンの場合は shopId の整合を確認
@@ -143,6 +157,7 @@ export async function GET(request: Request) {
       firstCouponUsed: Boolean(usage.firstCouponUsedAt),
       normalCouponUsed: usage.normalCouponUsedCouponId === normalCouponId ||
         (normalCouponId === 'legacy' && Boolean(usage.normalCouponUsedAt)),
+      normalCouponUsedAt: couponDate(usage.normalCouponUsedAt),
       normalCouponVisitCount: usage.normalCouponVisitCount || 0,
       loyaltyCouponAvailable: usage.loyaltyCouponAvailable === true,
       couponUsed: Boolean(usage.firstCouponUsedAt), // 後方互換
@@ -157,9 +172,14 @@ export async function GET(request: Request) {
       repeatCouponUsed: Boolean(usage.repeatCouponUsedAt?.toDate?.() && couponDay(usage.repeatCouponUsedAt.toDate()) === couponDay(new Date())),
       birthdayNotifiedYear: usage.birthdayNotifiedYear || null,
       birthdayCouponUsed: String(usage.birthdayCouponUsedYear) === currentYear,
+      birthdayCouponUsedAt: couponDate(usage.birthdayCouponUsedAt),
       dormantNotifiedAt,
       dormantCouponUsed: Boolean(dormantCouponUsedAt),
+      dormantCouponUsedAt: couponDate(usage.dormantCouponUsedAt),
       scheduledCouponUsedIds: usage.scheduledCouponUsedIds || [],
+      scheduledCouponUsedAt: Object.fromEntries(
+        Object.entries(usage.scheduledCouponUsedAt || {}).map(([id, value]) => [id, couponDate(value)]),
+      ),
     }, {
       headers: {
         'Access-Control-Allow-Origin': '*',

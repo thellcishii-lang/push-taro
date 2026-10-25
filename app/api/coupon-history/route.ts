@@ -58,6 +58,11 @@ export async function GET(request: Request) {
     // 後方互換: 旧形式（生のFCMトークン）も許可するが、期限付きセッションを推奨
     const fcmToken = session ? session.token : token;
 
+    // 署名付きセッション形式（FCMトークンは '.' を含まない）なのに検証できない場合は期限切れとして再発行を促す
+    if (!session && token.includes('.')) {
+      return NextResponse.json({ error: 'セッションの有効期限が切れました' }, { status: 401 });
+    }
+
     // セッショントークンの場合は shopId の整合を確認
     if (session && session.shopId !== shopId) {
       return NextResponse.json({ error: '権限がありません' }, { status: 403 });

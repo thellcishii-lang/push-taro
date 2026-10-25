@@ -25,6 +25,16 @@ function NotificationLinkContent() {
         >
           ← 顧客画面へ戻る
         </a>
+        {target && (
+          <a
+            href={target}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ float: 'right', lineHeight: '40px', fontSize: '12px', color: '#2563eb', textDecoration: 'none' }}
+          >
+            表示されない場合 ↗
+          </a>
+        )}
       </header>
       {target ? (
         <iframe

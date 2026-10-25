@@ -38,7 +38,7 @@ export default function CouponFirstClient() {
           <div className="g-feature-list">
             <div className="g-feature-item"><span className="ico">🎫</span><div><strong>登録と同時に自動配布</strong><p>QRコードを読み取って登録が完了した瞬間に、クーポンが届きます。</p></div></div>
             <div className="g-feature-item"><span className="ico">🔒</span><div><strong>1人1回のみ使用可能</strong><p>SMS認証で電話番号に紐づくため、使い回しは自動でブロックされます。</p></div></div>
-            <div className="g-feature-item"><span className="ico">📅</span><div><strong>有効期限を設定可能</strong><p>「登録から30日以内」など、期限を設けて来店を促せます。</p></div></div>
+            <div className="g-feature-item"><span className="ico">📅</span><div><strong>有効期限を設定可能</strong><p>「登録から30日以内」など、期限を設けて来店を促せます。期限切れのクーポンは削除ボタンで非表示にでき、日本時間で期限日の翌日には自動で非表示になります。使用履歴や二重使用防止の記録は削除されません。</p></div></div>
             <div className="g-feature-item"><span className="ico">📱</span><div><strong>QRコード消込</strong><p>お客様が提示したQRをお店側で読み取るだけで消込完了。使用済みの初回クーポンは、お客様の画面から自動的に非表示になります。利用記録はクーポン使用履歴から確認できます。</p></div></div>
           </div>
 

@@ -106,4 +106,70 @@ describe('coupon redemption', () => {
       'couponUsage.shop.repeatCampaignId': 'repeat-1',
     }));
   });
+
+  it.each([
+    ['birthday', { birthdayNotifiedYear: String(new Date().getFullYear()) }, 'birthdayCouponUsedAt'],
+    ['scheduled', {}, 'scheduledCouponUsedAt.scheduled-1'],
+  ])('records the consumption timestamp for next-day cleanup of %s', async (type, usage, field) => {
+    await redeemCouponCore(params(type, usage));
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
+      [`couponUsage.shop.${field}`]: expect.anything(),
+    }));
+  });
+
+  it.each([
+    ['first', {}],
+    ['normal', {}],
+    ['loyalty', { loyaltyCouponAvailable: true }],
+    ['step-up', {}],
+    ['repeat', {}],
+    ['birthday', { birthdayNotifiedYear: String(new Date().getFullYear()) }],
+    ['dormant', { dormantNotifiedAt: new Date() }],
+    ['scheduled', {}],
+  ])('validates %s for POS without writing usage, timestamps, loyalty counts, or history', async (type, usage) => {
+    const input = params(type, usage);
+    input.dryRun = true;
+    input.scannedBy = 'pos:terminal-1';
+    input.shopData.loyaltyCoupon.targetCount = 1;
+    input.shopData.proCoupons.stepUp.steps[0].loyaltyCountable = true;
+    input.shopData.proCoupons.repeat.loyaltyCountable = true;
+    input.shopData.proCoupons.birthday.loyaltyCountable = true;
+    input.shopData.proCoupons.dormant.loyaltyCountable = true;
+    input.shopData.scheduledCoupons[0].loyaltyCountable = true;
+
+    const result = await redeemCouponCore(input);
+
+    expect(result.couponTitle).toEqual(expect.any(String));
+    expect(mocks.update).not.toHaveBeenCalled();
+    expect(mocks.set).not.toHaveBeenCalled();
+    expect(mocks.add).not.toHaveBeenCalled();
+    if (['normal', 'step-up', 'repeat', 'birthday', 'dormant', 'scheduled'].includes(type)) {
+      expect(result.responseExtra.loyaltyUnlocked).toBe(true);
+    }
+  });
+
+  it.each([
+    ['birthday', { birthdayNotifiedYear: String(new Date().getFullYear()), birthdayCouponUsedYear: String(new Date().getFullYear()) }],
+    ['scheduled', { scheduledCouponUsedIds: ['scheduled-1'] }],
+  ])('still rejects used %s coupons during POS validation', async (type, usage) => {
+    await expect(redeemCouponCore({ ...params(type, usage), dryRun: true })).rejects.toThrow();
+    expect(mocks.update).not.toHaveBeenCalled();
+    expect(mocks.set).not.toHaveBeenCalled();
+    expect(mocks.add).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['birthday', { birthdayNotifiedYear: String(new Date().getFullYear()) }, 'birthdayCouponUsedAt'],
+    ['scheduled', {}, 'scheduledCouponUsedAt.scheduled-1'],
+  ])('preserves POS audit history and records the display timestamp when redeeming %s', async (type, usage, field) => {
+    await redeemCouponCore({ ...params(type, usage), scannedBy: 'pos:terminal-1', dryRun: false });
+
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
+      [`couponUsage.shop.${field}`]: expect.anything(),
+    }));
+    expect(mocks.add).toHaveBeenCalledTimes(1);
+    expect(mocks.add).toHaveBeenCalledWith(expect.objectContaining({
+      couponType: type, userToken: 'token', scannedBy: 'pos:terminal-1',
+    }));
+  });
 });

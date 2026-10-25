@@ -55,4 +55,11 @@ describe('customer coupon history', () => {
     await GET(request());
     expect(mocks.enforceRateLimit).toHaveBeenCalledWith(expect.any(Request), 'coupon-history', 20, 600_000);
   });
+
+  it('rejects an expired session so the client can reissue it', async () => {
+    mocks.verifyCustomerSession.mockReturnValue(null);
+    const response = await GET(new Request('https://example.com/api/coupon-history?shopId=shop&token=payload.signature'));
+    expect(response.status).toBe(401);
+    expect(mocks.where).not.toHaveBeenCalled();
+  });
 });

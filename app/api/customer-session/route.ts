@@ -16,8 +16,9 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
-    // レート制限: セッション乱打を防止
-    const retryAfter = await enforceRateLimit(request, 'customer-session', 10, 10 * 60 * 1000);
+    // レート制限: セッション乱打を防止。
+    // 店舗Wi-Fiでは複数の顧客が同じIPを共有するため、端末側のキャッシュと併せて余裕を持たせる。
+    const retryAfter = await enforceRateLimit(request, 'customer-session', 30, 10 * 60 * 1000);
     if (retryAfter !== null) {
       return NextResponse.json(
         { error: 'Too Many Requests' },
