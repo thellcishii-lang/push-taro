@@ -36,6 +36,11 @@ export async function POST(request: Request) {
     );
   }
 
+  // 🔥 ロールバック用の追跡変数
+  let createdAuthUid: string | null = null;
+  let isNewAuthUser = false;
+  let createdAgencyId: string | null = null;
+
   try {
     const {
       businessType,
@@ -65,43 +70,42 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: '振込先口座情報はすべて必須です' }, { status: 400 });
     }
 
-    // メールアドレス重複チェック（Auth）
-    
-
-    // メールアドレス重複チェック（agencies）
     const normalizedEmail = email.trim().toLowerCase();
 
-// メールアドレス重複チェック（agencies のみ）
-const existing = await db.collection('agencies').where('email', '==', normalizedEmail).get();
-if (!existing.empty) {
-  return NextResponse.json(
-    { error: 'このメールアドレスは既に代理店登録されています' },
-    { status: 409 }
-  );
-}
+    // メールアドレス重複チェック（agencies のみ）
+    const existing = await db.collection('agencies').where('email', '==', normalizedEmail).get();
+    if (!existing.empty) {
+      return NextResponse.json(
+        { error: 'このメールアドレスは既に代理店登録されています' },
+        { status: 409 }
+      );
+    }
 
     // パスワード自動生成
     const generatedPassword = generatePassword();
 
-// Firebase Auth ユーザー作成
-let userRecord;
-try {
-  userRecord = await authAdmin.createUser({
-    email: normalizedEmail,
-    password: generatedPassword,
-    emailVerified: true,
-    disabled: true,
-  });
-} catch (e: any) {
-  if (e.code === 'auth/email-already-exists') {
-    return NextResponse.json(
-      { error: 'このメールアドレスは既に登録されています' },
-      { status: 409 }
-    );
-  } else {
-    throw e;
-  }
-}
+    // Firebase Auth ユーザー作成
+    let userRecord;
+    try {
+      userRecord = await authAdmin.createUser({
+        email: normalizedEmail,
+        password: generatedPassword,
+        emailVerified: true,
+        disabled: true,
+      });
+      isNewAuthUser = true;
+    } catch (e: any) {
+      if (e.code === 'auth/email-already-exists') {
+        return NextResponse.json(
+          { error: 'このメールアドレスは既に登録されています' },
+          { status: 409 }
+        );
+      } else {
+        throw e;
+      }
+    }
+    createdAuthUid = userRecord.uid;
+
     // 紹介コード生成（重複防止）
     let referralCode = generateReferralCode();
     let codeExists = true;
@@ -145,22 +149,22 @@ try {
       updatedAt: FieldValue.serverTimestamp(),
     };
 
-        await db.collection('agencies').doc(userRecord.uid).set(agencyData);
+    await db.collection('agencies').doc(userRecord.uid).set(agencyData);
+    createdAgencyId = userRecord.uid;
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
-    // 申込書（口座情報等を含む）へのアクセス用に署名付きトークンを付与
     const printToken = generatePrintToken('agency', userRecord.uid);
     const applicationUrl = `${appUrl}/print/application?type=agency&agencyId=${userRecord.uid}${printToken ? `&token=${printToken}` : ''}`;
     const termsUrl = `${appUrl}/print/terms?type=agency`;
 
-    // 登録完了メール（パスワード含む）
-    await sendEmail({
+    // 登録完了メール
+    const mailResult = await sendEmail({
       to: email,
       subject: '【Push-taro】代理店申し込み受付のお知らせ',
       html: `
         <h2>${ownerName} 様</h2>
         <p>この度はPush-taro代理店プログラムへのお申し込み、誠にありがとうございます。</p>
-        
+
         <p>審査完了後、ご案内メールをお送りいたします。</p>
         <p>審査完了まで今暫くお待ちくださいますようお願い申し上げます。</p>
 
@@ -176,7 +180,7 @@ try {
         <p style="font-size:12px; color:#94a3b8;">
           ※上記リンクはご登録のメールアドレス宛にのみお送りしています。第三者と共有しないようご注意ください。
         </p>
-        
+
         <hr />
         <p><strong>Push-taro.com</strong></p>
         <p>運営会社：the合同会社</p>
@@ -184,6 +188,10 @@ try {
         <p><a href="mailto:info@push-taro.com">info@push-taro.com</a></p>
       `,
     });
+
+    if (!mailResult.success) {
+      throw new Error('登録完了メールの送信に失敗しました');
+    }
 
     return NextResponse.json({
       success: true,
@@ -195,6 +203,27 @@ try {
 
   } catch (error: any) {
     console.error('[agency/signup] エラー:', error);
+
+    // 🔥 ロールバック: Firestore の agencies ドキュメント
+    if (createdAgencyId) {
+      try {
+        await db.collection('agencies').doc(createdAgencyId).delete();
+        console.log(`[agency/signup] Firestoreロールバック完了: ${createdAgencyId}`);
+      } catch (delErr: any) {
+        console.error('[agency/signup] Firestoreロールバック失敗:', delErr);
+      }
+    }
+
+    // 🔥 ロールバック: Auth ユーザー（新規作成時のみ）
+    if (isNewAuthUser && createdAuthUid) {
+      try {
+        await authAdmin.deleteUser(createdAuthUid);
+        console.log(`[agency/signup] Authロールバック完了: ${createdAuthUid}`);
+      } catch (delErr: any) {
+        console.error('[agency/signup] Authロールバック失敗:', delErr);
+      }
+    }
+
     return NextResponse.json(
       { error: error.message || '申し込み処理に失敗しました' },
       { status: 500 }
