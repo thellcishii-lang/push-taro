@@ -161,6 +161,9 @@ export default function SignupClient() {
         }
         return; // 確認画面に行かない
       }
+      if (!checkRes.ok) {
+        throw new Error(checkData.error || 'メールアドレスの確認に失敗しました。');
+      }
     } catch (err: any) {
       alert('メールアドレスの確認中にエラーが発生しました: ' + err.message);
       return;

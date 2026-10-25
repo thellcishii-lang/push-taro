@@ -54,47 +54,39 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, removed: 0 }, { status: 200 });
     }
 
-    const tokensToRemove: string[] = [];
-    const topicMap = new Map<string, string[]>(); // token → topics[]
-
-    scopedDocs.forEach((doc) => {
+    const allowedTopics = cleanupScope
+      ? new Set(cleanupScope.map((shopId) => `shop_${shopId}_users`))
+      : null;
+    const cleanupItems = scopedDocs.map((doc) => {
       const data = doc.data();
-      const token = data.token || doc.id;
-      const topics: string[] = data.topics || [];
-
-      tokensToRemove.push(token);
-      topicMap.set(token, topics);
+      const shopIds: string[] = Array.isArray(data.shopIds) ? data.shopIds : [];
+      const storedTopics: string[] = Array.isArray(data.topics) ? data.topics : [];
+      const topics = Array.from(new Set([
+        ...storedTopics,
+        ...shopIds.map((shopId) => `shop_${shopId}_users`),
+      ])).filter((topic) => !allowedTopics || allowedTopics.has(topic));
+      return {
+        doc,
+        token: String(data.token || doc.id),
+        topics,
+        removedShopIds: shopIds.filter((shopId) => !cleanupScope || cleanupScope.includes(shopId)),
+        remainingShopIds: shopIds.filter((shopId) => cleanupScope && !cleanupScope.includes(shopId)),
+        remainingTopics: storedTopics.filter((topic) => allowedTopics && !allowedTopics.has(topic)),
+      };
     });
 
-    // ─── FCMトピックから購読解除 ───
-    // 各トークン × 各トピックの組み合わせで解除
-    const unsubTasks: Promise<any>[] = [];
-    for (const [token, topics] of Array.from(topicMap.entries())) {
-      for (const topic of topics) {
-        unsubTasks.push(
-          messaging.unsubscribeFromTopic([token], topic).catch((err) => {
-            console.warn(`[cleanup] トピック解除失敗 token=${token.slice(0, 10)}... topic=${topic}:`, err.message);
-          })
-        );
+    // 解除失敗時はDBの購読情報を残し、同じ対象を再試行できるようにする。
+    await Promise.all(cleanupItems.flatMap(({ token, topics }) => topics.map(async (topic) => {
+      const result = await messaging.unsubscribeFromTopic([token], topic);
+      if (result.failureCount > 0) {
+        const reason = result.errors.map(({ error }) => error.message).join('; ');
+        throw new Error(`FCMトピック解除失敗 topic=${topic}: ${reason}`);
       }
-    }
-    await Promise.all(unsubTasks);
+    })));
 
     // ─── 購読情報を解除（クーポン履歴と顧客IDは保持）───
     const batch = db.batch();
-    scopedDocs.forEach((doc) => {
-      const data = doc.data();
-      const shopIds = Array.isArray(data.shopIds) ? data.shopIds : [];
-      const remainingShopIds = cleanupScope
-        ? shopIds.filter((shopId: string) => !cleanupScope!.includes(shopId))
-        : [];
-      const remainingTopics = Array.isArray(data.topics)
-        ? data.topics.filter((topic: string) => {
-            if (!cleanupScope) return false;
-            return !cleanupScope.some((shopId) => topic === `shop_${shopId}_users`);
-          })
-        : [];
-
+    cleanupItems.forEach(({ doc, remainingShopIds, remainingTopics }) => {
       batch.update(doc.ref, {
         shopIds: remainingShopIds,
         topics: remainingTopics,
@@ -104,9 +96,15 @@ export async function POST(request: Request) {
     await batch.commit();
 
     // チャンクは補助データのため、古いトークンを店舗単位で確実に除去する。
-    const chunkShopIds = cleanupScope || Array.from(new Set(
-      scopedDocs.flatMap((doc) => Array.isArray(doc.data().shopIds) ? doc.data().shopIds : [])
-    ));
+    const chunkTokens = new Map<string, Set<string>>();
+    cleanupItems.forEach(({ removedShopIds, token }) => {
+      removedShopIds.forEach((shopId) => {
+        const tokens = chunkTokens.get(shopId) || new Set<string>();
+        tokens.add(token);
+        chunkTokens.set(shopId, tokens);
+      });
+    });
+    const chunkShopIds = Array.from(chunkTokens.keys());
     const chunkRefs = chunkShopIds.map((shopId) => (
       db.collection('shops').doc(shopId).collection('token_chunks').doc('chunk_1')
     ));
@@ -115,16 +113,16 @@ export async function POST(request: Request) {
     chunkSnapshots.forEach((snapshot, index) => {
       if (snapshot.exists) {
         chunkBatch.update(chunkRefs[index], {
-          tokens: FieldValue.arrayRemove(...tokensToRemove),
+          tokens: FieldValue.arrayRemove(...Array.from(chunkTokens.get(chunkShopIds[index])!)),
           updatedAt: new Date(),
         });
       }
     });
-    if (chunkShopIds.length > 0 && tokensToRemove.length > 0) {
+    if (chunkShopIds.length > 0) {
       await chunkBatch.commit();
     }
 
-    console.log(`[cleanup] ✅ ${tokensToRemove.length}件のトークンを削除`);
+    console.log(`[cleanup] ✅ ${cleanupItems.length}件のトークンを削除`);
 
     return NextResponse.json({
       success: true,

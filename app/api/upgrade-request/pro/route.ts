@@ -66,6 +66,14 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!PRO_PAYMENT_URL) {
+      console.error('[upgrade-pro] NEXT_PUBLIC_SQUARE_LINK_PRO が設定されていません');
+      return NextResponse.json(
+        { error: '決済リンクが設定されていません' },
+        { status: 500 }
+      );
+    }
+
     // アップグレード申請情報を一時保存（決済待ち）
     await shopDoc.ref.update({
       upgradeStatus: 'pending_payment',
@@ -80,14 +88,6 @@ export async function POST(request: Request) {
       },
       updatedAt: FieldValue.serverTimestamp(),
     });
-
-    // PROプランのSquare決済リンクを返す
-    if (!PRO_PAYMENT_URL) {
-      return NextResponse.json(
-        { error: '決済リンクが設定されていません' },
-        { status: 500 }
-      );
-    }
 
     // 決済リンクに shopId をパラメータとして付与
     const paymentUrl = `${PRO_PAYMENT_URL}?s=${shopId}&upgrade=pro`;

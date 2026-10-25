@@ -48,6 +48,14 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!STANDARD_PAYMENT_URL) {
+      console.error('[upgrade-standard] NEXT_PUBLIC_SQUARE_LINK_STANDARD が設定されていません');
+      return NextResponse.json(
+        { error: '決済リンクが設定されていません' },
+        { status: 500 }
+      );
+    }
+
     // アップグレード申請ステータスに変更（決済待ち）
     await shopDoc.ref.update({
       upgradeStatus: 'pending_payment',
@@ -55,14 +63,6 @@ export async function POST(request: Request) {
       upgradeRequestedAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });
-
-    // StandardプランのSquare決済リンクを返す
-    if (!STANDARD_PAYMENT_URL) {
-      return NextResponse.json(
-        { error: '決済リンクが設定されていません' },
-        { status: 500 }
-      );
-    }
 
     // 決済リンクに shopId をパラメータとして付与（Webhookで特定用）
     const paymentUrl = `${STANDARD_PAYMENT_URL}?s=${shopId}&upgrade=standard`;

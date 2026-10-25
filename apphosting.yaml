@@ -8,6 +8,15 @@ buildConfig:
   commands:
     - npm install --no-package-lock --legacy-peer-deps
 
+# The backend must provide NEXT_PUBLIC_SQUARE_LINK_LIGHT,
+# NEXT_PUBLIC_SQUARE_LINK_STANDARD and NEXT_PUBLIC_SQUARE_LINK_PRO at BUILD
+# and RUNTIME. Keep the existing payment URLs in the backend configuration.
+# Verify in that build environment: npm run check:payment-env
+# Changes to these public variables require a new build and rollout.
+# Firestore indexes are deployed separately from App Hosting:
+# npm run check:firestore-indexes -- --project PROJECT_ID
+# Add only missing indexes with the same command plus --apply, then wait for READY.
+# Do not deploy a partial index list with deletion/force options.
 env:
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
     value: AIzaSyAhOsfGYv_jBCdv0rUEkn29ADgFbD4pnZU
