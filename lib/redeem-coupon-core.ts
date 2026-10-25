@@ -116,7 +116,11 @@ export interface RedeemCouponResult {
 
 export async function redeemCouponCore(params: RedeemCouponParams): Promise<RedeemCouponResult> {
   const { shopId, couponType, token, couponId, shopData, usageRef, usageData, scannedBy } = params;
-  const usage = usageData.couponUsage?.[shopId] || DEFAULT_USAGE;
+  const storedUsage = usageData.couponUsage?.[shopId] || DEFAULT_USAGE;
+  const stepUpCampaignId = shopData.proCoupons?.stepUp?.campaignId;
+  const usage = stepUpCampaignId && storedUsage.stepUpCampaignId !== stepUpCampaignId
+    ? { ...storedUsage, stepUpIndex: 0 }
+    : storedUsage;
 
   const sameDayCombinable = couponType === 'first' || couponType === 'normal'
     ? true
@@ -242,6 +246,7 @@ export async function redeemCouponCore(params: RedeemCouponParams): Promise<Rede
     await recordSameDayCouponUse(usageRef, shopId, sameDayCombinable);
     await usageRef.update({
       [`couponUsage.${shopId}.stepUpIndex`]: nextIndex,
+      ...(stepUpCampaignId ? { [`couponUsage.${shopId}.stepUpCampaignId`]: stepUpCampaignId } : {}),
       [`couponUsage.${shopId}.stepUpIndexUpdatedAt`]: FieldValue.serverTimestamp(),
       [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),
       [`couponUsage.${shopId}.totalVisits`]: FieldValue.increment(1),
@@ -285,6 +290,7 @@ export async function redeemCouponCore(params: RedeemCouponParams): Promise<Rede
         throw new Error('COUPON_NOT_COMBINABLE_TODAY');
       }
       transaction.update(usageRef, {
+        ...(repeat.campaignId ? { [`couponUsage.${shopId}.repeatCampaignId`]: repeat.campaignId } : {}),
         [`couponUsage.${shopId}.repeatCouponActiveUntil`]: activeUntil,
         [`couponUsage.${shopId}.repeatCouponUsedAt`]: FieldValue.serverTimestamp(),
         [`couponUsage.${shopId}.lastCouponUsedAt`]: FieldValue.serverTimestamp(),

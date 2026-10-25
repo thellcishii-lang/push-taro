@@ -3,13 +3,24 @@ import { authAdmin, db } from '@/lib/firebase-admin';
 import { couponDay } from '@/lib/coupon-day';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { verifyCustomerSession } from '@/lib/customer-session';
+import { createHash } from 'node:crypto';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    // レート制限: トークン総当たりによる顧客履歴の探索を防止
-    const retryAfter = await enforceRateLimit(request, 'coupon-history', 20, 10 * 60 * 1000);
+    const { searchParams } = new URL(request.url);
+    const shopId = searchParams.get('shopId');
+    const date = searchParams.get('date');
+    const token = searchParams.get('token');
+    const session = date === null && token ? verifyCustomerSession(token) : null;
+
+    // レート制限: トークン総当たりによる顧客履歴の探索を防止。
+    // 署名検証済みの顧客は店舗Wi-Fiでも制限枠を共有しない。
+    const rateLimitScope = session
+      ? `coupon-history:${createHash('sha256').update(JSON.stringify([session.shopId, session.token])).digest('hex')}`
+      : 'coupon-history';
+    const retryAfter = await enforceRateLimit(request, rateLimitScope, session ? 60 : 20, 10 * 60 * 1000);
     if (retryAfter !== null) {
       return NextResponse.json(
         { error: 'Too Many Requests' },
@@ -17,10 +28,6 @@ export async function GET(request: Request) {
       );
     }
 
-    const { searchParams } = new URL(request.url);
-    const shopId = searchParams.get('shopId');
-    const date = searchParams.get('date');
-    const token = searchParams.get('token');
     if (!shopId) return NextResponse.json({ error: 'shopId が必要です' }, { status: 400 });
 
     const logs = db.collection('shops').doc(shopId).collection('coupon_logs');
@@ -49,7 +56,6 @@ export async function GET(request: Request) {
 
     // セッショントークンを検証（FCMトークンをURLに載せない方式）
     // 後方互換: 旧形式（生のFCMトークン）も許可するが、期限付きセッションを推奨
-    const session = verifyCustomerSession(token);
     const fcmToken = session ? session.token : token;
 
     // セッショントークンの場合は shopId の整合を確認
@@ -70,7 +76,7 @@ export async function GET(request: Request) {
       verifiedUid = decoded.uid;
     }
     const snapshots = await Promise.all([
-      logs.where('userToken', '==', token).get(),
+      logs.where('userToken', '==', fcmToken).get(),
       verifiedUid && customerUid ? logs.where('customerUid', '==', verifiedUid).get() : Promise.resolve(null),
     ]);
     const entries = new Map<string, { id: string; title: string; usedAt: string | null }>();

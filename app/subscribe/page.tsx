@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { requestFCMToken } from '../../lib/firebase-client';
 import { firebaseApp } from '../../lib/firebase-client';
-import { getMessaging, onMessage } from 'firebase/messaging';
+import { getMessaging, isSupported, onMessage } from 'firebase/messaging';
 import { QRCodeSVG } from 'qrcode.react';
 import { auth } from '../../lib/firebase-client';
 import { ConfirmationResult, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
@@ -24,7 +24,7 @@ export default function SubscribePage() {
   const [savedBirthDay, setSavedBirthDay] = useState<number | null>(null);
   const [birthdaySetStatus, setBirthdaySetStatus] = useState<'idle' | 'saving' | 'error'>('idle');
   const [birthdaySetMessage, setBirthdaySetMessage] = useState('');
-  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyTab, setHistoryTab] = useState<'notifications' | 'coupons'>('notifications');
   const [couponUsed, setCouponUsed] = useState(false);
   const [couponExpired, setCouponExpired] = useState(false);
   const [normalCouponUsed, setNormalCouponUsed] = useState(false);
@@ -52,15 +52,20 @@ export default function SubscribePage() {
   // 📜 通知履歴用ステート
   const [historyList, setHistoryList] = useState<any[]>([]);
   const [displayCount, setDisplayCount] = useState<number>(10);
-  const [couponHistoryOpen, setCouponHistoryOpen] = useState(false);
   const [couponHistory, setCouponHistory] = useState<Array<{ id: string; title: string; usedAt: string | null }>>([]);
+  const [couponHistoryLoaded, setCouponHistoryLoaded] = useState(false);
+  const [couponStatusVersion, setCouponStatusVersion] = useState(0);
+  const lastCouponStatus = useRef('');
   const [couponHistoryError, setCouponHistoryError] = useState('');
   const [couponHistoryLoading, setCouponHistoryLoading] = useState(false);
-  const [sessionToken, setSessionToken] = useState<string>('');
+  const sessionCache = useRef<{ shopId: string; fcmToken: string; token: string } | null>(null);
+  const [couponStatusLoaded, setCouponStatusLoaded] = useState(false);
+  const [couponStatusError, setCouponStatusError] = useState('');
 
   // FCMトークンからセッショントークンを取得（期限付き・URLに載せても安全）
   const ensureSessionToken = async (): Promise<string> => {
-    if (sessionToken) return sessionToken;
+    const cached = sessionCache.current;
+    if (cached?.shopId === shopId && cached.fcmToken === fcmToken) return cached.token;
     if (!fcmToken || !shopId) return '';
     try {
       const res = await fetch('/api/customer-session', {
@@ -70,9 +75,10 @@ export default function SubscribePage() {
       });
       const data = await res.json();
       if (res.ok && data.sessionToken) {
-        setSessionToken(data.sessionToken);
+        sessionCache.current = { shopId, fcmToken, token: data.sessionToken };
         return data.sessionToken;
       }
+      throw new Error(data.error || 'セッショントークンを取得できませんでした');
     } catch (err) {
       console.error('セッショントークン取得エラー:', err);
     }
@@ -93,6 +99,7 @@ export default function SubscribePage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || '履歴を取得できませんでした');
       setCouponHistory(data.histories);
+      setCouponHistoryLoaded(true);
     } catch (error) {
       setCouponHistoryError(error instanceof Error ? error.message : '履歴を取得できませんでした');
     } finally {
@@ -202,43 +209,6 @@ useEffect(() => {
       setFcmToken(savedToken);
       setIsRegistered(true);
 
-      // ユーザーのクーポン使用状況を取得（セッショントークン経由）
-      (async () => {
-        try {
-          const sessionRes = await fetch('/api/customer-session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: savedToken, shopId }),
-          });
-          const sessionData = await sessionRes.json();
-          const tokenParam = sessionData.sessionToken || savedToken;
-          if (sessionData.sessionToken) setSessionToken(sessionData.sessionToken);
-
-          const res = await fetch(`/api/subscribe-status?shopId=${shopId}&token=${encodeURIComponent(tokenParam)}`);
-          const data = await res.json();
-          console.log('ステータス確認結果:', data);
-          if (data.success) {
-            setCouponUsed(Boolean(data.firstCouponUsed || data.couponUsed));
-            setNormalCouponUsed(data.normalCouponUsed === true);
-            setLoyaltyCouponAvailable(data.loyaltyCouponAvailable === true);
-            setLoyaltyAchievedAt(data.loyaltyAchievedAt || null);
-            setStepUpIndex(data.stepUpIndex || 0);
-            setStepUpIndexAppearedAt(data.stepUpIndexAppearedAt || null);
-            setRepeatCouponActiveUntil(data.repeatCouponActiveUntil || null);
-            setRepeatCouponUsedToday(data.repeatCouponUsed === true);
-            setBirthdayCouponAvailable(String(data.birthdayNotifiedYear) === String(new Date().getFullYear()));
-            setBirthdayCouponUsed(data.birthdayCouponUsed === true);
-            setDormantCouponAvailable(Boolean(data.dormantNotifiedAt));
-            setDormantCouponUsed(data.dormantCouponUsed === true);
-            setDormantNotifiedAt(data.dormantNotifiedAt || null);
-            setScheduledCouponUsedIds(data.scheduledCouponUsedIds || []);
-            setSavedBirthMonth(data.birthMonth || null);
-            setSavedBirthDay(data.birthDay || null);
-          }
-        } catch (err) {
-          console.error('ステータス確認エラー:', err);
-        }
-      })();
     }
     loadNotificationHistory();
   }
@@ -270,49 +240,76 @@ useEffect(() => {
     localStorage.setItem(`push_taro_hidden_coupons_${shopId}`, JSON.stringify(next));
   };
 
-  // 店舗側でクーポンが消し込まれた状態を、顧客画面へ自動反映する。
   useEffect(() => {
     if (!shopId || !fcmToken || !isRegistered) return;
 
-    const messaging = getMessaging(firebaseApp);
-    const unsubscribeMessage = onMessage(messaging, async (payload) => {
-      const title = payload.data?.title || payload.notification?.title || '新着通知';
-      const body = payload.data?.body || payload.notification?.body || '';
-      const rawUrl = payload.data?.url || payload.data?.linkUrl || '/';
-      const url = new URL(rawUrl, window.location.origin).toString();
-      const notificationId = payload.data?.notificationId || '';
-      const openToken = payload.data?.openToken || '';
-      if (notificationId && openToken) {
-        await fetch('/api/notification-open', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            notificationId,
-            openToken,
-            openReceiptId: crypto.randomUUID(),
-            eventType: 'opened',
-          }),
-        }).catch(() => undefined);
-      }
-      const request = indexedDB.open('PushTaroDB', 3);
-      request.onsuccess = (event: any) => {
-        const historyDb = event.target.result;
-        if (!historyDb.objectStoreNames.contains('notifications')) return;
-        const transaction = historyDb.transaction('notifications', 'readwrite');
-        transaction.objectStore('notifications').add({ title, body, url, timestamp: Date.now() });
-        transaction.oncomplete = () => historyDb.close();
-      };
-    });
+    let disposed = false;
+    let unsubscribeMessage: (() => void) | undefined;
+    void (async () => {
+      if (!await isSupported() || disposed) return;
+      const messaging = getMessaging(firebaseApp);
+      unsubscribeMessage = onMessage(messaging, async (payload) => {
+        const title = payload.data?.title || payload.notification?.title || '新着通知';
+        const body = payload.data?.body || payload.notification?.body || '';
+        const rawUrl = payload.data?.url || payload.data?.linkUrl || '/';
+        const url = new URL(rawUrl, window.location.origin).toString();
+        const notificationId = payload.data?.notificationId || '';
+        const openToken = payload.data?.openToken || '';
+        if (notificationId && openToken) {
+          await fetch('/api/notification-open', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              notificationId,
+              openToken,
+              openReceiptId: crypto.randomUUID(),
+              eventType: 'opened',
+            }),
+          }).catch(() => undefined);
+        }
+        const request = indexedDB.open('PushTaroDB', 3);
+        request.onsuccess = (event: any) => {
+          const historyDb = event.target.result;
+          if (!historyDb.objectStoreNames.contains('notifications')) return;
+          const transaction = historyDb.transaction('notifications', 'readwrite');
+          transaction.objectStore('notifications').add({ title, body, url, timestamp: Date.now() });
+          transaction.oncomplete = () => historyDb.close();
+        };
+      });
+    })().catch((error) => console.error('通知受信の初期化エラー:', error));
+
+    return () => {
+      disposed = true;
+      unsubscribeMessage?.();
+    };
+  }, [shopId, fcmToken, isRegistered]);
+
+  // 通知機能の対応状況にかかわらず、店舗での消し込みを反映する。
+  useEffect(() => {
+    if (!shopId || !fcmToken || !isRegistered) return;
+
+    let disposed = false;
+    let refreshing = false;
+    let retryAt = 0;
+    setCouponStatusLoaded(false);
+    setCouponStatusError('');
 
     const refreshCouponStatus = async () => {
+      if (refreshing || Date.now() < retryAt) return;
+      refreshing = true;
       try {
         const session = await ensureSessionToken();
         const tokenParam = session || fcmToken;
         const res = await fetch(
-          `/api/subscribe-status?shopId=${encodeURIComponent(shopId)}&token=${encodeURIComponent(tokenParam)}`
+          `/api/subscribe-status?shopId=${encodeURIComponent(shopId)}&token=${encodeURIComponent(tokenParam)}`,
+          { cache: 'no-store' },
         );
+        if (res.status === 429) {
+          retryAt = Date.now() + Math.max(10, Number(res.headers.get('Retry-After')) || 60) * 1000;
+        }
         const data = await res.json();
-        if (data.success) {
+        if (!res.ok || !data.success) throw new Error(data.error || 'クーポン状態を取得できませんでした');
+        if (!disposed) {
           setCouponUsed(Boolean(data.firstCouponUsed || data.couponUsed));
           setNormalCouponUsed(data.normalCouponUsed === true);
           setLoyaltyCouponAvailable(data.loyaltyCouponAvailable === true);
@@ -329,12 +326,23 @@ useEffect(() => {
           setScheduledCouponUsedIds(data.scheduledCouponUsedIds || []);
           setSavedBirthMonth(data.birthMonth || null);
           setSavedBirthDay(data.birthDay || null);
+          setCouponStatusLoaded(true);
+          setCouponStatusError('');
+          const statusSignature = JSON.stringify(data);
+          if (statusSignature !== lastCouponStatus.current) {
+            lastCouponStatus.current = statusSignature;
+            setCouponStatusVersion((version) => version + 1);
+          }
         }
       } catch (err) {
         console.error('クーポン状態の自動更新エラー:', err);
+        if (!disposed) setCouponStatusError('クーポンの使用状況を確認できません。通信状況を確認してください。自動で再試行します。');
+      } finally {
+        refreshing = false;
       }
     };
 
+    void refreshCouponStatus();
     const intervalId = window.setInterval(() => {
       if (document.visibilityState === 'visible') {
         refreshCouponStatus();
@@ -347,13 +355,20 @@ useEffect(() => {
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('focus', handleVisibility);
     
     return () => {
+      disposed = true;
       window.clearInterval(intervalId);
       document.removeEventListener('visibilitychange', handleVisibility);
-      unsubscribeMessage();
+      window.removeEventListener('focus', handleVisibility);
     };
   }, [shopId, fcmToken, isRegistered]);
+
+  // クーポン使用履歴タブ表示中は、店舗での消し込みを検知したら履歴も再取得する。
+  useEffect(() => {
+    if (historyTab === 'coupons' && isRegistered && fcmToken) void loadCouponHistory();
+  }, [historyTab, couponStatusVersion, isRegistered, fcmToken]);
 
   // 4. 動的 PWA Manifest & iPhone用メタタグの適用
   useEffect(() => {
@@ -671,11 +686,14 @@ useEffect(() => {
           </div>
         )}
 
+        {couponStatusError && <p role="alert" style={{ color: '#dc2626' }}>{couponStatusError}</p>}
+        {!couponStatusLoaded && !couponStatusError && <p>クーポンの使用状況を確認中...</p>}
+        {couponStatusLoaded && !couponStatusError && <>
         {/* �🎁 初回限定クーポンエリア */}
-{shopData?.coupon?.enabled && !hiddenCouponTypes.includes('first') && (
-  <div style={{ background: couponUsed || couponExpired ? '#f1f5f9' : '#fff3e0', border: couponUsed || couponExpired ? '1px solid #cbd5e1' : '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
-    <span style={{ fontSize: '11px', background: couponUsed || couponExpired ? '#64748b' : '#e65100', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>初回限定</span>
-    <h3 style={{ margin: '6px 0 8px 0', color: couponUsed || couponExpired ? '#64748b' : '#e65100' }}>
+{shopData?.coupon?.enabled && !couponUsed && !hiddenCouponTypes.includes('first') && (
+  <div style={{ background: couponExpired ? '#f1f5f9' : '#fff3e0', border: couponExpired ? '1px solid #cbd5e1' : '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
+    <span style={{ fontSize: '11px', background: couponExpired ? '#64748b' : '#e65100', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>初回限定</span>
+    <h3 style={{ margin: '6px 0 8px 0', color: couponExpired ? '#64748b' : '#e65100' }}>
       🎁 {shopData.coupon.title || '初回限定クーポン'}
     </h3>
 
@@ -683,12 +701,7 @@ useEffect(() => {
       <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {shopData.coupon.expiresAt}</p>
     )}
 
-    {couponUsed ? (
-      <div style={{ padding: '12px', background: '#e2e8f0', borderRadius: '6px', color: '#475569', fontSize: '14px', marginTop: '10px' }}>
-        <strong>✅ こちらのクーポンは使用済みです</strong>
-        <button type="button" onClick={() => hideCoupon('first')} style={{ display: 'block', margin: '10px auto 0', padding: '7px 12px', background: '#64748b', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>削除</button>
-      </div>
-    ) : couponExpired ? (
+    {couponExpired ? (
       <div style={{ padding: '12px', background: '#e2e8f0', borderRadius: '6px', color: '#475569', fontWeight: 'bold', fontSize: '14px', marginTop: '10px' }}>
         ⚠️ こちらのクーポンは有効期限切れです
       </div>
@@ -841,73 +854,114 @@ useEffect(() => {
     )}
   </div>
 )}
-        {/* 📜 【通知履歴エリア】 */}
-        <div style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            <button
-              onClick={() => {
-                setHistoryOpen(!historyOpen);
-                if (!historyOpen) loadNotificationHistory();
-              }}
-              style={{ flex: '1 1 160px', padding: '12px', background: '#f5f5f5', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-            >
-              <span>📜 通知履歴 ({historyList.length}件)</span>
-              <span>{historyOpen ? '▲ 閉じる' : '▼ 展開する'}</span>
-            </button>
-            <button type="button" onClick={() => { setCouponHistoryOpen(!couponHistoryOpen); if (!couponHistoryOpen) void loadCouponHistory(); }}
-              style={{ flex: '1 1 160px', padding: '12px', background: '#f5f5f5', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}>
-              クーポン使用履歴 {couponHistoryOpen ? '▲' : '▼'}
-            </button>
+        </>}
+        {/* 📜 【履歴エリア】通知履歴 / クーポン使用履歴をタブで切り替え */}
+        <section style={{ marginTop: '28px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: '0 0 12px' }}>履歴</h2>
+          <div role="tablist" aria-label="履歴の種類" style={{ display: 'flex', gap: '4px', padding: '4px', background: '#f1f5f9', borderRadius: '12px' }}>
+            {([
+              ['notifications', '🔔 通知', historyList.length],
+              ['coupons', '🎟️ クーポン使用', couponHistoryLoaded ? couponHistory.length : null],
+            ] as const).map(([tab, label, count]) => {
+              const active = historyTab === tab;
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => {
+                    setHistoryTab(tab);
+                    if (tab === 'notifications') loadNotificationHistory();
+                  }}
+                  style={{
+                    flex: 1, padding: '10px 8px', border: 'none', borderRadius: '9px', cursor: 'pointer',
+                    fontSize: '14px', fontWeight: 700,
+                    background: active ? '#fff' : 'transparent',
+                    color: active ? '#0f172a' : '#64748b',
+                    boxShadow: active ? '0 1px 3px rgba(15, 23, 42, 0.12)' : 'none',
+                  }}
+                >
+                  {label}
+                  {count !== null && (
+                    <span style={{ marginLeft: '6px', fontSize: '12px', fontWeight: 600, padding: '1px 7px', borderRadius: '999px', background: '#e2e8f0', color: '#475569' }}>{count}</span>
+                  )}
+                </button>
+              );
+            })}
           </div>
 
-          {couponHistoryOpen && <div style={{ marginTop: '12px' }}>
-            {couponHistoryLoading ? <p>読み込み中...</p> : couponHistoryError ? <p role="alert">{couponHistoryError}</p> :
-              couponHistory.length === 0 ? <p>クーポン使用履歴はありません。</p> :
-                couponHistory.map((entry) => <div key={entry.id} style={{ padding: '12px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-                  <strong>{entry.title}</strong>
-                  <span>{entry.usedAt ? new Date(entry.usedAt).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }) : '-'}</span>
-                </div>)}
-          </div>}
-
-          {historyOpen && (
-            <div style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {historyList.length === 0 ? (
-                <p style={{ fontSize: '13px', color: '#888', textAlign: 'center', margin: '15px 0' }}>
-                  受信した通知履歴はまだありません。
-                </p>
-              ) : (
-                <>
+          <div role="tabpanel" style={{ marginTop: '12px' }}>
+            {historyTab === 'coupons' ? (
+              <>
+                {couponHistoryError && (
+                  <p role="alert" style={{ fontSize: '13px', color: '#dc2626', background: '#fef2f2', padding: '10px 12px', borderRadius: '8px', margin: '0 0 10px' }}>{couponHistoryError}</p>
+                )}
+                {!couponHistoryLoaded && couponHistoryLoading ? (
+                  <p style={{ fontSize: '13px', color: '#94a3b8', textAlign: 'center', padding: '24px 0', margin: 0 }}>読み込み中...</p>
+                ) : couponHistory.length === 0 ? (
+                  !couponHistoryError && (
+                    <div style={{ textAlign: 'center', padding: '28px 12px', color: '#94a3b8' }}>
+                      <div style={{ fontSize: '28px', marginBottom: '6px' }}>🎟️</div>
+                      <p style={{ fontSize: '13px', margin: 0 }}>まだクーポンを使用していません</p>
+                    </div>
+                  )
+                ) : (
+                  <ul style={{ listStyle: 'none', margin: 0, padding: 0, border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden', background: '#fff' }}>
+                    {couponHistory.map((entry, index) => (
+                      <li key={entry.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderTop: index === 0 ? 'none' : '1px solid #f1f5f9' }}>
+                        <span aria-hidden style={{ flexShrink: 0, width: '36px', height: '36px', borderRadius: '50%', background: '#ecfdf5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>✓</span>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.title}</p>
+                          <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#64748b' }}>
+                            {entry.usedAt
+                              ? `${new Date(entry.usedAt).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })} に使用`
+                              : '使用日時不明'}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            ) : historyList.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '28px 12px', color: '#94a3b8' }}>
+                <div style={{ fontSize: '28px', marginBottom: '6px' }}>🔔</div>
+                <p style={{ fontSize: '13px', margin: 0 }}>受信した通知はまだありません</p>
+              </div>
+            ) : (
+              <>
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0, border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden', background: '#fff' }}>
                   {historyList.slice(0, displayCount).map((item, index) => (
-                    <div key={index} style={{ border: '1px solid #e2e8f0', padding: '12px', borderRadius: '8px', background: '#fff' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
-                        <h4 style={{ margin: 0, fontSize: '14px', color: '#1e293b' }}>{item.title}</h4>
-                        <span style={{ fontSize: '10px', color: '#94a3b8' }}>
+                    <li key={item.id ?? index} style={{ padding: '12px 14px', borderTop: index === 0 ? 'none' : '1px solid #f1f5f9' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
+                        <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>{item.title}</p>
+                        <span style={{ flexShrink: 0, fontSize: '11px', color: '#94a3b8' }}>
                           {new Date(item.timestamp).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
-                      <p style={{ margin: 0, fontSize: '13px', color: '#475569', whiteSpace: 'pre-wrap' }}>{item.body}</p>
+                      {item.body && <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#475569', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{item.body}</p>}
                       {item.url && item.url !== '/' && (
-                        <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginTop: '6px', fontSize: '12px', color: '#2563eb' }}>
-                          詳細を見る 🔗
+                        <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginTop: '6px', fontSize: '12px', fontWeight: 600, color: '#2563eb', textDecoration: 'none' }}>
+                          詳細を見る →
                         </a>
                       )}
-                    </div>
+                    </li>
                   ))}
-
-                  {/* 10件ずつ増やす「もっと見る」ボタン */}
-                  {displayCount < historyList.length && (
-                    <button
-                      onClick={() => setDisplayCount(prev => prev + 10)}
-                      style={{ width: '100%', padding: '10px', background: '#e2e8f0', color: '#334155', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', marginTop: '5px' }}
-                    >
-                      もっと見る ({historyList.length - displayCount}件)
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
-          )}
-        </div>
+                </ul>
+                {displayCount < historyList.length && (
+                  <button
+                    type="button"
+                    onClick={() => setDisplayCount(prev => prev + 10)}
+                    style={{ width: '100%', marginTop: '10px', padding: '10px', background: '#fff', color: '#334155', border: '1px solid #e2e8f0', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}
+                  >
+                    もっと見る（残り{historyList.length - displayCount}件）
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        </section>
       </main>
     );
   }

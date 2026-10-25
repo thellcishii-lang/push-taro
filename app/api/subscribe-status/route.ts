@@ -16,6 +16,7 @@ import { db } from '@/lib/firebase-admin';
 import { couponDay } from '@/lib/coupon-day';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { verifyCustomerSession } from '@/lib/customer-session';
+import { createHash } from 'node:crypto';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,15 +43,6 @@ const DEFAULT_USAGE = {
 
 export async function GET(request: Request) {
   try {
-    // レート制限: トークン総当たりによる購読状態の探索を防止
-    const retryAfter = await enforceRateLimit(request, 'subscribe-status', 20, 10 * 60 * 1000);
-    if (retryAfter !== null) {
-      return NextResponse.json(
-        { success: false, error: 'Too Many Requests' },
-        { status: 429, headers: { 'Retry-After': String(retryAfter) } }
-      );
-    }
-
     const { searchParams } = new URL(request.url);
     const shopId = searchParams.get('shopId');
     const token = searchParams.get('token');
@@ -66,6 +58,18 @@ export async function GET(request: Request) {
     // 後方互換: 旧形式（生のFCMトークン）も許可するが、期限付きセッションを推奨
     const session = verifyCustomerSession(token);
     const fcmToken = session ? session.token : token;
+
+    // 10秒ごとの更新を許容し、署名検証済みの顧客は店舗Wi-Fiでも制限枠を共有しない。
+    const rateLimitScope = session
+      ? `subscribe-status:${createHash('sha256').update(JSON.stringify([session.shopId, session.token])).digest('hex')}`
+      : 'subscribe-status';
+    const retryAfter = await enforceRateLimit(request, rateLimitScope, session ? 120 : 20, 10 * 60 * 1000);
+    if (retryAfter !== null) {
+      return NextResponse.json(
+        { success: false, error: 'Too Many Requests' },
+        { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+      );
+    }
 
     // セッショントークンの場合は shopId の整合を確認
     if (session && session.shopId !== shopId) {
