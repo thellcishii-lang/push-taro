@@ -2261,6 +2261,32 @@ export default function SystemAdminPage() {
   const [errorCount, setErrorCount] = useState(0);
   const [isCircuitBreakerOpen, setIsCircuitBreakerOpen] = useState(false);
   const [circuitLoading, setCircuitLoading] = useState(false);
+  const [repairLoading, setRepairLoading] = useState(false);
+  const [repairMessage, setRepairMessage] = useState('');
+
+  const repairSubscriptions = async () => {
+    if (!confirm('全購読データの店舗IDを修復します。tokenキーは破棄し、復元できない値は空配列になります。実行しますか？')) return;
+    setRepairLoading(true);
+    setRepairMessage('');
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) throw new Error('再ログインしてください');
+      const idToken = await currentUser.getIdToken();
+      const response = await fetch('/api/system-admin/repair-subscriptions', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(`${result.error} 実行ID: ${result.runId || '-'}`);
+      setRepairMessage(`完了: 走査 ${result.scanned}件 / 修復 ${result.repaired}件 / 要確認 ${result.needsReview}件 / 不正フィールド ${result.before.invalidFields} → ${result.after.invalidFields}件 / 実行ID: ${result.runId}`);
+      await fetchSystemStats();
+    } catch (error) {
+      console.error('購読データ修復エラー:', error);
+      setRepairMessage(`修復失敗: ${error instanceof Error ? error.message : '通信エラー'}。監査記録を確認してください。再実行可能です。`);
+    } finally {
+      setRepairLoading(false);
+    }
+  };
 
   const [summary, setSummary] = useState({
     totalSubscribers: 0,
@@ -2516,7 +2542,11 @@ export default function SystemAdminPage() {
           <Link href="/system-admin/emails" style={{ padding: '10px 20px', background: '#3182ce', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
             📧 メール一斉配信
           </Link>
+          <button onClick={repairSubscriptions} disabled={repairLoading} style={{ padding: '10px 20px', background: '#b45309', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: repairLoading ? 'wait' : 'pointer' }}>
+            {repairLoading ? '購読データ修復中...' : '購読データを全件修復'}
+          </button>
         </div>
+        {repairMessage && <p role="status" style={{ overflowWrap: 'anywhere' }}>{repairMessage}</p>}
 
         <div style={{ background: isCircuitBreakerOpen ? '#fecaca' : '#f0fdf4', border: isCircuitBreakerOpen ? '2px solid #dc2626' : '2px solid #22c55e', padding: '16px 20px', borderRadius: '12px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div>

@@ -3,6 +3,7 @@ import { messaging, db } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { verifyCustomerSession } from '@/lib/customer-session';
+import { normalizeShopIds } from '@/lib/subscription-shop-ids';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +19,9 @@ export async function POST(request: Request) {
     }
 
     const { token, shopId } = await request.json();
-    if (!token || !shopId) {
+    if (typeof token !== 'string' || !token.trim() || token.includes('/') ||
+      typeof shopId !== 'string' || !shopId.trim() || shopId.includes('/') ||
+      shopId !== shopId.trim() || shopId === 'undefined' || shopId === 'null') {
       return NextResponse.json({ error: 'tokenとshopIdが必要です' }, { status: 400 });
     }
 
@@ -39,7 +42,7 @@ export async function POST(request: Request) {
     }
 
     const subscriptionData = subscriptionDoc.data()!;
-    const shopIds = Array.isArray(subscriptionData.shopIds) ? subscriptionData.shopIds : [];
+    const shopIds = normalizeShopIds(subscriptionData.shopIds);
     if (!shopIds.includes(shopId)) {
       return NextResponse.json({ error: 'この購読は指定店舗に紐づいていません' }, { status: 403 });
     }
@@ -47,24 +50,21 @@ export async function POST(request: Request) {
     const topic = `shop_${shopId}_users`;
     await messaging.unsubscribeFromTopic([fcmToken], topic);
 
-    const remainingShopIds = shopIds.filter((id: string) => id !== shopId);
-    if (remainingShopIds.length === 0) {
-      // 顧客情報・クーポン利用履歴は保持し、店舗との紐付けだけ解除する。
-      // ドキュメントを削除すると、再登録時に初回クーポンが再利用できてしまう。
-      await subscriptionRef.update({
-        shopIds: [],
-        topics: [],
-        unsubscribedShopIds: FieldValue.arrayUnion(shopId),
+    await db.runTransaction(async (transaction) => {
+      const currentDoc = await transaction.get(subscriptionRef);
+      if (!currentDoc.exists) return;
+      const currentData = currentDoc.data()!;
+      const remainingShopIds = normalizeShopIds(currentData.shopIds).filter((id) => id !== shopId);
+      // 顧客情報・クーポン履歴を保持し、同時登録された他店舗は削除しない。
+      transaction.update(subscriptionRef, {
+        shopIds: remainingShopIds,
+        topics: remainingShopIds.length === 0 ? [] : FieldValue.arrayRemove(topic),
+        unsubscribedShopIds: Array.from(new Set([
+          ...normalizeShopIds(currentData.unsubscribedShopIds), shopId,
+        ])),
         updatedAt: FieldValue.serverTimestamp(),
       });
-    } else {
-      await subscriptionRef.update({
-        shopIds: FieldValue.arrayRemove(shopId),
-        topics: FieldValue.arrayRemove(topic),
-        unsubscribedShopIds: FieldValue.arrayUnion(shopId),
-        updatedAt: FieldValue.serverTimestamp(),
-      });
-    }
+    });
 
     const chunkRef = db.collection('shops').doc(shopId).collection('token_chunks').doc('chunk_1');
     await chunkRef.set({

@@ -3,6 +3,7 @@ import { messaging, db, authAdmin } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { randomUUID } from 'crypto';
 import { enforceRateLimit } from '@/lib/rate-limit';
+import { normalizeShopIds } from '@/lib/subscription-shop-ids';
 
 function getCustomerId(request: Request): string {
   const cookieHeader = request.headers.get('cookie') || '';
@@ -28,7 +29,9 @@ export async function POST(request: Request) {
     const { token, shopId, deviceId, customerId: requestedCustomerId, customerUid } = body;
 
     // パラメータチェック
-    if (!token || !shopId || shopId === 'undefined' || shopId === 'null') {
+    if (typeof token !== 'string' || !token.trim() || token.includes('/') ||
+      typeof shopId !== 'string' || !shopId.trim() || shopId.includes('/') ||
+      shopId !== shopId.trim() || shopId === 'undefined' || shopId === 'null') {
       return NextResponse.json({ error: '有効な token と shopId が必要です' }, { status: 400 });
     }
 
@@ -81,8 +84,8 @@ export async function POST(request: Request) {
         const oldData = previousDoc.data();
         if (
           previousDoc.id !== normalizedToken &&
-          ((Array.isArray(oldData.shopIds) && oldData.shopIds.includes(shopId)) ||
-            (Array.isArray(oldData.unsubscribedShopIds) && oldData.unsubscribedShopIds.includes(shopId)))
+          (normalizeShopIds(oldData.shopIds).includes(shopId) ||
+            normalizeShopIds(oldData.unsubscribedShopIds).includes(shopId))
         ) {
           previousDocRefs.push(previousDoc.ref);
           if (typeof oldData.token === 'string') previousTokens.push(oldData.token);
@@ -91,8 +94,12 @@ export async function POST(request: Request) {
             ...(previousData || {}),
             ...oldData,
             shopIds: Array.from(new Set([
-              ...(Array.isArray(priorData?.shopIds) ? priorData.shopIds : []),
-              ...(Array.isArray(oldData.shopIds) ? oldData.shopIds : []),
+              ...normalizeShopIds(priorData?.shopIds),
+              ...normalizeShopIds(oldData.shopIds),
+            ])),
+            unsubscribedShopIds: Array.from(new Set([
+              ...normalizeShopIds(priorData?.unsubscribedShopIds),
+              ...normalizeShopIds(oldData.unsubscribedShopIds),
             ])),
             topics: Array.from(new Set([
               ...(Array.isArray(priorData?.topics) ? priorData.topics : []),
@@ -115,55 +122,48 @@ export async function POST(request: Request) {
       lastActive: FieldValue.serverTimestamp(),
     };
 
-    if (doc.exists) {
-      console.log('[API] 既存登録の更新:', shopId);
-      await docRef.set({
+    await db.runTransaction(async (transaction) => {
+      const currentDoc = await transaction.get(docRef);
+      const currentData = currentDoc.data();
+      transaction.set(docRef, {
         ...(previousData || {}),
-        ...doc.data(),
+        ...currentData,
         ...baseData,
-        shopIds: FieldValue.arrayUnion(shopId),
+        shopIds: Array.from(new Set([
+          ...normalizeShopIds(previousData?.shopIds),
+          ...normalizeShopIds(currentData?.shopIds),
+          shopId,
+        ])),
         topics: FieldValue.arrayUnion(topic),
-        unsubscribedShopIds: FieldValue.arrayRemove(shopId),
+        unsubscribedShopIds: Array.from(new Set([
+          ...normalizeShopIds(previousData?.unsubscribedShopIds),
+          ...normalizeShopIds(currentData?.unsubscribedShopIds),
+        ])).filter((id) => id !== shopId),
+        ...(!currentDoc.exists ? {
+          topics: Array.from(new Set([
+            ...(Array.isArray(previousData?.topics) ? previousData.topics : []), topic,
+          ])),
+          createdAt: previousData?.createdAt || FieldValue.serverTimestamp(),
+        } : {}),
       }, { merge: true });
+    });
 
-      for (const previousDocRef of previousDocRefs) {
-        const oldData = (await previousDocRef.get()).data() || {};
-        const remainingShopIds = Array.isArray(oldData.shopIds)
-          ? oldData.shopIds.filter((id: string) => id !== shopId)
-          : [];
-        if (remainingShopIds.length === 0) await previousDocRef.delete();
-        else await previousDocRef.update({
-          shopIds: FieldValue.arrayRemove(shopId),
-          topics: FieldValue.arrayRemove(topic),
-        });
-      }
-    } else {
-      console.log('[API] 新規登録:', { shopId });
-      const previousShopIds = Array.isArray(previousData?.shopIds) ? previousData.shopIds : [];
-      const previousTopics = Array.isArray(previousData?.topics) ? previousData.topics : [];
-      await docRef.set({
-        ...(previousData || {}),
-        ...baseData,
-        shopIds: Array.from(new Set([...previousShopIds, shopId])),
-        topics: Array.from(new Set([...previousTopics, topic])),
-        unsubscribedShopIds: FieldValue.arrayRemove(shopId),
-        createdAt: previousData?.createdAt || FieldValue.serverTimestamp(),
-      }, { merge: true });
-
-      for (const previousDocRef of previousDocRefs) {
-        const oldData = (await previousDocRef.get()).data() || {};
-        const remainingShopIds = Array.isArray(oldData.shopIds)
-          ? oldData.shopIds.filter((id: string) => id !== shopId)
-          : [];
+    for (const previousDocRef of previousDocRefs) {
+      await db.runTransaction(async (transaction) => {
+        const previousDoc = await transaction.get(previousDocRef);
+        if (!previousDoc.exists) return;
+        const oldData = previousDoc.data()!;
+        const remainingShopIds = normalizeShopIds(oldData.shopIds).filter((id) => id !== shopId);
         if (remainingShopIds.length === 0) {
-          await previousDocRef.delete();
+          transaction.delete(previousDocRef);
         } else {
-          await previousDocRef.update({
-            shopIds: FieldValue.arrayRemove(shopId),
+          transaction.update(previousDocRef, {
+            shopIds: remainingShopIds,
+            unsubscribedShopIds: normalizeShopIds(oldData.unsubscribedShopIds),
             topics: FieldValue.arrayRemove(topic),
           });
         }
-      }
+      });
     }
 
     // チャンクは補助データ。移行・再登録でも必ず旧トークンを除去してから追加する。
