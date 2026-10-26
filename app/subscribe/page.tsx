@@ -729,10 +729,13 @@ useEffect(() => {
 )}
 <h2 style={{ margin: '0 0 8px 0' }}>{shopData?.name}</h2>
           {shopData?.linkUrl && (
-            <a href={withReturnButton(shopData.linkUrl)} style={{ display: 'inline-block', padding: '10px 18px', background: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold' }}>
-              🌐 サイトはこちらから
-            </a>
-          )}
+  <a 
+    href={`/notification-link?target=${encodeURIComponent(shopData.linkUrl)}&returnTo=/subscribe?s=${shopId}`} 
+    style={{ display: 'inline-block', padding: '10px 18px', background: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold' }}
+  >
+    🌐 サイトはこちらから
+  </a>
+)}
         </div>
 
         {/* � 記念日・誕生日設定エリア（PROプランのみ／一度設定すると変更不可） */}
