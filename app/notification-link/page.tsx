@@ -19,22 +19,13 @@ function NotificationLinkContent() {
   return (
     <main style={{ height: '100dvh', display: 'flex', flexDirection: 'column', background: '#fff', fontFamily: 'sans-serif' }}>
       <header style={{ flex: '0 0 auto', padding: 'calc(10px + env(safe-area-inset-top)) 12px 10px', background: '#fff', borderBottom: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,.08)', zIndex: 1 }}>
+        {/* 戻るボタンのみ残す（表示されない場合のリンクは削除） */}
         <a
           href={returnTo}
           style={{ display: 'inline-flex', alignItems: 'center', minHeight: '40px', padding: '0 16px', background: '#1e293b', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold', boxSizing: 'border-box', touchAction: 'manipulation' }}
         >
           ← 顧客画面へ戻る
         </a>
-        {target && (
-          <a
-            href={target}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ float: 'right', lineHeight: '40px', fontSize: '12px', color: '#2563eb', textDecoration: 'none' }}
-          >
-            表示されない場合 ↗
-          </a>
-        )}
       </header>
       {target ? (
         <iframe
