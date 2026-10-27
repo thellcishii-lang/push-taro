@@ -104,6 +104,14 @@ export default function ProShopPage() {
   const [dormantCombinable, setDormantCombinable] = useState(false);
   const [dormantSameDayCombinable, setDormantSameDayCombinable] = useState(false);
 
+    // 連続ログイン用ステート
+  const [streakEnabled, setStreakEnabled] = useState(false);
+  const [streakTargetDays, setStreakTargetDays] = useState(5);
+  const [streakCouponName, setStreakCouponName] = useState('');
+  const [streakNotifyEnabled, setStreakNotifyEnabled] = useState(true);
+  const [streakNotifyTitle, setStreakNotifyTitle] = useState('あと1日でクーポンGET！🔥');
+  const [streakNotifyBody, setStreakNotifyBody] = useState('連続ログイン達成まであと1日です！今日中にアプリを開いてスタンプを押して、リセットを防ぎましょう。');
+
   // 予約配信
   const [scheduledList, setScheduledList] = useState<Array<{
     id: string;
@@ -248,6 +256,15 @@ export default function ProShopPage() {
                 }
               }
 
+                if (shop?.streakCoupon) {
+                setStreakEnabled(shop.streakCoupon.enabled || false);
+                setStreakTargetDays(shop.streakCoupon.targetDays || 5);
+                setStreakCouponName(shop.streakCoupon.couponName || '');
+                setStreakNotifyEnabled(shop.streakCoupon.notifyEnabled !== false);
+                setStreakNotifyTitle(shop.streakCoupon.notifyTitle || 'あと1日でクーポンGET！🔥');
+                setStreakNotifyBody(shop.streakCoupon.notifyBody || '連続ログイン達成まであと1日です！今日中にアプリを開いてスタンプを押して、リセットを防ぎましょう。');
+              }
+              
               if (shop?.coupon) {
                 setCouponEnabled(shop.coupon.enabled);
                 setCouponTitle(shop.coupon.title || '');
