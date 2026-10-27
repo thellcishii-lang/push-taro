@@ -28,6 +28,7 @@ export async function POST(request: Request) {
       normalCoupon,
       loyaltyCoupon,
       proCoupons,
+      streakCoupon, // 👈 追加
       linkUrl,
       iconUrl,
       bankAccount,
@@ -83,6 +84,24 @@ export async function POST(request: Request) {
 
       updateData.proCoupons = nextProCoupons;
     }
+
+    // 👇 追加：連続ログイン特典（streakCoupon）
+    if (streakCoupon !== undefined) {
+      const currentStreak = shopDoc.data()?.streakCoupon || {};
+      const reactivated = currentStreak.enabled === false && streakCoupon.enabled === true;
+
+      // targetDays は 1〜10 にクランプ（UI側の range と揃える）
+      const targetDays = Math.min(10, Math.max(1, Number(streakCoupon.targetDays) || 1));
+
+      updateData.streakCoupon = {
+        ...streakCoupon,
+        targetDays,
+        campaignId: reactivated
+          ? randomUUID()
+          : (currentStreak.campaignId || randomUUID()),
+      };
+    }
+
     if (linkUrl !== undefined)       updateData.linkUrl = linkUrl;
     if (iconUrl !== undefined)       updateData.iconUrl = iconUrl;
     if (bankAccount !== undefined)   updateData.bankAccount = bankAccount;
