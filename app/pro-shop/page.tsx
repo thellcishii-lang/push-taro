@@ -104,13 +104,14 @@ export default function ProShopPage() {
   const [dormantCombinable, setDormantCombinable] = useState(false);
   const [dormantSameDayCombinable, setDormantSameDayCombinable] = useState(false);
 
-    // 連続ログイン用ステート
+  // 連続ログイン用ステート
   const [streakEnabled, setStreakEnabled] = useState(false);
   const [streakTargetDays, setStreakTargetDays] = useState(5);
   const [streakCouponName, setStreakCouponName] = useState('');
   const [streakNotifyEnabled, setStreakNotifyEnabled] = useState(true);
   const [streakNotifyTitle, setStreakNotifyTitle] = useState('あと1日でクーポンGET！🔥');
   const [streakNotifyBody, setStreakNotifyBody] = useState('連続ログイン達成まであと1日です！今日中にアプリを開いてスタンプを押して、リセットを防ぎましょう。');
+  const [streakCampaignId, setStreakCampaignId] = useState<string | null>(null); // 👈 追加
 
   // 予約配信
   const [scheduledList, setScheduledList] = useState<Array<{
@@ -256,15 +257,16 @@ export default function ProShopPage() {
                 }
               }
 
-                if (shop?.streakCoupon) {
+              if (shop?.streakCoupon) {
                 setStreakEnabled(shop.streakCoupon.enabled || false);
                 setStreakTargetDays(shop.streakCoupon.targetDays || 5);
                 setStreakCouponName(shop.streakCoupon.couponName || '');
                 setStreakNotifyEnabled(shop.streakCoupon.notifyEnabled !== false);
                 setStreakNotifyTitle(shop.streakCoupon.notifyTitle || 'あと1日でクーポンGET！🔥');
                 setStreakNotifyBody(shop.streakCoupon.notifyBody || '連続ログイン達成まであと1日です！今日中にアプリを開いてスタンプを押して、リセットを防ぎましょう。');
+                if (shop.streakCoupon.campaignId) setStreakCampaignId(shop.streakCoupon.campaignId); // 👈 追加
               }
-              
+
               if (shop?.coupon) {
                 setCouponEnabled(shop.coupon.enabled);
                 setCouponTitle(shop.coupon.title || '');
@@ -554,6 +556,16 @@ export default function ProShopPage() {
             birthday: { enabled: birthdayEnabled, title: birthdayTitle, message: birthdayMessage, loyaltyCountable: birthdayCombinable, sameDayCombinable: birthdaySameDayCombinable },
             dormant: { enabled: dormantEnabled, targetDays: dormantTargetDays, title: dormantTitle, message: dormantMessage, expireDays: dormantExpireDays, loyaltyCountable: dormantCombinable, sameDayCombinable: dormantSameDayCombinable },
           },
+          // 👇 追加：連続ログイン特典
+          streakCoupon: {
+            enabled: streakEnabled,
+            targetDays: streakTargetDays,
+            couponName: streakCouponName,
+            notifyEnabled: streakNotifyEnabled,
+            notifyTitle: streakNotifyTitle,
+            notifyBody: streakNotifyBody,
+            ...(streakCampaignId ? { campaignId: streakCampaignId } : {}),
+          },
           coupon: {
             enabled: couponEnabled,
             title: couponTitle,
@@ -622,73 +634,71 @@ export default function ProShopPage() {
     };
 
     const updatedList = [...scheduledList, newItem];
-setScheduledList(updatedList);
+    setScheduledList(updatedList);
 
-if (user && shopId) {
-  try {
-    const idToken = await user.getIdToken();
-    const res = await fetch('/api/update-shop', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${idToken}`,
-      },
-      body: JSON.stringify({ shopId, scheduledList: updatedList }),
-    });
+    if (user && shopId) {
+      try {
+        const idToken = await user.getIdToken();
+        const res = await fetch('/api/update-shop', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({ shopId, scheduledList: updatedList }),
+        });
 
-    // 🔥 エラーレスポンスをチェック
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      alert('❌ 予約の保存に失敗しました: ' + (data.error || `HTTP ${res.status}`));
-      // UI上の予約リストも元に戻す
-      setScheduledList(scheduledList);
-      return;
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          alert('❌ 予約の保存に失敗しました: ' + (data.error || `HTTP ${res.status}`));
+          setScheduledList(scheduledList);
+          return;
+        }
+      } catch (err: any) {
+        console.error('予約リスト保存エラー:', err);
+        alert('❌ 予約の保存に失敗しました: ' + err.message);
+        setScheduledList(scheduledList);
+        return;
+      }
     }
-  } catch (err: any) {
-    console.error('予約リスト保存エラー:', err);
-    alert('❌ 予約の保存に失敗しました: ' + err.message);
-    setScheduledList(scheduledList);
-    return;
-  }
-}
 
-setReserveTitle('');
-setReserveBody('');
-setReserveLinkUrl('');
-setReserveCouponExpireDays(14);
-alert('✅ 予約を送信リストにセットし、保存しました！');
+    setReserveTitle('');
+    setReserveBody('');
+    setReserveLinkUrl('');
+    setReserveCouponExpireDays(14);
+    alert('✅ 予約を送信リストにセットし、保存しました！');
   };
 
   const handleDeleteSchedule = async (id: string) => {
-  if (!confirm('この予約配信を取り消して削除しますか？')) return;
+    if (!confirm('この予約配信を取り消して削除しますか？')) return;
 
-  const updatedList = scheduledList.filter((item) => item.id !== id);
-  setScheduledList(updatedList);
+    const updatedList = scheduledList.filter((item) => item.id !== id);
+    setScheduledList(updatedList);
 
-  if (user && shopId) {
-    try {
-      const idToken = await user.getIdToken();
-      const res = await fetch('/api/update-shop', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
-        },
-        body: JSON.stringify({ shopId, scheduledList: updatedList }),
-      });
+    if (user && shopId) {
+      try {
+        const idToken = await user.getIdToken();
+        const res = await fetch('/api/update-shop', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({ shopId, scheduledList: updatedList }),
+        });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        alert('❌ 予約の削除に失敗しました: ' + (data.error || `HTTP ${res.status}`));
-        setScheduledList(scheduledList); // ロールバック
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          alert('❌ 予約の削除に失敗しました: ' + (data.error || `HTTP ${res.status}`));
+          setScheduledList(scheduledList);
+        }
+      } catch (err: any) {
+        console.error('予約削除エラー:', err);
+        alert('❌ 予約の削除に失敗しました: ' + err.message);
+        setScheduledList(scheduledList);
       }
-    } catch (err: any) {
-      console.error('予約削除エラー:', err);
-      alert('❌ 予約の削除に失敗しました: ' + err.message);
-      setScheduledList(scheduledList);
     }
-  }
-};
+  };
 
   const handleExport = async () => {
     const json = await exportHistoryToJSON();
@@ -1314,6 +1324,59 @@ alert('✅ 予約を送信リストにセットし、保存しました！');
                 <label style={{ cursor: 'pointer' }}>
                   <input type="checkbox" checked={dormantSameDayCombinable} onChange={(e) => setDormantSameDayCombinable(e.target.checked)} /> 同日、他のクーポンと併用
                 </label>
+              </div>
+            )}
+          </div>
+
+          {/* 連続ログイン特典 */}
+          <div style={{ background: '#fff7ed', padding: '16px', borderRadius: '8px', border: '1px solid #fed7aa' }}>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#c2410c' }}>🔥 連続ログイン特典</h3>
+            <p style={{ fontSize: '12px', color: '#9a3412', marginBottom: '16px' }}>
+              アプリを開く習慣をつけ、連続達成でクーポンをプレゼントします。
+            </p>
+
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', marginBottom: '16px' }}>
+              <input type="checkbox" checked={streakEnabled} onChange={(e) => setStreakEnabled(e.target.checked)} /> 有効にする
+            </label>
+
+            {streakEnabled && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: '#fff', padding: '16px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '8px' }}>目標日数</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <input type="range" min="1" max="10" value={streakTargetDays} onChange={(e) => setStreakTargetDays(Number(e.target.value))} style={{ flex: 1 }} />
+                    <span style={{ fontWeight: 'bold', color: '#ea580c', width: '40px', textAlign: 'right' }}>{streakTargetDays}日</span>
+                  </div>
+                  <p style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>※ 1日でも途切れるとリセットされます。</p>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>達成時のクーポン名</label>
+                  <input type="text" value={streakCouponName} onChange={(e) => setStreakCouponName(e.target.value)} placeholder="例: 5日連続ログイン達成！特別10%OFFクーポン" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                  <p style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>POSレジや顧客画面には、この名前で表示されます。</p>
+                </div>
+
+                <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', marginBottom: '12px' }}>
+                    <input type="checkbox" checked={streakNotifyEnabled} onChange={(e) => setStreakNotifyEnabled(e.target.checked)} /> リマインド通知を送る（あと1日で達成時）
+                  </label>
+                  <p style={{ fontSize: '11px', color: '#64748b', marginBottom: '12px' }}>毎日夕方18時に、リセットを防ぐための通知を自動送信します。</p>
+
+                  {streakNotifyEnabled && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '4px' }}>通知タイトル</label>
+                        <input type="text" value={streakNotifyTitle} onChange={(e) => setStreakNotifyTitle(e.target.value)} placeholder="あと1日でクーポンGET！🔥" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '4px' }}>通知本文</label>
+                        <textarea value={streakNotifyBody} onChange={(e) => setStreakNotifyBody(e.target.value)} rows={2} placeholder="連続ログイン達成まであと1日です！今日中にアプリを開いてスタンプを押して、リセットを防ぎましょう。" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
               </div>
             )}
           </div>
