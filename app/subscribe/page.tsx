@@ -953,6 +953,7 @@ export default function SubscribePage() {
                     <p className="text-[11px] text-gray-500 m-0">会計時にこちらのQRコードをスタッフにご提示ください</p>
                   </div>
                 </CouponDisplay>
+               )}
 
                {shopData?.plan === 'pro' && streakInfo?.enabled && streakInfo.achieved && streakInfo.achievedAt && (
                 <CouponDisplay
@@ -986,7 +987,6 @@ export default function SubscribePage() {
                     </p>
                   </div>
                 </CouponDisplay>
-              )}
               )}
             </div>
           )}
