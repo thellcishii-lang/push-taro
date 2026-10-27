@@ -120,6 +120,11 @@ export default function GuideClient() {
               <div className="g-feature-info"><h4>特別達成クーポン</h4><p>N回来店で解放、常連化を促進</p></div>
               <span className="g-feature-tag is-std">STANDARD+</span>
             </Link>
+            <Link href="/guide/features/store-pop" className="g-feature-card">
+              <span className="g-feature-icon">🖨️</span>
+              <div className="g-feature-info"><h4>店頭POP印刷</h4><p>A4/A5のQRポップを管理画面から印刷</p></div>
+              <span className="g-feature-tag is-std">STANDARD+</span>
+            </Link>
             <Link href="/guide/features/coupon-stepup" className="g-feature-card">
               <span className="g-feature-icon">🐾</span>
               <div className="g-feature-info"><h4>ステップアップクーポン</h4><p>段階的に特典アップ</p></div>
@@ -143,6 +148,16 @@ export default function GuideClient() {
             <Link href="/guide/features/scheduled-push" className="g-feature-card">
               <span className="g-feature-icon">📅</span>
               <div className="g-feature-info"><h4>予約配信・定期配信</h4><p>日時指定で自動配信</p></div>
+              <span className="g-feature-tag is-pro">PRO</span>
+            </Link>
+            <Link href="/guide/features/login-streak" className="g-feature-card">
+              <span className="g-feature-icon">🔥</span>
+              <div className="g-feature-info"><h4>連続ログイン特典</h4><p>アプリを開く習慣化と達成クーポン</p></div>
+              <span className="g-feature-tag is-pro">PRO</span>
+            </Link>
+            <Link href="/guide/pos-integration" className="g-feature-card">
+              <span className="g-feature-icon">🔗</span>
+              <div className="g-feature-info"><h4>POS連携</h4><p>レジと連携して消込を自動化</p></div>
               <span className="g-feature-tag is-pro">PRO</span>
             </Link>
             <Link href="/guide/features/referral" className="g-feature-card">
