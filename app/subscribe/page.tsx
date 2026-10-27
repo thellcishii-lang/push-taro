@@ -54,7 +54,6 @@ export default function SubscribePage() {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [phoneAuthLoading, setPhoneAuthLoading] = useState(false);
 
-  // 履歴・タブ用ステート
   const [historyList, setHistoryList] = useState<any[]>([]);
   const [displayCount, setDisplayCount] = useState<number>(10);
   const [couponHistory, setCouponHistory] = useState<Array<{ id: string; title: string; usedAt: string | null }>>([]);
@@ -68,7 +67,6 @@ export default function SubscribePage() {
   const [couponStatusLoaded, setCouponStatusLoaded] = useState(false);
   const [couponStatusError, setCouponStatusError] = useState('');
   
-  // 新UI用ステート
   const [activeTab, setActiveTab] = useState<'coupons' | 'history'>('coupons');
   const [streakInfo, setStreakInfo] = useState<any>(null);
   const [stampLoading, setStampLoading] = useState(false);
@@ -79,12 +77,24 @@ export default function SubscribePage() {
     emoji: string;
   }>({ open: false, title: '', message: '', emoji: '🎁' });
 
-  // 👇 追加：特別達成クーポンの false→true 変化を検知
+  // QRモーダル
+  const [qrModal, setQrModal] = useState<{ open: boolean; title: string; value: string }>({
+    open: false,
+    title: '',
+    value: '',
+  });
+
   const prevLoyaltyAvailableRef = useRef<boolean | null>(null);
 
   const sessionStorageKey = `push_taro_session_${shopId}`;
   const clearSessionToken = () => {
     try { localStorage.removeItem(sessionStorageKey); } catch {}
+  };
+
+  const openQR = (title: string, couponType: string, couponId?: string) => {
+    const payload: any = { shopId, couponType, token: fcmToken };
+    if (couponId) payload.couponId = couponId;
+    setQrModal({ open: true, title, value: JSON.stringify(payload) });
   };
 
   const ensureSessionToken = async (): Promise<string> => {
@@ -375,7 +385,7 @@ export default function SubscribePage() {
         if (!disposed) {
           setCouponUsed(Boolean(data.firstCouponUsed || data.couponUsed));
           setNormalCouponUsed(data.normalCouponUsed === true);
-                    const newLoyalty = data.loyaltyCouponAvailable === true;
+          const newLoyalty = data.loyaltyCouponAvailable === true;
           setLoyaltyCouponAvailable(newLoyalty);
           if (prevLoyaltyAvailableRef.current === false && newLoyalty === true) {
             setCelebration({
@@ -729,7 +739,6 @@ export default function SubscribePage() {
         </header>
 
         <main className="max-w-md mx-auto p-4 pb-24">
-          {/* 👇 追加：達成演出モーダル */}
           <CelebrationModal
             open={celebration.open}
             title={celebration.title}
@@ -739,9 +748,11 @@ export default function SubscribePage() {
           />
           {activeTab === 'coupons' && (
             <div className="space-y-4">
+              {/* 連続ログイン特典（PRO） */}
               {shopData?.plan === 'pro' && streakInfo?.enabled && (
                 <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-5 mb-6 shadow-lg relative overflow-hidden text-white">
-                  <div className="absolute -right-6 -bottom-6 text-8xl opacity-20 transform rotate-12">🎁</div>
+                  <div className="absolute -right-6 -bottom-6
+                                    <div className="absolute -right-6 -bottom-6 text-8xl opacity-20 transform rotate-12">🎁</div>
                   <div className="flex justify-between items-center mb-1 relative z-10">
                     <span className="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold">アプリを開いてスタンプGET</span>
                     <span className="text-xs font-bold bg-white text-orange-600 px-2 py-0.5 rounded-full">{streakInfo.currentCount}日目</span>
@@ -774,6 +785,7 @@ export default function SubscribePage() {
                 </div>
               )}
 
+              {/* 記念日・誕生日設定（PRO） */}
               {shopData?.plan === 'pro' && (
                 <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm border border-orange-100">
                   <h3 className="font-bold text-orange-800 mb-3 flex items-center gap-2 text-sm">🎂 記念日・誕生日設定</h3>
@@ -802,6 +814,7 @@ export default function SubscribePage() {
 
               {couponStatusError && <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs p-3 rounded-xl mb-4">{couponStatusError}</div>}
               
+              {/* 初回クーポン */}
               {shopData?.coupon?.enabled && !couponUsed && (
                 <CouponDisplay
                   key={`first:${shopData.coupon.expiresAt || ''}`}
@@ -818,14 +831,14 @@ export default function SubscribePage() {
                     </div>
                     <h3 className="font-bold text-gray-800 text-lg mb-1 leading-tight">🎁 {shopData.coupon.title || '初回限定クーポン'}</h3>
                     <p className="text-xs text-gray-500 mb-4">{shopData.coupon.description}</p>
-                    <div className="bg-orange-50 p-3 rounded-xl inline-block mb-2">
-                      <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'first', token: fcmToken })} size={150} />
-                    </div>
-                    <p className="text-[11px] text-gray-500 m-0">会計時にこちらのQRコードをスタッフにご提示ください</p>
+                    <button onClick={() => openQR(shopData.coupon.title || '初回限定クーポン', 'first')} className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl text-sm transition-all flex justify-center items-center gap-2 shadow-sm">
+                      <span className="text-lg">📱</span> QRコードを提示する
+                    </button>
                   </div>
                 </CouponDisplay>
               )}
 
+              {/* 通常クーポン */}
               {shopData?.normalCoupon?.enabled && (
                 <CouponDisplay
                   key={`normal:${shopData.normalCoupon.couponId || 'legacy'}`}
@@ -843,14 +856,14 @@ export default function SubscribePage() {
                     </div>
                     <h3 className="font-bold text-gray-800 text-lg mb-1 leading-tight">🎟️ {shopData.normalCoupon.title || '通常クーポン'}</h3>
                     <p className="text-xs text-gray-500 mb-4">{shopData.normalCoupon.description}</p>
-                    <div className="bg-green-50 p-3 rounded-xl inline-block mb-2">
-                      <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'normal', token: fcmToken })} size={150} />
-                    </div>
-                    <p className="text-[11px] text-gray-500 m-0">会計時にこちらのQRコードをスタッフにご提示ください</p>
+                    <button onClick={() => openQR(shopData.normalCoupon.title || '通常クーポン', 'normal')} className="w-full bg-green-50 hover:bg-green-100 text-green-700 font-bold py-3 rounded-xl text-sm transition-all flex justify-center items-center gap-2">
+                      <span className="text-lg">📱</span> QRコードを提示する
+                    </button>
                   </div>
                 </CouponDisplay>
               )}
 
+              {/* 記念日・誕生日クーポン */}
               {shopData?.proCoupons?.birthday?.enabled && birthdayCouponAvailable && (
                 <CouponDisplay
                   key={`birthday:${new Date(couponNow).getFullYear()}`}
@@ -865,14 +878,14 @@ export default function SubscribePage() {
                     </div>
                     <h3 className="font-bold text-gray-800 text-lg mb-1 leading-tight">🎂 {shopData.proCoupons.birthday.title || '記念日、お誕生日クーポン'}</h3>
                     <p className="text-xs text-gray-500 mb-4">{shopData.proCoupons.birthday.message || '特別な日のクーポンです。'}</p>
-                    <div className="bg-orange-50 p-3 rounded-xl inline-block mb-2">
-                      <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'birthday', token: fcmToken })} size={150} />
-                    </div>
-                    <p className="text-[11px] text-gray-500 m-0">会計時にこちらのQRコードをスタッフにご提示ください</p>
+                    <button onClick={() => openQR(shopData.proCoupons.birthday.title || '記念日クーポン', 'birthday')} className="w-full bg-orange-50 hover:bg-orange-100 text-orange-700 font-bold py-3 rounded-xl text-sm transition-all flex justify-center items-center gap-2">
+                      <span className="text-lg">📱</span> QRコードを提示する
+                    </button>
                   </div>
                 </CouponDisplay>
               )}
 
+              {/* 休眠復活クーポン */}
               {shopData?.proCoupons?.dormant?.enabled && dormantCouponAvailable && (
                 <CouponDisplay
                   key={`dormant:${dormantNotifiedAt}`}
@@ -888,14 +901,14 @@ export default function SubscribePage() {
                     </div>
                     <h3 className="font-bold text-gray-800 text-lg mb-1 leading-tight">💤 {shopData.proCoupons.dormant.title || '復帰クーポン'}</h3>
                     <p className="text-xs text-gray-500 mb-4">{shopData.proCoupons.dormant.message || 'お久しぶりの方限定クーポンです。'}</p>
-                    <div className="bg-gray-50 p-3 rounded-xl inline-block mb-2">
-                      <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'dormant', token: fcmToken })} size={150} />
-                    </div>
-                    <p className="text-[11px] text-gray-500 m-0">会計時にこちらのQRコードをスタッフにご提示ください</p>
+                    <button onClick={() => openQR(shopData.proCoupons.dormant.title || '復帰クーポン', 'dormant')} className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold py-3 rounded-xl text-sm transition-all flex justify-center items-center gap-2">
+                      <span className="text-lg">📱</span> QRコードを提示する
+                    </button>
                   </div>
                 </CouponDisplay>
               )}
 
+              {/* 予約クーポン */}
               {(shopData?.scheduledCoupons || []).map((coupon: any) => {
                 const used = scheduledCouponUsedIds.includes(coupon.id);
                 return (
@@ -915,15 +928,15 @@ export default function SubscribePage() {
                       </div>
                       <h3 className="font-bold text-gray-800 text-lg mb-1 leading-tight">🎫 {coupon.title || '予約クーポン'}</h3>
                       <p className="text-xs text-gray-500 mb-4">{coupon.body}</p>
-                      <div className="bg-yellow-50 p-3 rounded-xl inline-block mb-2">
-                        <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'scheduled', couponId: coupon.id, token: fcmToken })} size={150} />
-                      </div>
-                      <p className="text-[11px] text-gray-500 m-0">会計時にこちらのQRコードをスタッフにご提示ください</p>
+                      <button onClick={() => openQR(coupon.title || '予約クーポン', 'scheduled', coupon.id)} className="w-full bg-yellow-50 hover:bg-yellow-100 text-yellow-700 font-bold py-3 rounded-xl text-sm transition-all flex justify-center items-center gap-2">
+                        <span className="text-lg">📱</span> QRコードを提示する
+                      </button>
                     </div>
                   </CouponDisplay>
                 );
               })}
 
+              {/* ステップアップクーポン */}
               {shopData?.proCoupons?.stepUp?.enabled && shopData.proCoupons.stepUp.steps?.[stepUpIndex] && (
                 <CouponDisplay
                   key={`step-up:${shopData.proCoupons.stepUp.campaignId || 'legacy'}:${stepUpIndex}`}
@@ -938,14 +951,14 @@ export default function SubscribePage() {
                     </div>
                     <h3 className="font-bold text-gray-800 text-lg mb-1 leading-tight">🐾 {shopData.proCoupons.stepUp.steps[stepUpIndex].title || `ステップ${stepUpIndex + 1}`}</h3>
                     <p className="text-xs text-gray-500 mb-4">ステップ {stepUpIndex + 1} の特典です。</p>
-                    <div className="bg-purple-50 p-3 rounded-xl inline-block mb-2">
-                      <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'step-up', token: fcmToken })} size={150} />
-                    </div>
-                    <p className="text-[11px] text-gray-500 m-0">会計時にこちらのQRコードをスタッフにご提示ください</p>
+                    <button onClick={() => openQR(shopData.proCoupons.stepUp.steps[stepUpIndex].title || `ステップ${stepUpIndex + 1}`, 'step-up')} className="w-full bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold py-3 rounded-xl text-sm transition-all flex justify-center items-center gap-2">
+                      <span className="text-lg">📱</span> QRコードを提示する
+                    </button>
                   </div>
                 </CouponDisplay>
               )}
 
+              {/* 連続クーポン */}
               {shopData?.proCoupons?.repeat?.enabled && (
                 <CouponDisplay
                   key={`repeat:${shopData.proCoupons.repeat.campaignId || 'legacy'}:${repeatCouponActiveUntil || ''}`}
@@ -959,16 +972,18 @@ export default function SubscribePage() {
                       <span className="bg-sky-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">連続クーポン</span>
                     </div>
                     <h3 className="font-bold text-gray-800 text-lg mb-1 leading-tight">🔄 {shopData.proCoupons.repeat.title || '連続クーポン'}</h3>
-                    {repeatCouponUsedToday ? <p className="text-sm font-bold text-red-500 mb-4">本日は使用済みです。次回は翌日から利用できます。</p> : <>
-                      <div className="bg-sky-50 p-3 rounded-xl inline-block mb-2">
-                        <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'repeat', token: fcmToken })} size={150} />
-                      </div>
-                      <p className="text-[11px] text-gray-500 m-0">会計時にこちらのQRコードをスタッフにご提示ください</p>
-                    </>}
+                    {repeatCouponUsedToday ? (
+                      <p className="text-sm font-bold text-red-500 mb-4">本日は使用済みです。次回は翌日から利用できます。</p>
+                    ) : (
+                      <button onClick={() => openQR(shopData.proCoupons.repeat.title || '連続クーポン', 'repeat')} className="w-full bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold py-3 rounded-xl text-sm transition-all flex justify-center items-center gap-2">
+                        <span className="text-lg">📱</span> QRコードを提示する
+                      </button>
+                    )}
                   </div>
                 </CouponDisplay>
               )}
 
+              {/* 特別達成クーポン */}
               {shopData?.loyaltyCoupon?.enabled && loyaltyCouponAvailable && (
                 <CouponDisplay
                   key={`loyalty:${loyaltyAchievedAt || ''}`}
@@ -983,15 +998,15 @@ export default function SubscribePage() {
                     </div>
                     <h3 className="font-bold text-gray-800 text-lg mb-1 leading-tight">🏆 {shopData.loyaltyCoupon.title || '特別達成クーポン'}</h3>
                     <p className="text-xs text-gray-500 mb-4">通常クーポンを規定回数ご利用いただいた特典です。</p>
-                    <div className="bg-orange-50 p-3 rounded-xl inline-block mb-2">
-                      <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'loyalty', token: fcmToken })} size={150} />
-                    </div>
-                    <p className="text-[11px] text-gray-500 m-0">会計時にこちらのQRコードをスタッフにご提示ください</p>
+                    <button onClick={() => openQR(shopData.loyaltyCoupon.title || '特別達成クーポン', 'loyalty')} className="w-full bg-orange-50 hover:bg-orange-100 text-orange-700 font-bold py-3 rounded-xl text-sm transition-all flex justify-center items-center gap-2">
+                      <span className="text-lg">📱</span> QRコードを提示する
+                    </button>
                   </div>
                 </CouponDisplay>
-               )}
+              )}
 
-               {shopData?.plan === 'pro' && streakInfo?.enabled && streakInfo.achieved && streakInfo.achievedAt && (
+              {/* 連続ログイン達成クーポン */}
+              {shopData?.plan === 'pro' && streakInfo?.enabled && streakInfo.achieved && streakInfo.achievedAt && (
                 <CouponDisplay
                   key={`streak:${streakInfo.achievedAt}`}
                   storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:streak:${streakInfo.achievedAt}`}
@@ -1002,25 +1017,13 @@ export default function SubscribePage() {
                   <div className="bg-white rounded-2xl p-4 shadow-sm border border-orange-300 relative overflow-hidden text-center">
                     <div className="absolute top-0 left-0 w-1.5 h-full bg-orange-500"></div>
                     <div className="flex justify-between items-start mb-2">
-                      <span className="bg-orange-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
-                        🔥 連続ログイン達成
-                      </span>
+                      <span className="bg-orange-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">🔥 連続ログイン達成</span>
                     </div>
-                    <h3 className="font-bold text-gray-800 text-lg mb-1 leading-tight">
-                      🎉 {shopData?.streakCoupon?.couponName || '連続ログイン達成クーポン'}
-                    </h3>
-                    <p className="text-xs text-gray-500 mb-4">
-                      {streakInfo.targetDays}日連続ログイン達成のご褒美クーポンです。
-                    </p>
-                    <div className="bg-orange-50 p-3 rounded-xl inline-block mb-2">
-                      <QRCodeSVG
-                        value={JSON.stringify({ shopId, couponType: 'streak', token: fcmToken })}
-                        size={150}
-                      />
-                    </div>
-                    <p className="text-[11px] text-gray-500 m-0">
-                      会計時にこちらのQRコードをスタッフにご提示ください
-                    </p>
+                    <h3 className="font-bold text-gray-800 text-lg mb-1 leading-tight">🎉 {shopData?.streakCoupon?.couponName || '連続ログイン達成クーポン'}</h3>
+                    <p className="text-xs text-gray-500 mb-4">{streakInfo.targetDays}日連続ログイン達成のご褒美クーポンです。</p>
+                    <button onClick={() => openQR(shopData?.streakCoupon?.couponName || '連続ログイン達成クーポン', 'streak')} className="w-full bg-orange-50 hover:bg-orange-100 text-orange-700 font-bold py-3 rounded-xl text-sm transition-all flex justify-center items-center gap-2">
+                      <span className="text-lg">📱</span> QRコードを提示する
+                    </button>
                   </div>
                 </CouponDisplay>
               )}
@@ -1060,6 +1063,33 @@ export default function SubscribePage() {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* QRモーダル */}
+          {qrModal.open && (
+            <div
+              className="fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-5"
+              onClick={() => setQrModal(prev => ({ ...prev, open: false }))}
+            >
+              <div
+                className="bg-white rounded-3xl p-6 max-w-xs w-full text-center shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 className="font-bold text-gray-800 text-base mb-1">{qrModal.title}</h3>
+                <p className="text-[11px] text-gray-500 mb-4">
+                  会計時にこちらのQRコードを<br />スタッフにご提示ください
+                </p>
+                <div className="bg-orange-50 p-4 rounded-2xl inline-block mb-4">
+                  <QRCodeSVG value={qrModal.value} size={192} />
+                </div>
+                <button
+                  onClick={() => setQrModal(prev => ({ ...prev, open: false }))}
+                  className="w-full py-3 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-xl text-sm transition-colors"
+                >
+                  閉じる
+                </button>
+              </div>
             </div>
           )}
         </main>
