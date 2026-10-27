@@ -606,9 +606,7 @@ export default function ProShopDashboardPage() {
         </div>
       )}
 
-      {/* フッター */}
-      <div className="text-center mt-8">
-      </div>
+   
     </main>
   );
 }
