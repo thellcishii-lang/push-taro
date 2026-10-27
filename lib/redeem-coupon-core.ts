@@ -237,6 +237,26 @@ export async function redeemCouponCore(params: RedeemCouponParams): Promise<Rede
       countForLoyalty = scheduled.loyaltyCountable === true;
       setUsage('scheduledCouponUsedIds', FieldValue.arrayUnion(couponId));
       setUsage(`scheduledCouponUsedAt.${couponId}`, FieldValue.serverTimestamp());
+       } else if (couponType === 'streak') {
+      const streak = shopData.streakCoupon || {};
+      enabled(streak.enabled);
+      couponTitle = streak.couponName || '連続ログイン達成クーポン';
+      
+      const streakData = usage.streak || {};
+      if (!streakData.achievedAt) {
+        throw new RedeemError('COUPON_NOT_AVAILABLE', 'この連続ログインクーポンはまだ利用できません', 400);
+      }
+      if (streakData.streakUsedAt) {
+        used('⚠️ この連続ログインクーポンはすでに使用済みです！');
+      }
+      
+      sameDayCombinable = streak.sameDayCombinable === true;
+      countForLoyalty = streak.loyaltyCountable === true;
+      
+      // 使用済みにして、カウントを1（または0）にリセット
+      setUsage('streak.streakUsedAt', FieldValue.serverTimestamp());
+      setUsage('streak.currentCount', 0);
+      setUsage('streak.achievedAt', null);
     } else {
       throw new RedeemError('COUPON_UNKNOWN_TYPE', `未対応のクーポンタイプです: ${couponType}`, 400);
     }
