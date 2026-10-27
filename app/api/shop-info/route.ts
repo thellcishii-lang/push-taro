@@ -48,6 +48,7 @@ export async function GET(request: Request) {
       normalCoupon: data?.normalCoupon || null,
       loyaltyCoupon: data?.loyaltyCoupon || null,
       proCoupons: data?.proCoupons || null,
+      streakCoupon: data?.streakCoupon || null,
       scheduledCoupons: data?.scheduledCoupons || [],
 
       // ── アップグレード状態 ──
