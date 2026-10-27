@@ -8,6 +8,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { auth } from '../../lib/firebase-client';
 import { ConfirmationResult, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import CouponDisplay, { couponExpiry } from './CouponDisplay';
+import CelebrationModal from './CelebrationModal';
 
 export default function SubscribePage() {
   const [status, setStatus] = useState<'idle' | 'requesting' | 'success' | 'error'>('idle');
@@ -71,6 +72,15 @@ export default function SubscribePage() {
   const [activeTab, setActiveTab] = useState<'coupons' | 'history'>('coupons');
   const [streakInfo, setStreakInfo] = useState<any>(null);
   const [stampLoading, setStampLoading] = useState(false);
+  const [celebration, setCelebration] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    emoji: string;
+  }>({ open: false, title: '', message: '', emoji: '🎁' });
+
+  // 👇 追加：特別達成クーポンの false→true 変化を検知
+  const prevLoyaltyAvailableRef = useRef<boolean | null>(null);
 
   const sessionStorageKey = `push_taro_session_${shopId}`;
   const clearSessionToken = () => {
@@ -365,7 +375,17 @@ export default function SubscribePage() {
         if (!disposed) {
           setCouponUsed(Boolean(data.firstCouponUsed || data.couponUsed));
           setNormalCouponUsed(data.normalCouponUsed === true);
-          setLoyaltyCouponAvailable(data.loyaltyCouponAvailable === true);
+                    const newLoyalty = data.loyaltyCouponAvailable === true;
+          setLoyaltyCouponAvailable(newLoyalty);
+          if (prevLoyaltyAvailableRef.current === false && newLoyalty === true) {
+            setCelebration({
+              open: true,
+              title: '特別達成クーポン獲得！',
+              message: '通常クーポンを規定回数ご利用いただきました。\n特別達成クーポンをプレゼントします🎉',
+              emoji: '🏆',
+            });
+          }
+          prevLoyaltyAvailableRef.current = newLoyalty;
           setLoyaltyAchievedAt(data.loyaltyAchievedAt || null);
           setStepUpIndex(data.stepUpIndex || 0);
           setStepUpIndexAppearedAt(data.stepUpIndexAppearedAt || null);
@@ -577,7 +597,13 @@ export default function SubscribePage() {
         achieved: data.achieved,
         achievedAt: data.achieved ? new Date().toISOString() : (prev?.achievedAt ?? null),
       }));
-      if (data.achieved) alert('🎉 おめでとうございます！クーポンを獲得しました！');
+      if (data.achieved) {
+        setCelebration({
+          open: true,
+          title: '連続ログイン達成！',
+          message: `${data.targetDays || streakInfo?.targetDays || ''}日連続ログイン達成！\nご褒美クーポンを獲得しました🎉`,
+          emoji: '🔥',
+        });
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -702,6 +728,14 @@ export default function SubscribePage() {
         </header>
 
         <main className="max-w-md mx-auto p-4 pb-24">
+          {/* 👇 追加：達成演出モーダル */}
+          <CelebrationModal
+            open={celebration.open}
+            title={celebration.title}
+            message={celebration.message}
+            emoji={celebration.emoji}
+            onClose={() => setCelebration(prev => ({ ...prev, open: false }))}
+          />
           {activeTab === 'coupons' && (
             <div className="space-y-4">
               {shopData?.plan === 'pro' && streakInfo?.enabled && (
