@@ -616,7 +616,7 @@ export default function ShopPage() {
         .glow-inner { border-radius: 18px; background: linear-gradient(135deg, #fffbf5 0%, #fff7ed 60%, #ffedd5 100%); padding: 14px 16px; }
       `}</style>
 
-      {/* ヘッダー */}
+            {/* ヘッダー */}
       <header className="sticky top-0 z-30 border-b border-slate-200/70" style={{ background: 'rgba(255,255,255,0.82)', backdropFilter: 'blur(20px) saturate(180%)', WebkitBackdropFilter: 'blur(20px) saturate(180%)' }}>
         <div className="max-w-3xl mx-auto px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
@@ -633,18 +633,19 @@ export default function ShopPage() {
               <p className="text-[10px] text-slate-500 truncate hidden sm:block">{user.email}</p>
             </div>
           </div>
-          <a
-  href={`/notification-link?target=${encodeURIComponent('https://push-taro.com/torisetsu')}&returnTo=${encodeURIComponent('/shop')}&label=${encodeURIComponent('管理画面に戻る')}`}
-  aria-label="取扱説明書"
-  title="取扱説明書"
-  className="inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-xs font-bold text-slate-700 transition-all"
->
-  <span className="text-sm sm:text-xs">📖</span>
-  <span className="hidden sm:inline sm:ml-1">取説</span>
-          </a> 
-
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <a
+              href={`/notification-link?target=${encodeURIComponent('https://push-taro.com/torisetsu')}&returnTo=${encodeURIComponent('/shop')}&label=${encodeURIComponent('管理画面に戻る')}`}
+              aria-label="取扱説明書"
+              title="取扱説明書"
+              className="inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-xs font-bold text-slate-700 transition-all"
+            >
+              <span className="text-sm sm:text-xs">📖</span>
+              <span className="hidden sm:inline sm:ml-1">取説</span>
+            </a>
             <button onClick={() => window.location.reload()} aria-label="画面を更新" title="画面を更新" className="inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-xs font-bold text-slate-700 transition-all">
-              <span className="text-sm sm:text-xs">↻</span><span className="hidden sm:inline sm:ml-1">更新</span>
+              <span className="text-sm sm:text-xs">↻</span>
+              <span className="hidden sm:inline sm:ml-1">更新</span>
             </button>
             <button onClick={() => signOut(auth)} className="px-2.5 sm:px-3 h-8 sm:h-auto sm:py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[11px] sm:text-xs font-bold transition-colors flex-shrink-0">ログアウト</button>
           </div>
