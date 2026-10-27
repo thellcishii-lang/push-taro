@@ -1058,17 +1058,6 @@ export default function ProShopPage() {
 
               <div className="h-px bg-slate-100"></div>
 
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2"><span classN</｜｜DSML｜｜ parameter>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-                     <div className="h-px bg-slate-100"></div>
-
               {/* 通常クーポン */}
               <div>
                 <div className="flex items-center justify-between mb-3">
