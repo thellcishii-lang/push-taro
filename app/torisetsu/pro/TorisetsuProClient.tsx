@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import '../torisetsu.css'; // ★ 共通CSSを読み込み
+import '../torisetsu.css';
 
 export default function TorisetsuProClient() {
   return (
@@ -32,11 +32,13 @@ export default function TorisetsuProClient() {
             <div className="t-feature-card"><span className="ico">🎫</span><div><strong>初回クーポン</strong><small>登録者全員に自動配布</small></div></div>
             <div className="t-feature-card"><span className="ico">🎟️</span><div><strong>通常クーポン</strong><small>何度でも使える常設</small></div></div>
             <div className="t-feature-card"><span className="ico">🏆</span><div><strong>特別達成クーポン</strong><small>N回来店で解放</small></div></div>
+            <div className="t-feature-card"><span className="ico">🖨️</span><div><strong>店頭POP印刷</strong><small>A4・はがきサイズ対応</small></div></div>
             <div className="t-feature-card is-pro"><span className="ico">🐾</span><div><strong>ステップアップ</strong><small>段階的に特典アップ</small></div></div>
             <div className="t-feature-card is-pro"><span className="ico">🔄</span><div><strong>連続クーポン</strong><small>消込で次回分発行</small></div></div>
             <div className="t-feature-card is-pro"><span className="ico">🎂</span><div><strong>記念日・誕生日</strong><small>自動でお祝い通知</small></div></div>
             <div className="t-feature-card is-pro"><span className="ico">💤</span><div><strong>休眠復活</strong><small>離反顧客を呼び戻す</small></div></div>
             <div className="t-feature-card is-pro"><span className="ico">📅</span><div><strong>予約配信</strong><small>日時指定で自動送信</small></div></div>
+            <div className="t-feature-card is-pro"><span className="ico">🔗</span><div><strong>POS連携</strong><small>会計と同時に消込</small></div></div>
             <div className="t-feature-card is-pro"><span className="ico">🤝</span><div><strong>紹介報酬</strong><small>毎月10%還元</small></div></div>
           </div>
         </section>
@@ -71,22 +73,30 @@ export default function TorisetsuProClient() {
         <section className="t-section">
           <div className="t-sec-head">
             <span className="t-sec-num is-pro">2</span>
-            <h2>PROコンソールの4つのタブ</h2>
+            <h2>PROコンソールの6つのタブ</h2>
           </div>
-          <p className="t-desc">PROプランでは、4つのタブを使い分けて運用します。</p>
+          <p className="t-desc">PROプランの管理画面は6つのタブで構成されています。（POS連携はダッシュボードへ移動しました）</p>
 
           <div className="t-tabs-demo">
             <div className="t-tab-item">
-              <div className="t-tab-btn is-active">📢 即時通知・消し込み</div>
+              <div className="t-tab-btn is-active">📢 即時配信</div>
               <div className="t-tab-desc">通知の送信とクーポン消込を行う、日常的によく使うタブ</div>
             </div>
             <div className="t-tab-item">
-              <div className="t-tab-btn is-sky">🏪 店舗・基本クーポン</div>
-              <div className="t-tab-desc">店舗情報、初回/通常/特別達成クーポンの設定</div>
+              <div className="t-tab-btn is-sky">📋 送信履歴</div>
+              <div className="t-tab-desc">過去に送信したプッシュ通知の一覧・開封率を確認</div>
+            </div>
+            <div className="t-tab-item">
+              <div className="t-tab-btn is-sky">🎫 消込履歴</div>
+              <div className="t-tab-desc">クーポンの消込履歴（いつ・誰が・どのクーポン）</div>
+            </div>
+            <div className="t-tab-item">
+              <div className="t-tab-btn is-sky">🏪 店舗設定</div>
+              <div className="t-tab-desc">店舗情報、各種クーポン、店頭POP印刷</div>
             </div>
             <div className="t-tab-item">
               <div className="t-tab-btn is-green">🔥 PRO機能</div>
-              <div className="t-tab-desc">ステップアップ、連続、記念日誕生日、休眠復活クーポン</div>
+              <div className="t-tab-desc">ステップアップ、連続、記念日誕生日、休眠復活、連続ログイン</div>
             </div>
             <div className="t-tab-item">
               <div className="t-tab-btn is-amber">📅 予約配信</div>
@@ -102,13 +112,15 @@ export default function TorisetsuProClient() {
             <h2>📢 プッシュ通知を送る（配信無制限）</h2>
           </div>
           <p className="t-desc">
-            「📢 即時通知・消し込み」タブから、タイトル・本文を入力して送信するだけ。
+            「📢 即時配信」タブから、タイトル・本文を入力して送信するだけ。
             <strong>PROプランは配信無制限</strong>なので、上限を気にせず送信できます。
           </p>
           <div className="t-mockup-row">
             <div className="t-mockup">
-              <div className="t-mockup-tabs">
-                <span className="is-active">📢 即時通知</span>
+              <div className="t-mockup-tabs-pill">
+                <span className="is-active">📢 即時配信</span>
+                <span>📋 送信履歴</span>
+                <span>🎫 消込履歴</span>
                 <span>🏪 店舗設定</span>
                 <span>🔥 PRO機能</span>
                 <span>📅 予約</span>
@@ -119,7 +131,7 @@ export default function TorisetsuProClient() {
                 <div className="t-mockup-input">例: 新着セールのお知らせ</div>
                 <div className="t-mockup-label">本文</div>
                 <div className="t-mockup-textarea">例: 本日から全品20%OFF！</div>
-                <div className="t-mockup-btn">🔥 Push 通知送信</div>
+                <div className="t-mockup-btn">🔥 通知を送信する</div>
               </div>
               <div className="t-mockup-unlimited">
                 <span>🔥 月間送信ステータス</span>
@@ -164,14 +176,70 @@ export default function TorisetsuProClient() {
           </div>
         </section>
 
-        {/* 基本クーポン */}
+        {/* 店頭POP（PROでも利用可能） */}
         <section className="t-section t-section-sky">
           <div className="t-sec-head">
             <span className="t-sec-num is-sky">5</span>
+            <h2>🖨️ 店頭POPを印刷する</h2>
+            <span className="t-plan-label is-all">STANDARD以上</span>
+          </div>
+          <p className="t-desc">
+            レジ横やカウンターに置く<strong>QRコードポップを印刷</strong>できます。
+            お客様がQRを読み取るだけで通知登録が完了します。
+          </p>
+
+          <div className="t-callout-info">
+            <span className="t-callout-info-icon">💡</span>
+            <div>
+              <strong>店頭POPの使い方</strong>
+              <ul>
+                <li>「🏪 店舗設定」タブの「店頭POP（印刷用）」から印刷</li>
+                <li>A4縦・はがきサイズの2種類から選択可能</li>
+                <li>印刷したQRコードをお客様が読み取ると、通知登録画面が開く</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="t-mockup-row">
+            <div className="t-mockup">
+              <div className="t-mockup-tabs-pill">
+                <span>📢 即時配信</span>
+                <span>📋 送信履歴</span>
+                <span>🎫 消込履歴</span>
+                <span className="is-active-sky">🏪 店舗設定</span>
+                <span>🔥 PRO機能</span>
+                <span>📅 予約</span>
+              </div>
+              <div className="t-mockup-h3">🖨️ 店頭POP（印刷用）</div>
+              <div className="t-pop-options">
+                <div className="t-pop-btn">
+                  <div className="t-pop-icon">📄</div>
+                  <div className="t-pop-label">A4縦</div>
+                </div>
+                <div className="t-pop-btn">
+                  <div className="t-pop-icon">📄</div>
+                  <div className="t-pop-label">はがき</div>
+                </div>
+              </div>
+              <span className="t-mockup-anno" style={{ top: '55%', left: '-10px' }}>①</span>
+              <span className="t-mockup-anno" style={{ top: '72%', left: '-10px' }}>②</span>
+            </div>
+            <div className="t-annos">
+              <div className="t-anno"><span className="t-anno-num" style={{ background: '#0284c7' }}>①</span>A4縦 or はがきを選択</div>
+              <div className="t-anno"><span className="t-anno-num" style={{ background: '#0284c7' }}>②</span>印刷してレジ横に設置</div>
+              <div className="t-anno-note">💡 お客様がQRを読み取るだけで通知登録完了</div>
+            </div>
+          </div>
+        </section>
+
+        {/* 基本クーポン */}
+        <section className="t-section t-section-sky">
+          <div className="t-sec-head">
+            <span className="t-sec-num is-sky">6</span>
             <h2>🏪 基本クーポンを設定する</h2>
             <span className="t-plan-label is-all">PRO 含む全プラン</span>
           </div>
-          <p className="t-desc">「🏪 店舗・基本クーポン」タブで、3種類のクーポンを設定します。</p>
+          <p className="t-desc">「🏪 店舗設定」タブで、3種類のクーポンを設定します。</p>
 
           <div className="t-coupon-grid">
             <div className="t-coupon-card">
@@ -198,10 +266,10 @@ export default function TorisetsuProClient() {
           </div>
         </section>
 
-        {/* PRO機能：ステップアップ */}
+                {/* PRO機能：ステップアップ */}
         <section className="t-section t-section-pro">
           <div className="t-sec-head">
-            <span className="t-sec-num is-pro">6</span>
+            <span className="t-sec-num is-pro">7</span>
             <h2>🐾 ステップアップクーポンを設定する</h2>
             <span className="t-plan-label is-pro">PRO 限定</span>
           </div>
@@ -223,16 +291,18 @@ export default function TorisetsuProClient() {
 
           <div className="t-mockup-row">
             <div className="t-mockup">
-              <div className="t-mockup-tabs">
-                <span>📢 即時通知</span>
+              <div className="t-mockup-tabs-pill">
+                <span>📢 即時配信</span>
+                <span>📋 送信履歴</span>
+                <span>🎫 消込履歴</span>
                 <span>🏪 店舗設定</span>
                 <span className="is-active-green">🔥 PRO機能</span>
                 <span>📅 予約</span>
               </div>
               <div className="t-mockup-h3">🐾 ステップアップクーポン</div>
-              <div className="t-checkbox-row">
-                <span className="t-checkbox is-on">✓</span>
+              <div className="t-toggle-row">
                 <span>有効にする</span>
+                <span className="t-toggle is-on"></span>
               </div>
               <div className="t-step-mockup">
                 <div className="t-step-title">ステップ 1</div>
@@ -247,7 +317,7 @@ export default function TorisetsuProClient() {
               </div>
             </div>
             <div className="t-annos">
-              <div className="t-anno"><span className="t-anno-num" style={{ background: '#7c3aed' }}>①</span>「有効にする」にチェック</div>
+              <div className="t-anno"><span className="t-anno-num" style={{ background: '#7c3aed' }}>①</span>「有効にする」をONに</div>
               <div className="t-anno"><span className="t-anno-num" style={{ background: '#7c3aed' }}>②</span>各ステップの特典タイトルを入力</div>
               <div className="t-anno"><span className="t-anno-num" style={{ background: '#7c3aed' }}>③</span>有効日数を設定</div>
               <div className="t-anno-note">💡 最大10段階まで設定可能。「＋ステップを追加」ボタンで追加</div>
@@ -258,7 +328,7 @@ export default function TorisetsuProClient() {
         {/* PRO機能：連続クーポン */}
         <section className="t-section t-section-pro">
           <div className="t-sec-head">
-            <span className="t-sec-num is-pro">7</span>
+            <span className="t-sec-num is-pro">8</span>
             <h2>🔄 連続クーポンを設定する</h2>
             <span className="t-plan-label is-pro">PRO 限定</span>
           </div>
@@ -280,16 +350,18 @@ export default function TorisetsuProClient() {
 
           <div className="t-mockup-row">
             <div className="t-mockup">
-              <div className="t-mockup-tabs">
-                <span>📢 即時通知</span>
+              <div className="t-mockup-tabs-pill">
+                <span>📢 即時配信</span>
+                <span>📋 送信履歴</span>
+                <span>🎫 消込履歴</span>
                 <span>🏪 店舗設定</span>
                 <span className="is-active-green">🔥 PRO機能</span>
                 <span>📅 予約</span>
               </div>
               <div className="t-mockup-h3">🔄 連続クーポン</div>
-              <div className="t-checkbox-row">
-                <span className="t-checkbox is-on">✓</span>
+              <div className="t-toggle-row">
                 <span>有効にする</span>
+                <span className="t-toggle is-on"></span>
               </div>
               <div className="t-mockup-input">次回使える特典タイトル</div>
               <div className="t-mockup-inline">
@@ -297,7 +369,7 @@ export default function TorisetsuProClient() {
               </div>
             </div>
             <div className="t-annos">
-              <div className="t-anno"><span className="t-anno-num" style={{ background: '#0ea5e9' }}>①</span>「有効にする」にチェック</div>
+              <div className="t-anno"><span className="t-anno-num" style={{ background: '#0ea5e9' }}>①</span>「有効にする」をONに</div>
               <div className="t-anno"><span className="t-anno-num" style={{ background: '#0ea5e9' }}>②</span>次回特典のタイトルを入力</div>
               <div className="t-anno"><span className="t-anno-num" style={{ background: '#0ea5e9' }}>③</span>有効日数を設定（例: 14日）</div>
             </div>
@@ -307,7 +379,7 @@ export default function TorisetsuProClient() {
         {/* PRO機能：記念日誕生日 */}
         <section className="t-section t-section-pro">
           <div className="t-sec-head">
-            <span className="t-sec-num is-pro">8</span>
+            <span className="t-sec-num is-pro">9</span>
             <h2>🎂 記念日・お誕生日クーポンを設定する</h2>
             <span className="t-plan-label is-pro">PRO 限定</span>
           </div>
@@ -329,16 +401,18 @@ export default function TorisetsuProClient() {
 
           <div className="t-mockup-row">
             <div className="t-mockup">
-              <div className="t-mockup-tabs">
-                <span>📢 即時通知</span>
+              <div className="t-mockup-tabs-pill">
+                <span>📢 即時配信</span>
+                <span>📋 送信履歴</span>
+                <span>🎫 消込履歴</span>
                 <span>🏪 店舗設定</span>
                 <span className="is-active-green">🔥 PRO機能</span>
                 <span>📅 予約</span>
               </div>
               <div className="t-mockup-h3">🎂 記念日、お誕生日クーポン</div>
-              <div className="t-checkbox-row">
-                <span className="t-checkbox is-on">✓</span>
+              <div className="t-toggle-row">
                 <span>有効にする</span>
+                <span className="t-toggle is-on"></span>
               </div>
               <div className="t-mockup-input">クーポンタイトル</div>
               <div className="t-mockup-textarea">お祝いメッセージ本文</div>
@@ -348,7 +422,7 @@ export default function TorisetsuProClient() {
               </div>
             </div>
             <div className="t-annos">
-              <div className="t-anno"><span className="t-anno-num" style={{ background: '#ea580c' }}>①</span>「有効にする」にチェック</div>
+              <div className="t-anno"><span className="t-anno-num" style={{ background: '#ea580c' }}>①</span>「有効にする」をONに</div>
               <div className="t-anno"><span className="t-anno-num" style={{ background: '#ea580c' }}>②</span>クーポンタイトルを入力</div>
               <div className="t-anno"><span className="t-anno-num" style={{ background: '#ea580c' }}>③</span>お祝いメッセージを入力</div>
             </div>
@@ -358,7 +432,7 @@ export default function TorisetsuProClient() {
         {/* PRO機能：休眠復活 */}
         <section className="t-section t-section-pro">
           <div className="t-sec-head">
-            <span className="t-sec-num is-pro">9</span>
+            <span className="t-sec-num is-pro">10</span>
             <h2>💤 休眠復活クーポンを設定する</h2>
             <span className="t-plan-label is-pro">PRO 限定</span>
           </div>
@@ -378,16 +452,18 @@ export default function TorisetsuProClient() {
 
           <div className="t-mockup-row">
             <div className="t-mockup">
-              <div className="t-mockup-tabs">
-                <span>📢 即時通知</span>
+              <div className="t-mockup-tabs-pill">
+                <span>📢 即時配信</span>
+                <span>📋 送信履歴</span>
+                <span>🎫 消込履歴</span>
                 <span>🏪 店舗設定</span>
                 <span className="is-active-green">🔥 PRO機能</span>
                 <span>📅 予約</span>
               </div>
               <div className="t-mockup-h3">💤 休眠復活クーポン</div>
-              <div className="t-checkbox-row">
-                <span className="t-checkbox is-on">✓</span>
+              <div className="t-toggle-row">
                 <span>有効にする</span>
+                <span className="t-toggle is-on"></span>
               </div>
               <div className="t-mockup-inline">
                 <span>最終利用から</span><strong>60</strong><span>日経過した顧客</span>
@@ -396,9 +472,67 @@ export default function TorisetsuProClient() {
               <div className="t-mockup-textarea">お久しぶりメッセージ本文</div>
             </div>
             <div className="t-annos">
-              <div className="t-anno"><span className="t-anno-num" style={{ background: '#8b5cf6' }}>①</span>「有効にする」にチェック</div>
+              <div className="t-anno"><span className="t-anno-num" style={{ background: '#8b5cf6' }}>①</span>「有効にする」をONに</div>
               <div className="t-anno"><span className="t-anno-num" style={{ background: '#8b5cf6' }}>②</span>休眠判定の日数を設定（60日推奨）</div>
               <div className="t-anno"><span className="t-anno-num" style={{ background: '#8b5cf6' }}>③</span>復帰クーポンのタイトル・メッセージ</div>
+            </div>
+          </div>
+        </section>
+
+        {/* PRO機能：連続ログイン特典 */}
+        <section className="t-section t-section-pro">
+          <div className="t-sec-head">
+            <span className="t-sec-num is-pro">11</span>
+            <h2>🔥 連続ログイン特典を設定する</h2>
+            <span className="t-plan-label is-pro">PRO 限定</span>
+          </div>
+          <p className="t-desc">
+            アプリを開く習慣をつけ、<strong>連続達成でクーポンをプレゼント</strong>する仕組み。
+            1日でも途切れるとリセットされますが、リマインド通知で継続を後押しできます。
+          </p>
+
+          <div className="t-callout-info is-pro">
+            <span className="t-callout-info-icon">💡</span>
+            <div>
+              <strong>連続ログイン特典の仕組み</strong>
+              <ul>
+                <li>顧客画面で「今日のスタンプ」を押すとカウントアップ</li>
+                <li>目標日数（1〜10日）達成でクーポン獲得</li>
+                <li>毎日夕方18時に「あと1日で達成！」のリマインド通知を自動送信</li>
+                <li>達成時は紙吹雪とモーダルでお祝い演出</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="t-mockup-row">
+            <div className="t-mockup">
+              <div className="t-mockup-tabs-pill">
+                <span>📢 即時配信</span>
+                <span>📋 送信履歴</span>
+                <span>🎫 消込履歴</span>
+                <span>🏪 店舗設定</span>
+                <span className="is-active-green">🔥 PRO機能</span>
+                <span>📅 予約</span>
+              </div>
+              <div className="t-mockup-h3">🔥 連続ログイン特典</div>
+              <div className="t-toggle-row">
+                <span>有効にする</span>
+                <span className="t-toggle is-on"></span>
+              </div>
+              <div className="t-mockup-inline">
+                <span>目標日数:</span><strong>5</strong><span>日</span>
+              </div>
+              <div className="t-mockup-input">達成時のクーポン名</div>
+              <div className="t-checkbox-row">
+                <span className="t-checkbox is-on">✓</span>
+                <span>リマインド通知を送る</span>
+              </div>
+            </div>
+            <div className="t-annos">
+              <div className="t-anno"><span className="t-anno-num" style={{ background: '#f97316' }}>①</span>「有効にする」をONに</div>
+              <div className="t-anno"><span className="t-anno-num" style={{ background: '#f97316' }}>②</span>目標日数をスライダーで設定</div>
+              <div className="t-anno"><span className="t-anno-num" style={{ background: '#f97316' }}>③</span>達成時のクーポン名を入力</div>
+              <div className="t-anno-note">💡 リマインド通知ONで、あと1日で達成時に自動通知</div>
             </div>
           </div>
         </section>
@@ -406,7 +540,7 @@ export default function TorisetsuProClient() {
         {/* 予約配信 */}
         <section className="t-section t-section-pro">
           <div className="t-sec-head">
-            <span className="t-sec-num is-pro">10</span>
+            <span className="t-sec-num is-pro">12</span>
             <h2>📅 予約配信をセットする</h2>
             <span className="t-plan-label is-pro">PRO 限定</span>
           </div>
@@ -432,8 +566,10 @@ export default function TorisetsuProClient() {
 
           <div className="t-mockup-row">
             <div className="t-mockup">
-              <div className="t-mockup-tabs">
-                <span>📢 即時通知</span>
+              <div className="t-mockup-tabs-pill">
+                <span>📢 即時配信</span>
+                <span>📋 送信履歴</span>
+                <span>🎫 消込履歴</span>
                 <span>🏪 店舗設定</span>
                 <span>🔥 PRO機能</span>
                 <span className="is-active-amber">📅 予約</span>
@@ -464,10 +600,78 @@ export default function TorisetsuProClient() {
           </div>
         </section>
 
-                {/* お客様の登録フロー */}
+        {/* POS連携 */}
+        <section className="t-section t-section-pro">
+          <div className="t-sec-head">
+            <span className="t-sec-num is-pro">13</span>
+            <h2>🔗 POS連携で消込を自動化する</h2>
+            <span className="t-plan-label is-pro">PRO 限定</span>
+          </div>
+          <p className="t-desc">
+            お使いの<strong>POSレジと連携</strong>して、会計と同時にクーポン消込を自動記録。
+            スタッフがスマホでQRを読み取る手間がなくなります。
+          </p>
+
+          <div className="t-callout-info is-pro">
+            <span className="t-callout-info-icon">💡</span>
+            <div>
+              <strong>POS連携でできること</strong>
+              <ul>
+                <li>レジでQRを読み取るだけで消込完了</li>
+                <li>複数レジでも1つのAPIキーで対応可能</li>
+                <li>技術仕様は公開済み。POSベンダーに実装を依頼できます</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="t-pos-steps">
+            <div className="t-pos-step">
+              <div className="t-pos-step-num">1</div>
+              <div>
+                <h4>ダッシュボードでAPIキーを発行</h4>
+                <p>PRO紹介・報酬ダッシュボードの「POS API キー」セクションから発行します。</p>
+              </div>
+            </div>
+            <div className="t-pos-step">
+              <div className="t-pos-step-num">2</div>
+              <div>
+                <h4>POSベンダーに技術仕様を共有</h4>
+                <p>API仕様ページのURLをPOSベンダーに渡してください。</p>
+              </div>
+            </div>
+            <div className="t-pos-step">
+              <div className="t-pos-step-num">3</div>
+              <div>
+                <h4>POS側で実装 → 接続テスト</h4>
+                <p>実際にQRを読み取って消込が記録されるか確認します。</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="t-related-grid" style={{ marginTop: '28px' }}>
+            <Link href="/guide/pos-integration" className="t-related-card">
+              <span className="ico">📘</span>
+              <div>
+                <div className="title">POS連携ガイド</div>
+                <div className="sub">導入の流れ・注意事項</div>
+              </div>
+              <span className="arrow">→</span>
+            </Link>
+            <Link href="/developers/pos-api" className="t-related-card">
+              <span className="ico">🔧</span>
+              <div>
+                <div className="title">API 技術仕様</div>
+                <div className="sub">エンドポイント・サンプルコード</div>
+              </div>
+              <span className="arrow">→</span>
+            </Link>
+          </div>
+        </section>
+
+        {/* お客様の登録フロー */}
         <section className="t-section">
           <div className="t-sec-head">
-            <span className="t-sec-num is-pro">10</span>
+            <span className="t-sec-num is-pro">14</span>
             <h2>お客様の登録フロー</h2>
           </div>
           <p className="t-desc">
@@ -528,7 +732,6 @@ export default function TorisetsuProClient() {
             </div>
           </div>
 
-          {/* SMS認証の目的 */}
           <div className="t-sms-reason">
             <div className="t-sms-reason-head">
               <span className="t-sms-reason-icon">🛡️</span>
@@ -567,110 +770,13 @@ export default function TorisetsuProClient() {
           </div>
         </section>
 
-        {/* 記念日・誕生日クーポンの仕組み */}
-        <section className="t-section t-section-pro">
-          <div className="t-sec-head">
-            <span className="t-sec-num is-pro">11</span>
-            <h2>🎂 記念日・誕生日クーポンの仕組み</h2>
-            <span className="t-plan-label is-pro">PRO 限定</span>
-          </div>
-          <p className="t-desc">
-            「記念日・誕生日」として<strong>1年に1度の特別なクーポン</strong>を配信します。
-            不正利用防止のため、電話番号に紐づいて管理されます。
-          </p>
-
-          <div className="t-callout-info is-pro">
-            <span className="t-callout-info-icon">💡</span>
-            <div>
-              <strong>「記念日・誕生日」としている理由</strong>
-              <ul>
-                <li>誕生日だけでなく、<strong>結婚記念日・ペットの誕生日・お店のオープン記念日など</strong>、お客様が「1年に1度特別な日」としたい日を自由に選べる</li>
-                <li>「お祝いの日を選べる」ことで、より多くのお客様が登録しやすくなる</li>
-                <li>顧客側の心理的ハードルを下げつつ、特別感はしっかり演出できる</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* 不正利用防止の仕組み */}
-          <div className="t-fraud-prevention">
-            <div className="t-fraud-head">
-              <span className="t-fraud-icon">🛡️</span>
-              <h3>不正利用防止の仕組み</h3>
-            </div>
-            <p className="t-fraud-lead">
-              記念日・誕生日クーポンは、<strong>1年に1度しか使えない特別なクーポン</strong>です。
-              そのため、以下の二重の仕組みで不正利用を防止しています。
-            </p>
-
-            <div className="t-fraud-grid">
-              <div className="t-fraud-card">
-                <div className="t-fraud-num">①</div>
-                <h4>電話番号に紐づく</h4>
-                <p>
-                  登録した電話番号と記念日情報は<strong>1対1</strong>で紐づきます。
-                  同じ電話番号で何度も登録しても、記念日情報は上書きされません。
-                </p>
-              </div>
-              <div className="t-fraud-card">
-                <div className="t-fraud-num">②</div>
-                <h4>一度登録すると変更不可</h4>
-                <p>
-                  記念日を一度登録すると、お客様自身では<strong>後から変更できません</strong>。
-                  「今年は3月、来年は5月」といった使い回しを完全にブロックします。
-                </p>
-              </div>
-              <div className="t-fraud-card">
-                <div className="t-fraud-num">③</div>
-                <h4>年間重複防止機能</h4>
-                <p>
-                  同じ年に同じお客様へ複数回配信されることを、システムが自動でブロック。
-                  1人につき<strong>年間1回のみ</strong>の配信を保証します。
-                </p>
-              </div>
-            </div>
-
-            <div className="t-fraud-note">
-              <strong>💡 電話番号とSMS認証の組み合わせで、なりすましも防止</strong>
-              <p>
-                SMS認証で本人確認を行うため、他人の電話番号を勝手に使って
-                記念日クーポンを不正取得することもできません。
-              </p>
-            </div>
-          </div>
-
-          {/* お客様側の登録画面 */}
-          <div className="t-mockup-row" style={{ marginTop: '28px' }}>
-            <div className="t-mockup">
-              <div className="t-mockup-shop-icon">🍰</div>
-              <div className="t-mockup-h2">Patisserie Taro</div>
-              <div className="t-birthday-mockup">
-                <h4>🎂 記念日・誕生日設定</h4>
-                <div className="t-birthday-row">
-                  <div className="t-birthday-select">月</div>
-                  <div className="t-birthday-select">日</div>
-                </div>
-                <div className="t-birthday-warn">
-                  ⚠️ 一度設定すると後から変更できません
-                </div>
-                <div className="t-birthday-btn">設定する</div>
-              </div>
-            </div>
-            <div className="t-annos">
-              <div className="t-anno"><span className="t-anno-num" style={{ background: '#ea580c' }}>①</span>月と日を選択</div>
-              <div className="t-anno"><span className="t-anno-num" style={{ background: '#ea580c' }}>②</span>「一度設定すると変更不可」の警告</div>
-              <div className="t-anno"><span className="t-anno-num" style={{ background: '#ea580c' }}>③</span>「設定する」をタップ（SMS認証済みの電話番号に紐づく）</div>
-              <div className="t-anno-note">💡 登録後は月日のみ表示され、変更ボタンは表示されません</div>
-            </div>
-          </div>
-        </section>
-
-        {/* 顧客側の画面（全クーポン） */}
+        {/* 顧客側の画面 */}
         <section className="t-section">
           <div className="t-sec-head">
-            <span className="t-sec-num is-pro">11</span>
+            <span className="t-sec-num is-pro">15</span>
             <h2>お客様側の画面（PRO）</h2>
           </div>
-          <p className="t-desc">PRO店舗では、お客様の画面に最大7種類のクーポンが並んで表示されます。</p>
+          <p className="t-desc">PRO店舗では、お客様の画面に最大8種類のクーポンが並んで表示されます。</p>
 
           <div className="t-mockup-row">
             <div className="t-mockup">
@@ -678,8 +784,12 @@ export default function TorisetsuProClient() {
               <div className="t-mockup-h2">Patisserie Taro</div>
               <div className="t-mockup-link-btn">🌐 サイトはこちらから</div>
               <div className="t-coupon-preview is-pink">
-                <span className="t-cp-badge is-pink">記念日・誕生日</span>
-                <div className="t-cp-title is-pink">🎂 お誕生日おめでとう</div>
+                <span className="t-cp-badge is-pink">連続ログイン</span>
+                <div className="t-cp-title is-pink">🔥 5日連続達成！</div>
+              </div>
+              <div className="t-coupon-preview is-orange">
+                <span className="t-cp-badge">記念日・誕生日</span>
+                <div className="t-cp-title">🎂 お誕生日おめでとう</div>
               </div>
               <div className="t-coupon-preview is-orange">
                 <span className="t-cp-badge">初回限定</span>
@@ -699,9 +809,10 @@ export default function TorisetsuProClient() {
               </div>
             </div>
             <div className="t-annos">
+              <div className="t-anno"><span className="t-anno-num" style={{ background: '#f97316' }}>🔥</span>連続ログイン特典（PRO限定）</div>
               <div className="t-anno"><span className="t-anno-num" style={{ background: '#ea580c' }}>🎂</span>記念日・誕生日クーポン（PRO限定）</div>
               <div className="t-anno"><span className="t-anno-num" style={{ background: '#f59e0b' }}>🎫</span>初回限定クーポン</div>
-              <div className="t-anno"><span className="t-anno-num" style={{ background: '#10b981' }}>🎟️</span>通常クーポン（STANDARD以上）</div>
+              <div className="t-anno"><span className="t-anno-num" style={{ background: '#10b981' }}>🎟️</span>通常クーポン</div>
               <div className="t-anno"><span className="t-anno-num" style={{ background: '#8b5cf6' }}>🐾</span>ステップアップクーポン（PRO限定）</div>
               <div className="t-anno"><span className="t-anno-num" style={{ background: '#0284c7' }}>🔄</span>連続クーポン（PRO限定）</div>
               <div className="t-anno-note">💡 利用可能なクーポンだけが自動的に表示されます</div>
@@ -709,65 +820,56 @@ export default function TorisetsuProClient() {
           </div>
         </section>
 
-        {/* 紹介報酬 */}
+        {/* 紹介報酬 → ダッシュボードへ */}
         <section className="t-section">
           <div className="t-sec-head">
-            <span className="t-sec-num is-pro">12</span>
-            <h2>🤝 紹介報酬を確認する</h2>
+            <span className="t-sec-num is-pro">16</span>
+            <h2>🤝 紹介・報酬ダッシュボード</h2>
             <span className="t-plan-label is-pro">PRO 限定</span>
           </div>
           <p className="t-desc">
             PROプラン特典として、他店舗を紹介すると<strong>毎月10%の報酬</strong>が発生します。
-            ヘッダーの「🤝 紹介・報酬」ボタンからダッシュボードへ。
+            紹介・報酬の管理は専用ダッシュボードで行います。
           </p>
 
-          <div className="t-mockup-row">
-            <div className="t-mockup">
-              <div className="t-mockup-header-mockup">
-                <div className="t-mockup-hm-left">
-                  <div className="t-mockup-hm-icon">🍰</div>
-                  <div>
-                    <div className="t-mockup-hm-name">Patisserie Taro</div>
-                    <div className="t-mockup-hm-badge">PRO プラン</div>
-                  </div>
-                </div>
-                <div className="t-mockup-hm-btn">🤝 紹介・報酬</div>
-              </div>
-              <div className="t-referral-mockup">
-                <div className="t-referral-card">
-                  <div className="t-ref-label">累計報酬</div>
-                  <div className="t-ref-value">¥24,500</div>
-                </div>
-                <div className="t-referral-card is-green">
-                  <div className="t-ref-label">未払い報酬</div>
-                  <div className="t-ref-value is-green">¥8,200</div>
-                </div>
-                <div className="t-referral-card is-blue">
-                  <div className="t-ref-label">紹介店舗数</div>
-                  <div className="t-ref-value is-blue">12 店舗</div>
-                </div>
-              </div>
-              <div className="t-referral-code">
-                <div className="t-ref-code-label">あなたの紹介コード</div>
-                <div className="t-ref-code-value">UBGIEKEK</div>
-              </div>
+          <div className="t-callout-info is-pro">
+            <span className="t-callout-info-icon">💡</span>
+            <div>
+              <strong>ダッシュボードでできること</strong>
+              <ul>
+                <li>紹介コード・専用URLの発行</li>
+                <li>累計報酬・未払い報酬・紹介店舗数の確認</li>
+                <li>振込先口座の登録</li>
+                <li>報酬明細CSVのダウンロード</li>
+                <li>POS連携APIキーの発行</li>
+              </ul>
             </div>
-            <div className="t-annos">
-              <div className="t-anno"><span className="t-anno-num" style={{ background: '#ff4500' }}>①</span>ヘッダーの「🤝 紹介・報酬」ボタン</div>
-              <div className="t-anno"><span className="t-anno-num" style={{ background: '#ff4500' }}>②</span>累計・未払い報酬・紹介店舗数</div>
-              <div className="t-anno"><span className="t-anno-num" style={{ background: '#ff4500' }}>③</span>あなたの紹介コード</div>
-              <div className="t-anno-note">💡 紹介した店舗が契約中は毎月報酬が発生。10店舗でPROが実質無料に</div>
-            </div>
+          </div>
+
+          <div className="t-related-grid">
+            <Link href="/torisetsu/dashboard" className="t-related-card">
+              <span className="ico">🤝</span>
+              <div>
+                <div className="title">紹介・報酬ダッシュボード取説</div>
+                <div className="sub">ダッシュボードの使い方</div>
+              </div>
+              <span className="arrow">→</span>
+            </Link>
           </div>
         </section>
 
-        {/* 関連リンク */}
+                {/* 関連リンク */}
         <div className="t-related">
           <h3>関連ページ</h3>
           <div className="t-related-grid">
             <Link href="/torisetsu/light-standard" className="t-related-card">
               <span className="ico">📗</span>
               <div><div className="title">LIGHT / STANDARD版</div><div className="sub">基本機能の取扱説明書</div></div>
+              <span className="arrow">→</span>
+            </Link>
+            <Link href="/torisetsu/dashboard" className="t-related-card">
+              <span className="ico">🤝</span>
+              <div><div className="title">紹介・報酬ダッシュボード</div><div className="sub">ダッシュボードの使い方</div></div>
               <span className="arrow">→</span>
             </Link>
             <Link href="/guide" className="t-related-card">
@@ -814,7 +916,6 @@ export default function TorisetsuProClient() {
         .t-desc { font-size: 15px; color: #475569; line-height: 1.9; margin-bottom: 28px; }
         .t-desc code { background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-family: monospace; font-size: 13px; color: #dc2626; }
 
-        /* Feature Grid */
         .t-feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
         .t-feature-card { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; }
         .t-feature-card.is-pro { background: #fff7ed; border-color: #fed7aa; }
@@ -822,7 +923,6 @@ export default function TorisetsuProClient() {
         .t-feature-card strong { display: block; font-size: 13.5px; font-weight: 800; color: #0f172a; line-height: 1.3; }
         .t-feature-card small { font-size: 11px; color: #64748b; }
 
-        /* Tabs Demo */
         .t-tabs-demo { display: flex; flex-direction: column; gap: 12px; }
         .t-tab-item { display: flex; align-items: center; gap: 20px; padding: 16px 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; }
         .t-tab-btn { flex-shrink: 0; min-width: 180px; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 800; text-align: center; }
@@ -833,7 +933,6 @@ export default function TorisetsuProClient() {
         .t-tab-desc { font-size: 13px; color: #64748b; line-height: 1.7; }
         @media (max-width: 640px) { .t-tab-item { flex-direction: column; align-items: flex-start; gap: 8px; } }
 
-        /* Flow */
         .t-flow-pro { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 28px 24px; background: #fff; border-radius: 16px; border: 2px solid #fed7aa; margin: 28px 0; }
         .t-flow-pro.is-purple { border-color: #e9d5ff; }
         .t-flow-pro-item { text-align: center; flex-shrink: 0; }
@@ -845,7 +944,6 @@ export default function TorisetsuProClient() {
         .t-flow-pro-arrow { color: #ea580c; font-size: 20px; font-weight: 900; }
         .t-flow-pro.is-purple .t-flow-pro-arrow { color: #8b5cf6; }
 
-        /* Mockup */
         .t-mockup-row { display: grid; grid-template-columns: 320px 1fr; gap: 32px; align-items: start; }
         @media (max-width: 768px) { .t-mockup-row { grid-template-columns: 1fr; } }
         .t-mockup { position: relative; background: #fff; border: 2px solid #e2e8f0; border-radius: 20px; padding: 24px; box-shadow: 0 12px 32px rgba(0,0,0,0.06); }
@@ -856,12 +954,14 @@ export default function TorisetsuProClient() {
         .t-mockup-h3 { font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 14px; }
         .t-mockup-sub { font-size: 11px; color: #64748b; margin-top: 4px; }
         .t-mockup-shop-icon { width: 64px; height: 64px; background: linear-gradient(135deg, #ff6b6b, #ff4500); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 12px; }
-        .t-mockup-tabs { display: flex; gap: 2px; border-bottom: 2px solid #e2e8f0; margin-bottom: 16px; padding-bottom: 4px; overflow-x: auto; }
-        .t-mockup-tabs span { font-size: 10px; font-weight: 700; color: #64748b; padding: 6px 8px; white-space: nowrap; }
-        .t-mockup-tabs span.is-active { color: #ff4500; border-bottom: 3px solid #ff4500; margin-bottom: -6px; }
-        .t-mockup-tabs span.is-active-sky { color: #0284c7; border-bottom: 3px solid #0284c7; margin-bottom: -6px; }
-        .t-mockup-tabs span.is-active-green { color: #16a34a; border-bottom: 3px solid #16a34a; margin-bottom: -6px; }
-        .t-mockup-tabs span.is-active-amber { color: #d97706; border-bottom: 3px solid #d97706; margin-bottom: -6px; }
+
+        .t-mockup-tabs-pill { display: flex; gap: 2px; padding: 3px; background: rgba(226,232,240,0.6); border-radius: 12px; margin-bottom: 16px; overflow-x: auto; }
+        .t-mockup-tabs-pill span { font-size: 9px; font-weight: 700; color: #64748b; padding: 6px 8px; white-space: nowrap; border-radius: 8px; }
+        .t-mockup-tabs-pill span.is-active { background: #fff; color: #0f172a; box-shadow: 0 1px 2px rgba(15,23,42,0.08); }
+        .t-mockup-tabs-pill span.is-active-sky { background: #fff; color: #0f172a; box-shadow: 0 1px 2px rgba(15,23,42,0.08); }
+        .t-mockup-tabs-pill span.is-active-green { background: #fff; color: #0f172a; box-shadow: 0 1px 2px rgba(15,23,42,0.08); }
+        .t-mockup-tabs-pill span.is-active-amber { background: #fff; color: #0f172a; box-shadow: 0 1px 2px rgba(15,23,42,0.08); }
+
         .t-mockup-label { font-size: 11px; font-weight: 700; color: #334155; margin-bottom: 4px; }
         .t-mockup-input { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; color: #94a3b8; background: #f8fafc; margin-bottom: 12px; }
         .t-mockup-textarea { padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; color: #94a3b8; background: #f8fafc; margin-bottom: 12px; min-height: 50px; }
@@ -881,6 +981,13 @@ export default function TorisetsuProClient() {
         .t-mockup-unlimited { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; margin-top: 16px; }
         .t-mockup-unlimited span { font-size: 12px; font-weight: 800; color: #c2410c; }
         .t-mockup-unlimited strong { font-size: 13px; font-weight: 900; color: #c2410c; }
+
+        .t-toggle-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 12px; font-weight: 700; color: #334155; }
+        .t-toggle { display: inline-block; width: 32px; height: 18px; background: #cbd5e1; border-radius: 999px; position: relative; }
+        .t-toggle.is-on { background: #16a34a; }
+        .t-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; background: #fff; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
+        .t-toggle.is-on::after { left: 16px; }
+
         .t-checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 12px; color: #334155; font-weight: 700; }
         .t-checkbox { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border: 2px solid #cbd5e1; border-radius: 4px; font-size: 12px; font-weight: 900; }
         .t-checkbox.is-on { background: #16a34a; border-color: #16a34a; color: #fff; }
@@ -888,7 +995,11 @@ export default function TorisetsuProClient() {
         .t-step-mockup { background: #f0fdf4; padding: 12px; border-radius: 8px; border: 1px solid #86efac; margin-bottom: 10px; }
         .t-step-title { font-size: 12px; font-weight: 800; color: #166534; margin-bottom: 6px; }
 
-        /* Coupons */
+        .t-pop-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .t-pop-btn { padding: 18px 12px; border: 2px dashed #ddd6fe; background: rgba(245,243,255,0.4); border-radius: 12px; text-align: center; }
+        .t-pop-icon { font-size: 20px; margin-bottom: 2px; }
+        .t-pop-label { font-size: 11px; font-weight: 700; color: #6d28d9; }
+
         .t-coupon-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
         .t-coupon-card { background: #fff; border: 2px solid #e2e8f0; border-radius: 14px; padding: 20px; }
         .t-coupon-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
@@ -898,7 +1009,6 @@ export default function TorisetsuProClient() {
         .t-coupon-badge.is-std { background: #dbeafe; color: #1e40af; }
         .t-coupon-card p { font-size: 13px; color: #64748b; line-height: 1.75; margin: 0; }
 
-        /* Callout */
         .t-callout-info { display: flex; gap: 16px; padding: 20px 24px; background: #f0f9ff; border: 1px solid #7dd3fc; border-radius: 14px; margin-bottom: 28px; align-items: flex-start; }
         .t-callout-info.is-pro { background: #fff7ed; border-color: #fed7aa; }
         .t-callout-info-icon { font-size: 22px; flex-shrink: 0; }
@@ -907,13 +1017,11 @@ export default function TorisetsuProClient() {
         .t-callout-info ul { margin: 0; padding-left: 20px; font-size: 14px; color: #075985; line-height: 1.9; }
         .t-callout-info.is-pro ul { color: #7c2d12; }
 
-        /* Schedule Types */
         .t-schedule-types { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }
         .t-schedule-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; }
         .t-schedule-head { font-size: 13px; font-weight: 800; color: #d97706; margin-bottom: 6px; }
         .t-schedule-card p { font-size: 13px; color: #64748b; margin: 0; line-height: 1.7; }
 
-        /* Coupon Preview */
         .t-coupon-preview { border-radius: 10px; padding: 12px; text-align: center; margin-bottom: 10px; }
         .t-coupon-preview.is-orange { background: #fff3e0; border: 1px dashed #ffb74d; }
         .t-coupon-preview.is-green { background: #f0fdf4; border: 1px dashed #4ade80; }
@@ -931,24 +1039,11 @@ export default function TorisetsuProClient() {
         .t-cp-title.is-sky { color: #0369a1; }
         .t-cp-title.is-pink { color: #c2410c; }
 
-        /* Referral Mockup */
-        .t-mockup-header-mockup { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #f8fafc; border-radius: 10px; margin-bottom: 16px; }
-        .t-mockup-hm-left { display: flex; align-items: center; gap: 8px; }
-        .t-mockup-hm-icon { width: 32px; height: 32px; background: #ff4500; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-        .t-mockup-hm-name { font-size: 12px; font-weight: 800; color: #0f172a; }
-        .t-mockup-hm-badge { font-size: 9px; font-weight: 800; background: #ff4500; color: #fff; padding: 1px 6px; border-radius: 8px; display: inline-block; margin-top: 2px; }
-        .t-mockup-hm-btn { font-size: 10px; font-weight: 800; background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; padding: 5px 10px; border-radius: 6px; }
-        .t-referral-mockup { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-        .t-referral-card { background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center; }
-        .t-referral-card.is-green { background: #f0fdf4; border-color: #86efac; }
-        .t-referral-card.is-blue { background: #ebf8ff; border-color: #90cdf4; }
-        .t-ref-label { font-size: 9px; font-weight: 700; color: #64748b; margin-bottom: 4px; }
-        .t-ref-value { font-size: 14px; font-weight: 900; color: #0f172a; }
-        .t-ref-value.is-green { color: #15803d; }
-        .t-ref-value.is-blue { color: #2b6cb0; }
-        .t-referral-code { background: #fff7ed; padding: 12px; border-radius: 8px; border: 1px solid #fed7aa; text-align: center; }
-        .t-ref-code-label { font-size: 10px; font-weight: 700; color: #9a3412; margin-bottom: 4px; }
-        .t-ref-code-value { font-size: 16px; font-weight: 900; color: #c2410c; font-family: monospace; letter-spacing: 1px; }
+        .t-pos-steps { display: flex; flex-direction: column; gap: 12px; margin: 24px 0; }
+        .t-pos-step { display: flex; gap: 14px; padding: 16px 20px; background: #fff; border: 1px solid #fed7aa; border-radius: 12px; align-items: flex-start; }
+        .t-pos-step-num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: linear-gradient(135deg, #ea580c, #f97316); color: #fff; border-radius: 50%; font-size: 14px; font-weight: 900; flex-shrink: 0; }
+        .t-pos-step h4 { font-size: 14px; font-weight: 800; color: #0f172a; margin: 0 0 6px; }
+        .t-pos-step p { font-size: 13px; color: #64748b; line-height: 1.7; margin: 0; }
 
         .t-mockup-anno { position: absolute; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: #ff4500; color: #fff; border-radius: 50%; font-size: 12px; font-weight: 900; box-shadow: 0 4px 10px rgba(255,69,0,0.4); border: 2px solid #fff; }
 
@@ -957,37 +1052,6 @@ export default function TorisetsuProClient() {
         .t-anno-num { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: #ff4500; color: #fff; border-radius: 50%; font-size: 12px; font-weight: 900; flex-shrink: 0; }
         .t-anno-note { font-size: 13px; color: #475569; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 12px 16px; margin-top: 8px; line-height: 1.7; }
 
-        /* Related */
-        .t-related { margin-top: 64px; padding-top: 32px; border-top: 2px solid #e2e8f0; }
-        .t-related h3 { font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #64748b; margin: 0 0 20px; }
-        .t-related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-        .t-related-card { display: flex; align-items: center; gap: 12px; padding: 16px 18px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; text-decoration: none; color: inherit; transition: all 0.2s; }
-        .t-related-card:hover { border-color: #ff4500; transform: translateX(4px); }
-        .t-related-card .ico { font-size: 24px; flex-shrink: 0; }
-        .t-related-card .title { font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1.3; }
-        .t-related-card .sub { font-size: 11.5px; color: #64748b; margin-top: 2px; }
-        .t-related-card .arrow { color: #ff4500; font-size: 16px; font-weight: 900; margin-left: auto; }
-
-        /* CTA */
-        .t-cta { margin-top: 48px; padding: 40px 32px; background: linear-gradient(160deg, #0f172a, #1e293b); color: #fff; border-radius: 20px; text-align: center; }
-        .t-cta.is-pro { background: linear-gradient(160deg, #7c2d12, #1e293b); }
-        .t-cta h3 { font-size: 20px; font-weight: 900; margin: 0 0 10px; }
-        .t-cta p { font-size: 14px; color: #94a3b8; margin: 0 0 20px; }
-        .t-cta-btn { display: inline-block; padding: 12px 28px; background: linear-gradient(135deg, #ff4500, #f97316); color: #fff; border-radius: 10px; font-weight: 800; font-size: 14px; text-decoration: none; box-shadow: 0 6px 20px rgba(255,69,0,0.3); }
-
-        @media (max-width: 640px) {
-          .t-main { padding: 24px 16px 60px; }
-          .t-sec-head h2 { font-size: 20px; }
-          .t-flow-pro-arrow { display: none; }
-          .t-cta { padding: 32px 24px; }
-          .t-section-sky, .t-section-pro { padding: 24px 16px; }
-          .t-feature-grid { grid-template-columns: 1fr; }
-          .t-referral-mockup { grid-template-columns: 1fr; }
-        }
-
-                /* ============================================================
-           お客様の登録フロー
-        ============================================================ */
         .t-reg-flow { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; }
         .t-reg-step { display: flex; gap: 16px; padding: 20px 24px; background: #fff; border: 2px solid #e2e8f0; border-radius: 14px; align-items: flex-start; }
         .t-reg-step.is-ios { border-color: #bae6fd; background: #f0f9ff; }
@@ -998,7 +1062,6 @@ export default function TorisetsuProClient() {
         .t-reg-content p { font-size: 13.5px; color: #475569; line-height: 1.8; margin: 0; }
         .t-reg-content strong { color: #0f172a; }
 
-        /* SMS認証の理由 */
         .t-sms-reason { padding: 28px; background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 2px solid #86efac; border-radius: 20px; margin-bottom: 24px; }
         .t-sms-reason-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
         .t-sms-reason-icon { font-size: 32px; }
@@ -1015,43 +1078,37 @@ export default function TorisetsuProClient() {
         .t-sms-reason-card ul { margin: 0; padding-left: 20px; font-size: 13.5px; line-height: 1.9; }
         .t-sms-reason-card.is-bad ul { color: #7f1d1d; }
         .t-sms-reason-card.is-good ul { color: #14532d; }
-        .t-sms-reason-card strong { font-weight: 800; }
         .t-sms-reason-note { padding: 18px 22px; background: #fff; border: 1px solid #86efac; border-radius: 12px; }
         .t-sms-reason-note strong { display: block; font-size: 14px; color: #166534; margin-bottom: 8px; }
         .t-sms-reason-note p { font-size: 13px; color: #475569; line-height: 1.8; margin: 0; }
         .t-sms-reason-note p strong { display: inline; color: #dc2626; }
 
+        .t-related { margin-top: 64px; padding-top: 32px; border-top: 2px solid #e2e8f0; }
+        .t-related h3 { font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #64748b; margin: 0 0 20px; }
+        .t-related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+        .t-related-card { display: flex; align-items: center; gap: 12px; padding: 16px 18px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; text-decoration: none; color: inherit; transition: all 0.2s; }
+        .t-related-card:hover { border-color: #ff4500; transform: translateX(4px); }
+        .t-related-card .ico { font-size: 24px; flex-shrink: 0; }
+        .t-related-card .title { font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1.3; }
+        .t-related-card .sub { font-size: 11.5px; color: #64748b; margin-top: 2px; }
+        .t-related-card .arrow { color: #ff4500; font-size: 16px; font-weight: 900; margin-left: auto; }
+
+        .t-cta { margin-top: 48px; padding: 40px 32px; background: linear-gradient(160deg, #0f172a, #1e293b); color: #fff; border-radius: 20px; text-align: center; }
+        .t-cta.is-pro { background: linear-gradient(160deg, #7c2d12, #1e293b); }
+        .t-cta h3 { font-size: 20px; font-weight: 900; margin: 0 0 10px; }
+        .t-cta p { font-size: 14px; color: #94a3b8; margin: 0 0 20px; }
+        .t-cta-btn { display: inline-block; padding: 12px 28px; background: linear-gradient(135deg, #ff4500, #f97316); color: #fff; border-radius: 10px; font-weight: 800; font-size: 14px; text-decoration: none; box-shadow: 0 6px 20px rgba(255,69,0,0.3); }
+
         @media (max-width: 640px) {
+          .t-main { padding: 24px 16px 60px; }
+          .t-sec-head h2 { font-size: 20px; }
+          .t-flow-pro-arrow { display: none; }
+          .t-cta { padding: 32px 24px; }
+          .t-section-sky, .t-section-pro { padding: 24px 16px; }
+          .t-feature-grid { grid-template-columns: 1fr; }
           .t-sms-reason-grid { grid-template-columns: 1fr; }
           .t-reg-step { padding: 16px 18px; }
         }
-
-        /* ============================================================
-           不正利用防止（PRO）
-        ============================================================ */
-        .t-fraud-prevention { padding: 28px; background: #fff; border: 2px solid #fed7aa; border-radius: 20px; margin-top: 24px; }
-        .t-fraud-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-        .t-fraud-icon { font-size: 32px; }
-        .t-fraud-head h3 { font-size: 20px; font-weight: 900; color: #c2410c; margin: 0; letter-spacing: -0.5px; }
-        .t-fraud-lead { font-size: 15px; color: #7c2d12; line-height: 1.8; margin: 0 0 24px; }
-        .t-fraud-lead strong { color: #ea580c; background: #ffedd5; padding: 2px 8px; border-radius: 4px; }
-        .t-fraud-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px; }
-        .t-fraud-card { position: relative; padding: 22px 18px 18px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 14px; }
-        .t-fraud-num { position: absolute; top: -12px; left: 18px; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: linear-gradient(135deg, #ea580c, #f97316); color: #fff; border-radius: 50%; font-size: 14px; font-weight: 900; border: 3px solid #fff; box-shadow: 0 4px 10px rgba(234,88,12,0.25); }
-        .t-fraud-card h4 { font-size: 14px; font-weight: 800; color: #c2410c; margin: 0 0 8px; padding-top: 6px; }
-        .t-fraud-card p { font-size: 13px; color: #7c2d12; line-height: 1.8; margin: 0; }
-        .t-fraud-card strong { color: #ea580c; }
-        .t-fraud-note { padding: 18px 22px; background: #fff; border: 1px solid #fed7aa; border-radius: 12px; }
-        .t-fraud-note strong { display: block; font-size: 14px; color: #c2410c; margin-bottom: 8px; }
-        .t-fraud-note p { font-size: 13px; color: #475569; line-height: 1.8; margin: 0; }
-
-        /* 誕生日モックアップ */
-        .t-birthday-mockup { padding: 16px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 12px; }
-        .t-birthday-mockup h4 { font-size: 13px; font-weight: 800; color: #9a3412; margin: 0 0 10px; }
-        .t-birthday-row { display: flex; gap: 8px; margin-bottom: 10px; }
-        .t-birthday-select { flex: 1; padding: 10px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; font-size: 13px; color: #94a3b8; }
-        .t-birthday-warn { font-size: 11px; font-weight: 700; color: #c2410c; margin-bottom: 10px; line-height: 1.6; }
-        .t-birthday-btn { padding: 10px; background: #ea580c; color: #fff; border-radius: 6px; text-align: center; font-weight: 800; font-size: 13px; }
       `}</style>
     </>
   );
