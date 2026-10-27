@@ -575,6 +575,7 @@ export default function SubscribePage() {
         currentCount: data.nextCount,
         lastStampDate: new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' }),
         achieved: data.achieved,
+        achievedAt: data.achieved ? new Date().toISOString() : (prev?.achievedAt ?? null),
       }));
       if (data.achieved) alert('🎉 おめでとうございます！クーポンを獲得しました！');
     } catch (err: any) {
