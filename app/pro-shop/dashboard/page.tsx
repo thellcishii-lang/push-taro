@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase-client';
 import PaymentFailuresSection from '@/components/PaymentFailuresSection';
+import PosIntegrationSection from '@/components/PosIntegrationSection';
 import { isProReferralPlan, type ProReferralPlan } from '@/lib/pro-referral-policy';
 
 interface ReferralShop {
@@ -39,6 +40,12 @@ export default function ProShopDashboardPage() {
   const [confirmedReferralPlan, setConfirmedReferralPlan] = useState(false);
   const [savingReferralPlan, setSavingReferralPlan] = useState(false);
   const [referralPlanError, setReferralPlanError] = useState('');
+
+  // ログイン用
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState('');
 
   // 店舗情報
   const [shopId, setShopId] = useState<string | null>(null);
@@ -82,7 +89,6 @@ export default function ProShopDashboardPage() {
       try {
         const idToken = await u.getIdToken();
 
-        // ダッシュボードデータ取得
         const res = await fetch('/api/pro-shop/dashboard', {
           headers: { Authorization: `Bearer ${idToken}` },
         });
@@ -124,6 +130,16 @@ export default function ProShopDashboardPage() {
 
     return () => unsub();
   }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch {
+      setLoginError('メールアドレスまたはパスワードが正しくありません。');
+    }
+  };
 
   const handleSaveBank = async () => {
     if (!user || !shopId) return;
@@ -202,7 +218,7 @@ export default function ProShopDashboardPage() {
     }
   };
 
-    const handleDownloadCSV = async () => {
+  const handleDownloadCSV = async () => {
     if (!user || !shopId) return;
     const currentMonth = new Date().toISOString().slice(0, 7);
     try {
@@ -240,7 +256,7 @@ export default function ProShopDashboardPage() {
 
   if (loading) {
     return (
-      <main style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center', fontFamily: 'sans-serif' }}>
+      <main className="max-w-lg mx-auto mt-16 text-center text-slate-500">
         <p>読み込み中...</p>
       </main>
     );
@@ -248,50 +264,95 @@ export default function ProShopDashboardPage() {
 
   if (!user) {
     return (
-      <main style={{ maxWidth: '400px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif', textAlign: 'center' }}>
-        <h2>ログインが必要です</h2>
+      <main className="max-w-sm mx-auto mt-16 px-5 text-center font-sans">
+        <div className="flex justify-center mb-4">
+          <img src="/icon-192x192.png" alt="Push-taro" className="w-20 h-20 rounded-full object-cover" />
+        </div>
+        <h1 className="text-2xl font-bold mb-2">Push-taro</h1>
+        <p className="text-gray-500 mb-5">紹介・報酬ダッシュボード</p>
         {accessError && (
-          <div role="alert" style={{ background: '#fff5f5', border: '1px solid #feb2b2', color: '#c53030', padding: '10px', borderRadius: '6px', fontSize: '13px', marginBottom: '16px' }}>
+          <div role="alert" className="bg-red-50 border border-red-200 text-red-700 px-3 py-2.5 rounded-lg text-sm mb-4">
             {accessError}
           </div>
         )}
-        <Link href="/pro-shop" style={{ color: '#ff4500', textDecoration: 'none', fontWeight: 'bold' }}>
-          ← PROコンソールへ戻る
-        </Link>
+        {loginError && (
+          <div role="alert" className="bg-red-50 border border-red-200 text-red-700 px-3 py-2.5 rounded-lg text-sm mb-4">
+            {loginError}
+          </div>
+        )}
+        <form onSubmit={handleLogin} className="flex flex-col gap-3">
+          <input
+            type="email"
+            placeholder="メールアドレス（ログインID）"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="px-3 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+          />
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="パスワード"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full box-border pl-3 pr-11 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? 'パスワードを隠す' : 'パスワードを表示'}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-lg"
+            >
+              👁
+            </button>
+          </div>
+          <button
+            type="submit"
+            className="mt-1 py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-base rounded-lg transition-colors"
+          >
+            ログイン
+          </button>
+        </form>
+        <div className="mt-4 text-sm">
+          <Link href="/reset-password?role=shop&returnTo=/pro-shop/dashboard" className="text-orange-700 hover:underline">
+            パスワードをお忘れの方
+          </Link>
+        </div>
       </main>
     );
   }
 
   if (!proReferralPlan) {
     return (
-      <main style={{ maxWidth: '760px', margin: '40px auto', padding: '20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', color: '#1f2937' }}>
-        <h1 style={{ fontSize: '26px', margin: '0 0 8px' }}>PRO紹介報酬プランの設定</h1>
-        <p style={{ color: '#64748b', margin: '0 0 24px', lineHeight: 1.7 }}>紹介制度はどちらか一方を選択してください。確定後の変更はできません。</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
-          <label style={{ display: 'block', border: selectedReferralPlan === 'a' ? '2px solid #ea580c' : '1px solid #cbd5e1', borderRadius: '8px', padding: '20px', cursor: 'pointer', background: '#fff7ed' }}>
-            <input type="radio" name="proReferralPlan" value="a" checked={selectedReferralPlan === 'a'} onChange={() => setSelectedReferralPlan('a')} />
-            <strong style={{ display: 'block', fontSize: '18px', margin: '8px 0' }}>Aプラン</strong>
-            <span>どのプランでも何件でも紹介可能。報酬率は一律10%。</span>
-            <p style={{ margin: '12px 0 0', color: '#7c2d12' }}>紹介を続けると、PROプランの費用を実質無料にでき、さらに収益を得られる可能性があります。</p>
+      <main className="max-w-3xl mx-auto mt-10 px-5 font-sans text-slate-800">
+        <h1 className="text-2xl font-bold mb-2">PRO紹介報酬プランの設定</h1>
+        <p className="text-slate-500 mb-6 leading-relaxed">紹介制度はどちらか一方を選択してください。確定後の変更はできません。</p>
+        <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
+          <label className={`block rounded-2xl p-5 cursor-pointer bg-orange-50 border-2 transition-colors ${selectedReferralPlan === 'a' ? 'border-orange-500' : 'border-slate-200'}`}>
+            <input type="radio" name="proReferralPlan" value="a" checked={selectedReferralPlan === 'a'} onChange={() => setSelectedReferralPlan('a')} className="accent-orange-500" />
+            <strong className="block text-lg my-2">Aプラン</strong>
+            <span className="text-sm">どのプランでも何件でも紹介可能。報酬率は一律10%。</span>
+            <p className="mt-3 text-sm text-orange-900">紹介を続けると、PROプランの費用を実質無料にでき、さらに収益を得られる可能性があります。</p>
           </label>
-          <label style={{ display: 'block', border: selectedReferralPlan === 'b' ? '2px solid #15803d' : '1px solid #cbd5e1', borderRadius: '8px', padding: '20px', cursor: 'pointer', background: '#f0fdf4' }}>
-            <input type="radio" name="proReferralPlan" value="b" checked={selectedReferralPlan === 'b'} onChange={() => setSelectedReferralPlan('b')} />
-            <strong style={{ display: 'block', fontSize: '18px', margin: '8px 0' }}>Bプラン</strong>
-            <span>PROプランのみ紹介可能。紹介枠は同時に2件まで、報酬率は1件につき20%。</span>
-            <p style={{ margin: '12px 0 0', color: '#166534' }}>PROを2件紹介すると、合計で月額費用の実質40%相当の報酬になります。本業の傍らで紹介する方におすすめです。</p>
+          <label className={`block rounded-2xl p-5 cursor-pointer bg-emerald-50 border-2 transition-colors ${selectedReferralPlan === 'b' ? 'border-emerald-600' : 'border-slate-200'}`}>
+            <input type="radio" name="proReferralPlan" value="b" checked={selectedReferralPlan === 'b'} onChange={() => setSelectedReferralPlan('b')} className="accent-emerald-600" />
+            <strong className="block text-lg my-2">Bプラン</strong>
+            <span className="text-sm">PROプランのみ紹介可能。紹介枠は同時に2件まで、報酬率は1件につき20%。</span>
+            <p className="mt-3 text-sm text-emerald-900">PROを2件紹介すると、合計で月額費用の実質40%相当の報酬になります。本業の傍らで紹介する方におすすめです。</p>
           </label>
         </div>
-        <p style={{ margin: '20px 0 12px', color: '#b91c1c', fontWeight: 700 }}>途中からの変更は受け付けておりませんので、慎重にお選びください。</p>
-        <label style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', lineHeight: 1.6 }}>
-          <input type="checkbox" checked={confirmedReferralPlan} onChange={(event) => setConfirmedReferralPlan(event.target.checked)} />
+        <p className="mt-5 mb-3 text-red-700 font-bold">途中からの変更は受け付けておりませんので、慎重にお選びください。</p>
+        <label className="flex gap-2.5 items-start leading-relaxed">
+          <input type="checkbox" checked={confirmedReferralPlan} onChange={(event) => setConfirmedReferralPlan(event.target.checked)} className="mt-1" />
           <span>選択した報酬制度の内容に間違いないことを確認しました。</span>
         </label>
-        {referralPlanError && <p role="alert" style={{ color: '#b91c1c' }}>{referralPlanError}</p>}
+        {referralPlanError && <p role="alert" className="text-red-700">{referralPlanError}</p>}
         <button
           type="button"
           onClick={handleConfirmReferralPlan}
           disabled={!selectedReferralPlan || !confirmedReferralPlan || savingReferralPlan}
-          style={{ marginTop: '18px', padding: '12px 24px', border: 0, borderRadius: '6px', background: '#ea580c', color: '#fff', fontWeight: 700, cursor: savingReferralPlan ? 'wait' : 'pointer', opacity: !selectedReferralPlan || !confirmedReferralPlan ? 0.5 : 1 }}
+          className="mt-5 px-6 py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold transition-colors disabled:opacity-50"
         >
           {savingReferralPlan ? '確定中...' : '報酬プランを確定する'}
         </button>
@@ -300,35 +361,28 @@ export default function ProShopDashboardPage() {
   }
 
   return (
-    <main style={{ maxWidth: '1000px', margin: '40px auto', padding: '20px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+    <main className="max-w-5xl mx-auto mt-10 px-5 font-sans text-slate-800">
       {/* ヘッダー */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px', borderBottom: '2px solid #eee', paddingBottom: '15px' }}>
+      <div className="flex justify-between items-center mb-8 flex-wrap gap-4 border-b-2 border-gray-100 pb-4">
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <h1 style={{ fontSize: '26px', fontWeight: '800', margin: 0 }}>
-              🤝 紹介・報酬ダッシュボード
-            </h1>
-            <span style={{
-              fontSize: '11px', fontWeight: 'bold', padding: '3px 10px', borderRadius: '12px',
-              color: '#fff', backgroundColor: '#ff4500',
-            }}>
-              PRO
-            </span>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h1 className="text-2xl font-extrabold m-0">🤝 紹介・報酬ダッシュボード</h1>
+            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full text-white bg-orange-500">PRO</span>
           </div>
-          <p style={{ color: '#718096', fontSize: '14px', margin: '6px 0 0 0' }}>
+          <p className="text-slate-500 text-sm mt-1.5">
             {shopName} / <strong>{user.email}</strong>
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+        <div className="flex items-center gap-3 flex-wrap">
           <Link
             href="/pro-shop"
-            style={{ padding: '8px 16px', background: '#fff7ed', color: '#c2410c', border: '1px solid #fdba74', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none' }}
+            className="px-4 py-2 bg-orange-50 text-orange-700 border border-orange-300 rounded-md text-sm font-bold no-underline hover:bg-orange-100 transition-colors"
           >
             ← コンソールに戻る
           </Link>
           <button
             onClick={() => signOut(auth)}
-            style={{ padding: '8px 16px', background: '#edf2f7', color: '#4a5568', border: '1px solid #cbd5e0', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
+            className="px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-md text-sm font-bold hover:bg-slate-200 transition-colors"
           >
             ログアウト
           </button>
@@ -336,76 +390,62 @@ export default function ProShopDashboardPage() {
       </div>
 
       {/* サマリーカード */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '30px' }}>
-        <div style={{ background: '#fff7ed', padding: '20px', borderRadius: '12px', border: '2px solid #fdba74' }}>
-          <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#9a3412', marginBottom: '6px' }}>累計報酬</div>
-          <div style={{ fontSize: '32px', fontWeight: '900', color: '#c2410c' }}>
-            ¥{totalEarnings.toLocaleString()}
-          </div>
+      <div className="grid gap-4 mb-8" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+        <div className="bg-orange-50 p-5 rounded-2xl border-2 border-orange-200">
+          <div className="text-xs font-bold text-orange-800 mb-1.5">累計報酬</div>
+          <div className="text-3xl font-black text-orange-700">¥{totalEarnings.toLocaleString()}</div>
         </div>
-        <div style={{ background: '#f0fdf4', padding: '20px', borderRadius: '12px', border: '2px solid #86efac' }}>
-          <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#166534', marginBottom: '6px' }}>未払い報酬</div>
-          <div style={{ fontSize: '32px', fontWeight: '900', color: '#15803d' }}>
-            ¥{unpaidReward.toLocaleString()}
-          </div>
+        <div className="bg-emerald-50 p-5 rounded-2xl border-2 border-emerald-200">
+          <div className="text-xs font-bold text-emerald-800 mb-1.5">未払い報酬</div>
+          <div className="text-3xl font-black text-emerald-700">¥{unpaidReward.toLocaleString()}</div>
         </div>
-        <div style={{ background: '#ebf8ff', padding: '20px', borderRadius: '12px', border: '2px solid #90cdf4' }}>
-          <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#2c5282', marginBottom: '6px' }}>紹介店舗数</div>
-          <div style={{ fontSize: '32px', fontWeight: '900', color: '#2b6cb0' }}>
-            {referralCount} <span style={{ fontSize: '14px', fontWeight: 'normal' }}>店舗</span>
-          </div>
+        <div className="bg-sky-50 p-5 rounded-2xl border-2 border-sky-200">
+          <div className="text-xs font-bold text-sky-800 mb-1.5">紹介店舗数</div>
+          <div className="text-3xl font-black text-sky-700">{referralCount} <span className="text-sm font-normal">店舗</span></div>
         </div>
       </div>
 
+      {shopId && <PaymentFailuresSection referrerId={shopId} referrerType="pro" />}
+
       {shopId && (
-        <PaymentFailuresSection referrerId={shopId} referrerType="pro" />
+        <div className="mt-6">
+          <PosIntegrationSection shopId={shopId} user={user} />
+        </div>
       )}
 
-      {/* 紹介コード & URL */}
-      <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '12px', padding: '20px', marginBottom: '24px' }}>
-        <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', color: '#c2410c' }}>
-          🎁 あなたの紹介特典コード・専用URL
-        </h3>
-        <p style={{ margin: '0 0 16px 0', fontSize: '12px', color: '#9a3412', lineHeight: '1.5' }}>
+      {/* 紹介コード */}
+      <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 mt-6 mb-6">
+        <h3 className="text-base font-bold text-orange-700 mb-1.5">🎁 あなたの紹介特典コード・専用URL</h3>
+        <p className="text-xs text-orange-900 mb-4 leading-relaxed">
           他店舗へご紹介の際、こちらのコードまたは専用URLをご案内ください。新規店舗がご契約すると紹介報酬が発生します。
         </p>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div className="space-y-3">
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#78350f', marginBottom: '4px' }}>
-              紹介コード
-            </label>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <label className="block text-xs font-bold text-orange-900 mb-1">紹介コード</label>
+            <div className="flex gap-2 flex-wrap">
               <input
                 type="text"
                 readOnly
                 value={referralCode || '取得中...'}
-                style={{ flex: 1, minWidth: '200px', padding: '10px 14px', fontSize: '15px', fontWeight: 'bold', letterSpacing: '1px', background: '#fff', border: '1px solid #cbd5e0', borderRadius: '6px' }}
+                className="flex-1 min-w-[200px] px-3.5 py-2.5 text-base font-bold tracking-wider bg-white border border-slate-300 rounded-md"
               />
-              <button
-                onClick={handleCopyCode}
-                style={{ padding: '10px 18px', background: '#ea580c', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}
-              >
+              <button onClick={handleCopyCode} className="px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-md font-bold text-sm transition-colors">
                 コードをコピー
               </button>
             </div>
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#78350f', marginBottom: '4px' }}>
-              専用登録URL（紹介コード自動入力）
-            </label>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <label className="block text-xs font-bold text-orange-900 mb-1">専用登録URL（紹介コード自動入力）</label>
+            <div className="flex gap-2 flex-wrap">
               <input
                 type="text"
                 readOnly
                 value={referralCode ? `${typeof window !== 'undefined' ? window.location.origin : ''}/signup?ref=${referralCode}` : '取得中...'}
-                style={{ flex: 1, minWidth: '200px', padding: '10px 14px', fontSize: '12px', color: '#475569', background: '#fff', border: '1px solid #cbd5e0', borderRadius: '6px' }}
+                className="flex-1 min-w-[200px] px-3.5 py-2.5 text-xs text-slate-600 bg-white border border-slate-300 rounded-md"
               />
-              <button
-                onClick={handleCopyUrl}
-                style={{ padding: '10px 18px', background: '#475569', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}
-              >
+              <button onClick={handleCopyUrl} className="px-4 py-2.5 bg-slate-600 hover:bg-slate-700 text-white rounded-md font-bold text-sm transition-colors">
                 URLをコピー
               </button>
             </div>
@@ -413,175 +453,110 @@ export default function ProShopDashboardPage() {
         </div>
       </div>
 
-      {/* 振込先口座情報 */}
-      <div style={{ background: '#fff7ed', border: '1px solid #fdba74', padding: '20px', borderRadius: '12px', marginBottom: '24px' }}>
-        <h3 style={{ margin: '0 0 6px 0', fontSize: '16px', color: '#c2410c' }}>
-          🏦 振込先口座情報（紹介報酬受取用）
-        </h3>
-        <p style={{ fontSize: '12px', color: '#9a3412', marginBottom: '16px' }}>
-          ※紹介手数料（PRO特典 10%）をお振り込みする口座を指定してください。
-        </p>
+      {/* 振込先口座 */}
+      <div className="bg-orange-50 border border-orange-300 rounded-2xl p-5 mb-6">
+        <h3 className="text-base font-bold text-orange-700 mb-1.5">🏦 振込先口座情報（紹介報酬受取用）</h3>
+        <p className="text-xs text-orange-900 mb-4">※紹介手数料（PRO特典 10%）をお振り込みする口座を指定してください。</p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
+        <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>金融機関名</label>
-            <input
-              type="text"
-              placeholder="例: 〇〇銀行"
-              value={bankName}
-              onChange={(e) => setBankName(e.target.value)}
-              style={{ width: '100%', padding: '8px 10px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box', background: '#fff' }}
-            />
+            <label className="block mb-1 font-bold text-xs">金融機関名</label>
+            <input type="text" placeholder="例: 〇〇銀行" value={bankName} onChange={(e) => setBankName(e.target.value)} className="w-full px-2.5 py-2 rounded bg-white border border-slate-300 box-border" />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>支店名</label>
-            <input
-              type="text"
-              placeholder="例: △△支店"
-              value={branchName}
-              onChange={(e) => setBranchName(e.target.value)}
-              style={{ width: '100%', padding: '8px 10px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box', background: '#fff' }}
-            />
+            <label className="block mb-1 font-bold text-xs">支店名</label>
+            <input type="text" placeholder="例: △△支店" value={branchName} onChange={(e) => setBranchName(e.target.value)} className="w-full px-2.5 py-2 rounded bg-white border border-slate-300 box-border" />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>預金種目</label>
-            <select
-              value={accountType}
-              onChange={(e: any) => setAccountType(e.target.value)}
-              style={{ width: '100%', padding: '8px 10px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box', background: '#fff' }}
-            >
+            <label className="block mb-1 font-bold text-xs">預金種目</label>
+            <select value={accountType} onChange={(e: any) => setAccountType(e.target.value)} className="w-full px-2.5 py-2 rounded bg-white border border-slate-300 box-border">
               <option value="savings">普通</option>
               <option value="checking">当座</option>
             </select>
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>口座番号</label>
-            <input
-              type="text"
-              placeholder="1234567"
-              value={accountNumber}
-              onChange={(e) => setAccountNumber(e.target.value)}
-              style={{ width: '100%', padding: '8px 10px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box', background: '#fff' }}
-            />
+            <label className="block mb-1 font-bold text-xs">口座番号</label>
+            <input type="text" placeholder="1234567" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} className="w-full px-2.5 py-2 rounded bg-white border border-slate-300 box-border" />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>口座名義（カナ）</label>
-            <input
-              type="text"
-              placeholder="ヤマダ タロウ"
-              value={accountHolder}
-              onChange={(e) => setAccountHolder(e.target.value)}
-              style={{ width: '100%', padding: '8px 10px', borderRadius: '4px', border: '1px solid #cbd5e0', boxSizing: 'border-box', background: '#fff' }}
-            />
+            <label className="block mb-1 font-bold text-xs">口座名義（カナ）</label>
+            <input type="text" placeholder="ヤマダ タロウ" value={accountHolder} onChange={(e) => setAccountHolder(e.target.value)} className="w-full px-2.5 py-2 rounded bg-white border border-slate-300 box-border" />
           </div>
         </div>
 
         <button
           onClick={handleSaveBank}
           disabled={saving}
-          style={{
-            marginTop: '16px', padding: '12px 24px',
-            background: saveSuccess ? '#4CAF50' : saving ? '#ccc' : '#ea580c',
-            color: '#fff', border: 'none', borderRadius: '6px',
-            fontWeight: 'bold', cursor: saving ? 'wait' : 'pointer', fontSize: '14px',
-          }}
+          className={`mt-4 px-6 py-3 rounded-md font-bold text-sm text-white transition-colors ${saveSuccess ? 'bg-emerald-600' : saving ? 'bg-gray-300 cursor-wait' : 'bg-orange-600 hover:bg-orange-700'}`}
         >
           {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 口座情報を保存'}
         </button>
       </div>
 
       {/* タブ */}
-      <div style={{ display: 'flex', gap: '8px', borderBottom: '2px solid #e2e8f0', paddingBottom: '4px', marginBottom: '20px' }}>
+      <div className="flex gap-2 border-b-2 border-slate-200 pb-1 mb-5">
         <button
           onClick={() => setActiveTab('referrals')}
-          style={{
-            padding: '10px 16px', border: 'none',
-            borderBottom: activeTab === 'referrals' ? '3px solid #ff4500' : '3px solid transparent',
-            background: 'none', fontWeight: 'bold',
-            color: activeTab === 'referrals' ? '#ff4500' : '#64748b',
-            cursor: 'pointer', fontSize: '15px', whiteSpace: 'nowrap'
-          }}
+          className={`px-4 py-2.5 border-b-[3px] font-bold text-[15px] whitespace-nowrap transition-colors ${activeTab === 'referrals' ? 'text-orange-500 border-orange-500' : 'text-slate-500 border-transparent hover:text-slate-700'}`}
         >
           🏪 紹介店舗一覧（{referrals.length}）
         </button>
         <button
           onClick={() => setActiveTab('rewards')}
-          style={{
-            padding: '10px 16px', border: 'none',
-            borderBottom: activeTab === 'rewards' ? '3px solid #16a34a' : '3px solid transparent',
-            background: 'none', fontWeight: 'bold',
-            color: activeTab === 'rewards' ? '#16a34a' : '#64748b',
-            cursor: 'pointer', fontSize: '15px', whiteSpace: 'nowrap'
-          }}
+          className={`px-4 py-2.5 border-b-[3px] font-bold text-[15px] whitespace-nowrap transition-colors ${activeTab === 'rewards' ? 'text-emerald-600 border-emerald-600' : 'text-slate-500 border-transparent hover:text-slate-700'}`}
         >
           💰 報酬明細（{rewards.length}）
         </button>
       </div>
 
-      {/* 紹介店舗一覧タブ */}
+      {/* 紹介店舗一覧 */}
       {activeTab === 'referrals' && (
-        <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800' }}>紹介経由の店舗一覧</h3>
+        <div className="bg-white p-6 rounded-2xl border border-slate-200">
+          <div className="flex justify-between items-center mb-4 flex-wrap gap-3">
+            <h3 className="m-0 text-base font-extrabold">紹介経由の店舗一覧</h3>
             <input
               type="text"
               placeholder="🔍 店舗名・コードで検索..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ padding: '8px 14px', borderRadius: '8px', border: '1px solid #cbd5e0', fontSize: '13px', minWidth: '200px' }}
+              className="px-3.5 py-2 rounded-lg border border-slate-300 text-sm min-w-[200px]"
             />
           </div>
 
           {filteredReferrals.length === 0 ? (
-            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0', fontSize: '14px' }}>
-              紹介している店舗はまだありません。
-            </p>
+            <p className="text-center text-slate-400 py-10 text-sm">紹介している店舗はまだありません。</p>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                    <th style={{ padding: '12px', textAlign: 'left' }}>店舗名</th>
-                    <th style={{ padding: '12px', textAlign: 'left' }}>店舗コード</th>
-                    <th style={{ padding: '12px', textAlign: 'center' }}>プラン</th>
-                    <th style={{ padding: '12px', textAlign: 'center' }}>報酬率</th>
-                    <th style={{ padding: '12px', textAlign: 'right' }}>月額報酬</th>
-                    <th style={{ padding: '12px', textAlign: 'center' }}>ステータス</th>
-                    <th style={{ padding: '12px', textAlign: 'center' }}>利用開始日</th>
+                  <tr className="bg-slate-50 border-b-2 border-slate-200">
+                    <th className="p-3 text-left">店舗名</th>
+                    <th className="p-3 text-left">店舗コード</th>
+                    <th className="p-3 text-center">プラン</th>
+                    <th className="p-3 text-center">報酬率</th>
+                    <th className="p-3 text-right">月額報酬</th>
+                    <th className="p-3 text-center">ステータス</th>
+                    <th className="p-3 text-center">利用開始日</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredReferrals.map((r) => (
-                    <tr key={r.id} style={{ borderBottom: '1px solid #edf2f7' }}>
-                      <td style={{ padding: '12px', fontWeight: 'bold' }}>{r.name}</td>
-                      <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '11px', color: '#4a5568' }}>{r.shopCode}</td>
-                      <td style={{ padding: '12px', textAlign: 'center' }}>
-                        <span style={{
-                          padding: '2px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold',
-                          background: r.plan === 'pro' ? '#fef3c7' : r.plan === 'standard' ? '#dbeafe' : '#f1f5f9',
-                          color: r.plan === 'pro' ? '#b45309' : r.plan === 'standard' ? '#1d4ed8' : '#475569',
-                        }}>
+                    <tr key={r.id} className="border-b border-slate-100">
+                      <td className="p-3 font-bold">{r.name}</td>
+                      <td className="p-3 font-mono text-xs text-slate-600">{r.shopCode}</td>
+                      <td className="p-3 text-center">
+                        <span className={`px-2.5 py-0.5 rounded text-[11px] font-bold ${r.plan === 'pro' ? 'bg-amber-100 text-amber-800' : r.plan === 'standard' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-600'}`}>
                           {r.plan.toUpperCase()}
                         </span>
                       </td>
-                      <td style={{ padding: '12px', textAlign: 'center', fontWeight: 'bold', color: '#16a34a' }}>
-                        {(r.rewardRate * 100).toFixed(0)}%
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: '#1a202c' }}>
-                        ¥{r.monthlyReward.toLocaleString()}
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'center' }}>
-                        <span style={{
-                          padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold',
-                          background: r.status === 'active' ? '#c6f6d5' : '#fed7d7',
-                          color: r.status === 'active' ? '#22543d' : '#9b2c2c',
-                        }}>
+                      <td className="p-3 text-center font-bold text-emerald-600">{(r.rewardRate * 100).toFixed(0)}%</td>
+                      <td className="p-3 text-right font-bold text-slate-900">¥{r.monthlyReward.toLocaleString()}</td>
+                      <td className="p-3 text-center">
+                        <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${r.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
                           {r.status === 'active' ? '契約中' : '停止'}
                         </span>
                       </td>
-                      <td style={{ padding: '12px', textAlign: 'center', fontSize: '12px', color: '#4a5568' }}>
-                        {r.startedAt}
-                      </td>
+                      <td className="p-3 text-center text-xs text-slate-600">{r.startedAt}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -591,48 +566,40 @@ export default function ProShopDashboardPage() {
         </div>
       )}
 
-      {/* 報酬明細タブ */}
+      {/* 報酬明細 */}
       {activeTab === 'rewards' && (
-        <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800' }}>今月の報酬明細</h3>
+        <div className="bg-white p-6 rounded-2xl border border-slate-200">
+          <div className="flex justify-between items-center mb-4 flex-wrap gap-3">
+            <h3 className="m-0 text-base font-extrabold">今月の報酬明細</h3>
             <button
               onClick={handleDownloadCSV}
-              style={{ padding: '8px 16px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}
+              className="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-md font-bold text-sm transition-colors"
             >
               📥 明細CSVダウンロード
             </button>
           </div>
 
           {rewards.length === 0 ? (
-            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0', fontSize: '14px' }}>
-              報酬明細はまだありません。
-            </p>
+            <p className="text-center text-slate-400 py-10 text-sm">報酬明細はまだありません。</p>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                    <th style={{ padding: '12px', textAlign: 'left' }}>対象月</th>
-                    <th style={{ padding: '12px', textAlign: 'left' }}>紹介元店舗</th>
-                    <th style={{ padding: '12px', textAlign: 'right' }}>報酬額</th>
-                    <th style={{ padding: '12px', textAlign: 'center' }}>ステータス</th>
+                  <tr className="bg-slate-50 border-b-2 border-slate-200">
+                    <th className="p-3 text-left">対象月</th>
+                    <th className="p-3 text-left">紹介元店舗</th>
+                    <th className="p-3 text-right">報酬額</th>
+                    <th className="p-3 text-center">ステータス</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rewards.map((r) => (
-                    <tr key={r.id} style={{ borderBottom: '1px solid #edf2f7' }}>
-                      <td style={{ padding: '12px', fontFamily: 'monospace' }}>{r.billingMonth}</td>
-                      <td style={{ padding: '12px', fontWeight: 'bold' }}>{r.shopName}</td>
-                      <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: '#c2410c' }}>
-                        ¥{r.amount.toLocaleString()}
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'center' }}>
-                        <span style={{
-                          padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold',
-                          background: r.status === 'paid' ? '#c6f6d5' : '#fef3c7',
-                          color: r.status === 'paid' ? '#22543d' : '#92400e',
-                        }}>
+                    <tr key={r.id} className="border-b border-slate-100">
+                      <td className="p-3 font-mono">{r.billingMonth}</td>
+                      <td className="p-3 font-bold">{r.shopName}</td>
+                      <td className="p-3 text-right font-bold text-orange-700">¥{r.amount.toLocaleString()}</td>
+                      <td className="p-3 text-center">
+                        <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${r.status === 'paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
                           {r.status === 'paid' ? '振込済み' : '未払い'}
                         </span>
                       </td>
@@ -646,8 +613,8 @@ export default function ProShopDashboardPage() {
       )}
 
       {/* フッター */}
-      <div style={{ textAlign: 'center', marginTop: '30px' }}>
-        <Link href="/pro-shop" style={{ color: '#64748b', fontSize: '13px', textDecoration: 'none' }}>
+      <div className="text-center mt-8">
+        <Link href="/pro-shop" className="text-slate-500 text-sm no-underline hover:underline">
           ← PROコンソールに戻る
         </Link>
       </div>
