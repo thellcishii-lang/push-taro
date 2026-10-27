@@ -532,4 +532,786 @@ export default function HomeClient() {
               <div className="feature-group-head reveal">
                 <span className="feature-group-num">2</span>
                 <div>
-                  <h3>来
+                  <h3>来てくれる人を、もっと大切に</h3>
+                  <p>「差別」ではなく「お返し」。来店回数に応じた自然な仕組みです。</p>
+                </div>
+                <span className="feature-group-tag is-std">STANDARD+</span>
+              </div>
+              <div className="feature-cards">
+                <div className="feature-card tilt-in">
+                  <div className="feature-card-icon">🎟️</div>
+                  <h4>通常クーポン</h4>
+                  <p>登録者全員が何度でも使える常設クーポン。「会員様特典」として運用。</p>
+                </div>
+                <div className="feature-card tilt-in" style={{ transitionDelay: '0.05s' }}>
+                  <div className="feature-card-icon">🏆</div>
+                  <h4>特別達成クーポン</h4>
+                  <p>N回来店で自動解放。「あと1回」の心理が、来店を後押しします。</p>
+                </div>
+                <div className="feature-card tilt-in" style={{ transitionDelay: '0.1s' }}>
+                  <div className="feature-card-icon">📊</div>
+                  <h4>開封率の確認</h4>
+                  <p>配信ごとの開封率をチェック。何が効いているか、一目でわかります。</p>
+                </div>
+                {/* 🖨️ 店頭ポップ印刷をSTANDARD+に移動 */}
+                <div className="feature-card tilt-in" style={{ transitionDelay: '0.15s' }}>
+                  <div className="feature-card-icon">🖨️</div>
+                  <h4>店頭ポップ印刷</h4>
+                  <p>A4 / A5を管理画面から印刷。レジ横に置くだけで、お客様が自分から登録。</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="feature-group">
+              <div className="feature-group-head reveal">
+                <span className="feature-group-num">3</span>
+                <div>
+                  <h3>もっと極めたい人へ</h3>
+                  <p>慣れてきたら、ここから。仕組みをさらに強くできます。</p>
+                </div>
+                <span className="feature-group-tag is-pro">PRO</span>
+              </div>
+              <div className="feature-cards">
+                <div className="feature-card tilt-in">
+                  <div className="feature-card-icon">🐾</div>
+                  <h4>ステップアップクーポン</h4>
+                  <p>来店ごとに段階的に特典アップ。最大10段階まで設計可能。</p>
+                </div>
+                <div className="feature-card tilt-in" style={{ transitionDelay: '0.05s' }}>
+                  <div className="feature-card-icon">🔄</div>
+                  <h4>連続クーポン</h4>
+                  <p>消込と同時に、次回分のクーポンを自動発行。来店サイクルを短縮。</p>
+                </div>
+                <div className="feature-card tilt-in" style={{ transitionDelay: '0.1s' }}>
+                  <div className="feature-card-icon">🎂</div>
+                  <h4>記念日・誕生日クーポン</h4>
+                  <p>年1回の特別な日に、自動でお祝いクーポンを配信。</p>
+                </div>
+                <div className="feature-card tilt-in" style={{ transitionDelay: '0.15s' }}>
+                  <div className="feature-card-icon">💤</div>
+                  <h4>休眠復活クーポン</h4>
+                  <p>離反しかけた顧客に、自動で復帰クーポンを届けます。</p>
+                </div>
+                <div className="feature-card tilt-in" style={{ transitionDelay: '0.2s' }}>
+                  <div className="feature-card-icon">📅</div>
+                  <h4>予約配信・定期配信</h4>
+                  <p>「毎週金曜18時」など、指定日時に自動送信。</p>
+                </div>
+                {/* 🔥 連続ログイン特典を追加 */}
+                <div className="feature-card tilt-in" style={{ transitionDelay: '0.25s' }}>
+                  <div className="feature-card-icon">🔥</div>
+                  <h4>連続ログイン特典</h4>
+                  <p>アプリを開く習慣をつけ、連続達成でクーポンをプレゼント。</p>
+                </div>
+                {/* 🔗 POS連携を追加 */}
+                <div className="feature-card tilt-in" style={{ transitionDelay: '0.3s' }}>
+                  <div className="feature-card-icon">🔗</div>
+                  <h4>POS連携</h4>
+                  <p>お使いのPOSレジと連携。会計と同時にクーポン消込を自動記録。</p>
+                </div>
+                <div className="feature-card tilt-in" style={{ transitionDelay: '0.35s' }}>
+                  <div className="feature-card-icon">🤝</div>
+                  <h4>紹介報酬制度</h4>
+                  <p>他店舗を紹介すると、PROプランの月額が割引に。詳細は下に。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* INTERFACE */}
+        <section className="section section-alt screen-section" id="interface">
+          <div className="container">
+            <div className="section-header reveal">
+              <span className="section-tag">Interface</span>
+              <h2>シンプルで使いやすい、2つの画面</h2>
+              <p>
+                お客様が使うのは、QRコードを読み取るだけ。<br />
+                店舗オーナーは、見やすい管理画面で全ての施策をコントロールできます。
+              </p>
+            </div>
+            <div className="screen-grid">
+              <div className="screen-item">
+                <div className="phone-mock float">
+                  <div className="phone-screen">
+                    <div className="phone-status-bar">
+                      <span>9:41</span>
+                      <svg width="46" height="12" viewBox="0 0 46 12" fill="none">
+                        <rect x="0" y="4" width="3" height="6" fill="#1a202c" />
+                        <rect x="5" y="2" width="3" height="8" fill="#1a202c" />
+                        <rect x="10" y="0" width="3" height="10" fill="#1a202c" />
+                        <rect x="32" y="1" width="12" height="9" rx="2" stroke="#1a202c" strokeWidth="1" fill="none" />
+                        <rect x="33.5" y="2.5" width="8" height="6" fill="#1a202c" />
+                      </svg>
+                    </div>
+                    <div className="phone-shop-header">
+                      <div className="phone-shop-icon">🍰</div>
+                      <div className="phone-shop-name">Patisserie Taro</div>
+                      <div className="phone-link-btn">🌐 サイトはこちらから</div>
+                    </div>
+                    <div className="phone-coupons-scroll">
+                      <div className="phone-coupon phone-coupon-first">
+                        <span className="phone-coupon-badge">初回限定</span>
+                        <div className="phone-coupon-title">🎁 初回限定クーポン</div>
+                        <div className="phone-coupon-desc">次回ご来店時にご利用ください</div>
+                        <div className="phone-coupon-btn">📱 QRコードを提示する</div>
+                      </div>
+                      <div className="phone-coupon phone-coupon-normal">
+                        <span className="phone-coupon-badge is-green">通常クーポン</span>
+                        <div className="phone-coupon-title">🎟️ 会員様 10%OFF</div>
+                        <div className="phone-coupon-desc">いつでもご利用いただけます</div>
+                        <div className="phone-coupon-btn is-green">📱 QRコードを提示する</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p className="screen-caption">
+                  📱 お客様側の画面イメージ<br />
+                  QRを読み取って、クーポンを提示するだけ
+                </p>
+              </div>
+              <div className="screen-item">
+                <div className="dash-mock float">
+                  <div className="dash-topbar">
+                    <span className="dash-dot red"></span>
+                    <span className="dash-dot yellow"></span>
+                    <span className="dash-dot green"></span>
+                    <span className="dash-url">push-taro.com/pro-shop</span>
+                  </div>
+                  <div className="dash-body">
+                    <div className="dash-header">
+                      <div className="dash-header-left">
+                        <div className="dash-shop-icon">🍰</div>
+                        <div>
+                          <div className="dash-title">
+                            Patisserie Taro
+                            <span className="dash-badge">PRO</span>
+                          </div>
+                          <div className="dash-email">owner@patisserie-taro.jp</div>
+                        </div>
+                      </div>
+                      <button className="dash-logout">ログアウト</button>
+                    </div>
+                    {/* タブを6つに変更 */}
+                    <div className="dash-tabs">
+                      <div className="dash-tab is-active">📢 即時配信</div>
+                      <div className="dash-tab">📋 送信履歴</div>
+                      <div className="dash-tab">🎫 消込履歴</div>
+                      <div className="dash-tab">🏪 店舗設定</div>
+                      <div className="dash-tab">🔥 PRO機能</div>
+                      <div className="dash-tab">📅 予約</div>
+                    </div>
+                    <div className="dash-scan-btn">📷 クーポンQRコードを読み取る（消し込み）</div>
+                    <div className="dash-form">
+                      <div className="dash-form-title">📢 プッシュ通知を作成・即時送信</div>
+                      <div className="dash-form-field">
+                        <div className="dash-form-label">タイトル</div>
+                        <div className="dash-form-input">例: 新着セールのお知らせ</div>
+                      </div>
+                      <div className="dash-form-field">
+                        <div className="dash-form-label">本文</div>
+                        <div className="dash-form-textarea">例: 本日から全品20%OFFセール開催中！</div>
+                      </div>
+                      <div className="dash-form-btn">🔥 Push 通知送信</div>
+                    </div>
+                  </div>
+                </div>
+                <p className="screen-caption">
+                  💻 店舗オーナー側の管理画面イメージ<br />
+                  すべての施策を1画面でコントロール
+                </p>
+              </div>
+            </div>
+
+            {/* カスタマイズ説明 */}
+            <div className="screen-customize reveal">
+              <div className="screen-customize-icon">🎨</div>
+              <div className="screen-customize-body">
+                <h3>アイコンも店舗名も、自分のお店のまま。</h3>
+                <p>
+                  お客様のホーム画面に表示されるアイコンと店舗名は、管理画面から自由に変更できます。<br />
+                  画像は<strong>ドラッグ＆ドロップするだけ</strong>。自動で最適化されるので、面倒なリサイズ作業は不要です。<br />
+                  お客様にとっては、まるで自店専用のアプリ。愛着も、登録率も、ぐっと上がります。
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* COMPARISON */}
+        <section className="section" id="comparison">
+          <div className="container">
+            <div className="section-header reveal">
+              <span className="section-tag">Comparison</span>
+              <h2>他社ツールとの、<br />決定的な違い。</h2>
+              <p>実店舗に特化しているからこそ、できることがあります。</p>
+            </div>
+            <div className="compare-table-wrap reveal">
+              <table className="tool-compare-table">
+                <thead>
+                  <tr>
+                    <th>機能</th>
+                    <th className="col-pushtaro">Push-taro</th>
+                    <th>汎用プッシュ通知</th>
+                    <th>LINE公式</th>
+                    <th>メルマガ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>クリック率</td>
+                    <td className="col-pushtaro"><strong>最大10倍</strong></td>
+                    <td>△ ツール次第</td>
+                    <td>○ 高い</td>
+                    <td>× 低い</td>
+                  </tr>
+                  <tr>
+                    <td>店頭QRコード登録</td>
+                    <td className="col-pushtaro">○ 標準搭載</td>
+                    <td>× なし</td>
+                    <td>○ 対応</td>
+                    <td>× なし</td>
+                  </tr>
+                  <tr>
+                    <td>クーポン機能</td>
+                    <td className="col-pushtaro">○ 7種類</td>
+                    <td>× なし</td>
+                    <td>△ 手動のみ</td>
+                    <td>× なし</td>
+                  </tr>
+                  <tr>
+                    <td>店頭ポップ印刷</td>
+                    <td className="col-pushtaro">○ 標準搭載</td>
+                    <td>× なし</td>
+                    <td>× なし</td>
+                    <td>× なし</td>
+                  </tr>
+                  <tr>
+                    <td>従量課金</td>
+                    <td className="col-pushtaro">○ なし</td>
+                    <td>△ あり</td>
+                    <td>× あり</td>
+                    <td>△ あり</td>
+                  </tr>
+                  <tr>
+                    <td>セグメント配信</td>
+                    <td className="col-pushtaro"><strong>○ あえて非搭載</strong><br /><small style={{ color: '#64748b' }}>実店舗では不要</small></td>
+                    <td>△ 専門知識が不可欠</td>
+                    <td>△ 費用対効果が合いにくい</td>
+                    <td>△ 設定が複雑</td>
+                  </tr>
+                  <tr>
+                    <td>月額</td>
+                    <td className="col-pushtaro"><strong>¥1,980〜</strong></td>
+                    <td>¥5,000〜</td>
+                    <td>¥5,000〜</td>
+                    <td>¥3,000〜</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="compare-note reveal">
+              <strong>Push-taroが選ばれる理由：</strong>
+              実店舗に本当に必要なものだけを、シンプルに。大手ツールの真似ではなく、現場に寄り添った設計です。
+            </div>
+          </div>
+        </section>
+
+        {/* COUPONS */}
+        <section className="section section-alt" id="coupons">
+          <div className="container">
+            <div className="section-header reveal">
+              <span className="section-tag">Coupons</span>
+              <h2>7つのクーポンを、<br />「誰に配るか」で選ぶ。</h2>
+              <p>機能の名前ではなく、目的で選べるようにしました。<br />お店の状況に合わせて、必要なものだけ使えます。</p>
+            </div>
+            <div className="coupon-groups">
+              <div className="coupon-group">
+                <div className="coupon-group-head reveal">
+                  <span className="coupon-group-label">全員に配る</span>
+                  <h3>まずは、ここから。</h3>
+                </div>
+                <div className="coupon-group-cards">
+                  <div className="coupon-card is-all tilt-in-left">
+                    <span className="coupon-plan is-all">全プラン</span>
+                    <div className="coupon-card-icon">🎫</div>
+                    <h4>初回クーポン</h4>
+                    <p>通知登録と同時に自動配布。「今すぐ使える」特典で、登録の後押しをします。</p>
+                  </div>
+                  <div className="coupon-card is-std tilt-in-right">
+                    <span className="coupon-plan is-std">STANDARD+</span>
+                    <div className="coupon-card-icon">🎟️</div>
+                    <h4>通常クーポン</h4>
+                    <p>登録者が何度でも使える常設クーポン。「会員様特典」として運用できます。</p>
+                  </div>
+                </div>
+              </div>
+              <div className="coupon-group">
+                <div className="coupon-group-head reveal">
+                  <span className="coupon-group-label is-std">来てくれる人へ</span>
+                  <h3>感謝を、カタチに。</h3>
+                </div>
+                <div className="coupon-group-cards">
+                  <div className="coupon-card is-std tilt-in-left">
+                    <span className="coupon-plan is-std">STANDARD+</span>
+                    <div className="coupon-card-icon">🏆</div>
+                    <h4>特別達成クーポン</h4>
+                    <p>N回来店で解放。「あと1回」の心理が、自然な来店動機になります。</p>
+                  </div>
+                  <div className="coupon-card is-pro tilt-in">
+                    <span className="coupon-plan is-pro">PRO</span>
+                    <div className="coupon-card-icon">🐾</div>
+                    <h4>ステップアップクーポン</h4>
+                    <p>来店ごとに段階的に特典アップ。習慣化を強力に後押しします。</p>
+                  </div>
+                  <div className="coupon-card is-pro tilt-in-right">
+                    <span className="coupon-plan is-pro">PRO</span>
+                    <div className="coupon-card-icon">🔄</div>
+                    <h4>連続クーポン</h4>
+                    <p>消込と同時に次回分を自動発行。来店サイクルを短縮します。</p>
+                  </div>
+                </div>
+              </div>
+              <div className="coupon-group">
+                <div className="coupon-group-head reveal">
+                  <span className="coupon-group-label is-pro">特別な日に</span>
+                  <h3>忘れられない日に。</h3>
+                </div>
+                <div className="coupon-group-cards">
+                  <div className="coupon-card is-pro tilt-in-left">
+                    <span className="coupon-plan is-pro">PRO</span>
+                    <div className="coupon-card-icon">🎂</div>
+                    <h4>記念日・誕生日クーポン</h4>
+                    <p>年1回の特別な日に、自動でお祝いを。特別感がファン化を加速させます。</p>
+                  </div>
+                  <div className="coupon-card is-pro tilt-in-right">
+                    <span className="coupon-plan is-pro">PRO</span>
+                    <div className="coupon-card-icon">💤</div>
+                    <h4>休眠復活クーポン</h4>
+                    <p>離反しかけた顧客に、自動で復帰クーポンを。静かな呼び戻しの仕組み。</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* PRICING */}
+        <section className="section section-alt" id="pricing">
+          <div className="container">
+            <div className="section-header reveal">
+              <span className="section-tag">Pricing</span>
+              <h2>明快でリーズナブルな料金プラン</h2>
+              <p>店舗規模やマーケティング目的に合わせて選べる3つのプラン。<br />追加の従量課金は一切ありません。</p>
+            </div>
+            <div className="plans">
+              <div className="plan is-light tilt-in">
+                <div className="plan-name">LIGHT</div>
+                <div className="plan-amount">¥1,980<small>/月（税別）</small></div>
+                <div className="plan-limit">月間配信上限: 5,000通</div>
+                <ul className="plan-features">
+                  <li><span className="maru">○</span><span>プッシュ通知（全デバイス対応）</span></li>
+                  <li><span className="maru">○</span><span>QRコード登録</span></li>
+                  <li><span className="maru">○</span><span><strong>初回クーポン</strong></span></li>
+                  <li><span className="maru">○</span><span>即時配信・履歴管理</span></li>
+                  <li><span className="maru">○</span><span>月間上限ゲージ表示</span></li>
+                </ul>
+                <Link href="/signup" className="plan-cta">LIGHTで始める</Link>
+              </div>
+              <div className="plan is-standard tilt-in" style={{ transitionDelay: '0.12s' }}>
+                <span className="plan-badge popular">人気</span>
+                <div className="plan-name">STANDARD</div>
+                <div className="plan-amount">¥3,800<small>/月（税別）</small></div>
+                <div className="plan-limit">月間配信上限: 15,000通</div>
+                <ul className="plan-features">
+                  <li><span className="maru">○</span><span>LIGHTの全機能</span></li>
+                  <li><span className="maru">○</span><span><strong>通常クーポン</strong></span></li>
+                  <li><span className="maru">○</span><span><strong>特別達成クーポン</strong></span></li>
+                  <li><span className="maru">○</span><span><strong>開封率の確認</strong></span></li>
+                  <li><span className="maru">○</span><span><strong>店頭ポップ印刷（A4/A5）</strong><span className="new-badge">NEW</span></span></li>
+                  <li><span className="maru">○</span><span>拡大された配信枠（15,000通）</span></li>
+                </ul>
+                <Link href="/signup" className="plan-cta">STANDARDで始める</Link>
+              </div>
+              <div className="plan is-pro tilt-in" style={{ transitionDelay: '0.24s' }}>
+                <span className="plan-badge best">最高峰</span>
+                <div className="plan-name">PRO</div>
+                <div className="plan-amount">¥10,000<small>/月（税別）</small></div>
+                <div className="plan-limit">配信無制限</div>
+                <ul className="plan-features">
+                  <li><span className="maru">○</span><span>STANDARDの全機能</span></li>
+                  <li><span className="maru">○</span><span><strong>ステップアップクーポン</strong></span></li>
+                  <li><span className="maru">○</span><span><strong>連続クーポン</strong></span></li>
+                  <li><span className="maru">○</span><span><strong>記念日・誕生日クーポン</strong></span></li>
+                  <li><span className="maru">○</span><span><strong>休眠復活クーポン</strong></span></li>
+                  <li><span className="maru">○</span><span><strong>予約配信・定期配信</strong></span></li>
+                  <li><span className="maru">○</span><span><strong>連続ログイン特典</strong><span className="new-badge">NEW</span></span></li>
+                  <li><span className="maru">○</span><span><strong>POS連携（API連携）</strong><span className="new-badge">NEW</span></span></li>
+                  <li><span className="maru">○</span><span><strong>紹介報酬制度（10% or 20%×2件）</strong></span></li>
+                </ul>
+                <Link href="/signup" className="plan-cta">PROで始める</Link>
+              </div>
+            </div>
+
+            <div className="compare-wrap reveal">
+              <div className="compare-title">
+                <h3>プラン別 機能一覧</h3>
+                <p>ご契約プランによって使える機能が異なります。</p>
+              </div>
+              <table className="compare-table">
+                <thead>
+                  <tr>
+                    <th>機能</th>
+                    <th className="col-light">LIGHT</th>
+                    <th className="col-standard">STANDARD</th>
+                    <th className="col-pro">PRO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="group"><td colSpan={4}>基本機能</td></tr>
+                  <tr>
+                    <td>プッシュ通知の配信</td>
+                    <td><span className="val-text">月5,000通</span></td>
+                    <td className="col-standard"><span className="val-text">月15,000通</span></td>
+                    <td className="col-pro"><span className="val-text">配信無制限</span></td>
+                  </tr>
+                  <tr>
+                    <td>QRコード顧客獲得</td>
+                    <td><span className="maru">○</span></td>
+                    <td className="col-standard"><span className="maru">○</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                  <tr>
+                    <td>即時配信・履歴管理</td>
+                    <td><span className="maru">○</span></td>
+                    <td className="col-standard"><span className="maru">○</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                  <tr>
+                    <td>顧客管理ダッシュボード</td>
+                    <td><span className="maru">○</span></td>
+                    <td className="col-standard"><span className="maru">○</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                  <tr className="group"><td colSpan={4}>クーポン機能</td></tr>
+                  <tr>
+                    <td>🎫 初回クーポン</td>
+                    <td><span className="maru">○</span></td>
+                    <td className="col-standard"><span className="maru">○</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                  <tr>
+                    <td>🎟️ 通常クーポン</td>
+                    <td><span className="batsu">×</span></td>
+                    <td className="col-standard"><span className="maru">○</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                  <tr>
+                    <td>🏆 特別達成クーポン</td>
+                    <td><span className="batsu">×</span></td>
+                    <td className="col-standard"><span className="maru">○</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                  <tr>
+                    <td>🐾 ステップアップクーポン</td>
+                    <td><span className="batsu">×</span></td>
+                    <td className="col-standard"><span className="batsu">×</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                  <tr>
+                    <td>🔄 連続クーポン</td>
+                    <td><span className="batsu">×</span></td>
+                    <td className="col-standard"><span className="batsu">×</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                  <tr>
+                    <td>🎂 記念日・誕生日クーポン</td>
+                    <td><span className="batsu">×</span></td>
+                    <td className="col-standard"><span className="batsu">×</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                  <tr>
+                    <td>💤 休眠復活クーポン</td>
+                    <td><span className="batsu">×</span></td>
+                    <td className="col-standard"><span className="batsu">×</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                  <tr>
+                    <td>🔥 連続ログイン特典 <span className="new-badge">NEW</span></td>
+                    <td><span className="batsu">×</span></td>
+                    <td className="col-standard"><span className="batsu">×</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                  <tr className="group"><td colSpan={4}>配信・分析</td></tr>
+                  <tr>
+                    <td>📊 開封率の確認</td>
+                    <td><span className="batsu">×</span></td>
+                    <td className="col-standard"><span className="maru">○</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                  <tr>
+                    <td>📅 予約配信・定期配信</td>
+                    <td><span className="batsu">×</span></td>
+                    <td className="col-standard"><span className="batsu">×</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                  <tr className="group"><td colSpan={4}>販促ツール</td></tr>
+                  <tr>
+                    <td>🖨️ 店頭ポップ印刷（A4）<span className="new-badge">NEW</span></td>
+                    <td><span className="batsu">×</span></td>
+                    <td className="col-standard"><span className="maru">○</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                  <tr>
+                    <td>🖨️ 店頭ポップ印刷（A5）<span className="new-badge">NEW</span></td>
+                    <td><span className="batsu">×</span></td>
+                    <td className="col-standard"><span className="maru">○</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                  <tr className="group"><td colSpan={4}>外部連携・収益化</td></tr>
+                  <tr>
+                    <td>🔗 POS連携（API）<span className="new-badge">NEW</span></td>
+                    <td><span className="batsu">×</span></td>
+                    <td className="col-standard"><span className="batsu">×</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                  <tr>
+                    <td>🤝 紹介報酬制度（最大10%）</td>
+                    <td><span className="batsu">×</span></td>
+                    <td className="col-standard"><span className="batsu">×</span></td>
+                    <td className="col-pro"><span className="maru">○</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        {/* POS INTEGRATION */}
+        <section className="section multi-store-section" id="multi-store">
+          <div className="container">
+            <div className="section-header reveal">
+              <span className="section-tag">POS Integration</span>
+              <h2>スーパーや大型店でも、<br />今お使いのPOSレジに繋いで使える。</h2>
+              <p>
+                複数レジを運用する店舗向けに、POS連携APIを提供しています。<br />
+                API連携に対応したPOSなら、仕様書を渡すだけで実装可能。<br />
+                未対応のPOSでも、USB接続のQRリーダーで読み取れます。
+              </p>
+            </div>
+            <div className="multi-store-cta reveal">
+              <Link href="/guide/pos-integration" className="btn-primary">
+                POS連携の詳細を見る
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* PRO REFERRAL */}
+        <section className="section" id="pro-referral">
+          <div className="container">
+            <div className="section-header reveal">
+              <span className="section-tag">PRO Referral</span>
+              <h2>PROプランなら、<br />紹介で、もっとお得に。</h2>
+              <p>他店舗を紹介すると、PROプランの月額が割引されます。<br />2つの選択肢から、あなたに合った方を選べます。</p>
+            </div>
+            <div className="referral-choices">
+              <div className="referral-choice tilt-in-left">
+                <span className="referral-badge is-b">選択肢 B</span>
+                <h3>がっつり型</h3>
+                <div className="referral-rate">20%<small>×2件で40%OFF</small></div>
+                <p>2件だけ、20%の高還元。2件紹介すれば、PROが6,000円に。</p>
+                <ul>
+                  <li>1件あたり20%還元</li>
+                  <li>2件紹介で、月額6,000円</li>
+                  <li>短期集中で大きく割引</li>
+                </ul>
+              </div>
+            </div>
+            <div className="referral-note reveal">
+              <p>※ 選択肢は登録時に選択してください。登録後の変更はできません。</p>
+            </div>
+          </div>
+        </section>
+
+        {/* PARTNERS */}
+        <section className="section section-dark" id="partners">
+          <div className="container">
+            <div className="section-header reveal">
+              <span className="section-tag">Revenue Programs</span>
+              <h2>3つの収益化プログラムを標準搭載</h2>
+              <p>
+                Push-taroは、店舗自身が「稼ぐ側」にもなれるプラットフォーム。<br />
+                あなたのネットワークが、毎月の安定収益に変わります。
+              </p>
+            </div>
+            <div className="partner-grid">
+              <div className="partner-card tilt-in">
+                <div className="partner-icon">👑</div>
+                <h3>代理店パートナー</h3>
+                <div className="partner-rate">最大 45%</div>
+                <p>紹介した店舗のプラン・契約数に応じて報酬率がステップアップ。中長期的に安定した収益源になります。</p>
+                <ul>
+                  <li>PRO 30% / その他 18%（基本）</li>
+                  <li>100社紹介で 36%、200社以上で 45%</li>
+                  <li>加盟金 ¥300,000 + 月額 ¥30,000</li>
+                </ul>
+                <Link href="/agency" className="partner-cta">詳細を見る →</Link>
+              </div>
+              <div className="partner-card tilt-in" style={{ transitionDelay: '0.12s' }}>
+                <div className="partner-icon">🤝</div>
+                <h3>PRO紹介制度</h3>
+                <div className="partner-rate">毎月 10%</div>
+                <p>PROプランをご契約中の店舗が他店舗を紹介するだけで、毎月10%の報酬が還元。10店舗紹介でPROプランが実質無料に。</p>
+                <ul>
+                  <li>紹介店舗が契約中は毎月発生</li>
+                  <li>10店舗で実質無料化</li>
+                  <li>管理画面から即時参加可能</li>
+                </ul>
+                <Link href="/signup" className="partner-cta">PROプランで始める →</Link>
+              </div>
+              <div className="partner-card tilt-in" style={{ transitionDelay: '0.24s' }}>
+                <div className="partner-icon">📢</div>
+                <h3>アフィリエイト</h3>
+                <div className="partner-rate">8% または 単発</div>
+                <p>ブログ・SNS・知人紹介など、自由な方法で店舗を紹介。初期費用・月額費用0円で、リスクなく始められます。</p>
+                <ul>
+                  <li>継続課金型: 初年度8%・13ヶ月目以降5%</li>
+                  <li>単発型: PRO¥5,000 / STD¥2,000 / LIGHT¥1,000</li>
+                  <li>累計5,000円で振込申請</li>
+                </ul>
+                <Link href="/affiliate/signup" className="partner-cta">今すぐ登録 →</Link>
+              </div>
+            </div>
+            <div className="partner-cta-row reveal">
+              <Link href="/partners" className="partner-main-cta">
+                3つの収益化プログラムを、詳しく見る →
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="section" id="faq">
+          <div className="container">
+            <div className="section-header reveal">
+              <span className="section-tag">FAQ</span>
+              <h2>よくあるご質問</h2>
+              <p>その他ご不明な点は、お気軽にお問い合わせください。</p>
+            </div>
+            <div className="faq-list">
+              {faqs.map((f, i) => (
+                <details key={f.q} className="faq-item reveal" style={{ transitionDelay: `${i * 0.05}s` }}>
+                  <summary>
+                    {f.q}
+                    <svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M12 5v14M5 12h14" stroke="#ff4500" strokeWidth="2.5" strokeLinecap="round" />
+                    </svg>
+                  </summary>
+                  <div className="faq-answer">{f.a}</div>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* FINAL CTA */}
+        <section className="cta-final" id="cta">
+          <div className="cta-final-inner reveal">
+            <h2>
+              お客様に喜んで頂ける、<br />
+              お店づくりを、一緒に。
+            </h2>
+            <p>
+              Push-taroは、実店舗の「喜んで頂ける仕組み」を<br />
+              プッシュ通知 × クーポンアプリ で自動化するプラットフォームです。<br />
+              まずはお気軽に、無料相談・資料請求から。
+            </p>
+            <div className="cta-final-actions">
+              <Link href="/signup" className="btn-primary">
+                👑 今すぐ申し込む
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+              <Link href="/contact" className="btn-secondary">
+                📩 まずはご相談
+              </Link>
+            </div>
+            <div className="cta-note">※ 2026年9月 正式リリース。現在、先行登録受付中です。</div>
+          </div>
+        </section>
+      </main>
+
+      {/* FOOTER */}
+      <footer className="footer">
+        <div className="container">
+          <div className="footer-grid">
+            <div className="footer-brand">
+              <div className="footer-logo">
+                <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+                  <defs>
+                    <linearGradient id="footerLogoGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stopColor="#ff6b6b" />
+                      <stop offset="100%" stopColor="#ff4500" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="24" cy="24" r="23" fill="url(#footerLogoGrad)" />
+                  <path d="M24 8 L33 22 L28 22 L28 30 L20 30 L20 22 L15 22 Z" fill="#ffffff" />
+                  <circle cx="24" cy="20" r="3" fill="#ff4500" opacity="0.5" />
+                  <path d="M18 30 L14 38 L20 34 Z" fill="#ffffff" />
+                  <path d="M30 30 L34 38 L28 34 Z" fill="#ffffff" />
+                  <path d="M22 30 L24 40 L26 30 Z" fill="#fbbf24" />
+                </svg>
+                <span>Push-taro<span className="dot">.</span></span>
+              </div>
+              <p className="footer-desc">
+                実店舗のリピート施策を「プッシュ通知 × クーポンアプリ」で自動化するSaaS。<br />
+                顧客データを集めず、QRコード一つで始められます。
+              </p>
+              <div className="footer-badge">
+                <span className="footer-badge-dot"></span>
+                2026年9月 サービス開始
+              </div>
+            </div>
+            <div className="footer-links-wrap">
+              <div className="footer-col">
+                <h4 className="footer-col-title">サービス</h4>
+                <ul className="footer-col-list">
+                  <li><Link href="/">Push-taro トップ</Link></li>
+                  <li><Link href="/guide">活用ガイド</Link></li>
+                  <li><Link href="/partners">収益化プログラム</Link></li>
+                  <li><Link href="/signup">PROプランで始める</Link></li>
+                </ul>
+              </div>
+              <div className="footer-col">
+                <h4 className="footer-col-title">活用ガイド</h4>
+                <ul className="footer-col-list">
+                  <li><Link href="/guide">ガイドTOP</Link></li>
+                  <li><Link href="/guide/features">機能別ガイド</Link></li>
+                  <li><Link href="/guide/ng-actions">NG行為集</Link></li>
+                </ul>
+              </div>
+              <div className="footer-col">
+                <h4 className="footer-col-title">サポート</h4>
+                <ul className="footer-col-list">
+                  <li><Link href="/contact">お問い合わせ</Link></li>
+                  <li><Link href="/terms">利用規約</Link></li>
+                  <li><Link href="/privacy">プライバシーポリシー</Link></li>
+                  <li><Link href="/tokusho">特定商取引法</Link></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <p className="footer-copy">&copy; 2026 Push-taro All Rights Reserved. ｜ 運営：the合同会社</p>
+            <p className="footer-address">〒357-0123 埼玉県飯能市中藤下郷23-21</p>
+          </div>
+        </div>
+      </footer>
+    </>
+  );
+}
