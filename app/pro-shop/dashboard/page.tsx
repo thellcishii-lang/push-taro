@@ -374,12 +374,6 @@ export default function ProShopDashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <Link
-            href="/pro-shop"
-            className="px-4 py-2 bg-orange-50 text-orange-700 border border-orange-300 rounded-md text-sm font-bold no-underline hover:bg-orange-100 transition-colors"
-          >
-            ← コンソールに戻る
-          </Link>
           <button
             onClick={() => signOut(auth)}
             className="px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-md text-sm font-bold hover:bg-slate-200 transition-colors"
@@ -614,9 +608,6 @@ export default function ProShopDashboardPage() {
 
       {/* フッター */}
       <div className="text-center mt-8">
-        <Link href="/pro-shop" className="text-slate-500 text-sm no-underline hover:underline">
-          ← PROコンソールに戻る
-        </Link>
       </div>
     </main>
   );
