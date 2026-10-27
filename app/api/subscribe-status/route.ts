@@ -149,6 +149,21 @@ export async function GET(request: Request) {
     const dormantCouponUsedAt = usage.dormantCouponUsedAt?.toDate?.()?.toISOString?.() || usage.dormantCouponUsedAt || null;
     const currentYear = String(new Date().getFullYear());
 
+    const streakConfig = shopDoc.data()?.streakCoupon || {};
+    const streakData = data?.couponUsage?.[shopId]?.streak || {};
+    let streakInfo = null;
+    if (streakConfig.enabled) {
+      const isCurrentCampaign = streakData.campaignId === streakConfig.campaignId;
+      streakInfo = {
+        enabled: true,
+        targetDays: streakConfig.targetDays || 5,
+        currentCount: isCurrentCampaign ? (streakData.currentCount || 0) : 0,
+        lastStampDate: isCurrentCampaign ? (streakData.lastStampDate || '') : '',
+        achieved: isCurrentCampaign ? (streakData.achievedAt != null) : false,
+        achievedAt: isCurrentCampaign && streakData.achievedAt ? streakData.achievedAt.toDate().toISOString() : null,
+      };
+    }
+    
     return NextResponse.json({
       success: true,
       registered: true,
@@ -179,6 +194,7 @@ export async function GET(request: Request) {
       scheduledCouponUsedIds: usage.scheduledCouponUsedIds || [],
       scheduledCouponUsedAt: Object.fromEntries(
         Object.entries(usage.scheduledCouponUsedAt || {}).map(([id, value]) => [id, couponDate(value)]),
+      streak: streakInfo, 
       ),
     }, {
       headers: {
