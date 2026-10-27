@@ -39,8 +39,7 @@ export default function ShopPage() {
   const [shopIconUrl, setShopIconUrl] = useState('');
 
   // タブ管理（push と shop のみ）
-  const [activeTab, setActiveTab] = useState<'push' | 'shop'>('push');
-
+  const [activeTab, setActiveTab] = useState<'push' | 'history' | 'redeem' | 'shop'>('push');
   // アップグレード展開UI
   const [upgradeExpandOpen, setUpgradeExpandOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'standard' | 'pro'>('standard');
