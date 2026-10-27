@@ -1110,7 +1110,7 @@ export default function HomeClient() {
           </div>
         </section>
 
-        {/* PRO REFERRAL */}
+               {/* PRO REFERRAL */}
         <section className="section" id="pro-referral">
           <div className="container">
             <div className="section-header reveal">
@@ -1120,6 +1120,17 @@ export default function HomeClient() {
             </div>
             <div className="referral-choices">
               <div className="referral-choice tilt-in-left">
+                <span className="referral-badge is-a">選択肢 A</span>
+                <h3>じっくり型</h3>
+                <div className="referral-rate">10%<small>継続還元</small></div>
+                <p>紹介した店舗が契約している限り、毎月10%が還元されます。</p>
+                <ul>
+                  <li>紹介数は無制限</li>
+                  <li>10店舗紹介でPROが実質無料</li>
+                  <li>11店舗目以降はプラス収益</li>
+                </ul>
+              </div>
+              <div className="referral-choice is-featured tilt-in-right">
                 <span className="referral-badge is-b">選択肢 B</span>
                 <h3>がっつり型</h3>
                 <div className="referral-rate">20%<small>×2件で40%OFF</small></div>
@@ -1136,7 +1147,6 @@ export default function HomeClient() {
             </div>
           </div>
         </section>
-
         {/* PARTNERS */}
         <section className="section section-dark" id="partners">
           <div className="container">
