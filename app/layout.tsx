@@ -2,6 +2,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import Script from 'next/script';
+import './globals.css';
 
 // 静的生成は意図的に無効化する。
 // クライアント用 Firebase 初期化がモジュール評価時に NEXT_PUBLIC_* 環境変数を
