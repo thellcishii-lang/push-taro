@@ -17,6 +17,20 @@ import ShopPopSection from '@/components/print/ShopPopSection';
 import CouponHistorySection from '../../components/CouponHistorySection';
 import PosIntegrationSection from '@/components/PosIntegrationSection';
 
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="sr-only peer"
+      />
+      <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+    </label>
+  );
+}
+
 export default function ProShopPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -1136,22 +1150,39 @@ export default function ProShopPage() {
         </div>
       )}
 
-      {/* ━━━ PRO機能タブ ━━━ */}
+           {/* ━━━ PRO機能タブ ━━━ */}
       {activeTab === 'pro' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '30px' }}>
-          <h2 style={{ margin: 0, fontSize: '20px', color: '#16a34a' }}>🔥 PROマーケティング機能設定</h2>
+        <div className="space-y-5 mb-8">
 
           {/* ステップアップクーポン */}
-          <div style={{ background: '#f0fdf4', padding: '16px', borderRadius: '8px', border: '1px solid #86efac' }}>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#166534' }}>🐾 ステップアップクーポン</h3>
-            <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
-              <input type="checkbox" checked={stepUpEnabled} onChange={(e) => setStepUpEnabled(e.target.checked)} /> 有効にする
-            </label>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="flex items-start justify-between gap-4 mb-5 border-b border-gray-100 pb-4">
+              <div>
+                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <span className="text-xl">🐾</span> ステップアップクーポン
+                  <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">PRO限定</span>
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">来店回数に応じて段階的に特典がアップします。</p>
+              </div>
+              <Toggle checked={stepUpEnabled} onChange={setStepUpEnabled} />
+            </div>
+
             {stepUpEnabled && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="space-y-3 bg-green-50/50 p-5 rounded-xl border border-green-100">
                 {stepUpList.map((step, index) => (
-                  <div key={index} style={{ background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
-                    <strong style={{ fontSize: '13px', color: '#166534' }}>ステップ {index + 1}</strong>
+                  <div key={index} className="bg-white p-4 rounded-xl border border-gray-200">
+                    <div className="flex items-center justify-between mb-3">
+                      <strong className="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded">ステップ {index + 1}</strong>
+                      {stepUpList.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setStepUpList(stepUpList.filter((_, i) => i !== index))}
+                          className="text-[11px] font-bold text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded transition-colors"
+                        >
+                          削除
+                        </button>
+                      )}
+                    </div>
                     <input
                       type="text"
                       placeholder={`例: ${index + 1}回目来店特典`}
@@ -1161,25 +1192,11 @@ export default function ProShopPage() {
                         newList[index].title = e.target.value;
                         setStepUpList(newList);
                       }}
-                      style={{ width: '100%', padding: '8px', margin: '6px 0', borderRadius: '4px', border: '1px solid #ccc' }}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-sm mb-3"
                     />
-                    <div style={{ display: 'flex', gap: '12px', fontSize: '12px', alignItems: 'center' }}>
-                      <label>
-                        有効日数:
-                        <input
-                          type="number"
-                          min="1"
-                          value={step.expireDays}
-                          onChange={(e) => {
-                            const newList = [...stepUpList];
-                            newList[index].expireDays = Math.max(1, Number(e.target.value.replace(/^0+(?=\d)/, '')) || 1);
-                            setStepUpList(newList);
-                          }}
-                          style={{ width: '50px', marginLeft: '4px', padding: '2px 4px' }}
-                        /> 日間
-                      </label>
-                      <label>
-                        期限方式:
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <label className="block">
+                        <span className="font-bold text-gray-700">期限方式</span>
                         <select
                           value={step.expireType}
                           onChange={(e) => {
@@ -1187,24 +1204,48 @@ export default function ProShopPage() {
                             newList[index].expireType = e.target.value;
                             setStepUpList(newList);
                           }}
+                          className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm outline-none focus:border-green-500"
                         >
                           <option value="none">無期限</option>
-                          <option value="days">出現からN日間有効</option>
-                          <option value="date">日付固定指定</option>
+                          <option value="days">出現からN日間</option>
+                          <option value="date">日付固定</option>
                         </select>
                       </label>
+                      <label className="block">
+                        <span className="font-bold text-gray-700">有効日数</span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <input
+                            type="number"
+                            min="1"
+                            value={step.expireDays}
+                            onChange={(e) => {
+                              const newList = [...stepUpList];
+                              newList[index].expireDays = Math.max(1, Number(e.target.value.replace(/^0+(?=\d)/, '')) || 1);
+                              setStepUpList(newList);
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:border-green-500"
+                          />
+                          <span className="text-gray-500 whitespace-nowrap">日間</span>
+                        </div>
+                      </label>
                       {step.expireType === 'date' && (
-                        <input
-                          type="date"
-                          value={step.expireDate || ''}
-                          onChange={(e) => {
-                            const newList = [...stepUpList];
-                            newList[index].expireDate = e.target.value;
-                            setStepUpList(newList);
-                          }}
-                        />
+                        <label className="block col-span-2">
+                          <span className="font-bold text-gray-700">固定日付</span>
+                          <input
+                            type="date"
+                            value={step.expireDate || ''}
+                            onChange={(e) => {
+                              const newList = [...stepUpList];
+                              newList[index].expireDate = e.target.value;
+                              setStepUpList(newList);
+                            }}
+                            className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:border-green-500"
+                          />
+                        </label>
                       )}
-                      <label>
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
                         <input
                           type="checkbox"
                           checked={step.combinable}
@@ -1213,9 +1254,11 @@ export default function ProShopPage() {
                             newList[index].combinable = e.target.checked;
                             setStepUpList(newList);
                           }}
-                        /> 特別達成クーポンに追加する
+                          className="accent-green-500"
+                        />
+                        特別達成クーポンに追加する
                       </label>
-                      <label>
+                      <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
                         <input
                           type="checkbox"
                           checked={step.sameDayCombinable}
@@ -1224,13 +1267,10 @@ export default function ProShopPage() {
                             newList[index].sameDayCombinable = e.target.checked;
                             setStepUpList(newList);
                           }}
-                        /> 同日、他のクーポンと併用
+                          className="accent-green-500"
+                        />
+                        同日、他のクーポンと併用
                       </label>
-                      {stepUpList.length > 1 && (
-                        <button type="button" onClick={() => setStepUpList(stepUpList.filter((_, itemIndex) => itemIndex !== index))} style={{ padding: '4px 8px', background: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5', borderRadius: '4px', cursor: 'pointer' }}>
-                          このステップを削除
-                        </button>
-                      )}
                     </div>
                   </div>
                 ))}
@@ -1238,7 +1278,7 @@ export default function ProShopPage() {
                   <button
                     type="button"
                     onClick={() => setStepUpList([...stepUpList, { title: '', expireType: 'days', expireDays: 7, combinable: false, sameDayCombinable: false }])}
-                    style={{ padding: '8px', background: '#dcfce7', border: '1px solid #86efac', color: '#166534', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+                    className="w-full py-2.5 bg-green-50 hover:bg-green-100 border border-green-200 text-green-700 font-bold rounded-xl text-sm transition-colors"
                   >
                     ＋ ステップを追加（最大10段階）
                   </button>
@@ -1248,35 +1288,76 @@ export default function ProShopPage() {
           </div>
 
           {/* 連続クーポン */}
-          <div style={{ background: '#f0f9ff', padding: '16px', borderRadius: '8px', border: '1px solid #7dd3fc' }}>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#0369a1' }}>🔄 連続クーポン（消し込みで次回クーポン即時発効）</h3>
-            <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
-              <input type="checkbox" checked={repeatEnabled} onChange={(e) => setRepeatEnabled(e.target.checked)} /> 有効にする
-            </label>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="flex items-start justify-between gap-4 mb-5 border-b border-gray-100 pb-4">
+              <div>
+                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <span className="text-xl">🔄</span> 連続クーポン
+                  <span className="bg-sky-100 text-sky-700 text-[10px] font-bold px-2 py-0.5 rounded-full">PRO限定</span>
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">消し込みで次回クーポンが即時発効します。</p>
+              </div>
+              <Toggle checked={repeatEnabled} onChange={setRepeatEnabled} />
+            </div>
+
             {repeatEnabled && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <input type="text" placeholder="次回使える特典タイトル" value={repeatTitle} onChange={(e) => setRepeatTitle(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
-                <div style={{ display: 'flex', gap: '12px', fontSize: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <label>
-                    期限方式:
-                    <select value={repeatExpireType} onChange={(e) => setRepeatExpireType(e.target.value)} style={{ marginLeft: '4px', padding: '2px 4px' }}>
+              <div className="space-y-4 bg-sky-50/50 p-5 rounded-xl border border-sky-100">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">次回使える特典タイトル</label>
+                  <input
+                    type="text"
+                    placeholder="次回使える特典タイトル"
+                    value={repeatTitle}
+                    onChange={(e) => setRepeatTitle(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none text-sm"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="block">
+                    <span className="text-sm font-bold text-gray-700">期限方式</span>
+                    <select
+                      value={repeatExpireType}
+                      onChange={(e) => setRepeatExpireType(e.target.value)}
+                      className="w-full mt-1 px-3 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-sm outline-none focus:border-sky-500"
+                    >
                       <option value="none">無期限</option>
-                      <option value="days">出現からN日間有効</option>
-                      <option value="date">日付固定指定</option>
+                      <option value="days">出現からN日間</option>
+                      <option value="date">日付固定</option>
                     </select>
                   </label>
+                  <label className="block">
+                    <span className="text-sm font-bold text-gray-700">有効日数</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <input
+                        type="number"
+                        min="1"
+                        value={repeatExpireDays}
+                        onChange={(e) => setRepeatExpireDays(Math.max(1, Number(e.target.value.replace(/^0+(?=\d)/, '')) || 1))}
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-sky-500"
+                      />
+                      <span className="text-gray-500 text-sm whitespace-nowrap">日間</span>
+                    </div>
+                  </label>
                   {repeatExpireType === 'date' && (
-                    <input type="date" value={repeatExpireDate} onChange={(e) => setRepeatExpireDate(e.target.value)} />
+                    <label className="block col-span-2">
+                      <span className="text-sm font-bold text-gray-700">固定日付</span>
+                      <input
+                        type="date"
+                        value={repeatExpireDate}
+                        onChange={(e) => setRepeatExpireDate(e.target.value)}
+                        className="w-full mt-1 px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-sky-500"
+                      />
+                    </label>
                   )}
-                  <label>
-                    有効日数:
-                    <input type="number" min="1" value={repeatExpireDays} onChange={(e) => setRepeatExpireDays(Math.max(1, Number(e.target.value.replace(/^0+(?=\d)/, '')) || 1))} style={{ width: '50px', marginLeft: '4px', padding: '2px 4px' }} /> 日間
+                </div>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
+                    <input type="checkbox" checked={repeatCombinable} onChange={(e) => setRepeatCombinable(e.target.checked)} className="accent-sky-500" />
+                    特別達成クーポンに追加する
                   </label>
-                  <label>
-                    <input type="checkbox" checked={repeatCombinable} onChange={(e) => setRepeatCombinable(e.target.checked)} /> 特別達成クーポンに追加する
-                  </label>
-                  <label>
-                    <input type="checkbox" checked={repeatSameDayCombinable} onChange={(e) => setRepeatSameDayCombinable(e.target.checked)} /> 同日、他のクーポンと併用
+                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
+                    <input type="checkbox" checked={repeatSameDayCombinable} onChange={(e) => setRepeatSameDayCombinable(e.target.checked)} className="accent-sky-500" />
+                    同日、他のクーポンと併用
                   </label>
                 </div>
               </div>
@@ -1284,99 +1365,196 @@ export default function ProShopPage() {
           </div>
 
           {/* 誕生日クーポン */}
-          <div style={{ background: '#fff5f5', padding: '16px', borderRadius: '8px', border: '1px solid #feb2b2' }}>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#9b2c2c' }}>🎂 記念日、お誕生日クーポン設定</h3>
-            <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
-              <input type="checkbox" checked={birthdayEnabled} onChange={(e) => setBirthdayEnabled(e.target.checked)} /> 有効にする
-            </label>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="flex items-start justify-between gap-4 mb-5 border-b border-gray-100 pb-4">
+              <div>
+                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <span className="text-xl">🎂</span> 記念日・お誕生日クーポン
+                  <span className="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">PRO限定</span>
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">お客様の記念日に特別なクーポンを自動配信します。</p>
+              </div>
+              <Toggle checked={birthdayEnabled} onChange={setBirthdayEnabled} />
+            </div>
+
             {birthdayEnabled && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <input type="text" placeholder="記念日、お誕生日クーポンタイトル" value={birthdayTitle} onChange={(e) => setBirthdayTitle(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
-                <textarea placeholder="お祝いメッセージ本文" value={birthdayMessage} onChange={(e) => setBirthdayMessage(e.target.value)} rows={2} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
-                <label style={{ cursor: 'pointer' }}>
-                  <input type="checkbox" checked={birthdayCombinable} onChange={(e) => setBirthdayCombinable(e.target.checked)} /> 特別達成クーポンに追加する
-                </label>
-                <label style={{ cursor: 'pointer' }}>
-                  <input type="checkbox" checked={birthdaySameDayCombinable} onChange={(e) => setBirthdaySameDayCombinable(e.target.checked)} /> 同日、他のクーポンと併用
-                </label>
+              <div className="space-y-4 bg-red-50/50 p-5 rounded-xl border border-red-100">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">クーポンタイトル</label>
+                  <input
+                    type="text"
+                    placeholder="記念日、お誕生日クーポンタイトル"
+                    value={birthdayTitle}
+                    onChange={(e) => setBirthdayTitle(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">お祝いメッセージ</label>
+                  <textarea
+                    placeholder="お祝いメッセージ本文"
+                    value={birthdayMessage}
+                    onChange={(e) => setBirthdayMessage(e.target.value)}
+                    rows={2}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm resize-y"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
+                    <input type="checkbox" checked={birthdayCombinable} onChange={(e) => setBirthdayCombinable(e.target.checked)} className="accent-red-500" />
+                    特別達成クーポンに追加する
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
+                    <input type="checkbox" checked={birthdaySameDayCombinable} onChange={(e) => setBirthdaySameDayCombinable(e.target.checked)} className="accent-red-500" />
+                    同日、他のクーポンと併用
+                  </label>
+                </div>
               </div>
             )}
           </div>
 
           {/* 休眠復活クーポン */}
-          <div style={{ background: '#faf5ff', padding: '16px', borderRadius: '8px', border: '1px solid #e9d5ff' }}>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#6b21a8' }}>💤 休眠復活クーポン設定</h3>
-            <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
-              <input type="checkbox" checked={dormantEnabled} onChange={(e) => setDormantEnabled(e.target.checked)} /> 有効にする
-            </label>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="flex items-start justify-between gap-4 mb-5 border-b border-gray-100 pb-4">
+              <div>
+                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <span className="text-xl">💤</span> 休眠復活クーポン
+                  <span className="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full">PRO限定</span>
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">ご無沙汰のお客様を呼び戻すクーポンを自動配信します。</p>
+              </div>
+              <Toggle checked={dormantEnabled} onChange={setDormantEnabled} />
+            </div>
+
             {dormantEnabled && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
-                  <span>対象条件: 最終利用から</span>
-                  <input type="number" value={dormantTargetDays} onChange={(e) => setDormantTargetDays(Number(e.target.value))} style={{ width: '60px', padding: '4px' }} />
-                  <span>日経過した顧客</span>
+              <div className="space-y-4 bg-purple-50/50 p-5 rounded-xl border border-purple-100">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">対象条件</label>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-gray-600">最終利用から</span>
+                    <input
+                      type="number"
+                      value={dormantTargetDays}
+                      onChange={(e) => setDormantTargetDays(Number(e.target.value))}
+                      className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:border-purple-500"
+                    />
+                    <span className="text-gray-600">日経過した顧客</span>
+                  </div>
                 </div>
-                <input type="text" placeholder="復帰クーポンタイトル" value={dormantTitle} onChange={(e) => setDormantTitle(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
-                <textarea placeholder="お久しぶりメッセージ本文" value={dormantMessage} onChange={(e) => setDormantMessage(e.target.value)} rows={2} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
-                <label style={{ cursor: 'pointer' }}>
-                  <input type="checkbox" checked={dormantCombinable} onChange={(e) => setDormantCombinable(e.target.checked)} /> 特別達成クーポンに追加する
-                </label>
-                <label style={{ cursor: 'pointer' }}>
-                  <input type="checkbox" checked={dormantSameDayCombinable} onChange={(e) => setDormantSameDayCombinable(e.target.checked)} /> 同日、他のクーポンと併用
-                </label>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">クーポンタイトル</label>
+                  <input
+                    type="text"
+                    placeholder="復帰クーポンタイトル"
+                    value={dormantTitle}
+                    onChange={(e) => setDormantTitle(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">メッセージ</label>
+                  <textarea
+                    placeholder="お久しぶりメッセージ本文"
+                    value={dormantMessage}
+                    onChange={(e) => setDormantMessage(e.target.value)}
+                    rows={2}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none text-sm resize-y"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
+                    <input type="checkbox" checked={dormantCombinable} onChange={(e) => setDormantCombinable(e.target.checked)} className="accent-purple-500" />
+                    特別達成クーポンに追加する
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
+                    <input type="checkbox" checked={dormantSameDayCombinable} onChange={(e) => setDormantSameDayCombinable(e.target.checked)} className="accent-purple-500" />
+                    同日、他のクーポンと併用
+                  </label>
+                </div>
               </div>
             )}
           </div>
 
           {/* 連続ログイン特典 */}
-          <div style={{ background: '#fff7ed', padding: '16px', borderRadius: '8px', border: '1px solid #fed7aa' }}>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#c2410c' }}>🔥 連続ログイン特典</h3>
-            <p style={{ fontSize: '12px', color: '#9a3412', marginBottom: '16px' }}>
-              アプリを開く習慣をつけ、連続達成でクーポンをプレゼントします。
-            </p>
-
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', marginBottom: '16px' }}>
-              <input type="checkbox" checked={streakEnabled} onChange={(e) => setStreakEnabled(e.target.checked)} /> 有効にする
-            </label>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="flex items-start justify-between gap-4 mb-5 border-b border-gray-100 pb-4">
+              <div>
+                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <span className="text-xl">🔥</span> 連続ログイン特典
+                  <span className="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-full">PRO限定</span>
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">アプリを開く習慣をつけ、連続達成でクーポンをプレゼントします。</p>
+              </div>
+              <Toggle checked={streakEnabled} onChange={setStreakEnabled} />
+            </div>
 
             {streakEnabled && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: '#fff', padding: '16px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
-
+              <div className="space-y-6 bg-orange-50/50 p-5 rounded-xl border border-orange-100">
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '8px' }}>目標日数</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <input type="range" min="1" max="10" value={streakTargetDays} onChange={(e) => setStreakTargetDays(Number(e.target.value))} style={{ flex: 1 }} />
-                    <span style={{ fontWeight: 'bold', color: '#ea580c', width: '40px', textAlign: 'right' }}>{streakTargetDays}日</span>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">目標日数</label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="range"
+                      min="1"
+                      max="10"
+                      value={streakTargetDays}
+                      onChange={(e) => setStreakTargetDays(Number(e.target.value))}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                    />
+                    <span className="text-2xl font-black text-orange-600 whitespace-nowrap">
+                      {streakTargetDays}<span className="text-sm font-bold text-gray-500 ml-1">日</span>
+                    </span>
                   </div>
-                  <p style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>※ 1日でも途切れるとリセットされます。</p>
+                  <p className="text-xs text-gray-500 mt-2">※ 1日でも途切れると、進捗はリセットされて1日目に戻ります。</p>
                 </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>達成時のクーポン名</label>
-                  <input type="text" value={streakCouponName} onChange={(e) => setStreakCouponName(e.target.value)} placeholder="例: 5日連続ログイン達成！特別10%OFFクーポン" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
-                  <p style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>POSレジや顧客画面には、この名前で表示されます。</p>
+                <div className="pt-4 border-t border-orange-200/50">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">達成時のクーポン名</label>
+                  <input
+                    type="text"
+                    value={streakCouponName}
+                    onChange={(e) => setStreakCouponName(e.target.value)}
+                    placeholder="例: 5日連続ログイン達成！特別10%OFFクーポン"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm mb-2"
+                  />
+                  <p className="text-xs text-gray-500">POSレジや顧客画面には、この名前で表示されます。</p>
                 </div>
 
-                <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', marginBottom: '12px' }}>
-                    <input type="checkbox" checked={streakNotifyEnabled} onChange={(e) => setStreakNotifyEnabled(e.target.checked)} /> リマインド通知を送る（あと1日で達成時）
+                <div className="pt-4 border-t border-orange-200/50">
+                  <label className="flex items-center gap-2 cursor-pointer text-sm font-bold text-gray-700 mb-2">
+                    <input
+                      type="checkbox"
+                      checked={streakNotifyEnabled}
+                      onChange={(e) => setStreakNotifyEnabled(e.target.checked)}
+                      className="accent-orange-500"
+                    />
+                    リマインド通知を送る（あと1日で達成時）
                   </label>
-                  <p style={{ fontSize: '11px', color: '#64748b', marginBottom: '12px' }}>毎日夕方18時に、リセットを防ぐための通知を自動送信します。</p>
+                  <p className="text-xs text-gray-500 mb-3">毎日夕方18時に、リセットを防ぐための通知を自動送信します。</p>
 
                   {streakNotifyEnabled && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div className="space-y-3">
                       <div>
-                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '4px' }}>通知タイトル</label>
-                        <input type="text" value={streakNotifyTitle} onChange={(e) => setStreakNotifyTitle(e.target.value)} placeholder="あと1日でクーポンGET！🔥" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                        <label className="block text-xs font-bold text-gray-700 mb-1">通知タイトル</label>
+                        <input
+                          type="text"
+                          value={streakNotifyTitle}
+                          onChange={(e) => setStreakNotifyTitle(e.target.value)}
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm"
+                        />
                       </div>
                       <div>
-                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '4px' }}>通知本文</label>
-                        <textarea value={streakNotifyBody} onChange={(e) => setStreakNotifyBody(e.target.value)} rows={2} placeholder="連続ログイン達成まであと1日です！今日中にアプリを開いてスタンプを押して、リセットを防ぎましょう。" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                        <label className="block text-xs font-bold text-gray-700 mb-1">通知本文</label>
+                        <textarea
+                          value={streakNotifyBody}
+                          onChange={(e) => setStreakNotifyBody(e.target.value)}
+                          rows={2}
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm resize-y"
+                        />
                       </div>
                     </div>
                   )}
                 </div>
-
               </div>
             )}
           </div>
@@ -1384,13 +1562,13 @@ export default function ProShopPage() {
           <button
             onClick={handleSaveSettings}
             disabled={saving}
-            style={{
-              padding: '14px 24px',
-              background: saveSuccess ? '#4CAF50' : saving ? '#cccccc' : '#16a34a',
-              color: '#fff', border: 'none', borderRadius: '6px',
-              fontWeight: 'bold', fontSize: '16px',
-              cursor: saving ? 'wait' : 'pointer',
-            }}
+            className={`w-full py-4 rounded-xl font-bold text-base shadow-md transition-all ${
+              saveSuccess
+                ? 'bg-green-600 text-white'
+                : saving
+                ? 'bg-gray-300 text-gray-500 cursor-wait'
+                : 'bg-orange-500 hover:bg-orange-600 text-white hover:shadow-lg'
+            }`}
           >
             {saving ? '保存中...' : saveSuccess ? '✨ 設定完了' : '✅ 設定完了（顧客画面に反映）'}
           </button>
