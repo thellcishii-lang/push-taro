@@ -953,6 +953,40 @@ export default function SubscribePage() {
                     <p className="text-[11px] text-gray-500 m-0">会計時にこちらのQRコードをスタッフにご提示ください</p>
                   </div>
                 </CouponDisplay>
+
+               {shopData?.plan === 'pro' && streakInfo?.enabled && streakInfo.achieved && streakInfo.achievedAt && (
+                <CouponDisplay
+                  key={`streak:${streakInfo.achievedAt}`}
+                  storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:streak:${streakInfo.achievedAt}`}
+                  shopId={shopId}
+                  title={shopData?.streakCoupon?.couponName || '連続ログイン達成クーポン'}
+                  now={couponNow}
+                >
+                  <div className="bg-white rounded-2xl p-4 shadow-sm border border-orange-300 relative overflow-hidden text-center">
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-orange-500"></div>
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="bg-orange-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
+                        🔥 連続ログイン達成
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-gray-800 text-lg mb-1 leading-tight">
+                      🎉 {shopData?.streakCoupon?.couponName || '連続ログイン達成クーポン'}
+                    </h3>
+                    <p className="text-xs text-gray-500 mb-4">
+                      {streakInfo.targetDays}日連続ログイン達成のご褒美クーポンです。
+                    </p>
+                    <div className="bg-orange-50 p-3 rounded-xl inline-block mb-2">
+                      <QRCodeSVG
+                        value={JSON.stringify({ shopId, couponType: 'streak', token: fcmToken })}
+                        size={150}
+                      />
+                    </div>
+                    <p className="text-[11px] text-gray-500 m-0">
+                      会計時にこちらのQRコードをスタッフにご提示ください
+                    </p>
+                  </div>
+                </CouponDisplay>
+              )}
               )}
             </div>
           )}
