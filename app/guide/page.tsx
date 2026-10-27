@@ -7,7 +7,7 @@ const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 export const metadata: Metadata = {
   title: '実店舗のプッシュ通知・クーポン活用ガイド｜業種別・機能別の実践ノウハウ｜Push-taro',
   description:
-    'スーパー・パン屋・カフェ・アパレル・スナックなど業種別の活用法から、クーポン自動配信・休眠復活などの機能別マニュアルまで網羅。LINE公式の配信上限との比較、PWAの仕組み、顧客情報を取らないセキュリティ設計まで、実店舗のリピート施策に必要なノウハウを徹底解説します。',
+    'スーパー・パン屋・カフェ・アパレル・スナックなど業種別の活用法から、クーポン自動配信・休眠復活・連続ログイン・POS連携などの機能別マニュアルまで網羅。LINE公式の配信上限との比較、PWAの仕組み、顧客情報を取らないセキュリティ設計まで、実店舗のリピート施策に必要なノウハウを徹底解説します。',
   keywords: [
     '実店舗 プッシュ通知',
     'プッシュ通知 活用 ガイド',
@@ -21,6 +21,9 @@ export const metadata: Metadata = {
     'アパレル 集客',
     'スナック 集客',
     '休眠復活 クーポン',
+    '店頭POP 印刷',
+    '連続ログイン 特典',
+    'POSレジ 連携',
     'Push-taro',
   ],
   alternates: { canonical: '/guide' },
@@ -29,7 +32,7 @@ export const metadata: Metadata = {
     locale: 'ja_JP',
     title: '実店舗のプッシュ通知・クーポン活用ガイド｜Push-taro',
     description:
-      '業種別・機能別の実践マニュアル。LINE比較、PWA、セキュリティまで、実店舗のリピート施策に必要なノウハウを公開。',
+      '業種別・機能別の実践マニュアル。LINE比較、PWA、セキュリティ、POS連携まで、実店舗のリピート施策に必要なノウハウを公開。',
     url: '/guide',
     siteName: 'Push-taro',
   },
@@ -82,8 +85,24 @@ const collectionJsonLd = {
     { '@type': 'Article', name: 'スナック・パブ', url: `${appUrl}/guide/snack` },
     { '@type': 'Article', name: 'フードロス削減', url: `${appUrl}/guide/food-loss` },
 
-    // 機能別・運用
-    { '@type': 'Article', name: '機能別ガイド', url: `${appUrl}/guide/features` },
+    // 機能別ガイド（全追加）
+    { '@type': 'Article', name: 'プッシュ通知', url: `${appUrl}/guide/features/push-notification` },
+    { '@type': 'Article', name: 'QRコード顧客獲得', url: `${appUrl}/guide/features/qr-acquisition` },
+    { '@type': 'Article', name: '店頭POP印刷', url: `${appUrl}/guide/features/store-pop` },
+    { '@type': 'Article', name: '初回クーポン', url: `${appUrl}/guide/features/coupon-first` },
+    { '@type': 'Article', name: '通常クーポン', url: `${appUrl}/guide/features/coupon-normal` },
+    { '@type': 'Article', name: '特別達成クーポン', url: `${appUrl}/guide/features/coupon-loyalty` },
+    { '@type': 'Article', name: 'ステップアップクーポン', url: `${appUrl}/guide/features/coupon-stepup` },
+    { '@type': 'Article', name: '連続クーポン', url: `${appUrl}/guide/features/coupon-repeat` },
+    { '@type': 'Article', name: '記念日・誕生日クーポン', url: `${appUrl}/guide/features/coupon-birthday` },
+    { '@type': 'Article', name: '休眠復活クーポン', url: `${appUrl}/guide/features/coupon-dormant` },
+    { '@type': 'Article', name: '予約配信・定期配信', url: `${appUrl}/guide/features/scheduled-push` },
+    { '@type': 'Article', name: '連続ログイン特典', url: `${appUrl}/guide/features/login-streak` },
+    { '@type': 'Article', name: '紹介報酬', url: `${appUrl}/guide/features/referral` },
+    { '@type': 'Article', name: 'POSレジ連携', url: `${appUrl}/guide/pos-integration` },
+
+    // 運用ノウハウ
+    { '@type': 'Article', name: '機能別ガイドTOP', url: `${appUrl}/guide/features` },
     { '@type': 'Article', name: 'NG行為集', url: `${appUrl}/guide/ng-actions` },
 
     // 店舗マーケティングの本質
