@@ -1,58 +1,52 @@
-// app/guide/features/coupon-stepup/page.tsx
+// app/guide/features/store-pop/page.tsx
 import type { Metadata } from 'next';
-import CouponStepupClient from './CouponStepupClient';
+import StorePopClient from './StorePopClient';
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 
 export const metadata: Metadata = {
-  title: 'ステップアップクーポンの設定方法｜ポイントカードの代わりに来店回数で特典アップ｜Push-taro',
+  title: '店頭POP印刷の使い方｜A4/B5のQRコードポップを管理画面から印刷｜Push-taro',
   description:
-    '来店回数に応じて段階的に特典が豪華になる「ステップアップクーポン」の機能解説。アプリ不要のデジタルポイントカードとして、お客様の「あと1回」の心理を後押しし、来店習慣を強力に促進します。最大10段階まで設定可能です。',
+    'Push-taroのSTANDARD以上で使える「店頭POP印刷」機能の解説。レジ横やカウンターに置くQRコードポップを、管理画面からA4/B5サイズで印刷できます。お客様がスマホで読み取るだけで通知登録が完了し、その場で初回クーポンが使えます。',
   keywords: [
-    'ステップアップクーポン',
-    'ポイントカード 代わり アプリ',
-    '来店回数 特典',
-    'デジタルポイントカード',
-    '店舗 常連客 育成',
-    '段階的 クーポン',
-    'Push-taro 機能',
+    '店頭POP 印刷',
+    'QRコード ポップ',
+    '店舗 QRコード 集客',
+    'レジ横 ポップ',
+    'Push-taro 店頭POP',
+    'QRコード 登録',
   ],
-  alternates: { canonical: '/guide/features/coupon-stepup' },
+  alternates: { canonical: '/guide/features/store-pop' },
   openGraph: {
     type: 'article',
     locale: 'ja_JP',
-    title: 'ステップアップクーポンの設定方法｜Push-taro',
-    description: '来店回数に応じて特典アップ。デジタルポイントカードとして来店習慣を促進します。',
-    url: '/guide/features/coupon-stepup',
+    title: '店頭POP印刷の使い方｜Push-taro',
+    description: 'レジ横に置くだけ。管理画面からQRコードポップを印刷して、お客様の登録ハードルを下げます。',
+    url: '/guide/features/store-pop',
     siteName: 'Push-taro',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ステップアップクーポンの設定方法｜Push-taro',
-    description: '来店回数に応じて特典アップ。デジタルポイントカードとして機能します。',
+    title: '店頭POP印刷の使い方｜Push-taro',
+    description: 'レジ横に置くだけ。管理画面からQRコードポップを印刷。',
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
 };
 
 const articleJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Article',
-  headline: 'ステップアップクーポンの設定方法｜ポイントカードの代わりに来店回数で特典アップ',
-  description: '来店回数に応じて段階的に特典が豪華になる「ステップアップクーポン」の機能解説。',
+  headline: '店頭POP印刷の使い方｜A4/B5のQRコードポップを管理画面から印刷',
+  description: 'Push-taroのSTANDARD以上で使える「店頭POP印刷」機能の解説。お客様の登録ハードルを下げる店頭施策。',
   author: { '@id': `${appUrl}/#organization` },
   publisher: { '@id': `${appUrl}/#organization` },
-  datePublished: '2026-10-19',
-  dateModified: '2026-10-19',
-  mainEntityOfPage: { '@type': 'WebPage', '@id': `${appUrl}/guide/features/coupon-stepup` },
+  datePublished: '2026-10-28',
+  dateModified: '2026-10-28',
+  mainEntityOfPage: { '@type': 'WebPage', '@id': `${appUrl}/guide/features/store-pop` },
 };
 
 const breadcrumbJsonLd = {
@@ -62,22 +56,16 @@ const breadcrumbJsonLd = {
     { '@type': 'ListItem', position: 1, name: 'ホーム', item: appUrl },
     { '@type': 'ListItem', position: 2, name: '活用ガイド', item: `${appUrl}/guide` },
     { '@type': 'ListItem', position: 3, name: '機能別ガイド', item: `${appUrl}/guide/features` },
-    { '@type': 'ListItem', position: 4, name: 'ステップアップクーポン', item: `${appUrl}/guide/features/coupon-stepup` },
+    { '@type': 'ListItem', position: 4, name: '店頭POP印刷', item: `${appUrl}/guide/features/store-pop` },
   ],
 };
 
 export default function Page() {
   return (
     <>
-      <CouponStepupClient />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
-      />
+      <StorePopClient />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
     </>
   );
 }
