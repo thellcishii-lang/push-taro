@@ -66,6 +66,9 @@ export default function SubscribePage() {
   const sessionRetryAt = useRef(0);
   const [couponStatusLoaded, setCouponStatusLoaded] = useState(false);
   const [couponStatusError, setCouponStatusError] = useState('');
+  const [activeTab, setActiveTab] = useState<'coupons' | 'history'>('coupons');
+  const [streakInfo, setStreakInfo] = useState<any>(null);
+  const [stampLoading, setStampLoading] = useState(false);
 
   const sessionStorageKey = `push_taro_session_${shopId}`;
   const clearSessionToken = () => {
@@ -398,6 +401,9 @@ useEffect(() => {
           });
           setSavedBirthMonth(data.birthMonth || null);
           setSavedBirthDay(data.birthDay || null);
+          if (data.streak) {
+            setStreakInfo(data.streak);
+          }
           loaded = true;
           consecutiveFailures = 0;
           setCouponStatusLoaded(true);
@@ -586,6 +592,33 @@ useEffect(() => {
     }
   };
 
+ const handleStamp = async () => {
+    if (!shopId || !fcmToken) return;
+    setStampLoading(true);
+    try {
+      const session = await ensureSessionToken();
+      const res = await fetch('/api/streak/stamp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shopId, token: session || fcmToken }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      
+      setStreakInfo((prev: any) => ({
+        ...prev,
+        currentCount: data.nextCount,
+        lastStampDate: new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' }), // 今日の日付(YYYY-MM-DD)
+        achieved: data.achieved,
+      }));
+      if (data.achieved) alert('🎉 おめでとうございます！クーポンを獲得しました！');
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setStampLoading(false);
+    }
+  }; 
+  
   const handleSubscribe = async () => {
     let effectiveShopId = shopId;
 
@@ -708,366 +741,167 @@ useEffect(() => {
   );
 }
 
-  // 📱 【登録完了画面】
+    // 📱 【登録完了画面】
   if (isRegistered) {
+    // 今日すでにスタンプを押したか判定用
+    const todayStr = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' });
+    const isStampedToday = streakInfo?.lastStampDate === todayStr;
+
     return (
-      <main style={{ padding: 20, maxWidth: 480, margin: '0 auto', fontFamily: 'sans-serif' }}>
-        <button
-          type="button"
-          onClick={() => window.location.reload()}
-          style={{ marginBottom: '16px', padding: '8px 14px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '6px', color: '#334155', cursor: 'pointer', fontWeight: 'bold' }}
-        >
-          ↻ 画面を更新
-        </button>
-        <div style={{ textAlign: 'center', marginBottom: '30px', marginTop: '20px' }}>
-          {shopData?.iconUrl && (
-  <img
-    src={shopData.iconUrl}
-    alt={shopData?.name || '店舗アイコン'}
-    style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 10px auto' }}
-  />
-)}
-<h2 style={{ margin: '0 0 8px 0' }}>{shopData?.name}</h2>
-          {shopData?.linkUrl && (
-  <a 
-    href={`/notification-link?target=${encodeURIComponent(shopData.linkUrl)}&returnTo=/subscribe?s=${shopId}`} 
-    style={{ display: 'inline-block', padding: '10px 18px', background: '#2563eb', color: '#fff', borderRadius: '6px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold' }}
-  >
-    🌐 サイトはこちらから
-  </a>
-)}
-        </div>
-
-        {/* � 記念日・誕生日設定エリア（PROプランのみ／一度設定すると変更不可） */}
-        {shopData?.plan === 'pro' && (
-          <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', padding: '16px', borderRadius: '8px', marginBottom: '20px' }}>
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#9a3412' }}>🎂 記念日・誕生日設定</h3>
-            {savedBirthMonth && savedBirthDay ? (
-              <p style={{ margin: 0, fontSize: '14px', color: '#334155' }}>
-                記念日・誕生日設定月日: <strong>{savedBirthMonth}月{savedBirthDay}日</strong>
-              </p>
+      <div className="min-h-screen bg-slate-50 font-sans pb-20">
+        
+        {/* ヘッダー */}
+        <header className="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-200 sticky top-0 z-20 shadow-sm">
+          <div className="flex items-center gap-3">
+            {shopData?.iconUrl ? (
+              <img src={shopData.iconUrl} alt="icon" className="w-11 h-11 rounded-full object-cover shadow-sm border border-gray-100" />
             ) : (
-              <>
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                  <select value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} style={{ flex: 1, padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff' }}>
-                    <option value="">月</option>
-                    {Array.from({ length: 12 }, (_, index) => <option key={index + 1} value={index + 1}>{index + 1}月</option>)}
-                  </select>
-                  <select value={birthDay} onChange={(e) => setBirthDay(e.target.value)} style={{ flex: 1, padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff' }}>
-                    <option value="">日</option>
-                    {Array.from({ length: 31 }, (_, index) => <option key={index + 1} value={index + 1}>{index + 1}日</option>)}
-                  </select>
-                </div>
-                <p style={{ margin: '0 0 10px 0', fontSize: '12px', color: '#c2410c', fontWeight: 'bold' }}>
-                  ⚠️ 一度設定すると後から変更できませんのでご注意ください。
-                </p>
-                <button
-                  type="button"
-                  onClick={handleSetBirthday}
-                  disabled={birthdaySetStatus === 'saving'}
-                  style={{ width: '100%', padding: '10px', fontSize: '14px', background: birthdaySetStatus === 'saving' ? '#cbd5e1' : '#ea580c', color: '#fff', border: 'none', borderRadius: '6px', cursor: birthdaySetStatus === 'saving' ? 'wait' : 'pointer', fontWeight: 'bold' }}
-                >
-                  {birthdaySetStatus === 'saving' ? '設定中...' : '設定する'}
-                </button>
-                {birthdaySetMessage && (
-                  <p style={{ marginTop: '8px', fontSize: '12px', color: '#dc2626' }}>{birthdaySetMessage}</p>
-                )}
-              </>
+              <div className="w-11 h-11 bg-orange-50 rounded-full flex items-center justify-center text-xl shadow-sm border border-orange-100">🏪</div>
             )}
+            <div className="flex flex-col">
+              <h1 className="text-[15px] font-bold text-gray-800 leading-tight">{shopData?.name}</h1>
+              {shopData?.linkUrl && (
+                <a href={`/notification-link?target=${encodeURIComponent(shopData.linkUrl)}&returnTo=/subscribe?s=${shopId}`} className="text-[11px] text-orange-500 hover:text-orange-600 font-bold transition-colors mt-0.5">
+                  公式サイトはこちら →
+                </a>
+              )}
+            </div>
           </div>
-        )}
+          <button onClick={() => window.location.reload()} className="text-xs font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg">↻ 更新</button>
+        </header>
 
-        {couponStatusError && <p role="alert" style={{ fontSize: '13px', color: '#b45309', background: '#fffbeb', border: '1px solid #fde68a', padding: '10px 12px', borderRadius: '8px' }}>{couponStatusError}</p>}
-        {!couponStatusLoaded && !couponStatusError && <p style={{ fontSize: '13px', color: '#94a3b8', textAlign: 'center' }}>クーポンの使用状況を確認中...</p>}
-        {couponStatusLoaded && <>
-        {/* �🎁 初回限定クーポンエリア */}
-{shopData?.coupon?.enabled && !couponUsed && (
-  <CouponDisplay
-    key={`first:${shopData.coupon.expiresAt || ''}`}
-    storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:first:${shopData.coupon.expiresAt || ''}`}
-    legacyHiddenKey="first" shopId={shopId}
-    title={shopData.coupon.title || '初回限定クーポン'} now={couponNow}
-    expiresAt={couponExpiry({ expireType: 'date', expireDate: shopData.coupon.expiresAt }, null)}
-  >
-  <div style={{ background: '#fff3e0', border: '1px dashed #ffb74d', padding: '16px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
-    <span style={{ fontSize: '11px', background: '#e65100', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>初回限定</span>
-    <h3 style={{ margin: '6px 0 8px 0', color: '#e65100' }}>
-      🎁 {shopData.coupon.title || '初回限定クーポン'}
-    </h3>
-
-    {shopData.coupon.expiresAt && (
-      <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {shopData.coupon.expiresAt}</p>
-    )}
-
-        <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>{shopData.coupon.description}</p>
-        <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
-          <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'first', token: fcmToken })} size={150} />
-        </div>
-        <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
-  </div>
-  </CouponDisplay>
-)}
-
-{/* 🎟️ 常設：通常クーポンエリア（STANDARD / PRO プラン限定） */}
-{shopData?.normalCoupon?.enabled && (
-  <CouponDisplay
-    key={`normal:${shopData.normalCoupon.couponId || 'legacy'}`}
-    storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:normal:${shopData.normalCoupon.couponId || 'legacy'}:${shopData.normalCoupon.expiresAt || ''}`}
-    legacyHiddenKey={`normal:${shopData.normalCoupon.couponId || 'legacy'}`} shopId={shopId}
-    title={shopData.normalCoupon.title || '通常クーポン'} now={couponNow}
-    expiresAt={couponExpiry({ expireType: 'date', expireDate: shopData.normalCoupon.expiresAt }, null)}
-    used={normalCouponUsed} usedAt={couponUsedAt.normal}
-  >
-  <div style={{ background: '#f0fdf4', border: '1px dashed #4ade80', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
-    <span style={{ fontSize: '11px', background: '#16a34a', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>通常クーポン</span>
-    <h3 style={{ margin: '6px 0 8px 0', color: '#15803d' }}>
-      🎟️ {shopData.normalCoupon.title || '通常クーポン'}
-    </h3>
-    {shopData.normalCoupon.expiresAt && (
-      <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {shopData.normalCoupon.expiresAt}</p>
-    )}
-        <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>{shopData.normalCoupon.description}</p>
-        <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
-          <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'normal', token: fcmToken })} size={150} />
-        </div>
-        <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
-  </div>
-  </CouponDisplay>
-)}
-{shopData?.proCoupons?.birthday?.enabled && birthdayCouponAvailable && (
-  <CouponDisplay
-    key={`birthday:${new Date(couponNow).getFullYear()}`}
-    storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:birthday:${new Date(couponNow).getFullYear()}`}
-    shopId={shopId} title={shopData.proCoupons.birthday.title || '記念日、お誕生日クーポン'}
-    now={couponNow} used={birthdayCouponUsed} usedAt={couponUsedAt.birthday}
-  >
-  <div style={{ background: '#fff7ed', border: '1px dashed #fb923c', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
-    <span style={{ fontSize: '11px', background: '#ea580c', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>記念日、お誕生日クーポン</span>
-    <h3 style={{ margin: '6px 0 8px 0', color: '#c2410c' }}>🎂 {shopData.proCoupons.birthday.title || '記念日、お誕生日クーポン'}</h3>
-      <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>{shopData.proCoupons.birthday.message || '特別な日のクーポンです。'}</p>
-      <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
-        <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'birthday', token: fcmToken })} size={150} />
-      </div>
-      <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
-  </div>
-  </CouponDisplay>
-)}
-{shopData?.proCoupons?.dormant?.enabled && dormantCouponAvailable && (
-  <CouponDisplay
-    key={`dormant:${dormantNotifiedAt}`}
-    storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:dormant:${dormantNotifiedAt}`}
-    shopId={shopId} title={shopData.proCoupons.dormant.title || '復帰クーポン'} now={couponNow}
-    expiresAt={couponExpiry({ ...shopData.proCoupons.dormant, expireType: 'days' }, dormantNotifiedAt, 14)}
-    used={dormantCouponUsed} usedAt={couponUsedAt.dormant}
-  >
-  <div style={{ background: '#f8fafc', border: '1px dashed #94a3b8', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
-    <span style={{ fontSize: '11px', background: '#64748b', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>休眠復活クーポン</span>
-    <h3 style={{ margin: '6px 0 8px 0', color: '#475569' }}>💤 {shopData.proCoupons.dormant.title || '復帰クーポン'}</h3>
-    <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {dormantNotifiedAt ? new Date(new Date(dormantNotifiedAt).getTime() + Math.max(1, Number(shopData.proCoupons.dormant.expireDays) || 14) * 24 * 60 * 60 * 1000).toLocaleDateString('ja-JP') : `配信から ${Math.max(1, Number(shopData.proCoupons.dormant.expireDays) || 14)} 日間`}</p>
-      <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>{shopData.proCoupons.dormant.message || 'お久しぶりの方限定クーポンです。'}</p>
-      <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
-        <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'dormant', token: fcmToken })} size={150} />
-      </div>
-      <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
-  </div>
-  </CouponDisplay>
-)}
-{(shopData?.scheduledCoupons || []).map((coupon: any) => {
-  const used = scheduledCouponUsedIds.includes(coupon.id);
-  return (
-    <CouponDisplay
-      key={coupon.id}
-      storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:scheduled:${coupon.id}:${coupon.expiresAt || ''}`}
-      legacyHiddenKey={`scheduled:${coupon.id}`} shopId={shopId}
-      title={coupon.title || '予約クーポン'} now={couponNow}
-      expiresAt={coupon.expiresAt ? new Date(coupon.expiresAt).getTime() : null}
-      used={used} usedAt={couponUsedAt.scheduled[coupon.id]}
-    >
-    <div style={{ background: '#fefce8', border: '1px dashed #eab308', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
-      <span style={{ fontSize: '11px', background: '#ca8a04', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>予約クーポン</span>
-      <h3 style={{ margin: '6px 0 8px 0', color: '#854d0e' }}>🎫 {coupon.title || '予約クーポン'}</h3>
-      {coupon.expiresAt && <p style={{ fontSize: '12px', color: '#64748b' }}>有効期限: {new Date(coupon.expiresAt).toLocaleDateString('ja-JP')}</p>}
-          <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>{coupon.body}</p>
-          <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
-            <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'scheduled', couponId: coupon.id, token: fcmToken })} size={150} />
-          </div>
-          <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
-    </div>
-    </CouponDisplay>
-  );
-})}
-{shopData?.proCoupons?.stepUp?.enabled && shopData.proCoupons.stepUp.steps?.[stepUpIndex] && (
-  <CouponDisplay
-    key={`step-up:${shopData.proCoupons.stepUp.campaignId || 'legacy'}:${stepUpIndex}`}
-    storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:step-up:${shopData.proCoupons.stepUp.campaignId || 'legacy'}:${stepUpIndex}:${stepUpIndexAppearedAt || ''}`}
-    shopId={shopId} title={shopData.proCoupons.stepUp.steps[stepUpIndex].title || `ステップ${stepUpIndex + 1}`}
-    now={couponNow} expiresAt={couponExpiry(shopData.proCoupons.stepUp.steps[stepUpIndex], stepUpIndexAppearedAt)}
-  >
-  <div style={{ background: '#f5f3ff', border: '1px dashed #8b5cf6', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
-    <span style={{ fontSize: '11px', background: '#7c3aed', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>ステップアップクーポン</span>
-    <h3 style={{ margin: '6px 0 8px 0', color: '#6d28d9' }}>🐾 {shopData.proCoupons.stepUp.steps[stepUpIndex].title || `ステップ${stepUpIndex + 1}`}</h3>
-    {shopData.proCoupons.stepUp.steps[stepUpIndex].expireType === 'date' && shopData.proCoupons.stepUp.steps[stepUpIndex].expireDate && <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {shopData.proCoupons.stepUp.steps[stepUpIndex].expireDate}</p>}
-    {shopData.proCoupons.stepUp.steps[stepUpIndex].expireType === 'days' && <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {stepUpIndexAppearedAt ? new Date(new Date(stepUpIndexAppearedAt).getTime() + Math.max(1, Number(shopData.proCoupons.stepUp.steps[stepUpIndex].expireDays) || 1) * 24 * 60 * 60 * 1000).toLocaleDateString('ja-JP') : `出現から ${Math.max(1, Number(shopData.proCoupons.stepUp.steps[stepUpIndex].expireDays) || 1)} 日間`}</p>}
-    <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>ステップ {stepUpIndex + 1} の特典です。</p>
-    <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
-      <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'step-up', token: fcmToken })} size={150} />
-    </div>
-    <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
-  </div>
-  </CouponDisplay>
-)}
-{shopData?.proCoupons?.repeat?.enabled && (
-  <CouponDisplay
-    key={`repeat:${shopData.proCoupons.repeat.campaignId || 'legacy'}:${repeatCouponActiveUntil || ''}`}
-    storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:repeat:${shopData.proCoupons.repeat.campaignId || 'legacy'}:${repeatCouponActiveUntil || ''}`}
-    shopId={shopId} title={shopData.proCoupons.repeat.title || '連続クーポン'} now={couponNow}
-    expiresAt={couponExpiry(shopData.proCoupons.repeat, null) ?? (repeatCouponActiveUntil ? new Date(repeatCouponActiveUntil).getTime() : null)}
-  >
-  <div style={{ background: '#eff6ff', border: '1px dashed #0ea5e9', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
-    <span style={{ fontSize: '11px', background: '#0284c7', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>連続クーポン</span>
-    <h3 style={{ margin: '6px 0 8px 0', color: '#0369a1' }}>🔄 {shopData.proCoupons.repeat.title || '連続クーポン'}</h3>
-    {shopData.proCoupons.repeat.expireType === 'date' && shopData.proCoupons.repeat.expireDate && <p style={{ fontSize: '12px', color: '#64748b' }}>有効期限: {shopData.proCoupons.repeat.expireDate}</p>}
-    {repeatCouponActiveUntil && <p style={{ fontSize: '12px', color: '#64748b' }}>今回の有効期限: {new Date(repeatCouponActiveUntil).toLocaleDateString('ja-JP')}</p>}
-    {repeatCouponUsedToday ? <p>本日は使用済みです。次回は翌日から利用できます。</p> : <>
-      <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
-        <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'repeat', token: fcmToken })} size={150} />
-      </div>
-      <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
-    </>}
-  </div>
-  </CouponDisplay>
-)}
-{shopData?.loyaltyCoupon?.enabled && loyaltyCouponAvailable && (
-  <CouponDisplay
-    key={`loyalty:${loyaltyAchievedAt || ''}`}
-    storageKey={`push_taro_coupon_display:${shopId}:${fcmToken}:loyalty:${loyaltyAchievedAt || ''}:${shopData.loyaltyCoupon.expireDate || ''}`}
-    shopId={shopId} title={shopData.loyaltyCoupon.title || '特別達成クーポン'} now={couponNow}
-    expiresAt={couponExpiry(shopData.loyaltyCoupon, loyaltyAchievedAt)}
-  >
-  <div style={{ background: '#fff7ed', border: '1px dashed #fb923c', padding: '16px', borderRadius: '8px', marginBottom: '25px', textAlign: 'center' }}>
-    <span style={{ fontSize: '11px', background: '#ea580c', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>特別達成クーポン</span>
-    <h3 style={{ margin: '6px 0 8px 0', color: '#c2410c' }}>
-      🏆 {shopData.loyaltyCoupon.title || '特別達成クーポン'}
-    </h3>
-    {shopData.loyaltyCoupon.expireType === 'date' && shopData.loyaltyCoupon.expireDate && <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {shopData.loyaltyCoupon.expireDate}</p>}
-    {shopData.loyaltyCoupon.expireType === 'days' && <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px' }}>有効期限: {loyaltyAchievedAt ? new Date(new Date(loyaltyAchievedAt).getTime() + Math.max(1, Number(shopData.loyaltyCoupon.expireDays) || 1) * 24 * 60 * 60 * 1000).toLocaleDateString('ja-JP') : `出現から ${Math.max(1, Number(shopData.loyaltyCoupon.expireDays) || 1)} 日間`}</p>}
-        <p style={{ fontSize: '13px', color: '#333', marginBottom: '12px' }}>通常クーポンを規定回数ご利用いただいた特典です。</p>
-        <div style={{ background: '#fff', padding: '10px', display: 'inline-block', borderRadius: '6px', marginBottom: '8px' }}>
-          <QRCodeSVG value={JSON.stringify({ shopId, couponType: 'loyalty', token: fcmToken })} size={150} />
-        </div>
-        <p style={{ fontSize: '11px', color: '#888', margin: 0 }}>会計時にこちらのQRコードをスタッフにご提示ください</p>
-  </div>
-  </CouponDisplay>
-)}
-        </>}
-        {/* 📜 【履歴エリア】通知履歴 / クーポン使用履歴をタブで切り替え */}
-        <section style={{ marginTop: '28px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: '0 0 12px' }}>履歴</h2>
-          <div role="tablist" aria-label="履歴の種類" style={{ display: 'flex', gap: '4px', padding: '4px', background: '#f1f5f9', borderRadius: '12px' }}>
-            {([
-              ['notifications', '🔔 通知', historyList.length],
-              ['coupons', '🎟️ クーポン使用', couponHistoryLoaded ? couponHistory.length : null],
-            ] as const).map(([tab, label, count]) => {
-              const active = historyTab === tab;
-              return (
-                <button
-                  key={tab}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  onClick={() => {
-                    setHistoryTab(tab);
-                    if (tab === 'notifications') loadNotificationHistory();
-                  }}
-                  style={{
-                    flex: 1, padding: '10px 8px', border: 'none', borderRadius: '9px', cursor: 'pointer',
-                    fontSize: '14px', fontWeight: 700,
-                    background: active ? '#fff' : 'transparent',
-                    color: active ? '#0f172a' : '#64748b',
-                    boxShadow: active ? '0 1px 3px rgba(15, 23, 42, 0.12)' : 'none',
-                  }}
-                >
-                  {label}
-                  {count !== null && (
-                    <span style={{ marginLeft: '6px', fontSize: '12px', fontWeight: 600, padding: '1px 7px', borderRadius: '999px', background: '#e2e8f0', color: '#475569' }}>{count}</span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          <div role="tabpanel" style={{ marginTop: '12px' }}>
-            {historyTab === 'coupons' ? (
-              <>
-                {couponHistoryError && (
-                  <p role="alert" style={{ fontSize: '13px', color: '#dc2626', background: '#fef2f2', padding: '10px 12px', borderRadius: '8px', margin: '0 0 10px' }}>{couponHistoryError}</p>
-                )}
-                {!couponHistoryLoaded && couponHistoryLoading ? (
-                  <p style={{ fontSize: '13px', color: '#94a3b8', textAlign: 'center', padding: '24px 0', margin: 0 }}>読み込み中...</p>
-                ) : couponHistory.length === 0 ? (
-                  !couponHistoryError && (
-                    <div style={{ textAlign: 'center', padding: '28px 12px', color: '#94a3b8' }}>
-                      <div style={{ fontSize: '28px', marginBottom: '6px' }}>🎟️</div>
-                      <p style={{ fontSize: '13px', margin: 0 }}>まだクーポンを使用していません</p>
-                    </div>
-                  )
-                ) : (
-                  <ul style={{ listStyle: 'none', margin: 0, padding: 0, border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden', background: '#fff' }}>
-                    {couponHistory.map((entry, index) => (
-                      <li key={entry.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderTop: index === 0 ? 'none' : '1px solid #f1f5f9' }}>
-                        <span aria-hidden style={{ flexShrink: 0, width: '36px', height: '36px', borderRadius: '50%', background: '#ecfdf5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>✓</span>
-                        <div style={{ minWidth: 0, flex: 1 }}>
-                          <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.title}</p>
-                          <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#64748b' }}>
-                            {entry.usedAt
-                              ? `${new Date(entry.usedAt).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })} に使用`
-                              : '使用日時不明'}
-                          </p>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </>
-            ) : historyList.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '28px 12px', color: '#94a3b8' }}>
-                <div style={{ fontSize: '28px', marginBottom: '6px' }}>🔔</div>
-                <p style={{ fontSize: '13px', margin: 0 }}>受信した通知はまだありません</p>
-              </div>
-            ) : (
-              <>
-                <ul style={{ listStyle: 'none', margin: 0, padding: 0, border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden', background: '#fff' }}>
-                  {historyList.slice(0, displayCount).map((item, index) => (
-                    <li key={item.id ?? index} style={{ padding: '12px 14px', borderTop: index === 0 ? 'none' : '1px solid #f1f5f9' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
-                        <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>{item.title}</p>
-                        <span style={{ flexShrink: 0, fontSize: '11px', color: '#94a3b8' }}>
-                          {new Date(item.timestamp).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                        </span>
+        <main className="max-w-md mx-auto p-4 pb-24">
+          
+          {/* 【タブ1】クーポン画面 */}
+          {activeTab === 'coupons' && (
+            <div className="space-y-4">
+              
+              {/* 連続ログイン（スタンプ）カード */}
+              {shopData?.plan === 'pro' && streakInfo?.enabled && (
+                <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-5 mb-6 shadow-lg relative overflow-hidden text-white">
+                  <div className="absolute -right-6 -bottom-6 text-8xl opacity-20 transform rotate-12">🎁</div>
+                  <div className="flex justify-between items-center mb-1 relative z-10">
+                    <span className="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold">アプリを開いてスタンプGET</span>
+                    <span className="text-xs font-bold bg-white text-orange-600 px-2 py-0.5 rounded-full">{streakInfo.currentCount}日目</span>
+                  </div>
+                  <h2 className="text-lg font-black mb-3 relative z-10">連続ログインキャンペーン</h2>
+                  
+                  <div className="flex justify-between mb-4 relative z-10 gap-1">
+                    {Array.from({ length: streakInfo.targetDays }).map((_, i) => (
+                      <div key={i} className={`flex-1 aspect-square rounded-full flex items-center justify-center font-bold text-sm shadow-inner ${i < streakInfo.currentCount ? 'bg-white text-orange-500' : 'bg-orange-300/50 border-2 border-white/50 text-white/50'}`}>
+                        {i < streakInfo.currentCount ? '✓' : i + 1}
                       </div>
-                      {item.body && <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#475569', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{item.body}</p>}
-                      {item.url && item.url !== '/' && (
-                        <a href={withReturnButton(item.url)} style={{ display: 'inline-block', marginTop: '6px', fontSize: '12px', fontWeight: 600, color: '#2563eb', textDecoration: 'none' }}>
-                          詳細を見る →
-                        </a>
-                      )}
-                    </li>
+                    ))}
+                  </div>
+                  
+                  <div className="relative z-10">
+                    {streakInfo.achieved ? (
+                      <p className="text-sm font-bold text-center bg-white/20 py-2 rounded-xl mb-3">🎉 達成しました！クーポンを獲得しています</p>
+                    ) : (
+                      <p className="text-xs text-white/90 mb-3">あと<span className="font-black text-white text-sm mx-1">{streakInfo.targetDays - streakInfo.currentCount}日</span>でクーポンGET！</p>
+                    )}
+                    <button 
+                      onClick={handleStamp} 
+                      disabled={stampLoading || streakInfo.achieved || isStampedToday}
+                      className={`w-full font-black py-3 rounded-xl shadow-md transition-all text-sm flex justify-center items-center gap-2
+                        ${streakInfo.achieved ? 'bg-white/50 text-white/50 cursor-not-allowed' 
+                        : isStampedToday ? 'bg-white/80 text-orange-400 cursor-not-allowed'
+                        : 'bg-white text-orange-600 hover:scale-[1.02] active:scale-95'}`}
+                    >
+                      {stampLoading ? '処理中...' : streakInfo.achieved ? '獲得済み' : isStampedToday ? '今日は押しました✅' : '🎯 今日のスタンプを押す'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* 記念日・誕生日設定 */}
+              {shopData?.plan === 'pro' && (
+                <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm border border-orange-100">
+                  <h3 className="font-bold text-orange-800 mb-3 flex items-center gap-2 text-sm">🎂 記念日・誕生日設定</h3>
+                  {savedBirthMonth && savedBirthDay ? (
+                    <p className="text-sm text-gray-700">設定済み: <strong>{savedBirthMonth}月{savedBirthDay}日</strong></p>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <select value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)} className="flex-1 p-2.5 text-sm border border-gray-300 rounded-lg bg-gray-50 outline-none focus:border-orange-500">
+                          <option value="">月</option>
+                          {Array.from({ length: 12 }, (_, i) => <option key={i+1} value={i+1}>{i+1}月</option>)}
+                        </select>
+                        <select value={birthDay} onChange={(e) => setBirthDay(e.target.value)} className="flex-1 p-2.5 text-sm border border-gray-300 rounded-lg bg-gray-50 outline-none focus:border-orange-500">
+                          <option value="">日</option>
+                          {Array.from({ length: 31 }, (_, i) => <option key={i+1} value={i+1}>{i+1}日</option>)}
+                        </select>
+                      </div>
+                      <p className="text-[11px] text-orange-600 font-bold">⚠️ 一度設定すると後から変更できません</p>
+                      <button onClick={handleSetBirthday} disabled={birthdaySetStatus === 'saving'} className="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg text-sm transition-colors">
+                        {birthdaySetStatus === 'saving' ? '設定中...' : '設定する'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* クーポンエラー表示 */}
+              {couponStatusError && <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs p-3 rounded-xl mb-4">{couponStatusError}</div>}
+              
+              {/* 👇 ここから下に、今消したコードの中から <CouponDisplay> を呼び出しているブロックを丸ごと貼り付けてください 👇 */}
+              {/* 例： */}
+              {/* {shopData?.coupon?.enabled && !couponUsed && ( <CouponDisplay ...> ... </CouponDisplay> )} */}
+              {/* {shopData?.normalCoupon?.enabled && ( <CouponDisplay ...> ... </CouponDisplay> )} */}
+              
+            </div>
+          )}
+
+          {/* 【タブ2】履歴画面 */}
+          {activeTab === 'history' && (
+            <div>
+              <div className="flex bg-gray-200 p-1 rounded-xl mb-4">
+                <button onClick={() => { setHistoryTab('notifications'); loadNotificationHistory(); }} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${historyTab === 'notifications' ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500'}`}>通知履歴</button>
+                <button onClick={() => { setHistoryTab('coupons'); void loadCouponHistory(); }} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${historyTab === 'coupons' ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500'}`}>クーポン使用履歴</button>
+              </div>
+
+              {historyTab === 'notifications' ? (
+                <div className="space-y-3">
+                  {historyList.length === 0 ? <p className="text-center text-gray-400 text-sm py-10">通知履歴はありません</p> : historyList.slice(0, displayCount).map((item, index) => (
+                    <div key={index} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                      <h4 className="font-bold text-sm text-gray-800 mb-1">{item.title}</h4>
+                      <p className="text-xs text-gray-500 mb-2">{item.body}</p>
+                      {item.url && item.url !== '/' && <a href={withReturnButton(item.url)} className="text-xs text-blue-600 font-bold">詳細を見る →</a>}
+                    </div>
                   ))}
-                </ul>
-                {displayCount < historyList.length && (
-                  <button
-                    type="button"
-                    onClick={() => setDisplayCount(prev => prev + 10)}
-                    style={{ width: '100%', marginTop: '10px', padding: '10px', background: '#fff', color: '#334155', border: '1px solid #e2e8f0', borderRadius: '10px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}
-                  >
-                    もっと見る（残り{historyList.length - displayCount}件）
-                  </button>
-                )}
-              </>
-            )}
-          </div>
-        </section>
-      </main>
+                  {displayCount < historyList.length && (
+                    <button onClick={() => setDisplayCount(prev => prev + 10)} className="w-full py-3 bg-gray-100 text-gray-600 font-bold rounded-xl text-sm mt-2">もっと見る</button>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {couponHistory.length === 0 ? <p className="text-center text-gray-400 text-sm py-10">使用履歴はありません</p> : couponHistory.map((entry) => (
+                    <div key={entry.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center">
+                      <div>
+                        <strong className="text-sm font-bold text-gray-800 block mb-1">{entry.title}</strong>
+                        <span className="text-[10px] text-gray-400">{entry.usedAt ? new Date(entry.usedAt).toLocaleString('ja-JP') : ''}</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded-md">使用済み</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </main>
+
+        {/* ボトムナビゲーション */}
+        <nav className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 flex justify-around pt-2 pb-6 z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+          <button onClick={() => setActiveTab('coupons')} className={`flex flex-col items-center w-1/2 transition-colors ${activeTab === 'coupons' ? 'text-orange-500' : 'text-gray-400'}`}>
+            <span className="text-xl mb-1">🎫</span>
+            <span className="text-[10px] font-bold">クーポン</span>
+          </button>
+          <button onClick={() => setActiveTab('history')} className={`flex flex-col items-center w-1/2 transition-colors ${activeTab === 'history' ? 'text-orange-500' : 'text-gray-400'}`}>
+            <span className="text-xl mb-1">📜</span>
+            <span className="text-[10px] font-bold">履歴</span>
+          </button>
+        </nav>
+      </div>
     );
   }
 
