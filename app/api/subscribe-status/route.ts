@@ -194,8 +194,8 @@ export async function GET(request: Request) {
       scheduledCouponUsedIds: usage.scheduledCouponUsedIds || [],
       scheduledCouponUsedAt: Object.fromEntries(
         Object.entries(usage.scheduledCouponUsedAt || {}).map(([id, value]) => [id, couponDate(value)]),
-      streak: streakInfo, 
       ),
+      streak: streakInfo, 
     }, {
       headers: {
         'Access-Control-Allow-Origin': '*',
