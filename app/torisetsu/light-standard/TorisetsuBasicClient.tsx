@@ -771,4 +771,113 @@ export default function TorisetsuBasicClient() {
         /* 店頭POP */
         .t-pop-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .t-pop-btn { padding: 18px 12px; border: 2px dashed #ddd6fe; background: rgba(245,243,255,0.4); border-radius: 12px; text-align: center; }
-        .t
+　　　　　　　　　　　　　　　　　.t-pop-btn:hover { background: rgba(245,243,255,0.8); }
+        .t-pop-icon { font-size: 20px; margin-bottom: 2px; }
+        .t-pop-label { font-size: 11px; font-weight: 700; color: #6d28d9; }
+
+        .t-coupon-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+        .t-coupon-card { background: #fff; border: 2px solid #e2e8f0; border-radius: 14px; padding: 20px; }
+        .t-coupon-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+        .t-coupon-head h4 { margin: 0; font-size: 14px; font-weight: 800; color: #0f172a; }
+        .t-coupon-card p { font-size: 13px; color: #64748b; line-height: 1.75; margin: 0; }
+
+        .t-callout-info { display: flex; gap: 16px; padding: 20px 24px; background: #f0f9ff; border: 1px solid #7dd3fc; border-radius: 14px; margin-bottom: 28px; align-items: flex-start; }
+        .t-callout-info-icon { font-size: 22px; flex-shrink: 0; }
+        .t-callout-info strong { display: block; font-size: 15px; color: #0369a1; margin-bottom: 8px; }
+        .t-callout-info ul { margin: 0; padding-left: 20px; font-size: 14px; color: #075985; line-height: 1.9; }
+
+        .t-coupon-example { margin-top: 24px; background: #fff; border: 2px solid #0284c7; border-radius: 14px; overflow: hidden; }
+        .t-coupon-example-head { background: #0284c7; color: #fff; font-size: 13px; font-weight: 800; padding: 12px 20px; }
+        .t-coupon-example-body { padding: 16px 20px; }
+        .t-example-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; font-size: 13px; border-bottom: 1px dashed #e2e8f0; }
+        .t-example-row:last-child { border-bottom: none; }
+        .t-example-row span { color: #64748b; flex-shrink: 0; }
+        .t-example-row strong { color: #0f172a; font-weight: 800; text-align: right; }
+
+        .t-coupon-preview { border-radius: 10px; padding: 14px; text-align: center; margin-bottom: 12px; }
+        .t-coupon-preview.is-orange { background: #fff3e0; border: 1px dashed #ffb74d; }
+        .t-coupon-preview.is-green { background: #f0fdf4; border: 1px dashed #4ade80; }
+        .t-coupon-preview.is-orange2 { background: #fff7ed; border: 1px dashed #fb923c; }
+        .t-cp-badge { display: inline-block; font-size: 10px; background: #e65100; color: #fff; padding: 2px 8px; border-radius: 10px; font-weight: 800; margin-bottom: 6px; }
+        .t-cp-badge.is-green { background: #16a34a; }
+        .t-cp-badge.is-orange2 { background: #ea580c; }
+        .t-cp-title { font-size: 13px; font-weight: 800; color: #e65100; margin-bottom: 10px; }
+        .t-cp-title.is-green { color: #15803d; }
+        .t-cp-title.is-orange2 { color: #c2410c; }
+        .t-cp-qr { width: 90px; height: 90px; background: repeating-linear-gradient(45deg, #0f172a, #0f172a 8px, #fff 8px, #fff 16px); border-radius: 6px; margin: 0 auto; }
+
+        .t-upgrade-box { display: flex; gap: 20px; padding: 28px; background: linear-gradient(135deg, #fff7ed, #fffbeb); border: 2px solid #ff4500; border-radius: 16px; align-items: flex-start; }
+        .t-upgrade-icon { font-size: 48px; flex-shrink: 0; }
+        .t-upgrade-text strong { display: block; font-size: 16px; color: #c2410c; margin-bottom: 12px; }
+        .t-upgrade-text ul { margin: 0; padding-left: 20px; font-size: 14px; color: #7c2d12; line-height: 1.9; }
+
+        .t-related { margin-top: 64px; padding-top: 32px; border-top: 2px solid #e2e8f0; }
+        .t-related h3 { font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #64748b; margin: 0 0 20px; }
+        .t-related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+        .t-related-card { display: flex; align-items: center; gap: 12px; padding: 16px 18px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; text-decoration: none; color: inherit; transition: all 0.2s; }
+        .t-related-card:hover { border-color: #ff4500; transform: translateX(4px); }
+        .t-related-card .ico { font-size: 24px; flex-shrink: 0; }
+        .t-related-card .title { font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1.3; }
+        .t-related-card .sub { font-size: 11.5px; color: #64748b; margin-top: 2px; }
+        .t-related-card .arrow { color: #ff4500; font-size: 16px; font-weight: 900; margin-left: auto; }
+
+        .t-cta { margin-top: 48px; padding: 40px 32px; background: linear-gradient(160deg, #0f172a, #1e293b); color: #fff; border-radius: 20px; text-align: center; }
+        .t-cta h3 { font-size: 20px; font-weight: 900; margin: 0 0 10px; }
+        .t-cta p { font-size: 14px; color: #94a3b8; margin: 0 0 20px; }
+        .t-cta-btn { display: inline-block; padding: 12px 28px; background: linear-gradient(135deg, #ff4500, #f97316); color: #fff; border-radius: 10px; font-weight: 800; font-size: 14px; text-decoration: none; box-shadow: 0 6px 20px rgba(255,69,0,0.3); }
+
+        /* お客様の登録フロー */
+        .t-reg-flow { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; }
+        .t-reg-step { display: flex; gap: 16px; padding: 20px 24px; background: #fff; border: 2px solid #e2e8f0; border-radius: 14px; align-items: flex-start; }
+        .t-reg-step.is-ios { border-color: #bae6fd; background: #f0f9ff; }
+        .t-reg-step.is-sms { border-color: #86efac; background: #f0fdf4; }
+        .t-reg-num { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: linear-gradient(135deg, #ff4500, #f97316); color: #fff; border-radius: 50%; font-size: 16px; font-weight: 900; box-shadow: 0 4px 12px rgba(255,69,0,0.25); flex-shrink: 0; }
+        .t-reg-content h4 { font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 8px; }
+        .t-reg-content p { font-size: 13.5px; color: #475569; line-height: 1.8; margin: 0; }
+        .t-reg-content strong { color: #0f172a; }
+
+        .t-sms-reason { padding: 28px; background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 2px solid #86efac; border-radius: 20px; margin-bottom: 24px; }
+        .t-sms-reason-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .t-sms-reason-icon { font-size: 32px; }
+        .t-sms-reason-head h3 { font-size: 20px; font-weight: 900; color: #166534; margin: 0; letter-spacing: -0.5px; }
+        .t-sms-reason-lead { font-size: 15px; color: #166534; line-height: 1.8; margin: 0 0 24px; }
+        .t-sms-reason-lead strong { color: #14532d; background: #fef3c7; padding: 2px 8px; border-radius: 4px; }
+        .t-sms-reason-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        .t-sms-reason-card { padding: 18px 20px; border-radius: 14px; }
+        .t-sms-reason-card.is-bad { background: #fef2f2; border: 1px solid #fecaca; }
+        .t-sms-reason-card.is-good { background: #fff; border: 1px solid #86efac; }
+        .t-sms-badge { display: inline-block; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 12px; margin-bottom: 12px; }
+        .t-sms-badge.is-bad { background: #dc2626; color: #fff; }
+        .t-sms-badge.is-good { background: #16a34a; color: #fff; }
+        .t-sms-reason-card ul { margin: 0; padding-left: 20px; font-size: 13.5px; line-height: 1.9; }
+        .t-sms-reason-card.is-bad ul { color: #7f1d1d; }
+        .t-sms-reason-card.is-good ul { color: #14532d; }
+        .t-sms-reason-note { padding: 18px 22px; background: #fff; border: 1px solid #86efac; border-radius: 12px; }
+        .t-sms-reason-note strong { display: block; font-size: 14px; color: #166534; margin-bottom: 8px; }
+        .t-sms-reason-note p { font-size: 13px; color: #475569; line-height: 1.8; margin: 0; }
+        .t-sms-reason-note p strong { display: inline; color: #dc2626; }
+
+        .t-mockup-anno { position: absolute; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: #ff4500; color: #fff; border-radius: 50%; font-size: 12px; font-weight: 900; box-shadow: 0 4px 10px rgba(255,69,0,0.4); border: 2px solid #fff; }
+
+        .t-annos { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
+        .t-anno { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: #334155; line-height: 1.7; }
+        .t-anno-num { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: #ff4500; color: #fff; border-radius: 50%; font-size: 12px; font-weight: 900; flex-shrink: 0; }
+        .t-anno-note { font-size: 13px; color: #475569; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 12px 16px; margin-top: 8px; line-height: 1.7; }
+
+        @media (max-width: 640px) {
+          .t-main { padding: 24px 16px 60px; }
+          .t-sec-head h2 { font-size: 20px; }
+          .t-flow { gap: 8px; }
+          .t-flow-arrow, .t-flow-std-arrow { display: none; }
+          .t-upgrade-box { flex-direction: column; }
+          .t-cta { padding: 32px 24px; }
+          .t-section-std { padding: 24px 16px; }
+          .t-plan-table { font-size: 12px; }
+          .t-plan-table th, .t-plan-table td { padding: 10px 12px; }
+          .t-sms-reason-grid { grid-template-columns: 1fr; }
+          .t-reg-step { padding: 16px 18px; }
+        }
+      `}</style>
+    </>
+  );
+}
