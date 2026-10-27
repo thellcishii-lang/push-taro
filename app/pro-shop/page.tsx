@@ -825,8 +825,6 @@ export default function ProShopPage() {
   <span className="text-sm sm:text-xs">📖</span>
   <span className="hidden sm:inline sm:ml-1">取説</span>
 </a>
-              <span className="text-sm sm:text-xs">📖</span><span className="hidden sm:inline sm:ml-1">取説</span>
-            </a>
             <button onClick={() => window.location.reload()} aria-label="画面を更新" title="画面を更新" className="inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-xs font-bold text-slate-700 transition-all">
               <span className="text-sm sm:text-xs">↻</span><span className="hidden sm:inline sm:ml-1">更新</span>
             <button onClick={() => signOut(auth)} className="px-2.5 sm:px-3 h-8 sm:h-auto sm:py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[11px] sm:text-xs font-bold transition-colors flex-shrink-0">ログアウト</button>
