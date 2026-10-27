@@ -15,7 +15,6 @@ import ImageUploader from '../../components/ImageUploader';
 import { Html5Qrcode } from 'html5-qrcode';
 import ShopPopSection from '@/components/print/ShopPopSection';
 import CouponHistorySection from '../../components/CouponHistorySection';
-import PosIntegrationSection from '@/components/PosIntegrationSection';
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -52,7 +51,7 @@ export default function ProShopPage() {
   const [shopIconUrl, setShopIconUrl] = useState('');
 
   // タブ管理
-  const [activeTab, setActiveTab] = useState<'push' | 'history' | 'redeem' | 'shop' | 'pro' | 'reserve' | 'pos'>('push');
+  const [activeTab, setActiveTab] = useState<'push' | 'history' | 'redeem' | 'shop' | 'pro' | 'reserve'>('push');
 
   // 即時通知
   const [title, setTitle] = useState('');
@@ -830,10 +829,6 @@ export default function ProShopPage() {
             </a>
             <button onClick={() => window.location.reload()} aria-label="画面を更新" title="画面を更新" className="inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-xs font-bold text-slate-700 transition-all">
               <span className="text-sm sm:text-xs">↻</span><span className="hidden sm:inline sm:ml-1">更新</span>
-            </button>
-            <Link href="/pro-shop/dashboard" aria-label="紹介・報酬" title="紹介・報酬" className="inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-xs font-bold text-slate-700 transition-all">
-              <span className="text-sm sm:text-xs">🤝</span><span className="hidden sm:inline sm:ml-1">紹介</span>
-            </Link>
             <button onClick={() => signOut(auth)} className="px-2.5 sm:px-3 h-8 sm:h-auto sm:py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[11px] sm:text-xs font-bold transition-colors flex-shrink-0">ログアウト</button>
           </div>
         </div>
@@ -850,7 +845,6 @@ export default function ProShopPage() {
             { key: 'shop', label: '🏪 店舗設定' },
             { key: 'pro', label: '🔥 PRO機能' },
             { key: 'reserve', label: '📅 予約配信' },
-            { key: 'pos', label: '🔗 POS連携' },
           ] as const).map(({ key, label }) => (
             <button
               key={key}
@@ -1514,11 +1508,6 @@ export default function ProShopPage() {
               )}
             </div>
           </div>
-        )}
-
-        {/* ===== POS連携タブ ===== */}
-        {activeTab === 'pos' && shopId && (
-          <PosIntegrationSection key={shopId} shopId={shopId} user={user} />
         )}
 
       </main>
