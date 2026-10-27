@@ -604,6 +604,7 @@ export default function SubscribePage() {
           message: `${data.targetDays || streakInfo?.targetDays || ''}日連続ログイン達成！\nご褒美クーポンを獲得しました🎉`,
           emoji: '🔥',
         });
+      }
     } catch (err: any) {
       alert(err.message);
     } finally {
