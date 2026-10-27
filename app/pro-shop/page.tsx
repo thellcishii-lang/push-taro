@@ -52,7 +52,7 @@ export default function ProShopPage() {
   const [shopIconUrl, setShopIconUrl] = useState('');
 
   // タブ管理
-  const [activeTab, setActiveTab] = useState<'push' | 'shop' | 'pro' | 'reserve' | 'pos'>('push');
+  const [activeTab, setActiveTab] = useState<'push' | 'history' | 'redeem' | 'shop' | 'pro' | 'reserve' | 'pos'>('push');
 
   // 即時通知
   const [title, setTitle] = useState('');
@@ -747,9 +747,9 @@ export default function ProShopPage() {
     }
   };
 
-  if (loadingAuth) {
+   if (loadingAuth) {
     return (
-      <main style={{ maxWidth: '600px', margin: '60px auto', textAlign: 'center' }}>
+      <main className="max-w-lg mx-auto mt-16 text-center text-slate-500">
         <p>読み込み中...</p>
       </main>
     );
@@ -757,48 +757,27 @@ export default function ProShopPage() {
 
   if (!user) {
     return (
-      <main style={{ maxWidth: '400px', margin: '60px auto', padding: '20px', fontFamily: 'sans-serif', textAlign: 'center' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
-          <img src="/icon-192x192.png" alt="Push-taro" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover' }} />
+      <main className="max-w-sm mx-auto mt-16 px-5 text-center font-sans">
+        <div className="flex justify-center mb-4">
+          <img src="/icon-192x192.png" alt="Push-taro" className="w-20 h-20 rounded-full object-cover" />
         </div>
-        <h1>Push-taro</h1>
-        <p style={{ color: '#666', marginBottom: '20px' }}>PROオーナー専用ログイン画面</p>
+        <h1 className="text-2xl font-bold mb-2">Push-taro</h1>
+        <p className="text-gray-500 mb-5">PROオーナー専用ログイン画面</p>
         {loginError && (
-          <div role="alert" style={{ background: '#fff5f5', border: '1px solid #feb2b2', color: '#c53030', padding: '10px', borderRadius: '6px', fontSize: '13px', marginBottom: '16px' }}>
+          <div role="alert" className="bg-red-50 border border-red-200 text-red-700 px-3 py-2.5 rounded-lg text-sm mb-4">
             {loginError}
           </div>
         )}
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <input
-            type="email"
-            placeholder="メールアドレス（ログインID）"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ padding: '12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #ccc' }}
-          />
-          <div style={{ position: 'relative' }}>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              placeholder="パスワード"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              style={{ width: '100%', boxSizing: 'border-box', padding: '12px 42px 12px 12px', fontSize: '16px', borderRadius: '6px', border: '1px solid #ccc' }}
-            />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'パスワードを隠す' : 'パスワードを表示'} title={showPassword ? 'パスワードを隠す' : 'パスワードを表示'} style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '18px' }}>👁</button>
+        <form onSubmit={handleLogin} className="flex flex-col gap-3">
+          <input type="email" placeholder="メールアドレス（ログインID）" value={email} onChange={(e) => setEmail(e.target.value)} required className="px-3 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none" />
+          <div className="relative">
+            <input type={showPassword ? 'text' : 'password'} placeholder="パスワード" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full box-border pl-3 pr-11 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none" />
+            <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'パスワードを隠す' : 'パスワードを表示'} className="absolute right-2 top-1/2 -translate-y-1/2 text-lg">👁</button>
           </div>
-          <button
-            type="submit"
-            style={{ padding: '14px', background: '#ff4500', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', borderRadius: '6px', marginTop: '5px' }}
-          >
-            ログイン
-          </button>
+          <button type="submit" className="mt-1 py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-base rounded-lg transition-colors">ログイン</button>
         </form>
-        <div style={{ marginTop: '16px', fontSize: '13px' }}>
-          <Link href="/reset-password?role=shop&returnTo=/pro-shop" style={{ color: '#c2410c', textDecoration: 'none' }}>
-            パスワードをお忘れの方
-          </Link>
+        <div className="mt-4 text-sm">
+          <Link href="/reset-password?role=shop&returnTo=/pro-shop" className="text-orange-700 hover:underline">パスワードをお忘れの方</Link>
         </div>
       </main>
     );
@@ -807,220 +786,186 @@ export default function ProShopPage() {
   const qrUrl = typeof window !== 'undefined' ? `${window.location.origin}/subscribe?s=${shopId}` : '';
 
   return (
-    <main style={{ maxWidth: '800px', margin: '40px auto', padding: '20px', fontFamily: 'sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
-        <button onClick={() => signOut(auth)} style={{ padding: '7px 14px', cursor: 'pointer', borderRadius: '4px', border: '1px solid #ccc', background: '#fff', whiteSpace: 'nowrap' }}>
-          ログアウト
-        </button>
-      </div>
+    <div className="min-h-screen bg-[#f4f4f5] text-slate-900" style={{ fontFamily: "'Inter','Noto Sans JP',sans-serif" }}>
+      <style jsx global>{`
+        @property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+        @keyframes spin-border { to { --angle: 360deg; } }
+        .glow-border {
+          position: relative; padding: 2px; border-radius: 20px;
+          background: conic-gradient(from var(--angle), #f97316, #fbbf24, #f59e0b, #f97316);
+          animation: spin-border 3s linear infinite;
+          box-shadow: 0 6px 24px -6px rgba(249,115,22,0.35);
+        }
+        .glow-inner { border-radius: 18px; background: linear-gradient(135deg, #fffbf5 0%, #fff7ed 60%, #ffedd5 100%); padding: 14px 16px; }
+      `}</style>
+
       {/* ヘッダー */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '25px', flexWrap: 'wrap', gap: '16px', borderBottom: '2px solid #eee', paddingBottom: '15px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
-          {shopIconUrl ? (
-            <img src={shopIconUrl} alt="アイコン" style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #ddd' }} />
-          ) : (
-            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#eee' }} />
-          )}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <h1 style={{ margin: 0, fontSize: '24px' }}>{shopName}</h1>
-              <span style={{
-                fontSize: '11px', fontWeight: 'bold', padding: '3px 8px', borderRadius: '12px',
-                color: '#fff', backgroundColor: '#ff4500',
-              }}>
-                PRO プラン
-              </span>
+      <header className="sticky top-0 z-30 border-b border-slate-200/70" style={{ background: 'rgba(255,255,255,0.82)', backdropFilter: 'blur(20px) saturate(180%)', WebkitBackdropFilter: 'blur(20px) saturate(180%)' }}>
+        <div className="max-w-3xl mx-auto px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
+            {shopIconUrl ? (
+              <img src={shopIconUrl} alt="icon" className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl object-cover shadow-md flex-shrink-0" />
+            ) : (
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-sm sm:text-base shadow-md shadow-orange-500/25 flex-shrink-0">🍰</div>
+            )}
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <h1 className="text-sm font-bold truncate">{shopName || 'Push-taro'}</h1>
+                <span className="inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-gradient-to-r from-orange-500 to-rose-500 text-white flex-shrink-0">PRO</span>
+              </div>
+              <p className="text-[10px] text-slate-500 truncate hidden sm:block">{user.email}</p>
             </div>
           </div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '8px', maxWidth: '100%' }}>
-          <span style={{ fontSize: '13px', color: '#666', overflowWrap: 'anywhere' }}>{user.email}</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <a
-              href="https://push-taro.com/torisetsu"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ padding: '8px 14px', background: '#fff7ed', color: '#c2410c', border: '1px solid #fdba74', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none', whiteSpace: 'nowrap' }}
-            >
-              📖 取扱説明書
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <a href="https://push-taro.com/torisetsu" target="_blank" rel="noopener noreferrer" aria-label="取扱説明書" title="取扱説明書" className="inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-xs font-bold text-slate-700 transition-all">
+              <span className="text-sm sm:text-xs">📖</span><span className="hidden sm:inline sm:ml-1">取説</span>
             </a>
-            <button
-              type="button"
-              onClick={() => window.location.reload()}
-              style={{ padding: '8px 14px', background: '#fff', color: '#334155', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', whiteSpace: 'nowrap' }}
-            >
-              ↻ 画面を更新
+            <button onClick={() => window.location.reload()} aria-label="画面を更新" title="画面を更新" className="inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-xs font-bold text-slate-700 transition-all">
+              <span className="text-sm sm:text-xs">↻</span><span className="hidden sm:inline sm:ml-1">更新</span>
             </button>
-            <Link
-              href="/pro-shop/dashboard"
-              style={{ padding: '8px 14px', background: '#fff7ed', color: '#c2410c', border: '1px solid #fdba74', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', textDecoration: 'none', whiteSpace: 'nowrap' }}
-            >
-              🤝 紹介・報酬
+            <Link href="/pro-shop/dashboard" aria-label="紹介・報酬" title="紹介・報酬" className="inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-xs font-bold text-slate-700 transition-all">
+              <span className="text-sm sm:text-xs">🤝</span><span className="hidden sm:inline sm:ml-1">紹介</span>
             </Link>
+            <button onClick={() => signOut(auth)} className="px-2.5 sm:px-3 h-8 sm:h-auto sm:py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[11px] sm:text-xs font-bold transition-colors flex-shrink-0">ログアウト</button>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* タブ */}
-      <div style={{ display: 'flex', gap: '8px', borderBottom: '2px solid #e2e8f0', paddingBottom: '4px', marginBottom: '20px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-        <button
-          onClick={() => setActiveTab('push')}
-          style={{
-            padding: '10px 16px', border: 'none',
-            borderBottom: activeTab === 'push' ? '3px solid #ff4500' : '3px solid transparent',
-            background: 'none', fontWeight: 'bold',
-            color: activeTab === 'push' ? '#ff4500' : '#64748b',
-            cursor: 'pointer', fontSize: '15px', whiteSpace: 'nowrap'
-          }}
-        >
-          📢 即時通知・消し込み
-        </button>
-        <button
-          onClick={() => setActiveTab('shop')}
-          style={{
-            padding: '10px 16px', border: 'none',
-            borderBottom: activeTab === 'shop' ? '3px solid #0284c7' : '3px solid transparent',
-            background: 'none', fontWeight: 'bold',
-            color: activeTab === 'shop' ? '#0284c7' : '#64748b',
-            cursor: 'pointer', fontSize: '15px', whiteSpace: 'nowrap'
-          }}
-        >
-          🏪 店舗・基本クーポン
-        </button>
-        <button
-          onClick={() => setActiveTab('pro')}
-          style={{
-            padding: '10px 16px', border: 'none',
-            borderBottom: activeTab === 'pro' ? '3px solid #16a34a' : '3px solid transparent',
-            background: 'none', fontWeight: 'bold',
-            color: activeTab === 'pro' ? '#16a34a' : '#64748b',
-            cursor: 'pointer', fontSize: '15px', whiteSpace: 'nowrap'
-          }}
-        >
-          🔥 PRO機能
-        </button>
-        <button
-          onClick={() => setActiveTab('reserve')}
-          style={{
-            padding: '10px 16px', border: 'none',
-            borderBottom: activeTab === 'reserve' ? '3px solid #d97706' : '3px solid transparent',
-            background: 'none', fontWeight: 'bold',
-            color: activeTab === 'reserve' ? '#d97706' : '#64748b',
-            cursor: 'pointer', fontSize: '15px', whiteSpace: 'nowrap'
-          }}
-        >
-          📅 予約配信
-        </button>
-        <button
-          onClick={() => setActiveTab('pos')}
-          style={{
-            padding: '10px 16px', border: 'none',
-            borderBottom: activeTab === 'pos' ? '3px solid #0284c7' : '3px solid transparent',
-            background: 'none', fontWeight: 'bold', color: activeTab === 'pos' ? '#0284c7' : '#64748b',
-            cursor: 'pointer', fontSize: '15px', whiteSpace: 'nowrap',
-          }}
-        >POS連携</button>
-      </div>
+      <main className="max-w-3xl mx-auto px-4 py-4 pb-20">
 
-      {activeTab === 'pos' && shopId && <PosIntegrationSection key={shopId} shopId={shopId} user={user} />}
+        {/* タブ（7つ・横スクロール） */}
+        <div className="flex gap-1 p-1 bg-slate-200/60 rounded-2xl mb-4 overflow-x-auto sticky top-[62px] z-20">
+          {([
+            { key: 'push', label: '📢 即時配信' },
+            { key: 'history', label: '📋 送信履歴' },
+            { key: 'redeem', label: '🎫 消込履歴' },
+            { key: 'shop', label: '🏪 店舗設定' },
+            { key: 'pro', label: '🔥 PRO機能' },
+            { key: 'reserve', label: '📅 予約配信' },
+            { key: 'pos', label: '🔗 POS連携' },
+          ] as const).map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
+              className={`flex-1 min-w-fit px-3 py-2 rounded-xl text-[13px] font-bold whitespace-nowrap transition-all ${
+                activeTab === key ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
-      {/* ━━━ 即時通知タブ ━━━ */}
-      {activeTab === 'push' && (
-        <>
-          {/* 消し込み */}
-          <div style={{ marginBottom: '20px' }}>
+        {/* ===== 即時配信タブ ===== */}
+        {activeTab === 'push' && (
+          <div className="space-y-3.5">
             <button
               onClick={() => { setScanResult(null); setScanOpen(true); }}
-              style={{
-                width: '100%', padding: '16px', background: '#16a34a', color: '#fff',
-                border: 'none', borderRadius: '8px', fontSize: '18px', fontWeight: 'bold',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                gap: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              }}
+              className="w-full py-3.5 rounded-[18px] bg-slate-900 hover:bg-slate-800 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-all group"
             >
-              📷 クーポンQRコードを読み取る（消し込み）
+              <span className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">📷</span>
+              <div className="text-left">
+                <div className="text-sm font-bold text-white">クーポンQRを読み取る</div>
+                <div className="text-[11px] text-slate-400">スタッフの消し込み処理</div>
+              </div>
             </button>
+
+            <form onSubmit={handleSend} className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm p-5">
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center text-base shadow-sm">📢</div>
+                <div>
+                  <h3 className="text-sm font-bold">プッシュ通知を送信</h3>
+                  <p className="text-[11px] text-slate-500">お客様のデバイスに即時配信</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1.5 ml-1">タイトル</label>
+                  <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="新着セールのお知らせ" className="w-full px-3.5 py-2.5 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-orange-300 focus:ring-4 focus:ring-orange-100 outline-none transition-all" />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1.5 ml-1">本文</label>
+                  <textarea value={body} onChange={(e) => setBody(e.target.value)} required rows={3} placeholder="本日から全品20%OFFセール開催中！" className="w-full px-3.5 py-2.5 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-orange-300 focus:ring-4 focus:ring-orange-100 outline-none transition-all resize-y" />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1.5 ml-1">リンク先URL <span className="text-slate-400 font-normal">（任意）</span></label>
+                  <input type="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="https://example.com/sale" className="w-full px-3.5 py-2.5 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-orange-300 focus:ring-4 focus:ring-orange-100 outline-none transition-all" />
+                </div>
+                <button type="submit" disabled={loading} className={`w-full py-3 rounded-xl text-white text-sm font-bold mt-1 transition-all ${loading ? 'bg-gray-300 cursor-not-allowed' : 'bg-gradient-to-b from-orange-400 to-orange-500 shadow-lg shadow-orange-500/40 hover:from-orange-500 hover:to-orange-600'}`}>
+                  {loading ? '送信中...' : '🔥 通知を送信する'}
+                </button>
+                {message && <p className={`mt-2 font-bold text-sm ${message.includes('❌') ? 'text-red-600' : 'text-green-700'}`}>{message}</p>}
+              </div>
+            </form>
+
+            {/* 配信無制限バッジ（ゲージではなくバッジ） */}
+            <div className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm p-4 flex items-center justify-between">
+              <div>
+                <p className="text-[11px] font-bold text-slate-600">🔥 月間送信ステータス</p>
+                <p className="text-[10px] text-slate-400">PROプラン</p>
+              </div>
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-md">配信無制限</span>
+            </div>
+
+            {/* KPI */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm p-4">
+                <p className="text-[11px] font-bold text-slate-500 mb-1">📱 受取許可</p>
+                <p className="text-2xl font-black text-slate-900 leading-none">{subscriberCount !== null ? subscriberCount.toLocaleString() : '—'}</p>
+                <p className="text-[10px] text-slate-400 mt-1">件</p>
+              </div>
+              <div className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm p-4">
+                <p className="text-[11px] font-bold text-slate-500 mb-1">📨 今月送信</p>
+                <p className="text-2xl font-black text-slate-900 leading-none">—</p>
+                <p className="text-[10px] text-slate-400 mt-1">通</p>
+              </div>
+            </div>
           </div>
+        )}
 
-          {/* 即時送信フォーム */}
-          <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '30px', background: '#fff', padding: '20px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-            <h3 style={{ margin: '0 0 10px 0' }}>📢 プッシュ通知を作成・即時送信</h3>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>タイトル</label>
-              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="例: 新着セールのお知らせ" style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>本文</label>
-              <textarea value={body} onChange={(e) => setBody(e.target.value)} required rows={4} placeholder="例: 本日から全品20%OFFセール開催中！" style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>リンク先URL（任意）</label>
-              <input type="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="https://example.com/sale" style={{ width: '100%', padding: '10px', fontSize: '16px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }} />
-            </div>
-            <button type="submit" disabled={loading} style={{ padding: '14px', backgroundColor: loading ? '#ccc' : '#ff4500', color: '#fff', fontWeight: 'bold', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', fontSize: '18px', borderRadius: '6px', marginTop: '5px' }}>
-              {loading ? '送信中...' : '🔥 Push 通知送信'}
-            </button>
-            {message && (
-              <p style={{ marginTop: '10px', fontWeight: 'bold', color: message.includes('❌') ? '#d32f2f' : '#2e7d32' }}>
-                {message}
-              </p>
-            )}
-          </form>
-
-          {/* 配信無制限の表示 */}
-          <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', padding: '12px 20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#c2410c', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              🔥 月間送信ステータス
-              <span style={{ fontSize: '11px', background: '#ea580c', color: '#fff', padding: '2px 8px', borderRadius: '12px' }}>PROプラン</span>
-            </span>
-            <span style={{ fontSize: '14px', fontWeight: '800', color: '#c2410c' }}>配信無制限</span>
-          </div>
-
-          {/* 履歴 */}
-          <CouponHistorySection shopId={shopId} refreshKey={scanResult} />
-          <div style={{ borderTop: '2px solid #eee', paddingTop: '20px' }}>
-            <div style={{ marginBottom: '15px', padding: '12px 16px', background: '#e3f2fd', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '15px', fontWeight: 'bold', color: '#0d47a1' }}>📱 現在の受取許可件数</span>
-              <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#1565c0' }}>
-                {subscriberCount !== null ? `${subscriberCount} 件` : '取得中...'}
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
-              <h2 style={{ margin: 0, fontSize: '20px' }}>📁 送信履歴</h2>
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                <button onClick={() => loadHistory()} disabled={historyLoading} style={{ padding: '8px 16px', background: '#1976d2', color: '#fff', border: 'none', borderRadius: '4px', cursor: historyLoading ? 'default' : 'pointer', fontSize: '14px' }}>🔄 {historyLoading ? '更新中...' : '更新'}</button>
-                <button onClick={handleExport} style={{ padding: '8px 16px', background: '#4CAF50', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}>📤 エクスポート</button>
-                <button onClick={handleCleanup} style={{ padding: '8px 16px', background: '#ff5722', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '14px' }}>🧹 古いトークン削除</button>
+        {/* ===== 送信履歴タブ ===== */}
+        {activeTab === 'history' && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="text-base font-bold">📋 送信履歴</h2>
+              <div className="flex gap-1.5">
+                <button onClick={() => loadHistory()} disabled={historyLoading} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-[11px] font-bold text-slate-700 transition-all disabled:opacity-60">
+                  🔄 {historyLoading ? '更新中...' : '更新'}
+                </button>
+                <button onClick={handleExport} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-[11px] font-bold text-slate-700 transition-all">
+                  📤 エクスポート
+                </button>
               </div>
             </div>
 
             {history.length === 0 ? (
-              <p style={{ color: '#999' }}>履歴がありません。</p>
+              <div className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm p-10 text-center text-slate-400 text-sm">
+                送信履歴がありません。
+              </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div className="space-y-2.5">
                 {history.map((h) => (
-                  <div key={h.id} style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '12px', background: h.status === 'error' ? '#fff0f0' : '#f9f9f9' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                      <strong style={{ fontSize: '16px' }}>{h.title}</strong>
-                      <span style={{ fontSize: '12px', color: '#666' }}>{new Date(h.sentAt).toLocaleString('ja-JP')}</span>
+                  <div key={h.id} className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between gap-2 mb-1.5">
+                      <strong className="text-sm text-slate-900">{h.title}</strong>
+                      <span className="text-[10px] text-slate-400 whitespace-nowrap">{new Date(h.sentAt).toLocaleString('ja-JP', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
-                    <p style={{ margin: '8px 0', fontSize: '14px', color: '#333' }}>{h.body}</p>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
+                    <p className="text-xs text-slate-600 mb-2.5 leading-relaxed">{h.body}</p>
+                    <div className="flex flex-wrap gap-1.5">
                       {h.status === 'pending' ? (
-                        <span style={{ fontSize: '11px', color: '#1565c0', background: '#e3f2fd', padding: '2px 8px', borderRadius: '12px' }}>送信待ち</span>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-white border border-slate-100 shadow-sm text-sky-700">⏳ 送信待ち</span>
                       ) : h.status === 'success' ? (
-                        <span style={{ fontSize: '11px', color: '#4CAF50', background: '#e8f5e9', padding: '2px 8px', borderRadius: '12px' }}>送信成功</span>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-white border border-slate-100 shadow-sm text-emerald-700">✓ 送信成功</span>
                       ) : (
-                        <span style={{ fontSize: '11px', color: '#d32f2f', background: '#ffebee', padding: '2px 8px', borderRadius: '12px' }}>送信失敗</span>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-white border border-slate-100 shadow-sm text-red-700">✕ 送信失敗</span>
                       )}
                       {typeof h.successCount === 'number' && (
-                        <span style={{ fontSize: '12px', color: '#555', fontWeight: 'bold' }}>（送信数: {h.successCount}件）</span>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] text-slate-500">{h.successCount}件</span>
                       )}
                       {typeof h.openRate === 'number' && h.notificationId && (
-                        <span style={{ fontSize: '12px', color: '#1565c0', fontWeight: 'bold' }}>
-                          開封率: {h.openRate.toFixed(1)}%
-                          {typeof h.successCount === 'number' && h.successCount > 0 && `（${h.openedCount || 0}/${h.successCount}件）`}
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-white border border-slate-100 shadow-sm text-sky-700">
+                          開封 {h.openRate.toFixed(1)}%
+                          {typeof h.successCount === 'number' && h.successCount > 0 && `（${h.openedCount || 0}/${h.successCount}）`}
                         </span>
                       )}
                     </div>
@@ -1028,723 +973,581 @@ export default function ProShopPage() {
                 ))}
               </div>
             )}
+
+            {user && (
+              <div className="flex justify-end pt-2">
+                <button onClick={handleCleanup} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-[11px] font-bold text-slate-500 transition-all">
+                  🧹 古いトークン削除
+                </button>
+              </div>
+            )}
           </div>
-        </>
-      )}
+        )}
 
-      {/* ━━━ 店舗・基本クーポンタブ ━━━ */}
-      {shopId && activeTab === 'shop' && (
-        <div style={{ marginBottom: '20px' }}>
-          <div style={{ padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <h3 style={{ margin: '0 0 15px 0', fontSize: '18px' }}>🏪 店舗基本情報 & クーポン設定</h3>
-
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>店舗名</label>
-              <input type="text" value={shopName} onChange={(e) => setShopName(e.target.value)} style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
+        {/* ===== 消込履歴タブ ===== */}
+        {activeTab === 'redeem' && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="text-base font-bold">🎫 消込履歴</h2>
             </div>
+            {shopId && <CouponHistorySection shopId={shopId} refreshKey={scanResult} />}
+          </div>
+        )}
 
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '14px' }}>店舗アイコン画像</label>
-              <ImageUploader onImageUploaded={(url) => setShopIconUrl(url)} currentUrl={shopIconUrl} />
-            </div>
+        {/* ===== 店舗設定タブ ===== */}
+        {shopId && activeTab === 'shop' && (
+          <div className="space-y-3.5">
 
-            <p style={{ fontSize: '14px', color: '#666' }}>店舗ID: <code>{shopId}</code></p>
-
-            {qrUrl && (
-              <div style={{ marginTop: '15px', textAlign: 'center', padding: '15px', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                <QRCodeSVG value={qrUrl} size={180} />
-                <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>📱 スマホで読み取って通知を受け取れます</p>
-              </div>
-            )}
-
-            {/* 初回クーポン */}
-            <h4 style={{ marginTop: '25px', marginBottom: '10px', fontSize: '16px' }}>🎫 初回クーポン設定</h4>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '10px' }}>
-              <input type="checkbox" checked={couponEnabled} onChange={(e) => setCouponEnabled(e.target.checked)} /> 初回クーポンを有効にする
-            </label>
-            {couponEnabled && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
-                <input type="text" placeholder="クーポンタイトル" value={couponTitle} onChange={(e) => setCouponTitle(e.target.value)} style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
-                <input type="text" placeholder="説明文" value={couponDesc} onChange={(e) => setCouponDesc(e.target.value)} style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
-              </div>
-            )}
-
-            {/* 通常クーポン */}
-            <div style={{ marginTop: '25px', borderTop: '1px solid #ddd', paddingTop: '15px' }}>
-              <h4 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>🎟️ 通常クーポン設定</h4>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', marginBottom: '10px' }}>
-                <input type="checkbox" checked={normalCouponEnabled} onChange={(e) => setNormalCouponEnabled(e.target.checked)} /> 通常クーポンを有効にする
-              </label>
-              {normalCouponEnabled && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
-                  <input type="text" placeholder="クーポンタイトル" value={normalCouponTitle} onChange={(e) => setNormalCouponTitle(e.target.value)} style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
-                  <textarea placeholder="説明文・利用条件" value={normalCouponDesc} onChange={(e) => setNormalCouponDesc(e.target.value)} rows={2} style={{ padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
-                  <label style={{ fontSize: '14px', fontWeight: 'bold' }}>有効期限
-                    <input type="date" value={normalCouponExpiresAt} onChange={(e) => setNormalCouponExpiresAt(e.target.value)} style={{ display: 'block', marginTop: '5px', padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ccc' }} />
-                  </label>
+            <div className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm p-5">
+              <h3 className="text-sm font-bold mb-4">🏪 店舗基本情報</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1.5 ml-1">店舗名</label>
+                  <input type="text" value={shopName} onChange={(e) => setShopName(e.target.value)} className="w-full px-3.5 py-2.5 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-sky-300 focus:ring-4 focus:ring-sky-100 outline-none transition-all" />
                 </div>
-              )}
-            </div>
-
-            {/* 特別達成クーポン */}
-            <div style={{ marginTop: '25px', borderTop: '1px solid #ddd', paddingTop: '15px' }}>
-              <h4 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>🏆 特別達成クーポン設定</h4>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', marginBottom: '10px' }}>
-                <input type="checkbox" checked={loyaltyEnabled} onChange={(e) => setLoyaltyEnabled(e.target.checked)} /> 有効にする
-              </label>
-              {loyaltyEnabled && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '13px' }}>店舗設定の達成回数:</span>
-                    <input type="number" min="1" value={loyaltyTargetCount} onChange={(e) => setLoyaltyTargetCount(Math.max(1, Number(e.target.value) || 1))} style={{ width: '60px', padding: '4px' }} />
-                    <span style={{ fontSize: '13px' }}>回で達成（任意設定）</span>
-                  </div>
-                  <input type="text" placeholder="特典タイトル" value={loyaltyTitle} onChange={(e) => setLoyaltyTitle(e.target.value)} style={{ width: '100%', padding: '6px' }} />
-                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', fontSize: '12px' }}>
-                    <span style={{ fontWeight: 'bold' }}>有効期限:</span>
-                    <select value={loyaltyExpireType} onChange={(e) => setLoyaltyExpireType(e.target.value)} style={{ padding: '4px', borderRadius: '4px', border: '1px solid #ccc' }}>
-                      <option value="none">無制限</option>
-                      <option value="days">出現からN日間有効</option>
-                      <option value="date">日付固定指定</option>
-                    </select>
-                    {loyaltyExpireType === 'days' && (
-                      <input type="number" min="1" value={loyaltyExpireDays} onChange={(e) => setLoyaltyExpireDays(Number(e.target.value))} style={{ width: '60px', padding: '4px', borderRadius: '4px', border: '1px solid #ccc' }} />
-                    )}
-                    {loyaltyExpireType === 'date' && (
-                      <input type="date" value={loyaltyExpireDate} onChange={(e) => setLoyaltyExpireDate(e.target.value)} style={{ padding: '4px', borderRadius: '4px', border: '1px solid #ccc' }} />
-                    )}
-                  </div>
-                  <label style={{ cursor: 'pointer' }}>
-                    <input type="checkbox" checked={loyaltyCombinable} onChange={(e) => setLoyaltyCombinable(e.target.checked)} /> 同日、他のクーポンと併用
-                  </label>
-                  <label style={{ cursor: 'pointer' }}>
-                    <input type="checkbox" checked={loyaltyRepeatEnabled} onChange={(e) => setLoyaltyRepeatEnabled(e.target.checked)} /> 繰り返す（利用後、再度達成回数をカウントする）
-                  </label>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1.5 ml-1">アイコン画像</label>
+                  <ImageUploader onImageUploaded={(url) => setShopIconUrl(url)} currentUrl={shopIconUrl} />
                 </div>
-              )}
+                <p className="text-[11px] text-slate-500">店舗ID: <code className="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">{shopId}</code></p>
+              </div>
             </div>
 
-            <button onClick={handleSaveSettings} disabled={saving} style={{ marginTop: '20px', padding: '12px 20px', background: saveSuccess ? '#4CAF50' : saving ? '#cccccc' : '#2196F3', color: '#fff', border: 'none', borderRadius: '4px', cursor: saving ? 'wait' : 'pointer', fontSize: '16px', fontWeight: 'bold' }}>
-              {saving ? '保存中...' : saveSuccess ? '✨ 保存しました！' : '💾 基本設定を保存'}
-            </button>
-            {/* ★ 追加：店頭ポップ */}
-            <ShopPopSection shopId={shopId} returnTo="/pro-shop" />
-          </div>
-
-          {/* 退会エリア */}
-          <div style={{ marginTop: '30px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
-            {shopStatus === 'canceled' ? (
-              <div style={{ background: '#fff3e0', border: '1px solid #ffe0b2', padding: '16px', borderRadius: '8px', color: '#e65100', fontWeight: 'bold', fontSize: '14px' }}>
-                ⚠️ 退会手続きが完了しています。{validUntilDate ? `${validUntilDate} までご利用いただけます。` : ''}
+            <div className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm overflow-hidden">
+              <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-5 text-center">
+                <p className="text-[11px] font-bold text-slate-400 mb-3">📱 顧客用QRコード</p>
+                {qrUrl && (
+                  <div className="inline-block bg-white p-2.5 rounded-2xl shadow-2xl">
+                    <QRCodeSVG value={qrUrl} size={128} />
+                  </div>
+                )}
+                <p className="text-[10px] text-slate-400 mt-3">スマホで読み取って通知を受け取れます</p>
               </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => router.push(`/shop/cancel?shopId=${shopId}`)}
-                style={{ padding: '10px 16px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}
-              >
-                店舗の退会手続きを行う
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+            </div>
 
-           {/* ━━━ PRO機能タブ ━━━ */}
-      {activeTab === 'pro' && (
-        <div className="space-y-5 mb-8">
+            {/* 店頭POP */}
+            <div className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm p-5">
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-100 to-fuchsia-100 flex items-center justify-center text-base shadow-sm">🖨️</div>
+                <div>
+                  <h3 className="text-sm font-bold">店頭POP（印刷用）</h3>
+                  <p className="text-[11px] text-slate-500">レジ横に貼るQRコードポップ</p>
+                </div>
+              </div>
+              <ShopPopSection shopId={shopId} returnTo="/pro-shop" />
+            </div>
 
-          {/* ステップアップクーポン */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div className="flex items-start justify-between gap-4 mb-5 border-b border-gray-100 pb-4">
+            {/* クーポン設定 */}
+            <div className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm p-5 space-y-5">
+
               <div>
-                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                  <span className="text-xl">🐾</span> ステップアップクーポン
-                  <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">PRO限定</span>
-                </h3>
-                <p className="text-xs text-gray-500 mt-1">来店回数に応じて段階的に特典がアップします。</p>
-              </div>
-              <Toggle checked={stepUpEnabled} onChange={setStepUpEnabled} />
-            </div>
-
-            {stepUpEnabled && (
-              <div className="space-y-3 bg-green-50/50 p-5 rounded-xl border border-green-100">
-                {stepUpList.map((step, index) => (
-                  <div key={index} className="bg-white p-4 rounded-xl border border-gray-200">
-                    <div className="flex items-center justify-between mb-3">
-                      <strong className="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded">ステップ {index + 1}</strong>
-                      {stepUpList.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => setStepUpList(stepUpList.filter((_, i) => i !== index))}
-                          className="text-[11px] font-bold text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded transition-colors"
-                        >
-                          削除
-                        </button>
-                      )}
-                    </div>
-                    <input
-                      type="text"
-                      placeholder={`例: ${index + 1}回目来店特典`}
-                      value={step.title}
-                      onChange={(e) => {
-                        const newList = [...stepUpList];
-                        newList[index].title = e.target.value;
-                        setStepUpList(newList);
-                      }}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none text-sm mb-3"
-                    />
-                    <div className="grid grid-cols-2 gap-3 text-xs">
-                      <label className="block">
-                        <span className="font-bold text-gray-700">期限方式</span>
-                        <select
-                          value={step.expireType}
-                          onChange={(e) => {
-                            const newList = [...stepUpList];
-                            newList[index].expireType = e.target.value;
-                            setStepUpList(newList);
-                          }}
-                          className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm outline-none focus:border-green-500"
-                        >
-                          <option value="none">無期限</option>
-                          <option value="days">出現からN日間</option>
-                          <option value="date">日付固定</option>
-                        </select>
-                      </label>
-                      <label className="block">
-                        <span className="font-bold text-gray-700">有効日数</span>
-                        <div className="flex items-center gap-2 mt-1">
-                          <input
-                            type="number"
-                            min="1"
-                            value={step.expireDays}
-                            onChange={(e) => {
-                              const newList = [...stepUpList];
-                              newList[index].expireDays = Math.max(1, Number(e.target.value.replace(/^0+(?=\d)/, '')) || 1);
-                              setStepUpList(newList);
-                            }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:border-green-500"
-                          />
-                          <span className="text-gray-500 whitespace-nowrap">日間</span>
-                        </div>
-                      </label>
-                      {step.expireType === 'date' && (
-                        <label className="block col-span-2">
-                          <span className="font-bold text-gray-700">固定日付</span>
-                          <input
-                            type="date"
-                            value={step.expireDate || ''}
-                            onChange={(e) => {
-                              const newList = [...stepUpList];
-                              newList[index].expireDate = e.target.value;
-                              setStepUpList(newList);
-                            }}
-                            className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:border-green-500"
-                          />
-                        </label>
-                      )}
-                    </div>
-                    <div className="mt-3 space-y-2">
-                      <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
-                        <input
-                          type="checkbox"
-                          checked={step.combinable}
-                          onChange={(e) => {
-                            const newList = [...stepUpList];
-                            newList[index].combinable = e.target.checked;
-                            setStepUpList(newList);
-                          }}
-                          className="accent-green-500"
-                        />
-                        特別達成クーポンに追加する
-                      </label>
-                      <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
-                        <input
-                          type="checkbox"
-                          checked={step.sameDayCombinable}
-                          onChange={(e) => {
-                            const newList = [...stepUpList];
-                            newList[index].sameDayCombinable = e.target.checked;
-                            setStepUpList(newList);
-                          }}
-                          className="accent-green-500"
-                        />
-                        同日、他のクーポンと併用
-                      </label>
-                    </div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2"><span className="text-base">🎫</span><h4 className="text-sm font-bold">初回クーポン</h4></div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" checked={couponEnabled} onChange={(e) => setCouponEnabled(e.target.checked)} className="sr-only peer" />
+                    <div className="w-10 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-sm after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500" />
+                  </label>
+                </div>
+                {couponEnabled && (
+                  <div className="space-y-2 bg-orange-50/50 rounded-xl p-3 border border-orange-100/60">
+                    <input type="text" placeholder="クーポンタイトル" value={couponTitle} onChange={(e) => setCouponTitle(e.target.value)} className="w-full px-3 py-2 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-orange-300 outline-none transition-all" />
+                    <input type="text" placeholder="説明文" value={couponDesc} onChange={(e) => setCouponDesc(e.target.value)} className="w-full px-3 py-2 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-orange-300 outline-none transition-all" />
                   </div>
-                ))}
-                {stepUpList.length < 10 && (
-                  <button
-                    type="button"
-                    onClick={() => setStepUpList([...stepUpList, { title: '', expireType: 'days', expireDays: 7, combinable: false, sameDayCombinable: false }])}
-                    className="w-full py-2.5 bg-green-50 hover:bg-green-100 border border-green-200 text-green-700 font-bold rounded-xl text-sm transition-colors"
-                  >
-                    ＋ ステップを追加（最大10段階）
-                  </button>
                 )}
               </div>
-            )}
-          </div>
 
-          {/* 連続クーポン */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div className="flex items-start justify-between gap-4 mb-5 border-b border-gray-100 pb-4">
+              <div className="h-px bg-slate-100"></div>
+
               <div>
-                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                  <span className="text-xl">🔄</span> 連続クーポン
-                  <span className="bg-sky-100 text-sky-700 text-[10px] font-bold px-2 py-0.5 rounded-full">PRO限定</span>
-                </h3>
-                <p className="text-xs text-gray-500 mt-1">消し込みで次回クーポンが即時発効します。</p>
-              </div>
-              <Toggle checked={repeatEnabled} onChange={setRepeatEnabled} />
-            </div>
-
-            {repeatEnabled && (
-              <div className="space-y-4 bg-sky-50/50 p-5 rounded-xl border border-sky-100">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">次回使える特典タイトル</label>
-                  <input
-                    type="text"
-                    placeholder="次回使える特典タイトル"
-                    value={repeatTitle}
-                    onChange={(e) => setRepeatTitle(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none text-sm"
-                  />
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2"><span classN</｜｜DSML｜｜ parameter>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <label className="block">
-                    <span className="text-sm font-bold text-gray-700">期限方式</span>
-                    <select
-                      value={repeatExpireType}
-                      onChange={(e) => setRepeatExpireType(e.target.value)}
-                      className="w-full mt-1 px-3 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-sm outline-none focus:border-sky-500"
-                    >
-                      <option value="none">無期限</option>
-                      <option value="days">出現からN日間</option>
-                      <option value="date">日付固定</option>
-                    </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+                     <div className="h-px bg-slate-100"></div>
+
+              {/* 通常クーポン */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2"><span className="text-base">🎟️</span><h4 className="text-sm font-bold">通常クーポン</h4></div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" checked={normalCouponEnabled} onChange={(e) => setNormalCouponEnabled(e.target.checked)} className="sr-only peer" />
+                    <div className="w-10 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-sm after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500" />
                   </label>
-                  <label className="block">
-                    <span className="text-sm font-bold text-gray-700">有効日数</span>
-                    <div className="flex items-center gap-2 mt-1">
-                      <input
-                        type="number"
-                        min="1"
-                        value={repeatExpireDays}
-                        onChange={(e) => setRepeatExpireDays(Math.max(1, Number(e.target.value.replace(/^0+(?=\d)/, '')) || 1))}
-                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-sky-500"
-                      />
-                      <span className="text-gray-500 text-sm whitespace-nowrap">日間</span>
+                </div>
+                {normalCouponEnabled && (
+                  <div className="space-y-2 bg-emerald-50/50 rounded-xl p-3 border border-emerald-100/60">
+                    <input type="text" placeholder="クーポンタイトル" value={normalCouponTitle} onChange={(e) => setNormalCouponTitle(e.target.value)} className="w-full px-3 py-2 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-emerald-300 outline-none transition-all" />
+                    <textarea placeholder="説明文・利用条件" value={normalCouponDesc} onChange={(e) => setNormalCouponDesc(e.target.value)} rows={2} className="w-full px-3 py-2 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-emerald-300 outline-none transition-all resize-y" />
+                    <input type="date" value={normalCouponExpiresAt} onChange={(e) => setNormalCouponExpiresAt(e.target.value)} className="w-full px-3 py-2 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-emerald-300 outline-none transition-all" />
+                  </div>
+                )}
+              </div>
+
+              <div className="h-px bg-slate-100"></div>
+
+              {/* 特別達成クーポン */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2"><span className="text-base">🏆</span><h4 className="text-sm font-bold">特別達成クーポン</h4></div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" checked={loyaltyEnabled} onChange={(e) => setLoyaltyEnabled(e.target.checked)} className="sr-only peer" />
+                    <div className="w-10 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-sm after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500" />
+                  </label>
+                </div>
+                {loyaltyEnabled && (
+                  <div className="space-y-2 bg-amber-50/50 rounded-xl p-3 border border-amber-100/60">
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="font-bold text-slate-600">達成回数</span>
+                      <input type="number" min="1" value={loyaltyTargetCount} onChange={(e) => setLoyaltyTargetCount(Math.max(1, Number(e.target.value) || 1))} className="w-14 px-2 py-1.5 border border-slate-200 rounded-lg text-sm text-center bg-white outline-none focus:border-amber-300" />
+                      <span className="text-slate-600">回来店で達成</span>
                     </div>
-                  </label>
-                  {repeatExpireType === 'date' && (
-                    <label className="block col-span-2">
-                      <span className="text-sm font-bold text-gray-700">固定日付</span>
-                      <input
-                        type="date"
-                        value={repeatExpireDate}
-                        onChange={(e) => setRepeatExpireDate(e.target.value)}
-                        className="w-full mt-1 px-3 py-2.5 border border-gray-300 rounded-lg text-sm outline-none focus:border-sky-500"
-                      />
+                    <input type="text" placeholder="特典タイトル" value={loyaltyTitle} onChange={(e) => setLoyaltyTitle(e.target.value)} className="w-full px-3 py-2 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-amber-300 outline-none transition-all" />
+                    <div className="flex items-center gap-2 text-[11px] flex-wrap">
+                      <span className="font-bold text-slate-600">有効期限:</span>
+                      <select value={loyaltyExpireType} onChange={(e) => setLoyaltyExpireType(e.target.value)} className="px-2 py-1 border border-slate-200 rounded-lg bg-white text-[11px] focus:border-amber-300 outline-none">
+                        <option value="none">無制限</option>
+                        <option value="days">出現からN日間</option>
+                        <option value="date">日付固定</option>
+                      </select>
+                      {loyaltyExpireType === 'days' && (
+                        <input type="number" min="1" value={loyaltyExpireDays} onChange={(e) => setLoyaltyExpireDays(Number(e.target.value))} className="w-14 px-2 py-1 border border-slate-200 rounded-lg text-[11px]" />
+                      )}
+                      {loyaltyExpireType === 'date' && (
+                        <input type="date" value={loyaltyExpireDate} onChange={(e) => setLoyaltyExpireDate(e.target.value)} className="px-2 py-1 border border-slate-200 rounded-lg text-[11px]" />
+                      )}
+                    </div>
+                    <label className="flex items-center gap-2 cursor-pointer text-[11px] text-slate-600">
+                      <input type="checkbox" checked={loyaltyCombinable} onChange={(e) => setLoyaltyCombinable(e.target.checked)} className="accent-amber-500 w-4 h-4 rounded" />
+                      同日、他のクーポンと併用
                     </label>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
-                    <input type="checkbox" checked={repeatCombinable} onChange={(e) => setRepeatCombinable(e.target.checked)} className="accent-sky-500" />
-                    特別達成クーポンに追加する
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
-                    <input type="checkbox" checked={repeatSameDayCombinable} onChange={(e) => setRepeatSameDayCombinable(e.target.checked)} className="accent-sky-500" />
-                    同日、他のクーポンと併用
-                  </label>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 誕生日クーポン */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div className="flex items-start justify-between gap-4 mb-5 border-b border-gray-100 pb-4">
-              <div>
-                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                  <span className="text-xl">🎂</span> 記念日・お誕生日クーポン
-                  <span className="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">PRO限定</span>
-                </h3>
-                <p className="text-xs text-gray-500 mt-1">お客様の記念日に特別なクーポンを自動配信します。</p>
-              </div>
-              <Toggle checked={birthdayEnabled} onChange={setBirthdayEnabled} />
-            </div>
-
-            {birthdayEnabled && (
-              <div className="space-y-4 bg-red-50/50 p-5 rounded-xl border border-red-100">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">クーポンタイトル</label>
-                  <input
-                    type="text"
-                    placeholder="記念日、お誕生日クーポンタイトル"
-                    value={birthdayTitle}
-                    onChange={(e) => setBirthdayTitle(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">お祝いメッセージ</label>
-                  <textarea
-                    placeholder="お祝いメッセージ本文"
-                    value={birthdayMessage}
-                    onChange={(e) => setBirthdayMessage(e.target.value)}
-                    rows={2}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm resize-y"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
-                    <input type="checkbox" checked={birthdayCombinable} onChange={(e) => setBirthdayCombinable(e.target.checked)} className="accent-red-500" />
-                    特別達成クーポンに追加する
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
-                    <input type="checkbox" checked={birthdaySameDayCombinable} onChange={(e) => setBirthdaySameDayCombinable(e.target.checked)} className="accent-red-500" />
-                    同日、他のクーポンと併用
-                  </label>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 休眠復活クーポン */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div className="flex items-start justify-between gap-4 mb-5 border-b border-gray-100 pb-4">
-              <div>
-                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                  <span className="text-xl">💤</span> 休眠復活クーポン
-                  <span className="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full">PRO限定</span>
-                </h3>
-                <p className="text-xs text-gray-500 mt-1">ご無沙汰のお客様を呼び戻すクーポンを自動配信します。</p>
-              </div>
-              <Toggle checked={dormantEnabled} onChange={setDormantEnabled} />
-            </div>
-
-            {dormantEnabled && (
-              <div className="space-y-4 bg-purple-50/50 p-5 rounded-xl border border-purple-100">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">対象条件</label>
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-gray-600">最終利用から</span>
-                    <input
-                      type="number"
-                      value={dormantTargetDays}
-                      onChange={(e) => setDormantTargetDays(Number(e.target.value))}
-                      className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:border-purple-500"
-                    />
-                    <span className="text-gray-600">日経過した顧客</span>
+                    <label className="flex items-center gap-2 cursor-pointer text-[11px] text-slate-600">
+                      <input type="checkbox" checked={loyaltyRepeatEnabled} onChange={(e) => setLoyaltyRepeatEnabled(e.target.checked)} className="accent-amber-500 w-4 h-4 rounded" />
+                      繰り返す（利用後、再度達成回数をカウント）
+                    </label>
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">クーポンタイトル</label>
-                  <input
-                    type="text"
-                    placeholder="復帰クーポンタイトル"
-                    value={dormantTitle}
-                    onChange={(e) => setDormantTitle(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">メッセージ</label>
-                  <textarea
-                    placeholder="お久しぶりメッセージ本文"
-                    value={dormantMessage}
-                    onChange={(e) => setDormantMessage(e.target.value)}
-                    rows={2}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none text-sm resize-y"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
-                    <input type="checkbox" checked={dormantCombinable} onChange={(e) => setDormantCombinable(e.target.checked)} className="accent-purple-500" />
-                    特別達成クーポンに追加する
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
-                    <input type="checkbox" checked={dormantSameDayCombinable} onChange={(e) => setDormantSameDayCombinable(e.target.checked)} className="accent-purple-500" />
-                    同日、他のクーポンと併用
-                  </label>
-                </div>
+                )}
               </div>
-            )}
-          </div>
-
-          {/* 連続ログイン特典 */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div className="flex items-start justify-between gap-4 mb-5 border-b border-gray-100 pb-4">
-              <div>
-                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                  <span className="text-xl">🔥</span> 連続ログイン特典
-                  <span className="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-full">PRO限定</span>
-                </h3>
-                <p className="text-xs text-gray-500 mt-1">アプリを開く習慣をつけ、連続達成でクーポンをプレゼントします。</p>
-              </div>
-              <Toggle checked={streakEnabled} onChange={setStreakEnabled} />
             </div>
 
-            {streakEnabled && (
-              <div className="space-y-6 bg-orange-50/50 p-5 rounded-xl border border-orange-100">
+            {/* 保存 */}
+            <button onClick={handleSaveSettings} disabled={saving} className={`w-full py-3.5 rounded-xl text-white font-bold text-sm transition-all ${saveSuccess ? 'bg-emerald-500' : saving ? 'bg-gray-300 cursor-wait' : 'bg-gradient-to-b from-orange-400 to-orange-500 shadow-lg shadow-orange-500/40 hover:from-orange-500 hover:to-orange-600'}`}>
+              {saving ? '保存中...' : saveSuccess ? '✨ 保存しました' : '💾 設定を保存'}
+            </button>
+
+            {/* 退会 */}
+            <div className="pt-2">
+              {shopStatus === 'canceled' ? (
+                <div className="p-4 bg-orange-50 border border-orange-200 rounded-xl text-orange-700 text-[12px] font-bold">
+                  ⚠️ 退会手続きが完了しています。{validUntilDate ? `${validUntilDate} までご利用いただけます。` : ''}
+                </div>
+              ) : (
+                <button onClick={() => router.push(`/shop/cancel?shopId=${shopId}`)} className="w-full py-2.5 rounded-xl border border-red-200 text-red-600 bg-red-50/50 hover:bg-red-50 text-xs font-bold transition-colors">
+                  店舗の退会手続きを行う
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ===== PRO機能タブ ===== */}
+        {activeTab === 'pro' && (
+          <div className="space-y-3.5">
+
+            {/* ステップアップ */}
+            <div className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm p-5">
+              <div className="flex items-start justify-between gap-3 mb-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">目標日数</label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="range"
-                      min="1"
-                      max="10"
-                      value={streakTargetDays}
-                      onChange={(e) => setStreakTargetDays(Number(e.target.value))}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
-                    />
-                    <span className="text-2xl font-black text-orange-600 whitespace-nowrap">
-                      {streakTargetDays}<span className="text-sm font-bold text-gray-500 ml-1">日</span>
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">※ 1日でも途切れると、進捗はリセットされて1日目に戻ります。</p>
+                  <h3 className="text-sm font-bold flex items-center gap-2">
+                    <span className="text-base">🐾</span> ステップアップクーポン
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-700">PRO限定</span>
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-1">来店回数に応じて段階的に特典がアップします。</p>
                 </div>
-
-                <div className="pt-4 border-t border-orange-200/50">
-                  <label className="block text-sm font-bold text-gray-700 mb-2">達成時のクーポン名</label>
-                  <input
-                    type="text"
-                    value={streakCouponName}
-                    onChange={(e) => setStreakCouponName(e.target.value)}
-                    placeholder="例: 5日連続ログイン達成！特別10%OFFクーポン"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm mb-2"
-                  />
-                  <p className="text-xs text-gray-500">POSレジや顧客画面には、この名前で表示されます。</p>
-                </div>
-
-                <div className="pt-4 border-t border-orange-200/50">
-                  <label className="flex items-center gap-2 cursor-pointer text-sm font-bold text-gray-700 mb-2">
-                    <input
-                      type="checkbox"
-                      checked={streakNotifyEnabled}
-                      onChange={(e) => setStreakNotifyEnabled(e.target.checked)}
-                      className="accent-orange-500"
-                    />
-                    リマインド通知を送る（あと1日で達成時）
-                  </label>
-                  <p className="text-xs text-gray-500 mb-3">毎日夕方18時に、リセットを防ぐための通知を自動送信します。</p>
-
-                  {streakNotifyEnabled && (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1">通知タイトル</label>
-                        <input
-                          type="text"
-                          value={streakNotifyTitle}
-                          onChange={(e) => setStreakNotifyTitle(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm"
-                        />
+                <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                  <input type="checkbox" checked={stepUpEnabled} onChange={(e) => setStepUpEnabled(e.target.checked)} className="sr-only peer" />
+                  <div className="w-10 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-sm after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500" />
+                </label>
+              </div>
+              {stepUpEnabled && (
+                <div className="space-y-2.5 bg-emerald-50/50 p-3 rounded-xl border border-emerald-100/60">
+                  {stepUpList.map((step, index) => (
+                    <div key={index} className="bg-white p-3 rounded-xl border border-slate-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <strong className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">ステップ {index + 1}</strong>
+                        {stepUpList.length > 1 && (
+                          <button type="button" onClick={() => setStepUpList(stepUpList.filter((_, i) => i !== index))} className="text-[10px] font-bold text-red-600 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded transition-colors">削除</button>
+                        )}
                       </div>
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1">通知本文</label>
-                        <textarea
-                          value={streakNotifyBody}
-                          onChange={(e) => setStreakNotifyBody(e.target.value)}
-                          rows={2}
-                          className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm resize-y"
-                        />
+                      <input type="text" placeholder={`例: ${index + 1}回目来店特典`} value={step.title} onChange={(e) => { const n = [...stepUpList]; n[index].title = e.target.value; setStepUpList(n); }} className="w-full px-3 py-2 text-[12px] bg-slate-50 border border-slate-200 rounded-lg mb-2 focus:border-emerald-300 outline-none" />
+                      <div className="grid grid-cols-2 gap-2 text-[11px]">
+                        <label className="block">
+                          <span className="font-bold text-slate-600">期限方式</span>
+                          <select value={step.expireType} onChange={(e) => { const n = [...stepUpList]; n[index].expireType = e.target.value; setStepUpList(n); }} className="w-full mt-1 px-2 py-1.5 border border-slate-200 rounded-lg bg-white text-[11px] focus:border-emerald-300 outline-none">
+                            <option value="none">無期限</option>
+                            <option value="days">出現からN日間</option>
+                            <option value="date">日付固定</option>
+                          </select>
+                        </label>
+                        <label className="block">
+                          <span className="font-bold text-slate-600">有効日数</span>
+                          <div className="flex items-center gap-1 mt-1">
+                            <input type="number" min="1" value={step.expireDays} onChange={(e) => { const n = [...stepUpList]; n[index].expireDays = Math.max(1, Number(e.target.value) || 1); setStepUpList(n); }} className="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-[11px]" />
+                            <span className="text-slate-500 whitespace-nowrap text-[10px]">日</span>
+                          </div>
+                        </label>
+                        {step.expireType === 'date' && (
+                          <label className="block col-span-2">
+                            <span className="font-bold text-slate-600">固定日付</span>
+                            <input type="date" value={step.expireDate || ''} onChange={(e) => { const n = [...stepUpList]; n[index].expireDate = e.target.value; setStepUpList(n); }} className="w-full mt-1 px-2 py-1.5 border border-slate-200 rounded-lg text-[11px]" />
+                          </label>
+                        )}
+                      </div>
+                      <div className="mt-2 space-y-1">
+                        <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-bold text-slate-600">
+                          <input type="checkbox" checked={step.combinable} onChange={(e) => { const n = [...stepUpList]; n[index].combinable = e.target.checked; setStepUpList(n); }} className="accent-emerald-500 w-3.5 h-3.5 rounded" />
+                          特別達成クーポンに追加
+                        </label>
+                        <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-bold text-slate-600">
+                          <input type="checkbox" checked={step.sameDayCombinable} onChange={(e) => { const n = [...stepUpList]; n[index].sameDayCombinable = e.target.checked; setStepUpList(n); }} className="accent-emerald-500 w-3.5 h-3.5 rounded" />
+                          同日、他のクーポンと併用
+                        </label>
                       </div>
                     </div>
+                  ))}
+                  {stepUpList.length < 10 && (
+                    <button type="button" onClick={() => setStepUpList([...stepUpList, { title: '', expireType: 'days', expireDays: 7, combinable: false, sameDayCombinable: false }])} className="w-full py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-bold rounded-xl text-[11px] transition-colors">
+                      ＋ ステップを追加（最大10段階）
+                    </button>
                   )}
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          <button
-            onClick={handleSaveSettings}
-            disabled={saving}
-            className={`w-full py-4 rounded-xl font-bold text-base shadow-md transition-all ${
-              saveSuccess
-                ? 'bg-green-600 text-white'
-                : saving
-                ? 'bg-gray-300 text-gray-500 cursor-wait'
-                : 'bg-orange-500 hover:bg-orange-600 text-white hover:shadow-lg'
-            }`}
-          >
-            {saving ? '保存中...' : saveSuccess ? '✨ 設定完了' : '✅ 設定完了（顧客画面に反映）'}
-          </button>
-        </div>
-      )}
-
-      {/* ━━━ 予約配信タブ ━━━ */}
-      {activeTab === 'reserve' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '30px' }}>
-          {/* 新規予約フォーム */}
-          <div style={{ background: '#fffbeb', border: '1px solid #fde68a', padding: '20px', borderRadius: '8px' }}>
-            <h3 style={{ margin: '0 0 15px 0', fontSize: '18px', color: '#b45309' }}>📅 新規配信予約をセット</h3>
-            <form onSubmit={handleAddSchedule} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <div>
-                <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '6px' }}>① 配信の種別</label>
-                <div style={{ display: 'flex', gap: '15px' }}>
-                  <label style={{ cursor: 'pointer', fontSize: '14px' }}>
-                    <input type="radio" name="reserveType" value="notification" checked={reserveType === 'notification'} onChange={() => setReserveType('notification')} /> 📢 通常通知メッセージ
-                  </label>
-                  <label style={{ cursor: 'pointer', fontSize: '14px' }}>
-                    <input type="radio" name="reserveType" value="coupon" checked={reserveType === 'coupon'} onChange={() => setReserveType('coupon')} /> 🎫 クーポン付き通知
-                  </label>
+            {/* 連続クーポン */}
+            <div className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm p-5">
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <div>
+                  <h3 className="text-sm font-bold flex items-center gap-2">
+                    <span className="text-base">🔄</span> 連続クーポン
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-sky-100 text-sky-700">PRO限定</span>
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-1">消し込みで次回クーポンが即時発効します。</p>
                 </div>
+                <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                  <input type="checkbox" checked={repeatEnabled} onChange={(e) => setRepeatEnabled(e.target.checked)} className="sr-only peer" />
+                  <div className="w-10 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-sm after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500" />
+                </label>
               </div>
-
-              <div>
-                <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '6px' }}>② 予約スケジュール形式</label>
-                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-                  <label style={{ cursor: 'pointer', fontSize: '14px' }}>
-                    <input type="radio" name="scheduleType" value="once" checked={reserveScheduleType === 'once'} onChange={() => setReserveScheduleType('once')} /> 日付指定（1回のみ）
-                  </label>
-                  <label style={{ cursor: 'pointer', fontSize: '14px' }}>
-                    <input type="radio" name="scheduleType" value="monthly" checked={reserveScheduleType === 'monthly'} onChange={() => setReserveScheduleType('monthly')} /> 定期予約（毎月指定日）
-                  </label>
-                  <label style={{ cursor: 'pointer', fontSize: '14px' }}>
-                    <input type="radio" name="scheduleType" value="weekly" checked={reserveScheduleType === 'weekly'} onChange={() => setReserveScheduleType('weekly')} /> 定期予約（毎週指定曜日）
-                  </label>
-                </div>
-              </div>
-
-              <div style={{ background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
-                {reserveScheduleType === 'once' && (
-                  <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px' }}>配信指定日</label>
-                    <input type="date" value={reserveDate} onChange={(e) => setReserveDate(e.target.value)} style={{ padding: '8px', fontSize: '14px' }} />
+              {repeatEnabled && (
+                <div className="space-y-2.5 bg-sky-50/50 p-3 rounded-xl border border-sky-100/60">
+                  <input type="text" placeholder="次回使える特典タイトル" value={repeatTitle} onChange={(e) => setRepeatTitle(e.target.value)} className="w-full px-3 py-2 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-sky-300 outline-none transition-all" />
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="block text-[11px]">
+                      <span className="font-bold text-slate-600">期限方式</span>
+                      <select value={repeatExpireType} onChange={(e) => setRepeatExpireType(e.target.value)} className="w-full mt-1 px-2 py-1.5 border border-slate-200 rounded-lg bg-white text-[11px] focus:border-sky-300 outline-none">
+                        <option value="none">無期限</option>
+                        <option value="days">出現からN日間</option>
+                        <option value="date">日付固定</option>
+                      </select>
+                    </label>
+                    <label className="block text-[11px]">
+                      <span className="font-bold text-slate-600">有効日数</span>
+                      <input type="number" min="1" value={repeatExpireDays} onChange={(e) => setRepeatExpireDays(Math.max(1, Number(e.target.value) || 1))} className="w-full mt-1 px-2 py-1.5 border border-slate-200 rounded-lg text-[11px]" />
+                    </label>
+                    {repeatExpireType === 'date' && (
+                      <label className="block text-[11px] col-span-2">
+                        <span className="font-bold text-slate-600">固定日付</span>
+                        <input type="date" value={repeatExpireDate} onChange={(e) => setRepeatExpireDate(e.target.value)} className="w-full mt-1 px-2 py-1.5 border border-slate-200 rounded-lg text-[11px]" />
+                      </label>
+                    )}
                   </div>
+                  <div className="space-y-1 pt-1">
+                    <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-bold text-slate-600">
+                      <input type="checkbox" checked={repeatCombinable} onChange={(e) => setRepeatCombinable(e.target.checked)} className="accent-sky-500 w-3.5 h-3.5 rounded" />
+                      特別達成クーポンに追加
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-bold text-slate-600">
+                      <input type="checkbox" checked={repeatSameDayCombinable} onChange={(e) => setRepeatSameDayCombinable(e.target.checked)} className="accent-sky-500 w-3.5 h-3.5 rounded" />
+                      同日、他のクーポンと併用
+                    </label>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 誕生日 */}
+            <div className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm p-5">
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <div>
+                  <h3 className="text-sm font-bold flex items-center gap-2">
+                    <span className="text-base">🎂</span> 記念日・お誕生日クーポン
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-100 text-rose-700">PRO限定</span>
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-1">お客様の記念日に特別なクーポンを自動配信します。</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                  <input type="checkbox" checked={birthdayEnabled} onChange={(e) => setBirthdayEnabled(e.target.checked)} className="sr-only peer" />
+                  <div className="w-10 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-sm after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500" />
+                </label>
+              </div>
+              {birthdayEnabled && (
+                <div className="space-y-2.5 bg-rose-50/50 p-3 rounded-xl border border-rose-100/60">
+                  <input type="text" placeholder="クーポンタイトル" value={birthdayTitle} onChange={(e) => setBirthdayTitle(e.target.value)} className="w-full px-3 py-2 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-rose-300 outline-none transition-all" />
+                  <textarea placeholder="お祝いメッセージ本文" value={birthdayMessage} onChange={(e) => setBirthdayMessage(e.target.value)} rows={2} className="w-full px-3 py-2 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-rose-300 outline-none transition-all resize-y" />
+                  <div className="space-y-1 pt-1">
+                    <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-bold text-slate-600">
+                      <input type="checkbox" checked={birthdayCombinable} onChange={(e) => setBirthdayCombinable(e.target.checked)} className="accent-rose-500 w-3.5 h-3.5 rounded" />
+                      特別達成クーポンに追加
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-bold text-slate-600">
+                      <input type="checkbox" checked={birthdaySameDayCombinable} onChange={(e) => setBirthdaySameDayCombinable(e.target.checked)} className="accent-rose-500 w-3.5 h-3.5 rounded" />
+                      同日、他のクーポンと併用
+                    </label>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 休眠復活 */}
+            <div className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm p-5">
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <div>
+                  <h3 className="text-sm font-bold flex items-center gap-2">
+                    <span className="text-base">💤</span> 休眠復活クーポン
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-violet-100 text-violet-700">PRO限定</span>
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-1">ご無沙汰のお客様を呼び戻すクーポンを自動配信します。</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                  <input type="checkbox" checked={dormantEnabled} onChange={(e) => setDormantEnabled(e.target.checked)} className="sr-only peer" />
+                  <div className="w-10 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-sm after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500" />
+                </label>
+              </div>
+              {dormantEnabled && (
+                <div className="space-y-2.5 bg-violet-50/50 p-3 rounded-xl border border-violet-100/60">
+                  <div className="flex items-center gap-2 text-[12px]">
+                    <span className="text-slate-600">最終利用から</span>
+                    <input type="number" value={dormantTargetDays} onChange={(e) => setDormantTargetDays(Number(e.target.value))} className="w-16 px-2 py-1.5 border border-slate-200 rounded-lg text-[12px] text-center bg-white outline-none" />
+                    <span className="text-slate-600">日経過した顧客</span>
+                  </div>
+                  <input type="text" placeholder="復帰クーポンタイトル" value={dormantTitle} onChange={(e) => setDormantTitle(e.target.value)} className="w-full px-3 py-2 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-violet-300 outline-none transition-all" />
+                  <textarea placeholder="お久しぶりメッセージ本文" value={dormantMessage} onChange={(e) => setDormantMessage(e.target.value)} rows={2} className="w-full px-3 py-2 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-violet-300 outline-none transition-all resize-y" />
+                  <div className="space-y-1 pt-1">
+                    <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-bold text-slate-600">
+                      <input type="checkbox" checked={dormantCombinable} onChange={(e) => setDormantCombinable(e.target.checked)} className="accent-violet-500 w-3.5 h-3.5 rounded" />
+                      特別達成クーポンに追加
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-bold text-slate-600">
+                      <input type="checkbox" checked={dormantSameDayCombinable} onChange={(e) => setDormantSameDayCombinable(e.target.checked)} className="accent-violet-500 w-3.5 h-3.5 rounded" />
+                      同日、他のクーポンと併用
+                    </label>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 連続ログイン特典 */}
+            <div className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm p-5">
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <div>
+                  <h3 className="text-sm font-bold flex items-center gap-2">
+                    <span className="text-base">🔥</span> 連続ログイン特典
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-orange-100 text-orange-700">PRO限定</span>
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-1">アプリを開く習慣をつけ、連続達成でクーポンをプレゼントします。</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                  <input type="checkbox" checked={streakEnabled} onChange={(e) => setStreakEnabled(e.target.checked)} className="sr-only peer" />
+                  <div className="w-10 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-sm after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500" />
+                </label>
+              </div>
+              {streakEnabled && (
+                <div className="space-y-3 bg-orange-50/50 p-3 rounded-xl border border-orange-100/60">
+                  <div>
+                    <label className="block text-[12px] font-bold text-slate-700 mb-1.5">目標日数</label>
+                    <div className="flex items-center gap-2">
+                      <input type="range" min="1" max="10" value={streakTargetDays} onChange={(e) => setStreakTargetDays(Number(e.target.value))} className="flex-1 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-500" />
+                      <span className="text-lg font-black text-orange-600 whitespace-nowrap leading-none">{streakTargetDays}<span className="text-[11px] font-bold text-slate-500 ml-0.5">日</span></span>
+                    </div>
+                  </div>
+                  <div className="pt-2 border-t border-orange-200/50">
+                    <label className="block text-[12px] font-bold text-slate-700 mb-1.5">達成時のクーポン名</label>
+                    <input type="text" value={streakCouponName} onChange={(e) => setStreakCouponName(e.target.value)} placeholder="例: 5日連続ログイン達成！10%OFFクーポン" className="w-full px-3 py-2 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-orange-300 outline-none transition-all" />
+                  </div>
+                  <div className="pt-2 border-t border-orange-200/50">
+                    <label className="flex items-center gap-2 cursor-pointer text-[12px] font-bold text-slate-700">
+                      <input type="checkbox" checked={streakNotifyEnabled} onChange={(e) => setStreakNotifyEnabled(e.target.checked)} className="accent-orange-500 w-4 h-4 rounded" />
+                      リマインド通知を送る（あと1日で達成時）
+                    </label>
+                    <p className="text-[10px] text-slate-500 mt-1">毎日夕方18時にリセット防止の通知を自動送信します。</p>
+                    {streakNotifyEnabled && (
+                      <div className="space-y-2 mt-2">
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-600 mb-1">通知タイトル</label>
+                          <input type="text" value={streakNotifyTitle} onChange={(e) => setStreakNotifyTitle(e.target.value)} className="w-full px-3 py-2 text-[12px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-orange-300 outline-none" />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-600 mb-1">通知本文</label>
+                          <textarea value={streakNotifyBody} onChange={(e) => setStreakNotifyBody(e.target.value)} rows={2} className="w-full px-3 py-2 text-[12px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-orange-300 outline-none resize-y" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button onClick={handleSaveSettings} disabled={saving} className={`w-full py-3.5 rounded-xl text-white font-bold text-sm transition-all ${saveSuccess ? 'bg-emerald-500' : saving ? 'bg-gray-300 cursor-wait' : 'bg-gradient-to-b from-orange-400 to-orange-500 shadow-lg shadow-orange-500/40 hover:from-orange-500 hover:to-orange-600'}`}>
+              {saving ? '保存中...' : saveSuccess ? '✨ 設定完了' : '✅ 設定完了（顧客画面に反映）'}
+            </button>
+          </div>
+        )}
+
+        {/* ===== 予約配信タブ ===== */}
+        {activeTab === 'reserve' && (
+          <div className="space-y-3.5">
+            <form onSubmit={handleAddSchedule} className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm p-5 space-y-3">
+              <h3 className="text-sm font-bold flex items-center gap-2"><span className="text-base">📅</span> 新規配信予約をセット</h3>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1.5">① 配信の種別</label>
+                <div className="flex gap-3 flex-wrap">
+                  <label className="cursor-pointer text-[12px] flex items-center gap-1.5"><input type="radio" checked={reserveType === 'notification'} onChange={() => setReserveType('notification')} className="accent-orange-500" /> 📢 通常通知</label>
+                  <label className="cursor-pointer text-[12px] flex items-center gap-1.5"><input type="radio" checked={reserveType === 'coupon'} onChange={() => setReserveType('coupon')} className="accent-orange-500" /> 🎫 クーポン付き</label>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1.5">② スケジュール形式</label>
+                <div className="flex gap-3 flex-wrap">
+                  <label className="cursor-pointer text-[12px] flex items-center gap-1.5"><input type="radio" checked={reserveScheduleType === 'once'} onChange={() => setReserveScheduleType('once')} className="accent-orange-500" /> 日付指定</label>
+                  <label className="cursor-pointer text-[12px] flex items-center gap-1.5"><input type="radio" checked={reserveScheduleType === 'monthly'} onChange={() => setReserveScheduleType('monthly')} className="accent-orange-500" /> 毎月</label>
+                  <label className="cursor-pointer text-[12px] flex items-center gap-1.5"><input type="radio" checked={reserveScheduleType === 'weekly'} onChange={() => setReserveScheduleType('weekly')} className="accent-orange-500" /> 毎週</label>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-900/5">
+                {reserveScheduleType === 'once' && (
+                  <input type="date" value={reserveDate} onChange={(e) => setReserveDate(e.target.value)} className="w-full px-3 py-2 text-[13px] bg-white border border-slate-200 rounded-lg focus:border-orange-300 outline-none" />
                 )}
                 {reserveScheduleType === 'monthly' && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '14px' }}>毎月</span>
-                    <input type="number" min="1" max="31" value={reserveDayOfMonth} onChange={(e) => setReserveDayOfMonth(e.target.value)} style={{ width: '60px', padding: '6px' }} />
-                    <span style={{ fontSize: '14px' }}>日に自動配信</span>
+                  <div className="flex items-center gap-2 text-[12px]">
+                    <span>毎月</span>
+                    <input type="number" min="1" max="31" value={reserveDayOfMonth} onChange={(e) => setReserveDayOfMonth(e.target.value)} className="w-16 px-2 py-1.5 border border-slate-200 rounded-lg bg-white text-center" />
+                    <span>日に自動配信</span>
                   </div>
                 )}
                 {reserveScheduleType === 'weekly' && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '14px' }}>毎週</span>
-                    <select value={reserveDayOfWeek} onChange={(e) => setReserveDayOfWeek(e.target.value)} style={{ padding: '6px' }}>
-                      <option value="mon">月曜日</option>
-                      <option value="tue">火曜日</option>
-                      <option value="wed">水曜日</option>
-                      <option value="thu">木曜日</option>
-                      <option value="fri">金曜日</option>
-                      <option value="sat">土曜日</option>
-                      <option value="sun">日曜日</option>
+                  <div className="flex items-center gap-2 text-[12px]">
+                    <span>毎週</span>
+                    <select value={reserveDayOfWeek} onChange={(e) => setReserveDayOfWeek(e.target.value)} className="px-2 py-1.5 border border-slate-200 rounded-lg bg-white">
+                      <option value="mon">月曜</option><option value="tue">火曜</option><option value="wed">水曜</option><option value="thu">木曜</option><option value="fri">金曜</option><option value="sat">土曜</option><option value="sun">日曜</option>
                     </select>
-                    <span style={{ fontSize: '14px' }}>に自動配信</span>
+                    <span>に自動配信</span>
                   </div>
                 )}
               </div>
 
               <div>
-                <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>③ タイトル</label>
-                <input type="text" placeholder="予約通知のタイトル" value={reserveTitle} onChange={(e) => setReserveTitle(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                <label className="block text-[11px] font-bold text-slate-600 mb-1.5">③ タイトル</label>
+                <input type="text" value={reserveTitle} onChange={(e) => setReserveTitle(e.target.value)} placeholder="予約通知のタイトル" className="w-full px-3 py-2 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-orange-300 outline-none" />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>④ 本文</label>
-                <textarea placeholder="予約通知の本文" value={reserveBody} onChange={(e) => setReserveBody(e.target.value)} rows={3} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                <label className="block text-[11px] font-bold text-slate-600 mb-1.5">④ 本文</label>
+                <textarea value={reserveBody} onChange={(e) => setReserveBody(e.target.value)} rows={3} placeholder="予約通知の本文" className="w-full px-3 py-2 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-orange-300 outline-none resize-y" />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>リンク先URL（任意）</label>
-                <input type="url" placeholder="https://example.com" value={reserveLinkUrl} onChange={(e) => setReserveLinkUrl(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                <label className="block text-[11px] font-bold text-slate-600 mb-1.5">リンク先URL <span className="text-slate-400 font-normal">（任意）</span></label>
+                <input type="url" value={reserveLinkUrl} onChange={(e) => setReserveLinkUrl(e.target.value)} placeholder="https://example.com" className="w-full px-3 py-2 text-[13px] bg-slate-50 border border-slate-900/5 rounded-xl shadow-inner focus:bg-white focus:border-orange-300 outline-none" />
               </div>
 
               {reserveType === 'coupon' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div className="space-y-2 bg-amber-50/50 p-3 rounded-xl border border-amber-100/60">
                   <div>
-                    <label style={{ display: 'block', fontWeight: 'bold', fontSize: '13px', marginBottom: '4px' }}>クーポン有効日数</label>
-                    <input type="number" min="1" value={reserveCouponExpireDays} onChange={(e) => setReserveCouponExpireDays(Math.max(1, Number(e.target.value.replace(/^0+(?=\d)/, '')) || 1))} style={{ width: '100px', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }} /> 日間
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">クーポン有効日数</label>
+                    <div className="flex items-center gap-1.5">
+                      <input type="number" min="1" value={reserveCouponExpireDays} onChange={(e) => setReserveCouponExpireDays(Math.max(1, Number(e.target.value) || 1))} className="w-20 px-2 py-1.5 border border-slate-200 rounded-lg text-[12px]" />
+                      <span className="text-[11px] text-slate-600">日間</span>
+                    </div>
                   </div>
-                  <label style={{ cursor: 'pointer' }}>
-                    <input type="checkbox" checked={reserveCouponSameDayCombinable} onChange={(e) => setReserveCouponSameDayCombinable(e.target.checked)} /> 同日、他のクーポンと併用
+                  <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-600">
+                    <input type="checkbox" checked={reserveCouponSameDayCombinable} onChange={(e) => setReserveCouponSameDayCombinable(e.target.checked)} className="accent-amber-500 w-3.5 h-3.5 rounded" />
+                    同日、他のクーポンと併用
                   </label>
-                  <label style={{ cursor: 'pointer' }}>
-                    <input type="checkbox" checked={reserveCouponLoyaltyCountable} onChange={(e) => setReserveCouponLoyaltyCountable(e.target.checked)} /> 特別達成クーポンの達成回数に加算
+                  <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-600">
+                    <input type="checkbox" checked={reserveCouponLoyaltyCountable} onChange={(e) => setReserveCouponLoyaltyCountable(e.target.checked)} className="accent-amber-500 w-3.5 h-3.5 rounded" />
+                    特別達成クーポンの達成回数に加算
                   </label>
                 </div>
               )}
 
-              <button type="submit" style={{ padding: '12px', background: '#d97706', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px' }}>
+              <button type="submit" className="w-full py-3 rounded-xl bg-gradient-to-b from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white font-bold text-sm shadow-lg shadow-amber-500/40 transition-all">
                 ➕ この内容で予約をセットする
               </button>
             </form>
-          </div>
 
-          {/* 予約リスト */}
-          <div style={{ padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <h3 style={{ margin: '0 0 15px 0', fontSize: '18px' }}>📋 現在設定されている予約配信一覧（{scheduledList.length} 件）</h3>
-            {scheduledList.length === 0 ? (
-              <p style={{ color: '#64748b', fontSize: '14px', textAlign: 'center', margin: '20px 0' }}>
-                現在セットされている予約配信はありません。
-              </p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {scheduledList.map((item) => (
-                  <div key={item.id} style={{ background: '#fff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                        <span style={{ fontSize: '11px', fontWeight: 'bold', background: item.type === 'coupon' ? '#7c3aed' : '#2563eb', color: '#fff', padding: '2px 8px', borderRadius: '12px' }}>
-                          {item.type === 'coupon' ? '🎫 クーポン予約' : '📢 通知予約'}
-                        </span>
-                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#d97706', background: '#fef3c7', padding: '2px 8px', borderRadius: '4px' }}>
-                          {item.scheduleValue}
-                        </span>
+            <div className="bg-white rounded-[18px] border border-slate-900/5 shadow-sm p-5">
+              <h3 className="text-sm font-bold mb-3">📋 予約配信一覧（{scheduledList.length} 件）</h3>
+              {scheduledList.length === 0 ? (
+                <p className="text-slate-400 text-[12px] text-center py-6">現在セットされている予約配信はありません。</p>
+              ) : (
+                <div className="space-y-2.5">
+                  {scheduledList.map((item) => (
+                    <div key={item.id} className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center gap-3 flex-wrap">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full text-white ${item.type === 'coupon' ? 'bg-violet-600' : 'bg-blue-600'}`}>
+                            {item.type === 'coupon' ? '🎫 クーポン' : '📢 通知'}
+                          </span>
+                          <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded">{item.scheduleValue}</span>
+                        </div>
+                        <strong className="text-[13px] block text-slate-800">{item.title}</strong>
+                        <p className="text-[11px] text-slate-600 mt-0.5">{item.body}</p>
                       </div>
-                      <strong style={{ fontSize: '15px', display: 'block', color: '#1e293b' }}>{item.title}</strong>
-                      <p style={{ fontSize: '13px', color: '#475569', margin: '4px 0 0 0' }}>{item.body}</p>
+                      <button onClick={() => handleDeleteSchedule(item.id)} className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg text-[10px] font-bold transition-colors whitespace-nowrap">🗑️ 取消</button>
                     </div>
-                    <button
-                      onClick={() => handleDeleteSchedule(item.id)}
-                      style={{ padding: '8px 14px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
-                    >
-                      🗑️ 予約を取り消す
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* ===== POS連携タブ ===== */}
+        {activeTab === 'pos' && shopId && (
+          <PosIntegrationSection key={shopId} shopId={shopId} user={user} />
+        )}
+
+      </main>
 
       {/* QRスキャンモーダル */}
       {scanOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
-          <div style={{ background: '#fff', padding: '20px', borderRadius: '12px', maxWidth: '500px', width: '100%', textAlign: 'center' }}>
-            <h3 style={{ margin: '0 0 15px 0' }}>📱 顧客のQRコードをスキャン</h3>
+        <div className="fixed inset-0 bg-black/85 z-[9999] flex items-center justify-center p-5">
+          <div className="bg-white rounded-2xl p-5 max-w-md w-full text-center">
+            <h3 className="m-0 mb-4 text-base font-bold">📱 顧客のQRコードをスキャン</h3>
             {scanResult ? (
               <div>
-                <div style={{ padding: '20px', background: '#f0fdf4', border: '2px solid #22c55e', borderRadius: '8px', color: '#15803d', fontWeight: 'bold', fontSize: '18px', whiteSpace: 'pre-line', marginBottom: '20px' }}>
+                <div className="p-5 bg-green-50 border-2 border-green-500 rounded-xl text-green-700 font-bold text-base whitespace-pre-line mb-5">
                   {scanResult}
                 </div>
-                <button
-                  onClick={async () => { await stopCamera(); setScanResult(null); setScanOpen(false); }}
-                  style={{ width: '100%', padding: '12px', background: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}
-                >
+                <button onClick={async () => { await stopCamera(); setScanResult(null); setScanOpen(false); }} className="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold text-base transition-colors">
                   閉じる
                 </button>
               </div>
             ) : (
               <div>
-                <div id="qr-reader" style={{ width: '100%', minHeight: '250px', background: '#1e293b', borderRadius: '8px', overflow: 'hidden', marginBottom: '15px' }} />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <button
-                    onClick={startCamera}
-                    disabled={scanLoading}
-                    style={{ width: '100%', padding: '12px', background: scanLoading ? '#ccc' : '#16a34a', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '16px', cursor: scanLoading ? 'not-allowed' : 'pointer' }}
-                  >
+                <div id="qr-reader" className="w-full min-h-[250px] bg-slate-800 rounded-xl overflow-hidden mb-4" />
+                <div className="flex flex-col gap-2.5">
+                  <button onClick={startCamera} disabled={scanLoading} className={`w-full py-3 rounded-xl text-white font-bold text-base transition-colors ${scanLoading ? 'bg-slate-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}>
                     {scanLoading ? 'カメラ初期化中...' : '📷 カメラを再起動する'}
                   </button>
-                  <button
-                    onClick={async () => { await stopCamera(); setScanOpen(false); }}
-                    style={{ width: '100%', padding: '10px', background: '#64748b', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
-                  >
+                  <button onClick={async () => { await stopCamera(); setScanOpen(false); }} className="w-full py-2.5 bg-slate-500 hover:bg-slate-600 text-white rounded-xl font-bold text-sm transition-colors">
                     キャンセル
                   </button>
                 </div>
@@ -1753,6 +1556,6 @@ export default function ProShopPage() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }
