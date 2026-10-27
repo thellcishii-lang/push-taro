@@ -14,7 +14,7 @@ function NotificationLinkContent() {
     if (parsed.protocol === 'https:' || parsed.protocol === 'http:') target = parsed.toString();
   } catch {}
 
-  const returnTo = rawReturnTo.startsWith('/subscribe?') ? rawReturnTo : '/';
+  const returnTo = rawReturnTo.startsWith('/') && !rawReturnTo.startsWith('//') ? rawReturnTo : '/';
 
   return (
     <main style={{ height: '100dvh', display: 'flex', flexDirection: 'column', background: '#fff', fontFamily: 'sans-serif' }}>
