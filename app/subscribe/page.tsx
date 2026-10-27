@@ -751,8 +751,7 @@ export default function SubscribePage() {
               {/* 連続ログイン特典（PRO） */}
               {shopData?.plan === 'pro' && streakInfo?.enabled && (
                 <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-5 mb-6 shadow-lg relative overflow-hidden text-white">
-                  <div className="absolute -right-6 -bottom-6
-                                    <div className="absolute -right-6 -bottom-6 text-8xl opacity-20 transform rotate-12">🎁</div>
+                <div className="absolute -right-6 -bottom-6 text-8xl opacity-20 transform rotate-12">🎁</div>
                   <div className="flex justify-between items-center mb-1 relative z-10">
                     <span className="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold">アプリを開いてスタンプGET</span>
                     <span className="text-xs font-bold bg-white text-orange-600 px-2 py-0.5 rounded-full">{streakInfo.currentCount}日目</span>
