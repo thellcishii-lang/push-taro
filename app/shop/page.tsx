@@ -633,8 +633,8 @@ export default function ShopPage() {
               <p className="text-[10px] text-slate-500 truncate hidden sm:block">{user.email}</p>
             </div>
           </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
-           <a href={`/notification-link?target=${encodeURIComponent('https://push-taro.com/torisetsu')}&returnTo=${encodeURIComponent('/shop')}&label=${encodeURIComponent('店舗管理に戻る')}`}
+          <a
+  href={`/notification-link?target=${encodeURIComponent('https://push-taro.com/torisetsu')}&returnTo=${encodeURIComponent('/shop')}&label=${encodeURIComponent('店舗管理に戻る')}`}
   aria-label="取扱説明書"
   title="取扱説明書"
   className="inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm hover:bg-slate-50 text-xs font-bold text-slate-700 transition-all"
