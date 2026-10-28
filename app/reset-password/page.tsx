@@ -10,7 +10,7 @@ function ResetPasswordContent() {
   const roleParam = searchParams.get('role') || 'affiliate';
   const role = ['shop', 'agency', 'affiliate', 'affilishop'].includes(roleParam) ? roleParam : 'affiliate';
   const requestedReturnTo = searchParams.get('returnTo');
-  const allowedReturnPaths = ['/shop', '/pro-shop', '/agency/dashboard', '/affiliate/dashboard', '/affilishop/dashboard'];
+  const allowedReturnPaths = ['/shop', '/pro-shop', '/pro-shop/dashboard', '/agency/dashboard', '/affiliate/dashboard', '/affilishop/dashboard'];
   const defaultReturnPath = role === 'shop'
     ? '/shop'
     : role === 'agency'

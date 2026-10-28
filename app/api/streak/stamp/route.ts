@@ -45,8 +45,9 @@ export async function POST(request: Request) {
       const currentStreak = data.couponUsage?.[shopId]?.streak || {};
       
       // キャンペーンIDが変わっていたらリセット
-      const currentCount = currentStreak.campaignId === campaignId ? (currentStreak.currentCount || 0) : 0;
-      const lastStampDate = currentStreak.campaignId === campaignId ? (currentStreak.lastStampDate || '') : '';
+      const isNewCampaign = currentStreak.campaignId !== campaignId;
+      const currentCount = isNewCampaign ? 0 : (currentStreak.currentCount || 0);
+      const lastStampDate = isNewCampaign ? '' : (currentStreak.lastStampDate || '');
 
       if (lastStampDate === today) {
         throw new Error('ALREADY_STAMPED');
@@ -69,6 +70,12 @@ export async function POST(request: Request) {
         [`couponUsage.${shopId}.streak.lastStampDate`]: today,
         [`couponUsage.${shopId}.streak.campaignId`]: campaignId,
       };
+
+      // 新キャンペーン開始時は旧キャンペーンの達成・使用状態を引き継がない
+      if (isNewCampaign) {
+        updateData[`couponUsage.${shopId}.streak.achievedAt`] = null;
+        updateData[`couponUsage.${shopId}.streak.streakUsedAt`] = null;
+      }
 
       if (achieved) {
         updateData[`couponUsage.${shopId}.streak.achievedAt`] = FieldValue.serverTimestamp();

@@ -243,7 +243,7 @@ export async function redeemCouponCore(params: RedeemCouponParams): Promise<Rede
       couponTitle = streak.couponName || '連続ログイン達成クーポン';
       
       const streakData = usage.streak || {};
-      if (!streakData.achievedAt) {
+      if (!streakData.achievedAt || streakData.campaignId !== streak.campaignId) {
         throw new RedeemError('COUPON_NOT_AVAILABLE', 'この連続ログインクーポンはまだ利用できません', 400);
       }
       if (streakData.streakUsedAt) {
