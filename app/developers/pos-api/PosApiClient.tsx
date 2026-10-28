@@ -95,6 +95,7 @@ export default function PosApiClient() {
           <p className="dev-text">
             店舗で現在有効なクーポンの一覧を取得します。POSのマスタ同期などに利用できます。
             これは店舗の設定一覧で、顧客ごとの使用可否は検証APIで確認してください。期限切れは除外され、予約クーポンにはcouponIdが付きます。
+            連続ログイン達成クーポンはcouponTypeにstreakを指定して検証・消し込みできます。
           </p>
           <h3>レスポンス</h3>
           <div className="code-block">
@@ -104,6 +105,7 @@ export default function PosApiClient() {
     { "couponType": "first", "title": "初回限定 10%OFF" },
     { "couponType": "normal", "title": "会員様 5%OFF" },
     { "couponType": "loyalty", "title": "3回達成 20%OFF" },
+    { "couponType": "streak", "title": "連続ログイン達成クーポン" },
     { "couponType": "scheduled", "couponId": "scheduled-123", "title": "週末特典" }
   ]
 }`}

@@ -7,6 +7,7 @@
 import { db } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { verifyPosApiKey } from '@/lib/pos-api-key';
+import { isProPlan } from '@/lib/pro-plan';
 
 export interface PosAuthResult {
   shopId: string;
@@ -47,7 +48,7 @@ export async function authenticatePosRequest(
   for (const doc of shopsSnap.docs) {
     const data = doc.data();
     const posApi = data.posApi;
-    if (data.plan !== 'pro' || !posApi?.keyHash || posApi.revokedAt) continue;
+    if (!isProPlan(data.plan) || !posApi?.keyHash || posApi.revokedAt) continue;
     if (verifyPosApiKey(apiKey, posApi.keyHash)) {
       matchedShopId = doc.id;
       matchedShopData = data;

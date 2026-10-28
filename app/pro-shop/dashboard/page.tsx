@@ -86,6 +86,8 @@ export default function ProShopDashboardPage() {
         return;
       }
 
+      setLoading(true);
+      setAccessError('');
       try {
         const idToken = await u.getIdToken();
 
@@ -116,13 +118,20 @@ export default function ProShopDashboardPage() {
 
           setReferrals(data.referrals || []);
           setRewards(data.rewards || []);
-        } else {
+        } else if (res.status === 401 || res.status === 403) {
+          const data = await res.json().catch(() => ({}));
           await signOut(auth);
           setUser(null);
-          setAccessError('このアカウントはPRO紹介・報酬ダッシュボードを利用できません。');
+          setAccessError(
+            `このアカウントはPRO紹介・報酬ダッシュボードを利用できません。${data.error ? `（${data.error}）` : ''}`
+          );
+        } else {
+          const data = await res.json().catch(() => ({}));
+          setAccessError(`ダッシュボードの読み込みに失敗しました。時間をおいて再読み込みしてください。${data.error ? `（${data.error}）` : ''}`);
         }
       } catch (err) {
         console.error('ダッシュボード取得エラー:', err);
+        setAccessError('ダッシュボードの読み込みに失敗しました。通信環境をご確認のうえ再読み込みしてください。');
       } finally {
         setLoading(false);
       }
@@ -134,6 +143,7 @@ export default function ProShopDashboardPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
+    setAccessError('');
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch {
@@ -318,6 +328,32 @@ export default function ProShopDashboardPage() {
           <Link href="/reset-password?role=shop&returnTo=/pro-shop/dashboard" className="text-orange-700 hover:underline">
             パスワードをお忘れの方
           </Link>
+        </div>
+      </main>
+    );
+  }
+
+  if (!shopId) {
+    return (
+      <main className="max-w-sm mx-auto mt-16 px-5 text-center font-sans">
+        <div role="alert" className="bg-red-50 border border-red-200 text-red-700 px-3 py-2.5 rounded-lg text-sm mb-4">
+          {accessError || 'ダッシュボードの読み込みに失敗しました。'}
+        </div>
+        <div className="flex gap-3 justify-center">
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold"
+          >
+            再読み込み
+          </button>
+          <button
+            type="button"
+            onClick={() => signOut(auth)}
+            className="px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-sm font-bold hover:bg-slate-200"
+          >
+            ログアウト
+          </button>
         </div>
       </main>
     );

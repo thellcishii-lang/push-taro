@@ -14,8 +14,16 @@ import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
 import { isProReferralPlan, PRO_REFERRAL_PLAN_LABELS } from '@/lib/pro-referral-policy';
+import { isProPlan } from '@/lib/pro-plan';
 
 export const dynamic = 'force-dynamic';
+
+// plan の表記ゆれ（'PRO' 等）があっても管理画面(/pro-shop)と同じ基準で判定できるよう、
+// ownerUid のみで検索してからアプリ側でプランを判定する
+async function findOwnedProShop(uid: string) {
+  const owned = await db.collection('shops').where('ownerUid', '==', uid).get();
+  return owned.docs.find((doc) => isProPlan(doc.data().plan)) ?? null;
+}
 
 export async function GET(request: Request) {
   // ─── 認証 ───
@@ -41,15 +49,11 @@ export async function GET(request: Request) {
     let shopId = searchParams.get('shopId');
 
     if (!shopId) {
-      const ownedShop = await db.collection('shops')
-        .where('ownerUid', '==', uid)
-        .where('plan', '==', 'pro')
-        .limit(1)
-        .get();
-      if (ownedShop.empty) {
+      const ownedShop = await findOwnedProShop(uid);
+      if (!ownedShop) {
         return NextResponse.json({ error: 'PRO店舗情報が見つかりません' }, { status: 403 });
       }
-      shopId = ownedShop.docs[0].id;
+      shopId = ownedShop.id;
     }
 
     // ─── 権限チェック（店舗オーナー or 管理者）───
@@ -62,7 +66,7 @@ export async function GET(request: Request) {
     if (shopData.ownerUid !== uid && !isAdmin) {
       return NextResponse.json({ error: '権限がありません' }, { status: 403 });
     }
-    if (shopData.plan !== 'pro') {
+    if (!isProPlan(shopData.plan)) {
       return NextResponse.json({ error: 'PROプラン専用の管理画面です' }, { status: 403 });
     }
 
@@ -189,16 +193,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: '報酬プランを選択してください' }, { status: 400 });
     }
 
-    const shopSnap = await db.collection('shops')
-      .where('ownerUid', '==', decoded.uid)
-      .where('plan', '==', 'pro')
-      .limit(1)
-      .get();
-    if (shopSnap.empty) {
+    const shopDoc = await findOwnedProShop(decoded.uid);
+    if (!shopDoc) {
       return NextResponse.json({ error: 'PRO店舗情報が見つかりません' }, { status: 403 });
     }
 
-    const shopDoc = shopSnap.docs[0];
     const choice = await db.runTransaction(async (transaction) => {
       const current = await transaction.get(shopDoc.ref);
       const currentData = current.data() || {};

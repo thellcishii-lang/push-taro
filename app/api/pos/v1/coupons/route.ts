@@ -31,6 +31,9 @@ export async function GET(request: Request) {
       active(step.expireType === 'date' && step.expireDate ? couponDateEnd(step.expireDate) : null))) {
       coupons.push({ couponType: 'step-up', title: stepUp.title || 'ステップアップクーポン' });
     }
+    if (shop.streakCoupon?.enabled === true) {
+      coupons.push({ couponType: 'streak', title: shop.streakCoupon.couponName || '連続ログイン達成クーポン' });
+    }
     for (const coupon of shop.scheduledCoupons || []) {
       if (coupon.id && active(toDate(coupon.expiresAt))) {
         coupons.push({ couponType: 'scheduled', couponId: coupon.id, title: coupon.title || '予約クーポン' });

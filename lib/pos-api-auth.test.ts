@@ -41,6 +41,11 @@ describe('POS key authentication', () => {
     expect(await authenticatePosRequest(request())).toMatchObject({ status: 401 });
   });
 
+  it('accepts PRO shops whose plan is stored with different casing', async () => {
+    mocks.get.mockResolvedValue({ docs: [{ id: 'shop', data: () => ({ plan: 'PRO', posApi: generated }) }] });
+    expect(await authenticatePosRequest(request())).toMatchObject({ shopId: 'shop' });
+  });
+
   it('rejects malformed keys before querying Firestore', async () => {
     expect(await authenticatePosRequest(request('pt_live_wrong'))).toMatchObject({ status: 401 });
     expect(mocks.get).not.toHaveBeenCalled();

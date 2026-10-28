@@ -51,6 +51,11 @@ describe('PRO POS key management', () => {
     expect(mocks.update).not.toHaveBeenCalled();
   });
 
+  it('accepts PRO shops whose plan is stored with different casing', async () => {
+    mocks.shop = { plan: 'PRO', ownerUid: 'owner' };
+    expect((await GET(request())).status).toBe(200);
+  });
+
   it('requires a valid owner session', async () => {
     mocks.verify.mockRejectedValue(new Error('expired token'));
     expect((await POST(request('POST'))).status).toBe(401);

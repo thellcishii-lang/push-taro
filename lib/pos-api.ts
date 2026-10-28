@@ -4,7 +4,7 @@ import { db } from '@/lib/firebase-admin';
 import { authenticatePosRequest, isPosAuthError } from '@/lib/pos-api-auth';
 import { redeemCouponCore, RedeemError } from '@/lib/redeem-coupon-core';
 
-const couponTypes = new Set(['first', 'normal', 'loyalty', 'step-up', 'repeat', 'birthday', 'dormant', 'scheduled']);
+const couponTypes = new Set(['first', 'normal', 'loyalty', 'step-up', 'repeat', 'birthday', 'dormant', 'scheduled', 'streak']);
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function documentId(value: unknown): value is string {

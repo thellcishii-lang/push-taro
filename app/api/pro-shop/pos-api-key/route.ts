@@ -12,6 +12,7 @@ import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { generatePosApiKey } from '@/lib/pos-api-key';
+import { isProPlan } from '@/lib/pro-plan';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,19 +40,15 @@ async function authenticateProOwner(
       return { error: NextResponse.json({ error: '店舗IDが不正です' }, { status: 400 }) };
     }
     const doc = await db.collection('shops').doc(requestedShopId).get();
-    if (!doc.exists || doc.data()?.ownerUid !== uid || doc.data()?.plan !== 'pro') {
+    if (!doc.exists || doc.data()?.ownerUid !== uid || !isProPlan(doc.data()?.plan)) {
       return { error: NextResponse.json({ error: 'このPRO店舗の操作権限がありません' }, { status: 403 }) };
     }
     return { shopId: doc.id, uid };
   }
-  const shopSnap = await db
-    .collection('shops')
-    .where('ownerUid', '==', uid)
-    .where('plan', '==', 'pro')
-    .limit(1)
-    .get();
+  const shopSnap = await db.collection('shops').where('ownerUid', '==', uid).get();
+  const proShop = shopSnap.docs.find((doc) => isProPlan(doc.data().plan));
 
-  if (shopSnap.empty) {
+  if (!proShop) {
     return {
       error: NextResponse.json(
         { error: 'POS連携はPROプラン専用の機能です' },
@@ -60,7 +57,7 @@ async function authenticateProOwner(
     };
   }
 
-  return { shopId: shopSnap.docs[0].id, uid };
+  return { shopId: proShop.id, uid };
 }
 
 // ============================================================

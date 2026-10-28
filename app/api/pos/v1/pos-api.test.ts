@@ -74,6 +74,12 @@ describe('POS API contract', () => {
     expect(mocks.redeem).not.toHaveBeenCalled();
   });
 
+  it('accepts consecutive-login (streak) coupons issued by the customer app', async () => {
+    const response = await verify(request({ shopId: 'shop', couponType: 'streak', token: 'customer' }, null));
+    expect(response.status).toBe(200);
+    expect(mocks.redeem).toHaveBeenCalledWith(expect.objectContaining({ couponType: 'streak', dryRun: true }));
+  });
+
   it('rejects invalid request JSON with a 400 instead of 500', async () => {
     const response = await verify(new Request('https://example.com', { method: 'POST', body: '{' }));
     expect(response.status).toBe(400);
@@ -129,6 +135,7 @@ describe('POS API contract', () => {
           coupon: { enabled: true, expiresAt: '2026-10-25' },
           normalCoupon: { enabled: true, title: 'Valid', expiresAt: '2026-10-26' },
           loyaltyCoupon: { enabled: false },
+          streakCoupon: { enabled: true, couponName: 'Streak' },
           proCoupons: {
             repeat: { enabled: true, expireType: 'date', expireDate: '2026-10-25' },
             birthday: { enabled: true },
@@ -144,6 +151,7 @@ describe('POS API contract', () => {
       expect(await response.json()).toEqual({ coupons: [
         { couponType: 'normal', title: 'Valid' },
         { couponType: 'birthday', title: '記念日・お誕生日クーポン' },
+        { couponType: 'streak', title: 'Streak' },
         { couponType: 'scheduled', couponId: 'current', title: 'Scheduled' },
       ] });
     } finally { vi.useRealTimers(); }
