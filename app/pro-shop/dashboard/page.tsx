@@ -118,7 +118,8 @@ export default function ProShopDashboardPage() {
 
           setReferrals(data.referrals || []);
           setRewards(data.rewards || []);
-        } else if (res.status === 401 || res.status === 403) {
+        } else if (res.status === 403) {
+          // 本当に権限がない場合のみログアウト
           const data = await res.json().catch(() => ({}));
           await signOut(auth);
           setUser(null);
@@ -126,6 +127,7 @@ export default function ProShopDashboardPage() {
             `このアカウントはPRO紹介・報酬ダッシュボードを利用できません。${data.error ? `（${data.error}）` : ''}`
           );
         } else {
+          // 401(トークン切れ)や500エラーではログアウトせず、エラー表示のみ
           const data = await res.json().catch(() => ({}));
           setAccessError(`ダッシュボードの読み込みに失敗しました。時間をおいて再読み込みしてください。${data.error ? `（${data.error}）` : ''}`);
         }
@@ -398,7 +400,6 @@ export default function ProShopDashboardPage() {
 
   return (
     <main className="max-w-5xl mx-auto mt-10 px-5 font-sans text-slate-800">
-      {/* ヘッダー */}
       <div className="flex justify-between items-center mb-8 flex-wrap gap-4 border-b-2 border-gray-100 pb-4">
         <div>
           <div className="flex items-center gap-2.5 flex-wrap">
@@ -419,7 +420,6 @@ export default function ProShopDashboardPage() {
         </div>
       </div>
 
-      {/* サマリーカード */}
       <div className="grid gap-4 mb-8" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
         <div className="bg-orange-50 p-5 rounded-2xl border-2 border-orange-200">
           <div className="text-xs font-bold text-orange-800 mb-1.5">累計報酬</div>
@@ -443,7 +443,6 @@ export default function ProShopDashboardPage() {
         </div>
       )}
 
-      {/* 紹介コード */}
       <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 mt-6 mb-6">
         <h3 className="text-base font-bold text-orange-700 mb-1.5">🎁 あなたの紹介特典コード・専用URL</h3>
         <p className="text-xs text-orange-900 mb-4 leading-relaxed">
@@ -483,7 +482,6 @@ export default function ProShopDashboardPage() {
         </div>
       </div>
 
-      {/* 振込先口座 */}
       <div className="bg-orange-50 border border-orange-300 rounded-2xl p-5 mb-6">
         <h3 className="text-base font-bold text-orange-700 mb-1.5">🏦 振込先口座情報（紹介報酬受取用）</h3>
         <p className="text-xs text-orange-900 mb-4">※紹介手数料（PRO特典 10%）をお振り込みする口座を指定してください。</p>
@@ -523,7 +521,6 @@ export default function ProShopDashboardPage() {
         </button>
       </div>
 
-      {/* タブ */}
       <div className="flex gap-2 border-b-2 border-slate-200 pb-1 mb-5">
         <button
           onClick={() => setActiveTab('referrals')}
@@ -539,7 +536,6 @@ export default function ProShopDashboardPage() {
         </button>
       </div>
 
-      {/* 紹介店舗一覧 */}
       {activeTab === 'referrals' && (
         <div className="bg-white p-6 rounded-2xl border border-slate-200">
           <div className="flex justify-between items-center mb-4 flex-wrap gap-3">
@@ -596,7 +592,6 @@ export default function ProShopDashboardPage() {
         </div>
       )}
 
-      {/* 報酬明細 */}
       {activeTab === 'rewards' && (
         <div className="bg-white p-6 rounded-2xl border border-slate-200">
           <div className="flex justify-between items-center mb-4 flex-wrap gap-3">
@@ -641,8 +636,6 @@ export default function ProShopDashboardPage() {
           )}
         </div>
       )}
-
-   
     </main>
   );
 }
