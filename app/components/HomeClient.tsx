@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { faqs } from '../data/faq';
+import '../lp.css';
 
 function useScrollReveal() {
   useEffect(() => {
