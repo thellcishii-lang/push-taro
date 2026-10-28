@@ -222,6 +222,12 @@ export default function GuideClient() {
             <div><h2>📚 運用ノウハウ</h2><p>安全な運用のために</p></div>
           </div>
           <div className="g-grid">
+            <Link href="/guide/event-marketing" className="g-card is-new">
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">🎪</span>
+              <h4>イベント・展示会の活用</h4>
+              <p>短期催事での人件費削減と広告収益の作り方</p>
+　　　　　　　　　　　　　　　　　　　　　　　　</Link>
             <Link href="/guide/ng-actions" className="g-card">
               <span className="g-card-icon">⚠️</span>
               <h4>NG行為集</h4>
