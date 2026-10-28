@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import BrandLogo from '@/components/BrandLogo';
-import './features.css'; // ★ 専用CSSを読み込む
+import './features.css';
 
 export default function FeaturesClient() {
   return (
@@ -78,6 +78,12 @@ export default function FeaturesClient() {
             <div className="g-feature-info"><h4>休眠復活クーポン</h4><p>離反客を自動で呼び戻す</p></div>
             <span className="g-feature-tag is-pro">PRO</span>
           </Link>
+          {/* 👇 追加：連続ログイン特典 */}
+          <Link href="/guide/features/login-streak" className="g-feature-card">
+            <span className="g-feature-icon">🔥</span>
+            <div className="g-feature-info"><h4>連続ログイン特典</h4><p>アプリを開く習慣化と達成クーポン</p></div>
+            <span className="g-feature-tag is-pro">PRO</span>
+          </Link>
         </div>
 
         <h2 className="g-h2">📱 顧客獲得系</h2>
@@ -87,13 +93,25 @@ export default function FeaturesClient() {
             <div className="g-feature-info"><h4>QRコード顧客獲得</h4><p>店頭POPから顧客リストを自動構築</p></div>
             <span className="g-feature-tag is-all">全プラン</span>
           </Link>
+          {/* 👇 追加：店頭POP印刷 */}
+          <Link href="/guide/features/store-pop" className="g-feature-card">
+            <span className="g-feature-icon">🖨️</span>
+            <div className="g-feature-info"><h4>店頭POP印刷</h4><p>A4/A5のQRポップを管理画面から印刷</p></div>
+            <span className="g-feature-tag is-std">STANDARD+</span>
+          </Link>
         </div>
 
-        <h2 className="g-h2">💰 収益化系</h2>
+        <h2 className="g-h2">💰 収益化・外部連携系</h2>
         <div className="g-feature-grid">
           <Link href="/guide/features/referral" className="g-feature-card">
             <span className="g-feature-icon">🤝</span>
             <div className="g-feature-info"><h4>紹介報酬</h4><p>他店舗を紹介で毎月報酬還元</p></div>
+            <span className="g-feature-tag is-pro">PRO</span>
+          </Link>
+          {/* 👇 追加：POS連携 */}
+          <Link href="/guide/pos-integration" className="g-feature-card">
+            <span className="g-feature-icon">🔗</span>
+            <div className="g-feature-info"><h4>POSレジ連携</h4><p>レジと連携してクーポン消込を自動化</p></div>
             <span className="g-feature-tag is-pro">PRO</span>
           </Link>
         </div>
