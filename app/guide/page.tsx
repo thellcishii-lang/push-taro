@@ -103,6 +103,7 @@ const collectionJsonLd = {
 
     // 運用ノウハウ
     { '@type': 'Article', name: '機能別ガイドTOP', url: `${appUrl}/guide/features` },
+    { '@type': 'Article', name: 'イベント・展示会の活用', url: `${appUrl}/guide/event-marketing` },
     { '@type': 'Article', name: 'NG行為集', url: `${appUrl}/guide/ng-actions` },
 
     // 店舗マーケティングの本質
