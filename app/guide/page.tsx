@@ -112,6 +112,8 @@ const collectionJsonLd = {
     { '@type': 'Article', name: 'プッシュ通知のCVRは、何%あればいいのか', url: `${appUrl}/guide/push-notification-metrics` },
     { '@type': 'Article', name: 'CTRを、CVRに繋げる方法', url: `${appUrl}/guide/ctr-to-cvr` },
     { '@type': 'Article', name: 'セグメント配信とは', url: `${appUrl}/guide/segmentation` },
+    { '@type': 'Article', name: 'プッシュ通知が効く業種・向いていない業種', url: `${appUrl}/guide/industry-fit` },
+　　　　　　　　{ '@type': 'Article', name: 'プッシュ通知のCVRを最大化する配信頻度', url: `${appUrl}/guide/push-notification-roi` },
     { '@type': 'Article', name: 'なぜ、顧客情報を取らないのか', url: `${appUrl}/guide/security` },
     { '@type': 'Article', name: '実店舗のためのPWA入門', url: `${appUrl}/guide/what-is-pwa` },
   ],
