@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja" className={inter.variable} suppressHydrationWarning>
-      <body style={{ margin: 0, background: '#fafafa' }}>
+      <body style={{ margin: 0 }}>
         {children}
 
         {/* Google Analytics 4 */}
