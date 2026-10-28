@@ -67,6 +67,18 @@ export default function GuideClient() {
               <h4>セグメント配信とは</h4>
               <p>実店舗では「使えない」理由を、数字で解説</p>
             </Link>
+            <Link href="/guide/industry-fit" className="g-card is-new">
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">🏪</span>
+              <h4>【業種別】プッシュ通知が効く店舗・向いていない店舗</h4>
+              <p>チラシを撒く業種は相性抜群。あなたの業種は？</p>
+　　　　　　　　　　　　　　　　　　　　　　　　</Link>
+　　　　　　　　　　　　　　　　　　　　　　　　<Link href="/guide/push-notification-roi" className="g-card is-new">
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">📈</span>
+              <h4>プッシュ通知のCVRを最大化する配信頻度</h4>
+              <p>登録者数と配信頻度の黄金律。LINEの上限との比較も。</p>
+　　　　　　　　　　　　　　　　　　　　　　　　</Link>
             <Link href="/guide/security" className="g-card is-new">
               <span className="g-card-new">NEW</span>
               <span className="g-card-icon">🔒</span>
