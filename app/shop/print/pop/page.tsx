@@ -46,59 +46,81 @@ function PopContent() {
       .catch((e) => setError(e.message));
   }, [shopId]);
 
-  if (error) {
-    return (
-      <main style={{ padding: 40, textAlign: 'center', fontFamily: 'sans-serif' }}>
-        <p style={{ color: '#dc2626' }}>{error}</p>
-        <button onClick={() => window.close()}>← 閉じる</button>
-      </main>
-    );
-  }
-
-  if (!data) {
-    return <main style={{ padding: 40, textAlign: 'center' }}>読み込み中...</main>;
-  }
+  if (error) { /* 省略（元のコードのまま） */ }
+  if (!data) { /* 省略（元のコードのまま） */ }
 
   const switchSize = (nextSize: 'a4' | 'b5') => {
     router.replace(`/shop/print/pop?s=${shopId}&size=${nextSize}`);
   };
 
   const returnTo = searchParams.get('returnTo') || '/shop';
-
   const handleClose = () => {
     window.close();
     setTimeout(() => { window.location.href = returnTo; }, 200);
   };
 
   return (
-    <div className="print-wrap">
-      <div className="print-toolbar no-print">
-        <div className="print-toolbar-info">
-          <strong>店頭ポップ（{size === 'a4' ? 'A4 縦' : 'B5 縦'}）</strong>
-          <span>{size === 'a4' ? '210×297mm' : '182×257mm'}／店頭掲示用</span>
-        </div>
-        <div className="print-toolbar-actions">
-          <button onClick={() => switchSize(size === 'a4' ? 'b5' : 'a4')}>
-            📐 {size === 'a4' ? 'B5に切り替え' : 'A4に切り替え'}
-          </button>
-          
-          {/* 👇 印刷ボタンのバグを修正 */}
-          <button className="primary" onClick={() => setTimeout(() => window.print(), 100)}>
-            🖨️ 印刷 / PDF保存
-          </button>
-          
-          <button onClick={handleClose}>← 閉じる</button>
-        </div>
-      </div>
+    <>
+      {/* 👇 店頭ポップ専用のスタイル */}
+      <style jsx global>{`
+        @media screen and (max-width: 600px) {
+          .shop-pop-preview-wrap > .shop-pop {
+            transform: scale(0.45) !important;
+            transform-origin: top center !important;
+            margin-bottom: -150mm !important;
+          }
+        }
+        @media screen and (min-width: 601px) and (max-width: 900px) {
+          .shop-pop-preview-wrap > .shop-pop {
+            transform: scale(0.65) !important;
+            transform-origin: top center !important;
+            margin-bottom: -80mm !important;
+          }
+        }
+        @media print {
+          @page {
+            margin: 0;
+          }
+          .shop-pop-preview-wrap {
+            display: block !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          .shop-pop-preview-wrap > .shop-pop {
+            transform: scale(1) !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+          }
+        }
+      `}</style>
 
-      <div className="print-note no-print">
-        💡 「PDFに保存」を選ぶと、コンビニのマルチコピー機でも印刷できます。
-      </div>
+      <div className="print-wrap">
+        <div className="print-toolbar no-print">
+          <div className="print-toolbar-info">
+            <strong>店頭ポップ（{size === 'a4' ? 'A4 縦' : 'B5 縦'}）</strong>
+            <span>{size === 'a4' ? '210×297mm' : '182×257mm'}／店頭掲示用</span>
+          </div>
+          <div className="print-toolbar-actions">
+            <button onClick={() => switchSize(size === 'a4' ? 'b5' : 'a4')}>
+              📐 {size === 'a4' ? 'B5に切り替え' : 'A4に切り替え'}
+            </button>
+            <button className="primary" onClick={() => setTimeout(() => window.print(), 100)}>
+              🖨️ 印刷 / PDF保存
+            </button>
+            <button onClick={handleClose}>← 閉じる</button>
+          </div>
+        </div>
 
-      <div className="print-doc">
-        <ShopPop data={data} size={size} />
+        <div className="print-note no-print">
+          💡 「PDFに保存」を選ぶと、コンビニのマルチコピー機でも印刷できます。
+        </div>
+
+        {/* 👇 専用のクラス名を付ける */}
+        <div className="print-doc shop-pop-preview-wrap">
+          <ShopPop data={data} size={size} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
