@@ -127,6 +127,9 @@ function PopContent() {
         <div className="print-note no-print">
           💡 「PDFに保存」を選ぶと、コンビニのマルチコピー機でも印刷できます。
         </div>
+        <div className="print-note no-print" style={{ color: '#dc2626', fontWeight: 'bold', marginTop: '8px' }}>
+        ⚠️ お使いのブラウザやプリンターの設定により、端が切れたりはみ出したりする場合があります。その場合は、印刷プレビュー画面の「倍率（拡大/縮小）」を 95%〜90% 程度に下げるか、「余白」を「なし」に設定して調整してください。
+      </div>
 
         {/* 👇 専用のクラス名を付ける */}
         <div className="print-doc shop-pop-preview-wrap">
