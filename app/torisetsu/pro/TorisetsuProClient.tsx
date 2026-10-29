@@ -32,7 +32,7 @@ export default function TorisetsuProClient() {
             <div className="t-feature-card"><span className="ico">🎫</span><div><strong>初回クーポン</strong><small>登録者全員に自動配布</small></div></div>
             <div className="t-feature-card"><span className="ico">🎟️</span><div><strong>通常クーポン</strong><small>何度でも使える常設</small></div></div>
             <div className="t-feature-card"><span className="ico">🏆</span><div><strong>特別達成クーポン</strong><small>N回来店で解放</small></div></div>
-            <div className="t-feature-card"><span className="ico">🖨️</span><div><strong>店頭POP印刷</strong><small>A4・はがきサイズ対応</small></div></div>
+            <div className="t-feature-card"><span className="ico">🖨️</span><div><strong>店頭POP印刷</strong><small>A4・B5サイズ対応</small></div></div>
             <div className="t-feature-card is-pro"><span className="ico">🐾</span><div><strong>ステップアップ</strong><small>段階的に特典アップ</small></div></div>
             <div className="t-feature-card is-pro"><span className="ico">🔄</span><div><strong>連続クーポン</strong><small>消込で次回分発行</small></div></div>
             <div className="t-feature-card is-pro"><span className="ico">🎂</span><div><strong>記念日・誕生日</strong><small>自動でお祝い通知</small></div></div>
@@ -194,7 +194,7 @@ export default function TorisetsuProClient() {
               <strong>店頭POPの使い方</strong>
               <ul>
                 <li>「🏪 店舗設定」タブの「店頭POP（印刷用）」から印刷</li>
-                <li>A4縦・はがきサイズの2種類から選択可能</li>
+                <li>A4縦・B5縦サイズの2種類から選択可能</li>
                 <li>印刷したQRコードをお客様が読み取ると、通知登録画面が開く</li>
               </ul>
             </div>
@@ -218,14 +218,14 @@ export default function TorisetsuProClient() {
                 </div>
                 <div className="t-pop-btn">
                   <div className="t-pop-icon">📄</div>
-                  <div className="t-pop-label">はがき</div>
+                  <div className="t-pop-label">B5縦</div>
                 </div>
               </div>
               <span className="t-mockup-anno" style={{ top: '55%', left: '-10px' }}>①</span>
               <span className="t-mockup-anno" style={{ top: '72%', left: '-10px' }}>②</span>
             </div>
             <div className="t-annos">
-              <div className="t-anno"><span className="t-anno-num" style={{ background: '#0284c7' }}>①</span>A4縦 or はがきを選択</div>
+              <div className="t-anno"><span className="t-anno-num" style={{ background: '#0284c7' }}>①</span>A4縦 or B5縦を選択</div>
               <div className="t-anno"><span className="t-anno-num" style={{ background: '#0284c7' }}>②</span>印刷してレジ横に設置</div>
               <div className="t-anno-note">💡 お客様がQRを読み取るだけで通知登録完了</div>
             </div>
