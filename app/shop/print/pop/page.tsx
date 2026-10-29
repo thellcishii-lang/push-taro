@@ -11,8 +11,6 @@ function PopContent() {
   const router = useRouter();
   const shopId = searchParams.get('s') || '';
   const sizeParam = searchParams.get('size');
-  
-  // 👇 a5 から b5 に変更
   const size: 'a4' | 'b5' = sizeParam === 'b5' ? 'b5' : 'a4';
 
   const [data, setData] = useState<ShopPopData | null>(null);
@@ -29,8 +27,7 @@ function PopContent() {
       .then((res) => {
         if (!res.success) throw new Error(res.error || '店舗情報の取得に失敗しました');
 
-        const appUrl =
-          process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
 
         setData({
           shopId: res.shopId,
@@ -49,13 +46,6 @@ function PopContent() {
       .catch((e) => setError(e.message));
   }, [shopId]);
 
-  useEffect(() => {
-    document.title = `店頭ポップ（${size.toUpperCase()}） | Push-taro`;
-    return () => {
-      document.title = 'Push-taro';
-    };
-  }, [size]);
-
   if (error) {
     return (
       <main style={{ padding: 40, textAlign: 'center', fontFamily: 'sans-serif' }}>
@@ -69,7 +59,6 @@ function PopContent() {
     return <main style={{ padding: 40, textAlign: 'center' }}>読み込み中...</main>;
   }
 
-  // 👇 a5 から b5 に変更
   const switchSize = (nextSize: 'a4' | 'b5') => {
     router.replace(`/shop/print/pop?s=${shopId}&size=${nextSize}`);
   };
@@ -78,16 +67,13 @@ function PopContent() {
 
   const handleClose = () => {
     window.close();
-    setTimeout(() => {
-      window.location.href = returnTo;
-    }, 200);
+    setTimeout(() => { window.location.href = returnTo; }, 200);
   };
 
   return (
     <div className="print-wrap">
       <div className="print-toolbar no-print">
         <div className="print-toolbar-info">
-          {/* 👇 表示テキストとサイズをB5に変更 */}
           <strong>店頭ポップ（{size === 'a4' ? 'A4 縦' : 'B5 縦'}）</strong>
           <span>{size === 'a4' ? '210×297mm' : '182×257mm'}／店頭掲示用</span>
         </div>
@@ -95,15 +81,18 @@ function PopContent() {
           <button onClick={() => switchSize(size === 'a4' ? 'b5' : 'a4')}>
             📐 {size === 'a4' ? 'B5に切り替え' : 'A4に切り替え'}
           </button>
-          <button className="primary" onClick={() => window.print()}>
+          
+          {/* 👇 印刷ボタンのバグを修正 */}
+          <button className="primary" onClick={() => setTimeout(() => window.print(), 100)}>
             🖨️ 印刷 / PDF保存
           </button>
+          
           <button onClick={handleClose}>← 閉じる</button>
         </div>
       </div>
 
       <div className="print-note no-print">
-        💡 「PDFに保存」を選ぶと、コンビニのマルチコピー機でも印刷できます。レジ横やカウンターに立ててご利用ください。
+        💡 「PDFに保存」を選ぶと、コンビニのマルチコピー機でも印刷できます。
       </div>
 
       <div className="print-doc">
