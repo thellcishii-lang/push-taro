@@ -62,7 +62,7 @@ export default function StorePopClient() {
             </div>
             <div className="g-step">
               <div className="g-step-body">
-                <h4>サイズを選択（A4 / はがき）</h4>
+                <h4>サイズを選択（A4 / B5）</h4>
                 <p>お店のレイアウトに合わせて選びます。</p>
               </div>
             </div>
@@ -92,7 +92,7 @@ export default function StorePopClient() {
               <div className="g-mockup-h3">🖨️ 店頭POP（印刷用）</div>
               <div className="g-mockup-grid">
                 <div className="g-mockup-btn is-outline">📄 A4縦</div>
-                <div className="g-mockup-btn is-outline">📄 はがき</div>
+                <div className="g-mockup-btn is-outline">📄 B5縦</div>
               </div>
               <p style={{ fontSize: '12px', color: '#64748b', marginTop: '12px' }}>PDFがダウンロードされます。コンビニ印刷も可能です。</p>
             </div>
@@ -105,10 +105,10 @@ export default function StorePopClient() {
                 <tr><th>場所</th><th>推奨サイズ</th><th>理由</th></tr>
               </thead>
               <tbody>
-                <tr><td>レジ横（会計時）</td><td className="yes">A5（はがき）</td><td>スタッフが手渡ししやすく、会話のきっかけになる</td></tr>
-                <tr><td>カウンター・テーブル</td><td className="yes">A5（はがき）</td><td>お客様が待ち時間に自分で読み取れる</td></tr>
+                <tr><td>レジ横（会計時）</td><td className="yes">B5縦</td><td>スタッフが手渡ししやすく、会話のきっかけになる</td></tr>
+                <tr><td>カウンター・テーブル</td><td className="yes">B5縦</td><td>お客様が待ち時間に自分で読み取れる</td></tr>
                 <tr><td>入口・店内ポスター</td><td className="yes">A4縦</td><td>目立つ場所に置くことで、入店時から目に入る</td></tr>
-                <tr><td>持ち帰り用チラシ</td><td className="yes">A5（はがき）</td><td>購入商品に同梱して、自宅で登録してもらう</td></tr>
+                <tr><td>持ち帰り用チラシ</td><td className="yes">B5縦</td><td>購入商品に同梱して、自宅で登録してもらう</td></tr>
               </tbody>
             </table>
           </div>
