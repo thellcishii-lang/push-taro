@@ -30,14 +30,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/guide/features/coupon-dormant',
     '/guide/features/scheduled-push',
     '/guide/features/referral',
+    '/guide/features/login-streak',
+    '/guide/features/store-pop',
 
     // --- 運用ノウハウ ---
     '/guide/case-studies',
     '/guide/ctr-to-cvr',
+    '/guide/event-marketing',
     '/guide/existing-customers',
+    '/guide/food-loss',
+    '/guide/industry-fit',
     '/guide/line-comparison',
     '/guide/ng-actions',
+    '/guide/pos-integration',
     '/guide/push-notification-metrics',
+    '/guide/push-notification-roi',
     '/guide/security',
     '/guide/segmentation',
     '/guide/store-marketing',
@@ -47,19 +54,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // --- 業種別 ---
     '/guide/bakery',
     '/guide/cafe',
-    '/guide/massage',
     '/guide/snack',
     '/guide/apparel',
   ].map((path) => ({ path, priority: 0.7, freq: 'monthly' as const }));
 
-  // ③ 取扱説明書（priority 0.5）
+  // ③ 開発者向け（priority 0.5）
+  const developers = [
+    '/developers/pos-api',
+  ].map((path) => ({ path, priority: 0.5, freq: 'monthly' as const }));
+
+  // ④ 取扱説明書（priority 0.5）
   const manual = [
     '/torisetsu',
     '/torisetsu/light-standard',
     '/torisetsu/pro',
   ].map((path) => ({ path, priority: 0.5, freq: 'monthly' as const }));
 
-  // ④ 法務・補助（priority 0.3）
+  // ⑤ 法務・補助（priority 0.3）
   const legal = [
     '/privacy',
     '/terms',
@@ -69,10 +80,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // ★ 除外（ログイン後画面 / 決済フロー / API）
   //   /pro-shop /shop /agency /affiliate /affilishop
   //   /subscribe /notification-link /payment
-  //   /system-admin /print /api
+  //   /system-admin /print /api /reset-password /upgrade /test
   //   → sitemap に含めない
 
-  return [...core, ...guides, ...manual, ...legal].map((p) => ({
+  return [...core, ...guides, ...developers, ...manual, ...legal].map((p) => ({
     url: new URL(p.path, appUrl).toString(),
     lastModified: now,
     changeFrequency: p.freq,

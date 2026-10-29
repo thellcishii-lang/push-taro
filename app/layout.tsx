@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   title: '店舗集客・リピーター施策ならPush-taro｜通知×クーポン',
   description:
-    'LINE公式アカウントの配信上限や従量課金に悩む店舗向け。Push-taroは、プッシュ通知とクーポンで実店舗のリピーターづくりを支援します。QRコード登録やクーポン自動配信に対応し、月額1,980円から。',
+    'LINE公式アカウントの配信上限や従量課金に悩む実店舗のための、店舗向けプッシュ通知アプリ。Push-taroは、プッシュ通知とクーポンで実店舗のリピーターづくりを支援します。QRコード登録やクーポン自動配信に対応し、月額1,980円から。',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

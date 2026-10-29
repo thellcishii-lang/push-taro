@@ -155,11 +155,6 @@ export default function QrAcquisitionClient() {
                 <div><div className="title">初回クーポン</div><div className="sub">登録時の特典</div></div>
                 <span className="arrow">→</span>
               </Link>
-              <Link href="/guide/themes/new-customer" className="g-related-card">
-                <span className="ico">🆕</span>
-                <div><div className="title">新規顧客の獲得</div><div className="sub">テーマ別ガイド</div></div>
-                <span className="arrow">→</span>
-              </Link>
               <Link href="/guide/ng-actions" className="g-related-card">
                 <span className="ico">⚠️</span>
                 <div><div className="title">NG行為集</div><div className="sub">強引な誘導はNG</div></div>

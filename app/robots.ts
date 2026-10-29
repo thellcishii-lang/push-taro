@@ -25,6 +25,9 @@ export default function robots(): MetadataRoute.Robots {
           '/system-admin',
           '/print',
           '/api/',
+          '/reset-password',
+          '/upgrade',
+          '/test',
         ],
       },
 

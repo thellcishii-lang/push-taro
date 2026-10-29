@@ -141,9 +141,8 @@ export default function CouponStepupClient() {
           <h2 className="g-h2"><span className="num">6</span>業種別の活用例</h2>
           <div className="g-grid">
             <Link href="/guide/cafe" className="g-card"><span className="g-card-icon">☕</span><h4>飲食店・カフェ</h4><p>「1回目：ドリンク50円引き → 5回目：デザート無料」</p></Link>
-            <Link href="/guide/salon" className="g-card"><span className="g-card-icon">💇</span><h4>美容室・サロン</h4><p>「1回目：トリートメント10%OFF → 5回目：ヘッドスパ無料」</p></Link>
-            <Link href="/guide/ramen" className="g-card"><span className="g-card-icon">🍜</span><h4>ラーメン店</h4><p>「3回目：味玉無料 → 5回目：チャーシュー増量」</p></Link>
-            <Link href="/guide/massage" className="g-card"><span className="g-card-icon">💆</span><h4>マッサージ</h4><p>「5回目：延長15分無料」</p></Link>
+            <div className="g-card"><span className="g-card-icon">💇</span><h4>美容室・サロン</h4><p>「1回目：トリートメント10%OFF → 5回目：ヘッドスパ無料」</p></div>
+            <div className="g-card"><span className="g-card-icon">🍜</span><h4>ラーメン店</h4><p>「3回目：味玉無料 → 5回目：チャーシュー増量」</p></div>
           </div>
 
           <div className="g-related">
@@ -157,11 +156,6 @@ export default function CouponStepupClient() {
               <Link href="/guide/features/coupon-repeat" className="g-related-card">
                 <span className="ico">🔄</span>
                 <div><div className="title">連続クーポン</div><div className="sub">消込で次回分発行</div></div>
-                <span className="arrow">→</span>
-              </Link>
-              <Link href="/guide/themes/repeat" className="g-related-card">
-                <span className="ico">📈</span>
-                <div><div className="title">リピート施策</div><div className="sub">テーマ別ガイド</div></div>
                 <span className="arrow">→</span>
               </Link>
             </div>

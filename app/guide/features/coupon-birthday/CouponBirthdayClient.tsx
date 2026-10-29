@@ -170,9 +170,8 @@ export default function CouponBirthdayClient() {
           <h2 className="g-h2"><span className="num">8</span>業種別の活用例</h2>
           <div className="g-grid">
             <Link href="/guide/cafe" className="g-card"><span className="g-card-icon">☕</span><h4>飲食店・カフェ</h4><p>「バースデーデザート無料」</p></Link>
-            <Link href="/guide/salon" className="g-card"><span className="g-card-icon">💇</span><h4>美容室・サロン</h4><p>「誕生日月は20%OFF」</p></Link>
-            <Link href="/guide/massage" className="g-card"><span className="g-card-icon">💆</span><h4>マッサージ</h4><p>「記念日は施術15%OFF」</p></Link>
-            <Link href="/guide/sushi" className="g-card"><span className="g-card-icon">🍣</span><h4>寿司店</h4><p>「記念日は乾杯ドリンクサービス」</p></Link>
+            <div className="g-card"><span className="g-card-icon">💇</span><h4>美容室・サロン</h4><p>「誕生日月は20%OFF」</p></div>
+            <div className="g-card"><span className="g-card-icon">🍣</span><h4>寿司店</h4><p>「記念日は乾杯ドリンクサービス」</p></div>
           </div>
 
           <div className="g-related">
@@ -186,11 +185,6 @@ export default function CouponBirthdayClient() {
               <Link href="/guide/features/coupon-loyalty" className="g-related-card">
                 <span className="ico">🏆</span>
                 <div><div className="title">特別達成クーポン</div><div className="sub">N回来店で解放</div></div>
-                <span className="arrow">→</span>
-              </Link>
-              <Link href="/guide/themes/birthday" className="g-related-card">
-                <span className="ico">🎂</span>
-                <div><div className="title">記念日・誕生日の使い方</div><div className="sub">テーマ別ガイド</div></div>
                 <span className="arrow">→</span>
               </Link>
             </div>

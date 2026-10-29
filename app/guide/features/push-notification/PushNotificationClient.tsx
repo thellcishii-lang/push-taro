@@ -122,9 +122,9 @@ export default function PushNotificationClient() {
           <h2 className="g-h2"><span className="num">6</span>業種別の活用例</h2>
           <div className="g-grid">
             <Link href="/guide/cafe" className="g-card"><span className="g-card-icon">☕</span><h4>飲食店・カフェ</h4><p>雨の日割引、本日の日替わりメニュー告知</p></Link>
-            <Link href="/guide/salon" className="g-card"><span className="g-card-icon">💇</span><h4>美容室・サロン</h4><p>空き枠のお知らせ、季節のスタイル紹介</p></Link>
+            <div className="g-card"><span className="g-card-icon">💇</span><h4>美容室・サロン</h4><p>空き枠のお知らせ、季節のスタイル紹介</p></div>
             <Link href="/guide/apparel" className="g-card"><span className="g-card-icon">👕</span><h4>アパレル</h4><p>新作入荷、セール開始の告知</p></Link>
-            <Link href="/guide/izakaya" className="g-card"><span className="g-card-icon">🍺</span><h4>バー・居酒屋</h4><p>本日のオススメ、スポーツ中継の告知</p></Link>
+            <div className="g-card"><span className="g-card-icon">🍺</span><h4>バー・居酒屋</h4><p>本日のオススメ、スポーツ中継の告知</p></div>
           </div>
 
           {/* 関連機能 */}

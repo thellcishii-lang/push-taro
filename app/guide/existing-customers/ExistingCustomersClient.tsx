@@ -517,14 +517,6 @@ export default function ExistingCustomersClient() {
       </div>
       <span className="arrow">→</span>
     </Link>
-    <Link href="/guide/themes/repeat" className="g-related-card">
-      <span className="ico">🔄</span>
-      <div>
-        <div className="title">リピート施策</div>
-        <div className="sub">3回来店で、お客様は定着する</div>
-      </div>
-      <span className="arrow">→</span>
-    </Link>
     <Link href="/guide/segmentation" className="g-related-card">
       <span className="ico">📊</span>
       <div>

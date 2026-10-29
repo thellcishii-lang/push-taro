@@ -115,9 +115,8 @@ export default function CouponFirstClient() {
           <h2 className="g-h2"><span className="num">6</span>業種別の活用例</h2>
           <div className="g-grid">
             <Link href="/guide/cafe" className="g-card"><span className="g-card-icon">☕</span><h4>飲食店・カフェ</h4><p>「ドリンク1杯無料」など、来店しやすい特典</p></Link>
-            <Link href="/guide/salon" className="g-card"><span className="g-card-icon">💇</span><h4>美容室・サロン</h4><p>「初回カット10%OFF」で予約のハードルを下げる</p></Link>
-            <Link href="/guide/massage" className="g-card"><span className="g-card-icon">💆</span><h4>マッサージ</h4><p>「初回15%OFF」で体験してもらう</p></Link>
-            <Link href="/guide/ramen" className="g-card"><span className="g-card-icon">🍜</span><h4>ラーメン店</h4><p>「次回トッピング無料」で2杯目を促す</p></Link>
+            <div className="g-card"><span className="g-card-icon">💇</span><h4>美容室・サロン</h4><p>「初回カット10%OFF」で予約のハードルを下げる</p></div>
+            <div className="g-card"><span className="g-card-icon">🍜</span><h4>ラーメン店</h4><p>「次回トッピング無料」で2杯目を促す</p></div>
           </div>
 
           <div className="g-related">

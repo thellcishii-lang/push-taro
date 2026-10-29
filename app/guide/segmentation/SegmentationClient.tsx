@@ -470,27 +470,11 @@ export default function SegmentationClient() {
           <div className="g-related">
             <h3>関連ガイド</h3>
             <div className="g-related-grid">
-              <Link href="/guide/why-push-taro" className="g-related-card">
-                <span className="ico">📖</span>
-                <div>
-                  <div className="title">なぜPush-taroなのか</div>
-                  <div className="sub">実店舗の売上が頭打ちになる本当の理由</div>
-                </div>
-                <span className="arrow">→</span>
-              </Link>
               <Link href="/guide/features/coupon-first" className="g-related-card">
                 <span className="ico">🎫</span>
                 <div>
                   <div className="title">初回クーポン</div>
                   <div className="sub">シンプルな仕組みから始める</div>
-                </div>
-                <span className="arrow">→</span>
-              </Link>
-              <Link href="/guide/themes/repeat" className="g-related-card">
-                <span className="ico">🔄</span>
-                <div>
-                  <div className="title">リピート施策</div>
-                  <div className="sub">3回来店で、お客様は定着する</div>
                 </div>
                 <span className="arrow">→</span>
               </Link>

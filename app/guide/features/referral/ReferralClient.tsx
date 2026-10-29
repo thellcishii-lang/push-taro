@@ -144,11 +144,6 @@ export default function ReferralClient() {
                 <div><div className="title">PROプラン取扱説明書</div><div className="sub">全機能の使い方</div></div>
                 <span className="arrow">→</span>
               </Link>
-              <Link href="/guide/program" className="g-related-card">
-                <span className="ico">👑</span>
-                <div><div className="title">収益化プログラム</div><div className="sub">代理店・アフィリエイト</div></div>
-                <span className="arrow">→</span>
-              </Link>
               <Link href="/guide/case-studies" className="g-related-card">
                 <span className="ico">📈</span>
                 <div><div className="title">導入事例</div><div className="sub">成果を出した店舗</div></div>
