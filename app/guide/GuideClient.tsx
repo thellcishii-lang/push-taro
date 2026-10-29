@@ -72,13 +72,13 @@ export default function GuideClient() {
               <span className="g-card-icon">🏪</span>
               <h4>【業種別】プッシュ通知が効く店舗・向いていない店舗</h4>
               <p>チラシを撒く業種は相性抜群。あなたの業種は？</p>
-　　　　　　　　　　　　　　　　　　　　　　　　</Link>
-　　　　　　　　　　　　　　　　　　　　　　　　<Link href="/guide/push-notification-roi" className="g-card is-new">
+            </Link>
+            <Link href="/guide/push-notification-roi" className="g-card is-new">
               <span className="g-card-new">NEW</span>
               <span className="g-card-icon">📈</span>
               <h4>プッシュ通知のCVRを最大化する配信頻度</h4>
               <p>登録者数と配信頻度の黄金律。LINEの上限との比較も。</p>
-　　　　　　　　　　　　　　　　　　　　　　　　</Link>
+            </Link>
             <Link href="/guide/security" className="g-card is-new">
               <span className="g-card-new">NEW</span>
               <span className="g-card-icon">🔒</span>
@@ -134,7 +134,7 @@ export default function GuideClient() {
             </Link>
             <Link href="/guide/features/store-pop" className="g-feature-card">
               <span className="g-feature-icon">🖨️</span>
-              <div className="g-feature-info"><h4>店頭POP印刷</h4><p>A4/A5のQRポップを管理画面から印刷</p></div>
+              <div className="g-feature-info"><h4>店頭POP印刷</h4><p>A4/B5のQRポップを管理画面から印刷</p></div>
               <span className="g-feature-tag is-std">STANDARD+</span>
             </Link>
             <Link href="/guide/features/coupon-stepup" className="g-feature-card">
@@ -239,7 +239,7 @@ export default function GuideClient() {
               <span className="g-card-icon">🎪</span>
               <h4>イベント・展示会の活用</h4>
               <p>短期催事での人件費削減と広告収益の作り方</p>
-　　　　　　　　　　　　　　　　　　　　　　　　</Link>
+            </Link>
             <Link href="/guide/ng-actions" className="g-card">
               <span className="g-card-icon">⚠️</span>
               <h4>NG行為集</h4>
