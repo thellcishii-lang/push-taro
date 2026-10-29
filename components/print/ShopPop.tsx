@@ -3,7 +3,7 @@ import QRBlock from './QRBlock';
 
 interface Props {
   data: ShopPopData;
-  size: 'a4' | 'a5';
+  size: 'a4' | 'b5'; // 👈 'a5' から 'b5' に変更
 }
 
 export default function ShopPop({ data, size }: Props) {
@@ -26,7 +26,8 @@ export default function ShopPop({ data, size }: Props) {
         </h2>
 
         <div className="shop-pop-qr">
-          <QRBlock value={subscribeUrl} size={size === 'a4' ? 285 : 175} />
+          {/* 👇 b5の時のQRサイズを調整 (175から200に拡大) */}
+          <QRBlock value={subscribeUrl} size={size === 'a4' ? 285 : 200} />
         </div>
       </div>
 
@@ -62,11 +63,12 @@ export default function ShopPop({ data, size }: Props) {
           padding: 18mm 16mm;
           page: page-a4v;
         }
-        .shop-pop--a5 {
-          width: 148mm;
-          height: 210mm;
-          padding: 10mm 10mm 8mm;
-          page: page-a5v;
+        /* 👇 a5 から b5 に変更 */
+        .shop-pop--b5 {
+          width: 182mm;
+          height: 257mm;
+          padding: 12mm 12mm 10mm;
+          page: page-b5v;
         }
 
         /* ============ 店舗名 ============ */
@@ -81,9 +83,10 @@ export default function ShopPop({ data, size }: Props) {
           flex-shrink: 0;
         }
         .shop-pop--a4 .shop-pop-name { font-size: 26pt; }
-        .shop-pop--a5 .shop-pop-name {
-          font-size: 15pt;
-          padding-bottom: 4mm;
+        /* 👇 a5 から b5 に変更（少し大きく） */
+        .shop-pop--b5 .shop-pop-name {
+          font-size: 18pt;
+          padding-bottom: 5mm;
         }
 
         /* ============ メイン ============ */
@@ -97,8 +100,8 @@ export default function ShopPop({ data, size }: Props) {
           padding: 6mm 0;
           min-height: 0;
         }
-        .shop-pop--a5 .shop-pop-mid {
-          padding: 3mm 0;
+        .shop-pop--b5 .shop-pop-mid {
+          padding: 5mm 0;
         }
 
         .shop-pop-lead {
@@ -113,10 +116,10 @@ export default function ShopPop({ data, size }: Props) {
           white-space: nowrap;
         }
         .shop-pop--a4 .shop-pop-lead { font-size: 12pt; }
-        .shop-pop--a5 .shop-pop-lead {
-          font-size: 8pt;
-          padding: 1.2mm 4mm;
-          margin-bottom: 3mm;
+        .shop-pop--b5 .shop-pop-lead {
+          font-size: 10pt;
+          padding: 1.5mm 5mm;
+          margin-bottom: 4mm;
         }
 
         .shop-pop-catch {
@@ -126,9 +129,9 @@ export default function ShopPop({ data, size }: Props) {
           margin: 0 0 8mm;
         }
         .shop-pop--a4 .shop-pop-catch { font-size: 30pt; }
-        .shop-pop--a5 .shop-pop-catch {
-          font-size: 17pt;
-          margin-bottom: 4mm;
+        .shop-pop--b5 .shop-pop-catch {
+          font-size: 22pt;
+          margin-bottom: 6mm;
           line-height: 1.25;
         }
         .shop-pop-catch .accent { color: #ff4500; }
@@ -143,8 +146,8 @@ export default function ShopPop({ data, size }: Props) {
           justify-content: center;
           line-height: 0;
         }
-        .shop-pop--a5 .shop-pop-qr {
-          padding: 3mm;
+        .shop-pop--b5 .shop-pop-qr {
+          padding: 4mm;
         }
 
         /* ============ 初回クーポン ============ */
@@ -159,9 +162,9 @@ export default function ShopPop({ data, size }: Props) {
           break-inside: avoid;
           page-break-inside: avoid;
         }
-        .shop-pop--a5 .shop-pop-perk {
-          margin-top: 3mm;
-          padding: 3mm 4mm;
+        .shop-pop--b5 .shop-pop-perk {
+          margin-top: 5mm;
+          padding: 4mm 5mm;
         }
 
         .shop-pop-perk-badge {
@@ -175,10 +178,10 @@ export default function ShopPop({ data, size }: Props) {
           letter-spacing: 0.08em;
         }
         .shop-pop--a4 .shop-pop-perk-badge { font-size: 10pt; }
-        .shop-pop--a5 .shop-pop-perk-badge {
-          font-size: 7pt;
-          padding: 0.6mm 2.5mm;
-          margin-bottom: 1.5mm;
+        .shop-pop--b5 .shop-pop-perk-badge {
+          font-size: 8pt;
+          padding: 0.8mm 3mm;
+          margin-bottom: 2mm;
         }
 
         .shop-pop-perk-title {
@@ -187,7 +190,7 @@ export default function ShopPop({ data, size }: Props) {
           line-height: 1.3;
         }
         .shop-pop--a4 .shop-pop-perk-title { font-size: 20pt; }
-        .shop-pop--a5 .shop-pop-perk-title { font-size: 12pt; }
+        .shop-pop--b5 .shop-pop-perk-title { font-size: 16pt; }
 
         .shop-pop-perk-desc {
           color: #7c2d12;
@@ -196,16 +199,16 @@ export default function ShopPop({ data, size }: Props) {
           line-height: 1.5;
         }
         .shop-pop--a4 .shop-pop-perk-desc { font-size: 10pt; }
-        .shop-pop--a5 .shop-pop-perk-desc {
-          font-size: 7.5pt;
-          margin-top: 1.2mm;
+        .shop-pop--b5 .shop-pop-perk-desc {
+          font-size: 9pt;
+          margin-top: 1.5mm;
         }
 
         /* ============ 印刷時の保険 ============ */
         @media print {
           .shop-pop { box-shadow: none; }
           .shop-pop--a4 { padding: 18mm 16mm !important; }
-          .shop-pop--a5 { padding: 10mm 10mm 8mm !important; }
+          .shop-pop--b5 { padding: 12mm 12mm 10mm !important; }
         }
       `}</style>
     </section>
