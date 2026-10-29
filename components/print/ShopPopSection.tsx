@@ -11,10 +11,10 @@ const SHOP_POP_MATERIALS = [
     pagesText: '1面',
   },
   {
-    type: 'a5',
-    label: '店頭ポップ A5',
+    type: 'b5', // 👈 'a5' から 'b5' に変更
+    label: '店頭ポップ B5', // 👈 A5 から B5 に変更
     description: 'コンパクトに置ける小さめサイズ。店舗QRコード入り。',
-    sizeText: 'B5（148×210mm）／片面',
+    sizeText: 'B5（182×257mm）／片面', // 👈 B5の寸法に修正
     pagesText: '1面',
   },
 ] as const;
