@@ -46,14 +46,26 @@ function PopContent() {
       .catch((e) => setError(e.message));
   }, [shopId]);
 
-  if (error) { /* 省略（元のコードのまま） */ }
-  if (!data) { /* 省略（元のコードのまま） */ }
+  if (error) {
+    return (
+      <main style={{ padding: 40, textAlign: 'center', fontFamily: 'sans-serif' }}>
+        <p style={{ color: '#dc2626' }}>{error}</p>
+        <button onClick={() => window.close()}>← 閉じる</button>
+      </main>
+    );
+  }
+
+  // 👇 ここで null チェックを確実に行う（これでビルドエラーが消えます）
+  if (!data) {
+    return <main style={{ padding: 40, textAlign: 'center' }}>読み込み中...</main>;
+  }
 
   const switchSize = (nextSize: 'a4' | 'b5') => {
     router.replace(`/shop/print/pop?s=${shopId}&size=${nextSize}`);
   };
 
   const returnTo = searchParams.get('returnTo') || '/shop';
+
   const handleClose = () => {
     window.close();
     setTimeout(() => { window.location.href = returnTo; }, 200);
@@ -61,25 +73,24 @@ function PopContent() {
 
   return (
     <>
-      {/* 👇 店頭ポップ専用のスタイル */}
+      {/* 👇 店頭ポップ専用のスタイル（他ページに影響させない） */}
       <style jsx global>{`
+        /* スマホ用の縮小設定 */
         @media screen and (max-width: 600px) {
           .shop-pop-preview-wrap > .shop-pop {
-            transform: scale(0.45) !important;
-            transform-origin: top center !important;
-            margin-bottom: -150mm !important;
+            zoom: 0.45; /* transformではなくzoomを使うことで、余白の残りを防ぐ */
           }
         }
         @media screen and (min-width: 601px) and (max-width: 900px) {
           .shop-pop-preview-wrap > .shop-pop {
-            transform: scale(0.65) !important;
-            transform-origin: top center !important;
-            margin-bottom: -80mm !important;
+            zoom: 0.65;
           }
         }
+        
+        /* 印刷用の設定（2ページになるのを防ぐ） */
         @media print {
           @page {
-            margin: 0;
+            margin: 0; /* ブラウザの余白を消す */
           }
           .shop-pop-preview-wrap {
             display: block !important;
@@ -87,9 +98,11 @@ function PopContent() {
             margin: 0 !important;
           }
           .shop-pop-preview-wrap > .shop-pop {
-            transform: scale(1) !important;
+            zoom: 1 !important; /* 印刷時は等倍に戻す */
             margin: 0 !important;
             box-shadow: none !important;
+            page-break-after: avoid;
+            page-break-inside: avoid;
           }
         }
       `}</style>
