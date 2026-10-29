@@ -196,6 +196,7 @@ export default function TorisetsuProClient() {
                 <li>「🏪 店舗設定」タブの「店頭POP（印刷用）」から印刷</li>
                 <li>A4縦・B5縦サイズの2種類から選択可能</li>
                 <li>印刷したQRコードをお客様が読み取ると、通知登録画面が開く</li>
+                <li><strong style={{ color: '#dc2626' }}>※お使いのブラウザやプリンターによっては、端が切れる場合があります。その場合は印刷設定で「余白なし」にするか、倍率を90〜95%に下げて調整してください。</strong></li>
               </ul>
             </div>
           </div>
