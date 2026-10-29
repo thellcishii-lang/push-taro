@@ -14,7 +14,7 @@ const SHOP_POP_MATERIALS = [
     type: 'a5',
     label: '店頭ポップ A5',
     description: 'コンパクトに置ける小さめサイズ。店舗QRコード入り。',
-    sizeText: 'A5（148×210mm）／片面',
+    sizeText: 'B5（148×210mm）／片面',
     pagesText: '1面',
   },
 ] as const;
