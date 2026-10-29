@@ -480,7 +480,7 @@ export default function HomeClient() {
                   </div>
                 </div>
                 <div className="qr-pop-content">
-                  <div className="qr-pop-feature"><div className="qr-pop-feature-icon">🖨️</div><div className="qr-pop-feature-body"><h4>A4 / A5、2サイズから選べる</h4><p>レジ横に立てるA4、カウンターに置くA5。店舗の状況に合わせて、ぴったりのサイズを印刷できます。</p></div></div>
+                  <div className="qr-pop-feature"><div className="qr-pop-feature-icon">🖨️</div><div className="qr-pop-feature-body"><h4>A4 / B5、2サイズから選べる</h4><p>レジ横やカウンターに設置。店舗の状況に合わせて、A4もしくはB5サイズにて印刷できます。</p></div></div>
                   <div className="qr-pop-feature"><div className="qr-pop-feature-icon">✨</div><div className="qr-pop-feature-body"><h4>店舗名とQRコード入り</h4><p>お客様はQRを読み取るだけ。アプリ不要、30秒で通知登録が完了します。</p></div></div>
                   <div className="qr-pop-feature"><div className="qr-pop-feature-icon">🎁</div><div className="qr-pop-feature-body"><h4>初回クーポンが設定されていれば、自動で表示</h4><p>「登録するとお得」ではなく、<strong>「登録すると、今すぐお得」</strong>。その場で特典が得られるから、登録率が爆発的に上がります。</p></div></div>
                   <div className="qr-pop-highlight"><strong>「今日、これ使えます」が最強の登録動機。</strong><p>お会計時に「これ、今日使えるから登録するとお得ですよ」と一言添えるだけ。<br />未来のお得ではなく、<strong>目の前のお得</strong>が、お客様の背中を押します。</p></div>
@@ -1062,7 +1062,7 @@ export default function HomeClient() {
                     <td className="col-pro"><span className="maru">○</span></td>
                   </tr>
                   <tr>
-                    <td>🖨️ 店頭ポップ印刷（A5）<span className="new-badge">NEW</span></td>
+                    <td>🖨️ 店頭ポップ印刷（B5）<span className="new-badge">NEW</span></td>
                     <td><span className="batsu">×</span></td>
                     <td className="col-standard"><span className="maru">○</span></td>
                     <td className="col-pro"><span className="maru">○</span></td>
