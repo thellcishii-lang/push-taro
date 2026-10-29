@@ -11,7 +11,9 @@ function PopContent() {
   const router = useRouter();
   const shopId = searchParams.get('s') || '';
   const sizeParam = searchParams.get('size');
-  const size: 'a4' | 'a5' = sizeParam === 'a5' ? 'a5' : 'a4';
+  
+  // 👇 a5 から b5 に変更
+  const size: 'a4' | 'b5' = sizeParam === 'b5' ? 'b5' : 'a4';
 
   const [data, setData] = useState<ShopPopData | null>(null);
   const [error, setError] = useState('');
@@ -67,7 +69,8 @@ function PopContent() {
     return <main style={{ padding: 40, textAlign: 'center' }}>読み込み中...</main>;
   }
 
-  const switchSize = (nextSize: 'a4' | 'a5') => {
+  // 👇 a5 から b5 に変更
+  const switchSize = (nextSize: 'a4' | 'b5') => {
     router.replace(`/shop/print/pop?s=${shopId}&size=${nextSize}`);
   };
 
@@ -84,12 +87,13 @@ function PopContent() {
     <div className="print-wrap">
       <div className="print-toolbar no-print">
         <div className="print-toolbar-info">
-          <strong>店頭ポップ（{size === 'a4' ? 'A4 縦' : 'A5 縦'}）</strong>
-          <span>{size === 'a4' ? '210×297mm' : '148×210mm'}／店頭掲示用</span>
+          {/* 👇 表示テキストとサイズをB5に変更 */}
+          <strong>店頭ポップ（{size === 'a4' ? 'A4 縦' : 'B5 縦'}）</strong>
+          <span>{size === 'a4' ? '210×297mm' : '182×257mm'}／店頭掲示用</span>
         </div>
         <div className="print-toolbar-actions">
-          <button onClick={() => switchSize(size === 'a4' ? 'a5' : 'a4')}>
-            📐 {size === 'a4' ? 'A5に切り替え' : 'A4に切り替え'}
+          <button onClick={() => switchSize(size === 'a4' ? 'b5' : 'a4')}>
+            📐 {size === 'a4' ? 'B5に切り替え' : 'A4に切り替え'}
           </button>
           <button className="primary" onClick={() => window.print()}>
             🖨️ 印刷 / PDF保存
