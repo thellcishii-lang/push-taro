@@ -76,8 +76,6 @@ export default function HomeClient() {
             <small>実店舗のためのプッシュ通知 × クーポンアプリ</small>
           </a>
           <div className="nav-links">
-            <a href="#why-now">なぜ今</a>
-            <a href="#philosophy">思想</a>
             <a href="#features">機能</a>
             <a href="#interface">画面</a>
             <a href="#comparison">他社比較</a>
@@ -1257,7 +1255,7 @@ export default function HomeClient() {
         </section>
       </main>
 
-      {/* FOOTER */}
+           {/* FOOTER */}
       <footer className="footer">
         <div className="container">
           <div className="footer-grid">
@@ -1289,15 +1287,18 @@ export default function HomeClient() {
               </div>
             </div>
             <div className="footer-links-wrap">
+              {/* 👇 サービスメニューを整理 */}
               <div className="footer-col">
                 <h4 className="footer-col-title">サービス</h4>
                 <ul className="footer-col-list">
                   <li><Link href="/">Push-taro トップ</Link></li>
-                  <li><Link href="/guide">活用ガイド</Link></li>
+                  <li><Link href="/guide/pos-integration">POSレジ連携</Link></li>
+                  <li><Link href="/guide/features/store-pop">店頭POP印刷</Link></li>
                   <li><Link href="/partners">収益化プログラム</Link></li>
-                  <li><Link href="/signup">PROプランで始める</Link></li>
                 </ul>
               </div>
+              
+              {/* 👇 ガイドメニューはこちらに集約 */}
               <div className="footer-col">
                 <h4 className="footer-col-title">活用ガイド</h4>
                 <ul className="footer-col-list">
@@ -1306,6 +1307,7 @@ export default function HomeClient() {
                   <li><Link href="/guide/ng-actions">NG行為集</Link></li>
                 </ul>
               </div>
+              
               <div className="footer-col">
                 <h4 className="footer-col-title">サポート</h4>
                 <ul className="footer-col-list">
@@ -1319,7 +1321,7 @@ export default function HomeClient() {
           </div>
           <div className="footer-bottom">
             <p className="footer-copy">&copy; 2026 Push-taro All Rights Reserved. ｜ 運営：the合同会社</p>
-            <p className="footer-address">〒357-0123 埼玉県飯能市中藤下郷23-21</p>
+            <p className="footer-address">〒357-0123 埼玉県飯能市中下郷23-21</p>
           </div>
         </div>
       </footer>
