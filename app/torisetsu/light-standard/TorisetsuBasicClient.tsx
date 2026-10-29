@@ -452,7 +452,7 @@ export default function TorisetsuBasicClient() {
               <strong>店頭POPの使い方</strong>
               <ul>
                 <li>「🏪 店舗設定」タブの「店頭POP（印刷用）」から印刷</li>
-                <li>A4縦・はがきサイズの2種類から選択可能</li>
+                <li>A4縦・B5縦サイズの2種類から選択可能</li>
                 <li>印刷したQRコードをお客様が読み取ると、通知登録画面が開く</li>
               </ul>
             </div>
@@ -474,14 +474,14 @@ export default function TorisetsuBasicClient() {
                 </div>
                 <div className="t-pop-btn">
                   <div className="t-pop-icon">📄</div>
-                  <div className="t-pop-label">はがき</div>
+                  <div className="t-pop-label">B5縦</div>
                 </div>
               </div>
               <span className="t-mockup-anno" style={{ top: '55%', left: '-10px' }}>①</span>
               <span className="t-mockup-anno" style={{ top: '72%', left: '-10px' }}>②</span>
             </div>
             <div className="t-annos">
-              <div className="t-anno"><span className="t-anno-num">①</span>A4縦 or はがきを選択</div>
+              <div className="t-anno"><span className="t-anno-num">①</span>A4縦 or B5縦を選択</div>
               <div className="t-anno"><span className="t-anno-num">②</span>印刷してレジ横に設置</div>
               <div className="t-anno-note">💡 お客様がQRを読み取るだけで通知登録完了</div>
             </div>
