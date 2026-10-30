@@ -137,7 +137,7 @@ export default function PartnersClient() {
               <div className="hero-stat-label">収益化プログラム</div>
             </div>
             <div className="hero-stat tilt-in" style={{ transitionDelay: '0.1s' }}>
-              <div className="hero-stat-num"><span className="count-up" data-count="500">500</span><small>店舗〜</small></div>
+              <div className="hero-stat-num"><span className="count-up" data-count="500">500</span><small>店舗獲得</small></div>
               <div className="hero-stat-label">最大年間報酬 約2,650万円</div>
             </div>
             <div className="hero-stat tilt-in" style={{ transitionDelay: '0.2s' }}>
