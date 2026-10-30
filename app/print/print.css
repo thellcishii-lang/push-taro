@@ -89,7 +89,7 @@
   @page { margin: 0; }
 
   @page page-a4v { size: 210mm 297mm; margin: 0; }
-  @page page-a5v { size: 148mm 210mm; margin: 0; }
+  @page page-b5v { size: 182mm 257mm; margin: 0; }
   @page page-a4h { size: 297mm 210mm; margin: 0; }
 
   html, body {
