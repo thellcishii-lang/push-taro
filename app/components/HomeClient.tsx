@@ -444,7 +444,7 @@ export default function HomeClient() {
                 <div className="setup-steps">
                   <div className="setup-step"><div className="setup-num">1</div><div className="setup-text"><strong>アカウント作成</strong><span>メールアドレスと店舗情報を入力</span></div></div>
                   <div className="setup-step"><div className="setup-num">2</div><div className="setup-text"><strong>クーポン設定</strong><span>タイトル・説明・有効期限を管理画面で</span></div></div>
-                  <div className="setup-step"><div className="setup-num">3</div><div className="setup-text"><strong>店頭ポップを印刷</strong><span>管理画面から、A4/A5ポップを印刷するだけ</span></div></div>
+                  <div className="setup-step"><div className="setup-num">3</div><div className="setup-text"><strong>店頭ポップを印刷</strong><span>管理画面から、A4/B5ポップを印刷するだけ</span></div></div>
                   <div className="setup-step is-final"><div className="setup-num">✓</div><div className="setup-text"><strong>通知を送信</strong><span>「本日の日替わりランチ！」を即配信</span></div></div>
                 </div>
                 <div className="setup-note"><strong>アカウント作成から最短10分。</strong><br />決済完了で、即時利用開始できます。</div>
@@ -471,7 +471,7 @@ export default function HomeClient() {
                     <div className="pop-qr"></div>
                     <div className="pop-perk"><span className="pop-perk-badge">初回限定</span><div className="pop-perk-title">🎁 初回限定 10%OFF</div></div>
                   </div>
-                  <div className="pop-a5">
+                  <div className="pop-b5">
                     <div className="pop-shop">Patisserie Taro</div>
                     <div className="pop-lead">＼ スマホで読み取るだけ ／</div>
                     <div className="pop-catch">お得な情報を<br /><span className="accent">プッシュ通知</span>で<br />お届けします</div>
@@ -556,7 +556,7 @@ export default function HomeClient() {
                 <div className="feature-card tilt-in" style={{ transitionDelay: '0.15s' }}>
                   <div className="feature-card-icon">🖨️</div>
                   <h4>店頭ポップ印刷</h4>
-                  <p>A4 / A5を管理画面から印刷。レジ横に置くだけで、お客様が自分から登録。</p>
+                  <p>A4 / B5を管理画面から印刷。レジ横に置くだけで、お客様が自分から登録。</p>
                 </div>
               </div>
             </div>
@@ -927,7 +927,7 @@ export default function HomeClient() {
                   <li><span className="maru">○</span><span><strong>通常クーポン</strong></span></li>
                   <li><span className="maru">○</span><span><strong>特別達成クーポン</strong></span></li>
                   <li><span className="maru">○</span><span><strong>開封率の確認</strong></span></li>
-                  <li><span className="maru">○</span><span><strong>店頭ポップ印刷（A4/A5）</strong><span className="new-badge">NEW</span></span></li>
+                  <li><span className="maru">○</span><span><strong>店頭ポップ印刷（A4/B5）</strong><span className="new-badge">NEW</span></span></li>
                   <li><span className="maru">○</span><span>拡大された配信枠（15,000通）</span></li>
                 </ul>
                 <Link href="/signup" className="plan-cta">STANDARDで始める</Link>
