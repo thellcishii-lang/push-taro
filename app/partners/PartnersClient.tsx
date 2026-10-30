@@ -450,11 +450,13 @@ export default function PartnersClient() {
       <div className="urgency-slots">
         <div className="urgency-slots-label">現在の受付状況</div>
         <div className="urgency-slots-bar">
-          <div className="urgency-slots-fill" style={{ width: '40%' }}></div>
+          {/* 40% から 66% にバーを伸ばす */}
+          <div className="urgency-slots-fill" style={{ width: '66%' }}></div>
         </div>
         <div className="urgency-slots-text">
-          <span>残り <strong>9社</strong>（6社 申込済み）</span>
-          <span>※ 2026年9月末時点</span>
+          {/* テキストを 残り5社 (10社申込済み) に変更 */}
+          <span>残り <strong>5社</strong>（10社 申込済み）</span>
+          <span>※ 2026年10月30日時点</span>
         </div>
       </div>
       <a href="#cta-final" className="urgency-cta">
