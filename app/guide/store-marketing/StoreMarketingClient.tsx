@@ -1,8 +1,10 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import BrandLogo from '@/components/BrandLogo';
-import './store-marketing.css';
+import PromoToolsModal from '@/components/PromoToolsModal';
+import './partners.css';
+import { faqs } from './data/faq';
 
 export default function StoreMarketingClient() {
   return (
