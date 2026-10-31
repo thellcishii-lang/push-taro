@@ -315,7 +315,70 @@ export default function StoreMarketingClient() {
           <p>
             <strong>予算の奪い合い</strong>が始まるのです。
           </p>
+           <p>
+            ここで、ひとつ大事な前提を整理します。
+          </p>
 
+          <p>
+            <strong>登録者数は、「未来の来た人も含めた、積み上がっていく総量」</strong>です。<br />
+            昨日来た人も、今日来た人も、明日来る人も、まだ見ぬ未来のお客様も——<br />
+            <strong>OPEN当初から登録してくれた人や、例えば3年前から登録してくれている人など</strong>、<br />
+            そのすべてが、登録者数に積み上がっていきます。
+          </p>
+
+          <p>
+            お店を続ける以上、登録者は増え続けます。<br />
+            <strong>登録者数に、上限をつけることはできません。</strong><br />
+            むしろ、増えていくことが、お店が愛されている証拠です。
+          </p>
+
+          <p>
+            そして、プッシュ通知の効果は、<br />
+            <strong>登録してくれた全員に、送ることを繰り返して、初めて出る</strong>ものです。<br />
+            1回や2回で終わるなら、意味はありません。<br />
+            全員に、繰り返し届ける。その積み重ねが、来店の習慣を育てます。
+          </p>
+
+          <Link href="/guide/push-notification-roi" className="next-article">
+            <div className="next-article-icon">📅</div>
+            <div className="next-article-body">
+              <div className="next-article-label">あわせて読みたい</div>
+              <div className="next-article-title">プッシュ通知は、どのくらいの頻度で配信するのがいいの？</div>
+              <div className="next-article-desc">
+                配信しすぎると解除され、少なすぎると忘れられる。<br />
+                業種別の最適な配信頻度と、登録者数の目安を解説します。
+              </div>
+            </div>
+            <div className="next-article-arrow">→</div>
+          </Link>
+
+          <div className="g-callout info">
+            <span className="ico">💡</span>
+            <div>
+              <p><strong>「登録者数」と「配信通数」は、単位が違う</strong></p>
+              <p>
+                登録者数は、積み上がっていく<strong>ストック</strong>。<br />
+                LINEの配信上限は、月あたりの<strong>フロー</strong>。<br />
+                この2つを、直接比べることはできません。
+              </p>
+            </div>
+          </div>
+
+          <div className="g-callout danger">
+            <span className="ico">🚨</span>
+            <div>
+              <p><strong>配信上限は、リピート施策そのものを殺す</strong></p>
+              <p>
+                お店を続ければ、登録者は増え続けます。<br />
+                なのに配信に上限があると、<strong>増えた分だけ、全員に届けられなくなる</strong>。<br />
+                せっかくリピート率の改善のために導入した仕組みが、<br />
+                <strong>「上限に達したから、配信を控える」</strong>——そんな状態に陥ります。<br /><br />
+                これでは、<strong>導入した意味がありません</strong>。<br />
+                登録者が増えるほど、強くなる。<br />
+                それが、本来のリピート施策のあるべき姿です。
+              </p>
+            </div>
+          </div>
           <div className="wall-box">
             <div className="wall-box-inner">
               <div className="wall-box-label">THE WALL</div>
