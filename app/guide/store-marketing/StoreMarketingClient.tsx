@@ -254,68 +254,7 @@ export default function StoreMarketingClient() {
             LINE Businessには、プランごとに、配信上限があります。
           </p>
 
-          <div className="g-table-wrap">
-            <table className="g-table">
-              <thead>
-                <tr>
-                  <th>プラン</th>
-                  <th>月額</th>
-                  <th>配信上限</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>コミュニケーション</td>
-                  <td>無料</td>
-                  <td>200通</td>
-                </tr>
-                <tr>
-                  <td>ライト</td>
-                  <td>¥5,000</td>
-                  <td>5,000通</td>
-                </tr>
-                <tr>
-                  <td>スタンダード</td>
-                  <td>¥15,000</td>
-                  <td>30,000通</td>
-                </tr>
-                <tr>
-                  <td>プロ</td>
-                  <td>¥50,000</td>
-                  <td>無制限</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
           <p>
-            たとえば、ライトプラン。<br />
-            月額¥5,000で、5,000通。
-          </p>
-
-          <p>
-            これは、<strong>1,000人の友達に、月5回配信したら、終わり</strong>です。
-          </p>
-
-          <p>
-            もっと能動的に配信しようとすれば、<br />
-            スタンダードプラン（月額¥15,000）、<br />
-            それでも足りなければ、プロプラン（月額¥50,000）。
-          </p>
-
-          <p>
-            すると、店舗オーナーは、こう考えます。
-          </p>
-
-          <div className="g-quote">
-            「この配信費を払うなら、<br />
-            広告に回した方がいいのでは？」
-          </div>
-
-          <p>
-            <strong>予算の奪い合い</strong>が始まるのです。
-          </p>
-           <p>
             ここで、ひとつ大事な前提を整理します。
           </p>
 
@@ -379,6 +318,69 @@ export default function StoreMarketingClient() {
               </p>
             </div>
           </div>
+
+          <div className="g-table-wrap">
+            <table className="g-table">
+              <thead>
+                <tr>
+                  <th>プラン</th>
+                  <th>月額</th>
+                  <th>配信上限</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>コミュニケーション</td>
+                  <td>無料</td>
+                  <td>200通</td>
+                </tr>
+                <tr>
+                  <td>ライト</td>
+                  <td>¥5,000</td>
+                  <td>5,000通</td>
+                </tr>
+                <tr>
+                  <td>スタンダード</td>
+                  <td>¥15,000</td>
+                  <td>30,000通</td>
+                </tr>
+                <tr>
+                  <td>プロ</td>
+                  <td>¥50,000</td>
+                  <td>無制限</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            たとえば、ライトプラン。<br />
+            月額¥5,000で、5,000通。
+          </p>
+
+          <p>
+            これは、<strong>1,000人の友達に、月5回配信したら、終わり</strong>です。
+          </p>
+
+          <p>
+            もっと能動的に配信しようとすれば、<br />
+            スタンダードプラン（月額¥15,000）、<br />
+            それでも足りなければ、プロプラン（月額¥50,000）。
+          </p>
+
+          <p>
+            すると、店舗オーナーは、こう考えます。
+          </p>
+
+          <div className="g-quote">
+            「この配信費を払うなら、<br />
+            広告に回した方がいいのでは？」
+          </div>
+
+          <p>
+            <strong>予算の奪い合い</strong>が始まるのです。
+          </p>
+
           <div className="wall-box">
             <div className="wall-box-inner">
               <div className="wall-box-label">THE WALL</div>
@@ -625,51 +627,50 @@ export default function StoreMarketingClient() {
           </p>
 
           {/* 関連ガイド */}
-<div className="g-related">
-  <h3>次に読む</h3>
-  <div className="g-related-grid">
-    {/* ★ ここに挿入 */}
-    <Link href="/guide/line-comparison" className="g-related-card is-next">
-      <span className="ico">📊</span>
-      <div>
-        <div className="title">LINE公式アカウントとの比較</div>
-        <div className="sub">配信上限という壁を、数字で解説</div>
-      </div>
-      <span className="arrow">→</span>
-    </Link>
-    {/* ★ 挿入ここまで */}
-    <Link href="/guide/push-notification-metrics" className="g-related-card is-next">
-      <span className="ico">📊</span>
-      <div>
-        <div className="title">プッシュ通知のCVRは、何%あればいいのか</div>
-        <div className="sub">CTRとCVRのベンチマークを、データで解説</div>
-      </div>
-      <span className="arrow">→</span>
-    </Link>
-  </div>
-</div>
+          <div className="g-related">
+            <h3>次に読む</h3>
+            <div className="g-related-grid">
+              <Link href="/guide/line-comparison" className="g-related-card is-next">
+                <span className="ico">📊</span>
+                <div>
+                  <div className="title">LINE公式アカウントとの比較</div>
+                  <div className="sub">配信上限という壁を、数字で解説</div>
+                </div>
+                <span className="arrow">→</span>
+              </Link>
+              <Link href="/guide/push-notification-metrics" className="g-related-card is-next">
+                <span className="ico">📊</span>
+                <div>
+                  <div className="title">プッシュ通知のCVRは、何%あればいいのか</div>
+                  <div className="sub">CTRとCVRのベンチマークを、データで解説</div>
+                </div>
+                <span className="arrow">→</span>
+              </Link>
+            </div>
+          </div>
 
-<div className="g-related" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e2e8f0' }}>
-  <h3>あわせて読みたい</h3>
-  <div className="g-related-grid">
-    <Link href="/guide/existing-customers" className="g-related-card">
-      <span className="ico">👥</span>
-      <div>
-        <div className="title">既存客の囲い込み</div>
-        <div className="sub">売上が頭打ちになる、本当の理由</div>
-      </div>
-      <span className="arrow">→</span>
-    </Link>
-    <Link href="/guide/segmentation" className="g-related-card">
-      <span className="ico">📊</span>
-      <div>
-        <div className="title">セグメント配信とは</div>
-        <div className="sub">実店舗では「使えない」理由</div>
-      </div>
-      <span className="arrow">→</span>
-    </Link>
-  </div>
-</div>
+          <div className="g-related" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e2e8f0' }}>
+            <h3>あわせて読みたい</h3>
+            <div className="g-related-grid">
+              <Link href="/guide/existing-customers" className="g-related-card">
+                <span className="ico">👥</span>
+                <div>
+                  <div className="title">既存客の囲い込み</div>
+                  <div className="sub">売上が頭打ちになる、本当の理由</div>
+                </div>
+                <span className="arrow">→</span>
+              </Link>
+              <Link href="/guide/segmentation" className="g-related-card">
+                <span className="ico">📊</span>
+                <div>
+                  <div className="title">セグメント配信とは</div>
+                  <div className="sub">実店舗では「使えない」理由</div>
+                </div>
+                <span className="arrow">→</span>
+              </Link>
+            </div>
+          </div>
+
           {/* CTA */}
           <div className="g-cta">
             <h3>配信上限の壁を、外す。</h3>
