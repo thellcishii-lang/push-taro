@@ -5,9 +5,9 @@ import StoreMarketingClient from './StoreMarketingClient';
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 
 export const metadata: Metadata = {
-  title: '実店舗の集客、全部やるのは当たり前。問題は、その「後」。｜Push-taro',
+  title: '実店舗の集客には何をするべきか。｜Push-taro',
   description:
-    '広告、ポータル、LP、SNS、LINE。どれも必要で、全部やる時代です。でも、それだけでは足りない。1回来店してくれたお客様への施策が、ほとんどの店舗で抜けています。LINE Businessの配信上限という壁と、Push-taroがその壁をどう外したかを解説します。',
+    '広告、ポータル、LP、SNS、LINE。どれも必要で、全てをやる時代です。でも、それだけでは足りない。1回来店してくれたお客様への施策が、ほとんどの店舗で抜けています。LINE Businessの配信上限という壁と、Push-taroがその壁をどう外したかを解説します。',
   keywords: [
     '実店舗 集客',
     '実店舗 リピート施策',
