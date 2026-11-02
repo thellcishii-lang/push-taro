@@ -26,14 +26,14 @@ export const metadata: Metadata = {
     '実店舗 集客',
     'Push-taro',
   ],
-  alternates: { canonical: '/' },
+  alternates: { canonical: appUrl }, // 相対パスから環境変数を使った絶対URLへ変更
   openGraph: {
     type: 'website',
     locale: 'ja_JP',
     title: '店舗集客・リピーター施策ならPush-taro｜通知×クーポン',
     description:
       'LINE公式アカウントの配信上限や従量課金に悩む実店舗のための、店舗向けプッシュ通知アプリ。プッシュ通知とクーポンでリピーターづくりを支援。月額1,980円から。',
-    url: '/',
+    url: appUrl,
     siteName: 'Push-taro',
   },
   twitter: {
@@ -119,31 +119,34 @@ const softwareJsonLd = {
   offers: {
     '@type': 'AggregateOffer',
     priceCurrency: 'JPY',
-    lowPrice: '1980',
-    highPrice: '10000',
-    offerCount: '3',
+    lowPrice: 1980,  // 数値型に変更
+    highPrice: 10000, // 数値型に変更
+    offerCount: 3,    // 数値型に変更
     offers: [
       {
         '@type': 'Offer',
         name: 'LIGHT',
-        price: '1980',
+        price: 1980,  // 数値型に変更
         priceCurrency: 'JPY',
+        valueAddedTaxIncluded: false, // 税別であることを明記
         description: '月間5,000通まで配信可能。初回クーポン、QRコード登録などの基本機能。',
         url: `${appUrl}/#pricing`,
       },
       {
         '@type': 'Offer',
         name: 'STANDARD',
-        price: '3800',
+        price: 3800,  // 数値型に変更
         priceCurrency: 'JPY',
+        valueAddedTaxIncluded: false,
         description: '月間15,000通まで配信可能。通常クーポン、特別達成クーポン、店頭ポップ印刷機能。',
         url: `${appUrl}/#pricing`,
       },
       {
         '@type': 'Offer',
         name: 'PRO',
-        price: '10000',
+        price: 10000, // 数値型に変更
         priceCurrency: 'JPY',
+        valueAddedTaxIncluded: false,
         description: '配信無制限。全7種類のクーポン機能、予約配信、紹介報酬制度。',
         url: `${appUrl}/#pricing`,
       },
