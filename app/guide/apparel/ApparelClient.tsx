@@ -378,7 +378,7 @@ export default function ApparelClient() {
                 </tr>
                 <tr>
                   <td>季節セール</td>
-                  <td>予約配信・プッシュ通知</td>
+                  <td>プッシュ通知</td>
                   <td className="yes">全プラン</td>
                 </tr>
                 <tr>
