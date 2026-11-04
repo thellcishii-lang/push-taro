@@ -136,48 +136,6 @@ export default function HomeClient() {
           </div>
         </section>
 
-        {/* WHAT IS */}
-        <section className="section what-is-section" id="what-is">
-          <div className="container">
-            <div className="what-is-card reveal">
-              <span className="section-tag">What is Push-taro</span>
-              <h2>Push-taroとは</h2>
-              <p className="what-is-lead">
-                Push-taroは、実店舗のための<strong>「プッシュ通知 × クーポンアプリ」</strong>です。<br />
-                顧客データを集めず、QRコード一つで始められる、<br />
-                新しいカタチのリピート施策ツール。
-              </p>
-              <div className="what-is-qa">
-                <h3 className="what-is-qa-q">
-                  <span className="q-mark">Q.</span>
-                  Push-taro（プッシュタロー）の利用料金はいくらですか？
-                </h3>
-                <p className="what-is-qa-a">
-                  Push-taroは、実店舗の規模に合わせて選べる明快な料金プランをご用意しています。<br />
-                  小規模店舗向けの<strong>「LIGHTプラン」なら月額1,980円（月間5,000通まで）</strong>、<br />
-                  大型店舗や複数店舗向けの<strong>「PROプラン」なら月額10,000円で配信無制限</strong>でご利用いただけます。<br />
-                  追加の従量課金は一切ありません。
-                </p>
-                <a href="#pricing" className="what-is-qa-link">詳しい機能と料金プランを見る →</a>
-              </div>
-              <div className="what-is-points">
-                <div className="what-is-point">
-                  <span className="what-is-point-icon">📢</span>
-                  <div><strong>プッシュ通知</strong><p>ホーム画面に、直接届く</p></div>
-                </div>
-                <div className="what-is-point">
-                  <span className="what-is-point-icon">🎫</span>
-                  <div><strong>クーポンアプリ</strong><p>クーポンは、自動で反映</p></div>
-                </div>
-                <div className="what-is-point">
-                  <span className="what-is-point-icon">🔒</span>
-                  <div><strong>顧客情報を、取らない</strong><p>電話番号だけ。漏れるリスクを最小化</p></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* WHY NOW */}
         <section className="section" id="why-now">
           <div className="container">
