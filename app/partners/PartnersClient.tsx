@@ -409,7 +409,7 @@ export default function PartnersClient() {
           <div className="market-grid">
             <div className="market-card tilt-in">
               <div className="number">
-                ~<span className="count-up num-main" data-count="6">6</span><span className="num-suffix">倍</span>
+                ~<span className="count-up num-main" data-count="3">3</span><span className="num-suffix">倍</span>
               </div>
               <p>メルマガ比の開封率</p>
             </div>
@@ -947,7 +947,7 @@ export default function PartnersClient() {
             </div>
 
             <p className="promo-caption">
-              <strong>三つ折りパンフ／A4チラシ／A5チラシ／名刺／カード</strong><br />
+              <strong>三つ折りパンフ／A4チラシ／B5チラシ／名刺／カード</strong><br />
               すべて会社名・紹介コード入りでダウンロード可能
             </p>
           </div>
