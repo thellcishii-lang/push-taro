@@ -91,7 +91,7 @@ export default function HomeClient() {
           <div className="hero-inner">
             <div className="hero-badge reveal">
               <span className="dot-live"></span>
-              2026年9月 正式リリース・先行登録受付中
+              2026年9月 正式リリース
             </div>
             <h1 className="reveal" style={{ transitionDelay: '0.1s' }}>
               実店舗のリピートを、<br />
@@ -1208,7 +1208,7 @@ export default function HomeClient() {
                 📩 まずはご相談
               </Link>
             </div>
-            <div className="cta-note">※ 2026年9月 正式リリース。現在、先行登録受付中です。</div>
+            <div className="cta-note">※ 2026年9月 正式リリース。</div>
           </div>
         </section>
       </main>

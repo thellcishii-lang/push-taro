@@ -34,7 +34,7 @@ export default function LeafletA4({ data }: Props) {
             </svg>
             <div className="a4-logo">Push-taro<span>.</span></div>
           </div>
-          <div className="a4-badge">先行登録受付中</div>
+          <div className="a4-badge">2026年9月 正式リリース</div>
         </div>
         <div className="a4-front-mid">
           <div className="a4-lead">実店舗向けプッシュ通知・クーポンアプリ</div>

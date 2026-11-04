@@ -38,7 +38,7 @@ export default function Card({ data }: Props) {
               </svg>
               <div className="cd-logo">Push-taro<span>.</span></div>
             </div>
-            <div className="cd-badge">先行登録受付中</div>
+            <div className="cd-badge">2026年9月 正式リリース</div>
           </div>
 
           <div className="cd-front-mid">

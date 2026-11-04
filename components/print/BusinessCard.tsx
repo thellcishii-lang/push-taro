@@ -45,7 +45,7 @@ export default function BusinessCard({ data }: Props) {
               </svg>
               <div className="bc-logo">Push-taro<span>.</span></div>
             </div>
-            <div className="bc-badge">先行登録受付中</div>
+            <div className="bc-badge">2026年9月 正式リリース</div>
           </div>
 
           <div className="bc-front-mid">

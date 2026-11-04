@@ -191,7 +191,7 @@ export default function SuperClient() {
                 <tr>
                   <td>〜500人</td>
                   <td>毎日</td>
-                  <td className="yes">LIGHT（¥1,980）</td>
+                  <td className="yes">STANDARD（¥3,800）</td>
                 </tr>
                 <tr>
                   <td>〜1,000人</td>

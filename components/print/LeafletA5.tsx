@@ -34,7 +34,7 @@ export default function LeafletB5({ data }: Props) {
             </svg>
             <div className="b5-logo">Push-taro<span>.</span></div>
           </div>
-          <div className="b5-badge">先行登録受付中</div>
+          <div className="b5-badge">2026年9月 正式リリース</div>
         </div>
         <div className="b5-front-mid">
           <div className="b5-lead">実店舗向けプッシュ通知・クーポンアプリ</div>

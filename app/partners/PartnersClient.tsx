@@ -112,7 +112,7 @@ export default function PartnersClient() {
         <div className="container">
           <div className="hero-badge reveal">
             <span className="dot"></span>
-            2026年9月サービス開始・先行登録受付中
+            2026年9月サービス開始
           </div>
           <h1 className="reveal">
             みんなで広げる、<br />

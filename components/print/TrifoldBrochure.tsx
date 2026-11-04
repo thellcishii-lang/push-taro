@@ -190,7 +190,7 @@ export default function TrifoldBrochure({ data }: Props) {
               </svg>
               <div className="tf-cover-logo">Push-taro<span>.</span></div>
             </div>
-            <div className="tf-cover-badge">先行登録受付中</div>
+            <div className="tf-cover-badge">2026年9月 正式リリース</div>
           </div>
 
           <div className="tf-cover-mid">
