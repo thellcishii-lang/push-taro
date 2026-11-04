@@ -514,18 +514,18 @@ export default function StoreMarketingClient() {
           </p>
 
           <p>
-            そして、<strong>2店舗を紹介すると、¥6,600</strong>。<br />
+            そして、<strong>2店舗を紹介すると、¥6,000税別</strong>。<br />
             紹介報酬20%×2件で、40%OFFになる計算です。
           </p>
 
           <div className="g-quote is-orange">
             配信無制限で、<br />
-            月額¥6,600。
+            月額¥6,000税別。
           </div>
 
           <p>
             LINE Businessで、配信無制限にしようとすれば、<br />
-            プロプラン（月額¥50,000）が必要です。
+            STANDARDプラン（月額¥15,000+３万通以上は従量課金一通３円）が必要となります。
           </p>
 
           <p>
