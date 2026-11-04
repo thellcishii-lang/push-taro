@@ -28,7 +28,7 @@ export default function PushNotificationClient() {
           <h1>📢 プッシュ通知</h1>
           <p>
             登録済みのお客様全員に、一斉に通知を配信する基本機能です。
-            タイトル・本文・リンク先URLを自由に設定でき、開封率はなんと！メルマガの約6倍。
+            タイトル・本文・リンク先URLを自由に設定でき、開封率はなんと！メルマガの約3倍。
           </p>
         </div>
 
@@ -151,7 +151,7 @@ export default function PushNotificationClient() {
 
           <div className="g-cta">
             <h3>プッシュ通知で、確実にリピートを促す</h3>
-            <p>メルマガの約6倍の開封率。Push-taroなら、登録者全員に一斉配信できます。</p>
+            <p>メルマガの約3倍の開封率。Push-taroなら、登録者全員に一斉配信できます。</p>
             <Link href="/signup" className="g-cta-btn">無料相談・資料請求 →</Link>
           </div>
         </div>

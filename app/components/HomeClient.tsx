@@ -1123,7 +1123,7 @@ export default function HomeClient() {
                 <p>紹介した店舗のプラン・契約数に応じて報酬率がステップアップ。中長期的に安定した収益源になります。</p>
                 <ul>
                   <li>PRO 30% / その他 18%（基本）</li>
-                  <li>100社紹介で 36%、200社以上で 45%</li>
+                  <li>101社紹介で 36%、201社以上で 45%</li>
                   <li>加盟金 ¥300,000 + 月額 ¥30,000</li>
                 </ul>
                 <Link href="/agency" className="partner-cta">詳細を見る →</Link>

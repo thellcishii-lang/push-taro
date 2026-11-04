@@ -106,7 +106,7 @@ export default function LeafletA4({ data }: Props) {
               <h3 className="a4-sec-title"><span className="a4-sec-num">3</span>お店が欲しい機能満載。</h3>
               <div className="a4-feature-list">
                 {[
-                  { ico: '📢', name: 'プッシュ通知', badges: ['all'], desc: 'お客様全員へ一斉配信。開封率6倍。' },
+                  { ico: '📢', name: 'プッシュ通知', badges: ['all'], desc: 'お客様全員へ一斉配信。開封率はメールの約3倍。' },
                   { ico: '📱', name: 'QRコード登録', badges: ['all'], desc: 'QRを読み取るだけ。アプリ不要。' },
                   { ico: '🎫', name: '初回クーポン', badges: ['all'], desc: '登録と同時に自動配布。' },
                   { ico: '🎟️', name: '通常クーポン', badges: ['std', 'pro'], desc: '何度でも使える常設クーポン。' },

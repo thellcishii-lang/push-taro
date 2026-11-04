@@ -5,9 +5,9 @@ import PushNotificationClient from './PushNotificationClient';
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 
 export const metadata: Metadata = {
-  title: '店舗のプッシュ通知の送り方・設定方法｜メルマガの代わりに開封率6倍の一斉配信｜Push-taro',
+  title: '店舗のプッシュ通知の送り方・設定方法｜メルマガの代わりに開封率3倍の一斉配信｜Push-taro',
   description:
-    '登録済みのお客様全員に、一斉に通知を配信する基本機能。タイトル・本文・リンク先URLを自由に設定でき、開封率はメルマガの約6倍。セール告知や新商品入荷など、店舗の「今」をリアルタイムで届けます。',
+    '登録済みのお客様全員に、一斉に通知を配信する基本機能。タイトル・本文・リンク先URLを自由に設定でき、開封率はメルマガの約3倍。セール告知や新商品入荷など、店舗の「今」をリアルタイムで届けます。',
   keywords: [
     '店舗 プッシュ通知 やり方',
     'プッシュ通知 送り方',
@@ -22,14 +22,14 @@ export const metadata: Metadata = {
     type: 'article',
     locale: 'ja_JP',
     title: '店舗のプッシュ通知の送り方・設定方法｜Push-taro',
-    description: '登録者全員に一斉配信。開封率はメルマガの約6倍。店舗の「今」をリアルタイムで届けます。',
+    description: '登録者全員に一斉配信。開封率はメルマガの約3倍。店舗の「今」をリアルタイムで届けます。',
     url: '/guide/features/push-notification',
     siteName: 'Push-taro',
   },
   twitter: {
     card: 'summary_large_image',
     title: '店舗のプッシュ通知の送り方・設定方法｜Push-taro',
-    description: '登録者全員に一斉配信。開封率はメルマガの約6倍。',
+    description: '登録者全員に一斉配信。開封率はメルマガの約3倍。',
   },
   robots: {
     index: true,
@@ -47,7 +47,7 @@ const articleJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Article',
   headline: '店舗のプッシュ通知の送り方・設定方法',
-  description: '登録済みのお客様全員に、一斉に通知を配信する基本機能。開封率はメルマガの約6倍。',
+  description: '登録済みのお客様全員に、一斉に通知を配信する基本機能。開封率はメルマガの約3倍。',
   author: { '@id': `${appUrl}/#organization` },
   publisher: { '@id': `${appUrl}/#organization` },
   datePublished: '2026-10-19',

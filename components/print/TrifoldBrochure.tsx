@@ -319,7 +319,7 @@ export default function TrifoldBrochure({ data }: Props) {
 
           <div className="tf-detail-list">
             {[
-              { ico: '📢', name: 'プッシュ通知', badges: ['all'], desc: 'お客様全員へ一斉配信。メルマガの6倍の開封率。' },
+              { ico: '📢', name: 'プッシュ通知', badges: ['all'], desc: 'お客様全員へ一斉配信。メルマガの約3倍の開封率。' },
               { ico: '📱', name: 'QRコード登録', badges: ['all'], desc: 'お客様はQRを読み取るだけ。アプリ不要で通知登録。' },
               { ico: '🎫', name: '初回クーポン', badges: ['all'], desc: '登録と同時に自動配布。二重利用は自動ブロック。' },
               { ico: '🎟️', name: '通常クーポン', badges: ['std', 'pro'], desc: '登録者が何度でも使える、常設クーポン。' },
