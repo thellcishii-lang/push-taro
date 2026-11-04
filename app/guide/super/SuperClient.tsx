@@ -334,7 +334,7 @@ export default function SuperClient() {
                 </tr>
                 <tr>
                   <td>毎日の特売配信</td>
-                  <td>プッシュ通知・予約配信</td>
+                  <td>プッシュ通知</td>
                   <td className="yes">全プラン</td>
                 </tr>
                 <tr>
