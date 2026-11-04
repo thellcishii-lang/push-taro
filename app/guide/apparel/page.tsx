@@ -58,7 +58,7 @@ const articleJsonLd = {
   author: { '@id': `${appUrl}/#organization` },
   publisher: { '@id': `${appUrl}/#organization` },
   datePublished: '2026-10-16',
-  dateModified: '2026-10-16',
+  dateModified: '2026-11-04',
   mainEntityOfPage: { '@type': 'WebPage', '@id': `${appUrl}/guide/apparel` },
   inLanguage: 'ja-JP',
 };
