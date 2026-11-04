@@ -306,12 +306,12 @@ export default function CafeClient() {
               <tbody>
                 <tr>
                   <td>毎朝10時のランチ配信</td>
-                  <td>予約配信・プッシュ通知</td>
+                  <td>プッシュ通知</td>
                   <td className="yes">全プラン</td>
                 </tr>
                 <tr>
                   <td>週2回のスイーツ配信</td>
-                  <td>予約配信・プッシュ通知</td>
+                  <td>プッシュ通知</td>
                   <td className="yes">全プラン</td>
                 </tr>
                 <tr>
