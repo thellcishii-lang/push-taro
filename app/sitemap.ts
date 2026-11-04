@@ -56,6 +56,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/guide/cafe',
     '/guide/snack',
     '/guide/apparel',
+    '/guide/apparel-ai-video',
   ].map((path) => ({ path, priority: 0.7, freq: 'monthly' as const }));
 
   // ③ 開発者向け（priority 0.5）

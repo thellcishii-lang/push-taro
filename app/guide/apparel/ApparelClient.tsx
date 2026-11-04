@@ -418,108 +418,37 @@ export default function ApparelClient() {
           </div>
 
           {/* ============================================================
-              6. マネキンの写真1枚で、「着用動画」が作れる
+              6. マネキンの写真1枚で着用動画の作り方！
           ============================================================ */}
-          <h2><span className="num">6</span>マネキンの写真1枚で、「着用動画」が作れる</h2>
+          <h2><span className="num">6</span>マネキンの写真1枚で着用動画の作り方！</h2>
+
+          <img
+            className="g-img is-narrow"
+            src="/guide/apparel-ai-video/wearing.jpg"
+            alt="マネキンの写真からAIで生成した、ワンピースの着用イメージ（ワンショット）"
+          />
+          <p className="g-img-cap">マネキンの静止画から、AIが生成した着用イメージ。これが動画になります</p>
 
           <p>
-            「着回し」「使用風景」が大事とはいえ、<strong>モデル撮影は、コストも手間もかかる</strong>。<br />
-            そこで今、使える方法があります。<br />
-            <strong>マネキンに着せた写真1枚から、AIで「着用イメージ動画」を作る</strong>方法です。
+            「着回し」「使用風景」を伝える一番の近道は、<strong>動画</strong>です。<br />
+            でも、モデル撮影はコストも手間もかかる。
           </p>
 
           <p>
-            Push-taro公式Instagramで、実際に作って公開した手順を、そのまま紹介します。<br />
-            必要なのは、<strong>マネキンの写真1枚</strong>と、<strong>AIへの一言</strong>だけです。
+            実は今、<strong>マネキンに着せた写真1枚</strong>をAIアシスタントの<strong>「Muse」</strong>に渡して一言頼むだけで、<br />
+            歩く・回る・BGM付きの<strong>着用イメージ動画</strong>が作れます。<br />
+            実際に作って、Push-taro公式Instagramで公開しました。
           </p>
-
-          <div className="g-steps">
-            <div className="g-step">
-              <div className="g-step-body">
-                <h4>① マネキンに着せて、スマホで撮る</h4>
-                <p>モデルも、カメラマンも不要です。店頭のマネキン（トルソー）に着せた状態を、そのまま撮影します。</p>
-              </div>
-            </div>
-            <div className="g-step">
-              <div className="g-step-body">
-                <h4>② AIアシスタントに、写真と一緒に頼む</h4>
-                <p>写真を渡して、動きのイメージを一言で伝えるだけ。動画編集ソフトも、音付けの作業も要りません。</p>
-              </div>
-            </div>
-            <div className="g-step">
-              <div className="g-step-body">
-                <h4>③ Instagramに投稿して、プッシュ通知で届ける</h4>
-                <p>SNSは「見せる場所」、プッシュ通知は「届ける仕組み」。投稿しただけでは見逃される新作も、通知で常連のお客様に届きます。</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="g-callout info">
-            <span className="ico">💡</span>
-            <div>
-              <p><strong>実際に使った、依頼文はこれだけ</strong></p>
-              <p>
-                「このマネキンのワンピース写真から、リール用の着用動画を作って。同じお店の中で、女性が着てゆっくり歩く感じで、スカートの揺れを見せて。途中で1回回って後ろ姿も。BGMも軽くつけて。」<br /><br />
-                これで、歩く・回る・BGM付きの、約10秒の動画が返ってきました。
-              </p>
-            </div>
-          </div>
 
           <div className="g-callout success">
             <span className="ico">🎬</span>
             <div>
-              <p><strong>実際の動画は、Instagramで公開中</strong></p>
+              <p><strong>作り方は、専用記事で全部公開しています</strong></p>
               <p>
-                マネキンの静止画が、どう動く動画になったか。<br />
-                Push-taro公式Instagramのリールで、ご覧いただけます。<br />
-                <a href="https://www.instagram.com/reel/DfUYkvJj25X/" target="_blank" rel="noopener noreferrer">▶︎ リールを見る（Instagram）</a>
+                実際に使ったプロンプト全文と、プッシュ通知で新作を届ける仕上げまで。<br />
+                <Link href="/guide/apparel-ai-video">▶︎ マネキンの写真1枚で着用動画の作り方（専用記事）</Link>
               </p>
             </div>
-          </div>
-
-          <h3 className="g-h3">仕上げは、プッシュ通知で「届ける」</h3>
-
-          <p>
-            動画をSNSに投稿したら、終わりではありません。<br />
-            フィードは流れていくので、<strong>フォロワーが必ず見てくれるとは限らない</strong>。<br />
-            見逃しをなくす決め手が、プッシュ通知です。
-          </p>
-
-          <div className="g-callout success">
-            <span className="ico">📢</span>
-            <div>
-              <p><strong>配信例</strong></p>
-              <p>
-                「【入荷しました】<br />
-                花柄のフレアワンピースが、入荷しました👗<br /><br />
-                動いたときの揺れ感は、リールの動画でチェックできます。<br />
-                是非、実物を見に来てくださいね！」
-              </p>
-            </div>
-          </div>
-
-          <p>
-            あわせて、<strong>クーポンは「静かに載せる」</strong>のがコツです。<br />
-            クーポンを設定しておけば、お客様が開いたときに、画面に付いている状態になります。<br />
-            通知は本当に知らせたい時だけ、クーポンは常時ひっそり。<br />
-            この使い分けで、<strong>うるさくならない告知</strong>ができます。
-          </p>
-
-          <div className="g-callout info">
-            <span className="ico">💡</span>
-            <div>
-              <p><strong>動画は、AI生成の「着用イメージ」です</strong></p>
-              <p>
-                実物の色味や生地感とは、多少異なる場合があります。<br />
-                「実物は、店頭でご確認ください」という前提で使うのが、おすすめです。
-              </p>
-            </div>
-          </div>
-
-          <div className="g-quote is-orange">
-            撮影は、写真1枚。<br />
-            動画は、AIに一言。<br />
-            あとは、プッシュ通知で届けるだけ。
           </div>
 
           {/* ============================================================

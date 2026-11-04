@@ -211,6 +211,12 @@ export default function GuideClient() {
               <h4>アパレル・雑貨</h4>
               <p>新商品入荷・セール告知</p>
             </Link>
+            <Link href="/guide/apparel-ai-video" className="g-card is-new">
+              <span className="g-card-new">NEW</span>
+              <span className="g-card-icon">🎬</span>
+              <h4>AIで着用動画の作り方</h4>
+              <p>マネキンの写真1枚から、リール動画を作る</p>
+            </Link>
             <Link href="/guide/snack" className="g-card">
               <span className="g-card-icon">🍸</span>
               <h4>スナック・パブ</h4>

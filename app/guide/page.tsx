@@ -82,6 +82,7 @@ const collectionJsonLd = {
     { '@type': 'Article', name: 'パン屋・ベーカリー', url: `${appUrl}/guide/bakery` },
     { '@type': 'Article', name: '飲食店・カフェ', url: `${appUrl}/guide/cafe` },
     { '@type': 'Article', name: 'アパレル・雑貨', url: `${appUrl}/guide/apparel` },
+    { '@type': 'Article', name: 'マネキンの写真1枚で着用動画の作り方', url: `${appUrl}/guide/apparel-ai-video` },
     { '@type': 'Article', name: 'スナック・パブ', url: `${appUrl}/guide/snack` },
     { '@type': 'Article', name: 'フードロス削減', url: `${appUrl}/guide/food-loss` },
 
