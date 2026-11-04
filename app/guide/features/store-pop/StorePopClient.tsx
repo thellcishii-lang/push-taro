@@ -36,7 +36,7 @@ export default function StorePopClient() {
 
           <h2 className="g-h2"><span className="num">1</span>この機能でできること</h2>
           <div className="g-feature-list">
-            <div className="g-feature-item"><span className="ico">📄</span><div><strong>A4 / A5の2サイズ</strong><p>レジ横に立てるA4、カウンターに置くA5。店舗の状況に合わせて選べます。</p></div></div>
+            <div className="g-feature-item"><span className="ico">📄</span><div><strong>A4 / B5の2サイズ</strong><p>レジ横に立てるA4、カウンターに置くB5。店舗の状況に合わせて選べます。</p></div></div>
             <div className="g-feature-item"><span className="ico">✨</span><div><strong>店舗名とQRコード入り</strong><p>お客様はQRを読み取るだけ。アプリ不要、30秒で通知登録が完了します。</p></div></div>
             <div className="g-feature-item"><span className="ico">🎁</span><div><strong>初回クーポンが自動表示</strong><p>初回クーポンが設定されていれば、ポップに自動で反映されます。</p></div></div>
             <div className="g-feature-item"><span className="ico">🖨️</span><div><strong>管理画面からすぐ印刷</strong><p>PDFがダウンロードできるので、コンビニのマルチコピー機でも印刷可能です。</p></div></div>
