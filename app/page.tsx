@@ -7,7 +7,7 @@ import './lp.css';
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 
 export const metadata: Metadata = {
-  title: '店舗集客・リピーター施策ならPush-taro｜通知×クーポン',
+  title: '店舗・テナント向け プッシュ通知 × クーポンアプリ｜Push-taro',
   description:
     'LINE公式アカウントの配信上限や従量課金に悩む実店舗のための、店舗向けプッシュ通知アプリ。Push-taroは、プッシュ通知とクーポンで実店舗のリピーターづくりを支援します。QRコード登録やクーポン自動配信に対応し、月額1,980円から。',
   keywords: [
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ja_JP',
-    title: '店舗集客・リピーター施策ならPush-taro｜通知×クーポン',
+    title: '店舗・テナント向け プッシュ通知 × クーポンアプリ｜Push-taro',
     description:
       'LINE公式アカウントの配信上限や従量課金に悩む実店舗のための、店舗向けプッシュ通知アプリ。プッシュ通知とクーポンでリピーターづくりを支援。月額1,980円から。',
     url: appUrl,
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: '店舗集客・リピーター施策ならPush-taro｜通知×クーポン',
+    title: '店舗・テナント向け プッシュ通知 × クーポンアプリ｜Push-taro',
     description:
       'プッシュ通知とクーポンで実店舗のリピーターづくりを支援。QRコード登録やクーポン自動配信に対応し、月額1,980円から。',
   },
