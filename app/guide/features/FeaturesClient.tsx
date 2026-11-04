@@ -96,7 +96,7 @@ export default function FeaturesClient() {
           {/* 👇 追加：店頭POP印刷 */}
           <Link href="/guide/features/store-pop" className="g-feature-card">
             <span className="g-feature-icon">🖨️</span>
-            <div className="g-feature-info"><h4>店頭POP印刷</h4><p>A4/A5のQRポップを管理画面から印刷</p></div>
+            <div className="g-feature-info"><h4>店頭POP印刷</h4><p>A4/B5のQRポップを管理画面から印刷</p></div>
             <span className="g-feature-tag is-std">STANDARD+</span>
           </Link>
         </div>
