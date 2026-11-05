@@ -424,7 +424,7 @@ export default function ApparelClient() {
 
           <img
             className="g-img is-narrow"
-            src="/guide/apparel-ai-video/wearing.jpg"
+            src="/guide/apparel-ai-video/%20wearing.jpeg"
             alt="マネキンの写真からAIで生成した、ワンピースの着用イメージ（ワンショット）"
           />
           <p className="g-img-cap">マネキンの静止画から、AIが生成した着用イメージ。これが動画になります</p>

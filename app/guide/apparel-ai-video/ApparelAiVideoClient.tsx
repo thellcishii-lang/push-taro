@@ -36,7 +36,7 @@ Push-taro公式Instagramで実際に公開した作例で、手順を全部見�
 
 <img
 className="g-img is-narrow"
-src="/guide/apparel-ai-video/wearing.jpg"
+src="/guide/apparel-ai-video/%20wearing.jpeg"
 alt="マネキンの写真からAIで生成した、ワンピースの着用イメージ（ワンショット）"
 />
 <p className="g-img-cap">完成形が、こちら。マネキンの静止画から、AIが生成した着用イメージです（実際の動画は、この記事のリンク先リールで見られます）</p>
@@ -54,7 +54,7 @@ alt="マネキンの写真からAIで生成した、ワンピースの着用イ�
 
 <img
 className="g-img is-narrow"
-src="/guide/apparel-ai-video/mannequin.jpg"
+src="/guide/apparel-ai-video/mannequin.jpeg"
 alt="ワンピースを着せたマネキン（トルソー）の写真"
 />
 <p className="g-img-cap">起点はこの1枚。今回の作例で実際に使った、マネキンの着せ付け写真です</p>
