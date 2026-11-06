@@ -91,28 +91,24 @@ export default function HomeClient() {
           <div className="hero-inner">
             <div className="hero-badge reveal">
               <span className="dot-live"></span>
-              店舗向けプッシュ通知｜アプリのダウンロード不要
+              アプリのダウンロード不要
             </div>
             <h1 className="reveal" style={{ transitionDelay: '0.1s' }}>
-              一度来たお客さんを、<br />
-              <span className="gradient">もう一度来店させる。</span>
+              店舗向けプッシュ通知 × クーポンアプリの<br />
+              <span className="gradient">決定版！</span>
             </h1>
             <p className="hero-lead reveal" style={{ transitionDelay: '0.2s' }}>
-              Push-taroは、店舗向けプッシュ通知 × クーポンの仕組みです。<br />
-              店頭のQRコードから30秒で登録でき、<br />
-              登録したその場で使える初回クーポンを配り、<br />
-              来店回数に応じて「次の理由」を自動で届けます。<br />
-              <strong>集めるのは電話番号だけ。</strong><br />
-              氏名・住所・購買履歴は集めません。
+              Push-taroは、来店回数や頻度に応じて、シーンごとに様々なクーポンを届け、<br />
+              来店頻度を加速させる仕組みが作れる、店舗向けプッシュ通知 × クーポンアプリです。
             </p>
             <div className="hero-cta reveal" style={{ transitionDelay: '0.3s' }}>
-              <Link href="/signup" className="btn-primary">
-                ¥1,980（税込¥2,178）で始める
+              <a href="#pricing" className="btn-primary">
+                価格帯を見てみる
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-              </Link>
-              <a href="#interface" className="btn-secondary">実際の画面を見る</a>
+              </a>
+              <a href="#features" className="btn-secondary">機能を見る</a>
             </div>
             <p className="reveal" style={{ transitionDelay: '0.35s', marginTop: '14px', fontSize: '0.85rem', color: '#64748b' }}>
               従量課金なし ／ 最短10分で開始 ／ 1ヶ月単位で解約できます
@@ -699,6 +695,11 @@ export default function HomeClient() {
           </div>
         </section>
 
+        <div className="mid-cta">
+          <a href="#pricing" className="btn-primary">価格帯を見てみる</a>
+          <a href="#features" className="btn-secondary">機能を見る</a>
+        </div>
+
         {/* COMPARISON */}
         <section className="section" id="comparison">
           <div className="container">
@@ -777,6 +778,11 @@ export default function HomeClient() {
             </div>
           </div>
         </section>
+
+        <div className="mid-cta">
+          <a href="#pricing" className="btn-primary">価格帯を見てみる</a>
+          <a href="#features" className="btn-secondary">機能を見る</a>
+        </div>
 
         {/* COUPONS */}
         <section className="section section-alt" id="coupons">
