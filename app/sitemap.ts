@@ -37,7 +37,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/guide/case-studies',
     '/guide/ctr-to-cvr',
     '/guide/event-marketing',
-    '/guide/existing-customers',
     '/guide/food-loss',
     '/guide/industry-fit',
     '/guide/line-comparison',
