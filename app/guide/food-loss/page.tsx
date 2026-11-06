@@ -5,7 +5,7 @@ import FoodLossClient from './FoodLossClient';
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 
 export const metadata: Metadata = {
-  title: 'コンビニ・スーパーのフードロス削減｜プッシュ通知とmottECOパッケージで「廃棄」を「売上」に変える',
+  title: 'コンビニ・スーパーのフードロス削減｜プッシュ通知とmottECOパッケージで「廃棄」を「売上」に変える｜Push-taro',
   description:
     '賞味期限間近の商品を廃棄していませんか？Push-taroのプッシュ通知でタイムセールを即時配信し、売れ残りを利益に変える仕組みを解説。さらに、環境省推奨のmottECOロゴ入り持ち帰り用パッケージの活用で、食べ残しゼロの店舗づくりを。',
   keywords: [

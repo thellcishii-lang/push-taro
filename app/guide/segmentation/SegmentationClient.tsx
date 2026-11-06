@@ -478,6 +478,22 @@ export default function SegmentationClient() {
                 </div>
                 <span className="arrow">→</span>
               </Link>
+              <Link href="/guide/store-marketing" className="g-related-card">
+                <span className="ico">📖</span>
+                <div>
+                  <div className="title">実店舗の集客方法</div>
+                  <div className="sub">集客の全体像と、既存客リピートの考え方</div>
+                </div>
+                <span className="arrow">→</span>
+              </Link>
+              <Link href="/guide/line-comparison" className="g-related-card">
+                <span className="ico">💬</span>
+                <div>
+                  <div className="title">LINE公式アカウントとの比較</div>
+                  <div className="sub">配信上限と、埋もれやすさの違い</div>
+                </div>
+                <span className="arrow">→</span>
+              </Link>
             </div>
           </div>
 
