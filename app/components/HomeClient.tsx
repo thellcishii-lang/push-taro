@@ -91,34 +91,38 @@ export default function HomeClient() {
           <div className="hero-inner">
             <div className="hero-badge reveal">
               <span className="dot-live"></span>
-              2026年9月 正式リリース
+              アプリのダウンロード不要｜個人店・小規模店舗向け
             </div>
             <h1 className="reveal" style={{ transitionDelay: '0.1s' }}>
-              実店舗のリピートを、<br />
-              <span className="gradient">&quot;プッシュ通知 × クーポンアプリ&quot;</span> で。
+              一度来たお客さんを、<br />
+              <span className="gradient">もう一度来店させる。</span>
             </h1>
             <p className="hero-lead reveal" style={{ transitionDelay: '0.2s' }}>
-              高機能なマーケティングツールは、<br />
-              使いこなすために専門チームが必要です。<br />
-              <strong>Push-taroは、違います。</strong><br />
-              顧客データを集めず、QRコード一つ。<br />
-              全員に同じ施策から始めて、<br />
-              来てくれる人に、感謝をカタチに。
+              Push-taroは、店頭のQRコードから30秒で登録できる<br />
+              「プッシュ通知 × クーポン」の仕組みです。<br />
+              登録したその場で使える初回クーポンを配り、<br />
+              来店回数に応じて「次の理由」を自動で届けます。<br />
+              <strong>集めるのは電話番号だけ。</strong><br />
+              氏名・住所・購買履歴は集めません。
             </p>
             <div className="hero-cta reveal" style={{ transitionDelay: '0.3s' }}>
               <Link href="/signup" className="btn-primary">
-                今すぐ申し込む
+                ¥1,980（税込¥2,178）で始める
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </Link>
-              <a href="#pricing" className="btn-secondary">料金プランを見る</a>
+              <a href="#interface" className="btn-secondary">実際の画面を見る</a>
             </div>
+            <p className="reveal" style={{ transitionDelay: '0.35s', marginTop: '14px', fontSize: '0.85rem', color: '#64748b' }}>
+              従量課金なし ／ 最短10分で開始 ／ 1ヶ月単位で解約できます
+            </p>
             <div className="hero-stats">
               <div className="hero-stat tilt-in float">
                 <div className="hero-stat-num">最大<span className="count-up" data-count="10">10</span><small>倍</small></div>
                 <div className="hero-stat-label">メルマガ比 クリック率</div>
                 <p className="hero-stat-note">開封率はメールの約3倍、クリック率は約10倍。</p>
+                <p className="hero-stat-note" style={{ fontSize: '0.7rem' }}>※開封率は通知をタップして開いた割合。数値は業界ベンチマークに基づく目安で、配信内容・業種により異なります。</p>
               </div>
               <div className="hero-stat tilt-in float" style={{ transitionDelay: '0.1s' }}>
                 <div className="hero-stat-num"><span className="count-up" data-count="7">7</span><small>種類</small></div>
@@ -237,7 +241,7 @@ export default function HomeClient() {
                 <h4>✅ After</h4>
                 <ul>
                   <li>QRを読み取るだけで、お客様が登録</li>
-                  <li>来店ごとに、次のクーポンが自動配信</li>
+                  <li>来店回数に応じて、特典クーポンが自動で解放</li>
                   <li>「喜んで頂ける仕組み」が、自然に回り出す</li>
                 </ul>
               </div>
@@ -733,12 +737,12 @@ export default function HomeClient() {
                     <td>クーポン機能</td>
                     <td className="col-pushtaro">○ 7種類</td>
                     <td>× なし</td>
-                    <td>△ 手動のみ</td>
+                    <td>○ クーポン発行あり</td>
                     <td>× なし</td>
                   </tr>
                   <tr>
                     <td>店頭ポップ印刷</td>
-                    <td className="col-pushtaro">○ 標準搭載</td>
+                    <td className="col-pushtaro">○ STANDARD以上<br /><small style={{ color: '#64748b' }}>LIGHTは対象外</small></td>
                     <td>× なし</td>
                     <td>× なし</td>
                     <td>× なし</td>
@@ -761,7 +765,7 @@ export default function HomeClient() {
                     <td>月額</td>
                     <td className="col-pushtaro"><strong>¥1,980〜</strong></td>
                     <td>¥5,000〜</td>
-                    <td>¥5,000〜</td>
+                    <td>¥0〜<br /><small style={{ color: '#64748b' }}>無料プランは月200通まで</small></td>
                     <td>¥3,000〜</td>
                   </tr>
                 </tbody>
@@ -769,7 +773,7 @@ export default function HomeClient() {
             </div>
             <div className="compare-note reveal">
               <strong>Push-taroが選ばれる理由：</strong>
-              実店舗に本当に必要なものだけを、シンプルに。大手ツールの真似ではなく、現場に寄り添った設計です。
+              実店舗に本当に必要なものだけを、シンプルに。大手ツールの真似ではなく、現場に寄り添った設計です。来店回数に応じて7種類のクーポンを自動発行し、お客さんのホーム画面に自店のアイコンが残ります。配信数が増えても、料金は固定で読みやすい設計です。
             </div>
           </div>
         </section>
@@ -865,7 +869,9 @@ export default function HomeClient() {
               <div className="plan is-light tilt-in">
                 <div className="plan-name">LIGHT</div>
                 <div className="plan-amount">¥1,980<small>/月（税別）</small></div>
+                <div style={{ fontSize: '0.85rem', color: '#64748b' }}>税込 ¥2,178/月</div>
                 <div className="plan-limit">月間配信上限: 5,000通</div>
+                <div className="plan-limit">お試しプラン ― まずはプッシュが届く感覚を確かめたい店舗に</div>
                 <ul className="plan-features">
                   <li><span className="maru">○</span><span>プッシュ通知（全デバイス対応）</span></li>
                   <li><span className="maru">○</span><span>QRコード登録</span></li>
@@ -876,10 +882,11 @@ export default function HomeClient() {
                 <Link href="/signup" className="plan-cta">LIGHTで始める</Link>
               </div>
               <div className="plan is-standard tilt-in" style={{ transitionDelay: '0.12s' }}>
-                <span className="plan-badge popular">人気</span>
                 <div className="plan-name">STANDARD</div>
                 <div className="plan-amount">¥3,800<small>/月（税別）</small></div>
+                <div style={{ fontSize: '0.85rem', color: '#64748b' }}>税込 ¥4,180/月</div>
                 <div className="plan-limit">月間配信上限: 15,000通</div>
+                <div className="plan-limit">予算を抑えて始めるなら</div>
                 <ul className="plan-features">
                   <li><span className="maru">○</span><span>LIGHTの全機能</span></li>
                   <li><span className="maru">○</span><span><strong>通常クーポン</strong></span></li>
@@ -891,10 +898,12 @@ export default function HomeClient() {
                 <Link href="/signup" className="plan-cta">STANDARDで始める</Link>
               </div>
               <div className="plan is-pro tilt-in" style={{ transitionDelay: '0.24s' }}>
-                <span className="plan-badge best">最高峰</span>
+                <span className="plan-badge best">おすすめ</span>
                 <div className="plan-name">PRO</div>
                 <div className="plan-amount">¥10,000<small>/月（税別）</small></div>
+                <div style={{ fontSize: '0.85rem', color: '#64748b' }}>税込 ¥11,000/月</div>
                 <div className="plan-limit">配信無制限</div>
+                <div className="plan-limit">基本はこれ ― 店舗リピート対策、ほぼ全部入り</div>
                 <ul className="plan-features">
                   <li><span className="maru">○</span><span>STANDARDの全機能</span></li>
                   <li><span className="maru">○</span><span><strong>ステップアップクーポン</strong></span></li>
@@ -1237,7 +1246,7 @@ export default function HomeClient() {
               </div>
               <p className="footer-desc">
                 実店舗のリピート施策を「プッシュ通知 × クーポンアプリ」で自動化するSaaS。<br />
-                顧客データを集めず、QRコード一つで始められます。
+                集めるのは電話番号だけ。QRコード一つで始められます。
               </p>
               <div className="footer-badge">
                 <span className="footer-badge-dot"></span>
