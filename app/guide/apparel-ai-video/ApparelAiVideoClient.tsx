@@ -188,12 +188,32 @@ SNSは「見せる場所」、プッシュ通知は「届ける仕組み」。<b
 ============================================================ */}
 <div className="g-related">
 <h3>次に読む</h3>
+<p>
+動画の作り方は、ここまで。<br />
+次は、作った動画を<strong>「届ける」側</strong>の話です。あわせて、アパレルでの活用の全体像と、他の業種の使い方もどうぞ。
+</p>
 <div className="g-related-grid">
 <Link href="/guide/apparel" className="g-related-card is-next">
 <span className="ico">👕</span>
 <div>
 <div className="title">アパレル・雑貨店のための活用ガイド</div>
 <div className="sub">新作・セール・限定アイテムを、ビジュアルで届ける</div>
+</div>
+<span className="arrow">→</span>
+</Link>
+<Link href="/guide/features" className="g-related-card">
+<span className="ico">📲</span>
+<div>
+<div className="title">「届ける」の仕組み｜機能別ガイド</div>
+<div className="sub">プッシュ通知・クーポン・予約配信の中身と、設定方法</div>
+</div>
+<span className="arrow">→</span>
+</Link>
+<Link href="/guide" className="g-related-card">
+<span className="ico">🧭</span>
+<div>
+<div className="title">他の業種の活用ガイド</div>
+<div className="sub">パン屋・カフェ・雑貨など、業種別の使い方をまとめて見る</div>
 </div>
 <span className="arrow">→</span>
 </Link>
