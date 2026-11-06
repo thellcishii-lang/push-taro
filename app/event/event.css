@@ -1,0 +1,654 @@
+/* app/event/event.css */
+
+.ev-page {
+  --ev-navy: #0f2040;
+  --ev-navy2: #16294f;
+  --ev-navy3: #1e3a68;
+  --ev-orange: #f07300;
+  --ev-orange-dark: #d96400;
+  --ev-bg: #f4f6fa;
+  --ev-card: #ffffff;
+  --ev-text: #1c2434;
+  --ev-muted: #5a6577;
+  --ev-line: #dde3ec;
+  --ev-radius: 14px;
+
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN',
+    'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+  background: var(--ev-bg);
+  color: var(--ev-text);
+  line-height: 1.8;
+  font-size: 16px;
+}
+
+.ev-page .ev-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.ev-page .ev-section {
+  padding: 64px 0;
+}
+
+.ev-page .ev-h2 {
+  font-size: 26px;
+  line-height: 1.5;
+  color: var(--ev-navy);
+  margin: 0 0 28px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.ev-page p {
+  margin: 0 0 16px;
+}
+
+/* ---------- ナビ ---------- */
+.ev-page .ev-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--ev-line);
+}
+
+.ev-page .ev-nav-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ev-page .ev-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.ev-page .ev-nav-event {
+  background: var(--ev-navy);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  border-radius: 6px;
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+
+.ev-page .ev-nav-cta {
+  background: var(--ev-orange);
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* ---------- ヒーロー ---------- */
+.ev-page .ev-hero {
+  background: linear-gradient(160deg, var(--ev-navy) 0%, var(--ev-navy2) 60%, var(--ev-navy3) 100%);
+  color: #fff;
+  padding: 72px 0 64px;
+  text-align: center;
+}
+
+.ev-page .ev-soon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.ev-page .ev-soon-badge {
+  background: var(--ev-orange);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  border-radius: 999px;
+  padding: 4px 16px;
+}
+
+.ev-page .ev-soon-text {
+  font-size: 13px;
+  color: #cfdcf2;
+}
+
+.ev-page .ev-tag {
+  display: inline-block;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  margin-bottom: 22px;
+  color: #cfdcf2;
+}
+
+.ev-page .ev-hero h1 {
+  font-size: 34px;
+  line-height: 1.45;
+  margin: 0 0 22px;
+  font-weight: 800;
+}
+
+.ev-page .ev-hero .ev-accent {
+  color: var(--ev-orange);
+}
+
+.ev-page .ev-hero-sub {
+  color: #d7e0f0;
+  max-width: 680px;
+  margin: 0 auto 32px;
+  text-align: left;
+}
+
+.ev-page .ev-cta-row {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.ev-page .ev-btn {
+  display: inline-block;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 14px 30px;
+  border-radius: 999px;
+}
+
+.ev-page .ev-btn-primary {
+  background: var(--ev-orange);
+  color: #fff;
+}
+
+.ev-page .ev-btn-secondary {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
+.ev-page .ev-note {
+  font-size: 13px;
+  color: #aebbd6;
+  margin: 0;
+}
+
+/* ---------- カード3列（課題・特徴） ---------- */
+.ev-page .ev-cards3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.ev-page .ev-card {
+  background: var(--ev-card);
+  border: 1px solid var(--ev-line);
+  border-radius: var(--ev-radius);
+  padding: 26px 22px;
+}
+
+.ev-page .ev-num {
+  display: inline-block;
+  background: var(--ev-navy);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 6px;
+  padding: 2px 10px;
+  margin-bottom: 12px;
+  letter-spacing: 0.06em;
+}
+
+.ev-page .ev-card h3 {
+  font-size: 17px;
+  color: var(--ev-navy);
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.ev-page .ev-card p {
+  font-size: 14.5px;
+  color: var(--ev-muted);
+  margin: 0;
+}
+
+/* ---------- 解決策 ---------- */
+.ev-page .ev-solution {
+  background: #fff;
+}
+
+.ev-page .ev-intro {
+  background: var(--ev-bg);
+  border-radius: var(--ev-radius);
+  padding: 26px 26px 10px;
+  margin-bottom: 26px;
+}
+
+/* ---------- 広告2種 ---------- */
+.ev-page .ev-ads {
+  background: var(--ev-navy);
+  color: #e8edf6;
+}
+
+.ev-page .ev-ads .ev-h2 {
+  color: #fff;
+}
+
+.ev-page .ev-lead {
+  color: #b9c6de;
+  text-align: center;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ev-page .ev-ad-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.ev-page .ev-ad-card {
+  background: var(--ev-navy2);
+  border: 1px solid #2b4470;
+  border-radius: var(--ev-radius);
+  padding: 28px 24px;
+}
+
+.ev-page .ev-ad-label {
+  display: inline-block;
+  background: var(--ev-orange);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 3px 12px;
+  margin-bottom: 12px;
+  letter-spacing: 0.06em;
+}
+
+.ev-page .ev-ad-card h3 {
+  font-size: 19px;
+  color: #fff;
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.ev-page .ev-ad-card p {
+  color: #c4d0e4;
+  font-size: 15px;
+}
+
+.ev-page .ev-ad-card ul {
+  list-style: none;
+  margin: 14px 0;
+  padding: 0;
+}
+
+.ev-page .ev-ad-card li {
+  color: #dbe4f2;
+  font-size: 14.5px;
+  padding-left: 22px;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.ev-page .ev-ad-card li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--ev-orange);
+  font-weight: 700;
+}
+
+.ev-page .ev-ad-card .ev-ad-closing {
+  color: #fff;
+  font-weight: 700;
+  border-top: 1px solid #2b4470;
+  padding-top: 14px;
+  margin-bottom: 0;
+}
+
+.ev-page .ev-flow {
+  background: #0b1830;
+  border: 1px dashed #3d5a8c;
+  border-radius: var(--ev-radius);
+  padding: 24px 26px;
+  text-align: center;
+}
+
+.ev-page .ev-flow h3 {
+  color: #fff;
+  font-size: 17px;
+  margin: 0 0 16px;
+}
+
+.ev-page .ev-flow-step {
+  color: #dbe4f2;
+  font-size: 15px;
+}
+
+.ev-page .ev-flow-arrow {
+  color: var(--ev-orange);
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.ev-page .ev-ads-fineprint {
+  font-size: 13px;
+  color: #93a5c4;
+  text-align: center;
+  margin: 16px 0 0;
+}
+
+/* ---------- 表（収支・仕様） ---------- */
+.ev-page .ev-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: var(--ev-radius);
+  overflow: hidden;
+}
+
+.ev-page .ev-table th,
+.ev-page .ev-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ev-line);
+  text-align: left;
+  font-size: 15px;
+  vertical-align: top;
+}
+
+.ev-page .ev-table th {
+  background: var(--ev-navy);
+  color: #fff;
+  font-size: 14px;
+}
+
+.ev-page .ev-table tr:last-child td {
+  border-bottom: none;
+}
+
+.ev-page .ev-table .ev-amount {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.ev-page .ev-table .ev-total-row td {
+  background: #fff4e8;
+  font-weight: 800;
+  color: var(--ev-navy);
+}
+
+.ev-page .ev-table .ev-total-row .ev-amount {
+  color: var(--ev-orange-dark);
+  font-size: 18px;
+}
+
+.ev-page .ev-fineprint {
+  font-size: 13px;
+  color: var(--ev-muted);
+  margin-top: 14px;
+}
+
+/* ---------- 仕様 ---------- */
+.ev-page .ev-spec {
+  background: #fff;
+}
+
+/* ---------- 料金 ---------- */
+.ev-page .ev-price-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.ev-page .ev-price-card {
+  background: var(--ev-card);
+  border: 1px solid var(--ev-line);
+  border-radius: var(--ev-radius);
+  padding: 28px 22px;
+  text-align: center;
+}
+
+.ev-page .ev-price-card.ev-featured {
+  border: 2px solid var(--ev-orange);
+}
+
+.ev-page .ev-plan {
+  font-weight: 800;
+  color: var(--ev-navy);
+  font-size: 17px;
+  margin-bottom: 6px;
+}
+
+.ev-page .ev-cap {
+  color: var(--ev-muted);
+  font-size: 13.5px;
+  margin-bottom: 14px;
+}
+
+.ev-page .ev-cap strong {
+  color: var(--ev-text);
+  font-size: 16px;
+}
+
+.ev-page .ev-price {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--ev-navy);
+  line-height: 1.2;
+}
+
+.ev-page .ev-price small {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ev-muted);
+}
+
+.ev-page .ev-option-box {
+  background: #fff;
+  border: 1px solid var(--ev-line);
+  border-left: 5px solid var(--ev-orange);
+  border-radius: var(--ev-radius);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+.ev-page .ev-option-box h3 {
+  color: var(--ev-navy);
+  font-size: 16px;
+  margin: 0 0 6px;
+}
+
+.ev-page .ev-option-box p {
+  margin: 0;
+  color: var(--ev-muted);
+  font-size: 15px;
+}
+
+.ev-page .ev-notes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ev-page .ev-notes li {
+  font-size: 14px;
+  color: var(--ev-muted);
+  padding-left: 18px;
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.ev-page .ev-notes li::before {
+  content: '・';
+  position: absolute;
+  left: 2px;
+}
+
+/* ---------- 導入の流れ ---------- */
+.ev-page .ev-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.ev-page .ev-step-card {
+  background: #fff;
+  border: 1px solid var(--ev-line);
+  border-radius: var(--ev-radius);
+  padding: 24px 20px;
+}
+
+.ev-page .ev-step-label {
+  color: var(--ev-orange);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.ev-page .ev-step-card h3 {
+  font-size: 16px;
+  color: var(--ev-navy);
+  margin: 0 0 8px;
+}
+
+.ev-page .ev-step-card p {
+  font-size: 14px;
+  color: var(--ev-muted);
+  margin: 0;
+}
+
+/* ---------- FAQ ---------- */
+.ev-page .ev-faq {
+  background: #fff;
+}
+
+.ev-page .ev-faq-item {
+  border-bottom: 1px solid var(--ev-line);
+}
+
+.ev-page .ev-faq-item:first-of-type {
+  border-top: 1px solid var(--ev-line);
+}
+
+.ev-page .ev-faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  font-weight: 700;
+  color: var(--ev-navy);
+  padding: 20px 4px;
+}
+
+.ev-page .ev-faq-icon {
+  color: var(--ev-orange);
+  font-size: 20px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.ev-page .ev-faq-a {
+  color: var(--ev-muted);
+  font-size: 15px;
+  margin: 0;
+  padding: 0 4px 20px;
+}
+
+/* ---------- 最終CTA ---------- */
+.ev-page .ev-final-cta {
+  background: linear-gradient(160deg, var(--ev-navy) 0%, var(--ev-navy3) 100%);
+  color: #fff;
+  text-align: center;
+}
+
+.ev-page .ev-final-cta .ev-h2 {
+  color: #fff;
+  font-size: 28px;
+}
+
+.ev-page .ev-final-text {
+  color: #d7e0f0;
+  max-width: 640px;
+  margin: 0 auto 28px;
+  text-align: left;
+}
+
+.ev-page .ev-final-cta .ev-note {
+  text-align: center;
+}
+
+/* ---------- レスポンシブ ---------- */
+@media (max-width: 760px) {
+  .ev-page .ev-section {
+    padding: 44px 0;
+  }
+  .ev-page .ev-h2 {
+    font-size: 22px;
+    margin-bottom: 22px;
+  }
+  .ev-page .ev-hero {
+    padding: 52px 0 44px;
+  }
+  .ev-page .ev-hero h1 {
+    font-size: 26px;
+  }
+  .ev-page .ev-cards3,
+  .ev-page .ev-ad-cards,
+  .ev-page .ev-price-cards,
+  .ev-page .ev-steps {
+    grid-template-columns: 1fr;
+  }
+  .ev-page .ev-btn {
+    width: 100%;
+    text-align: center;
+  }
+  .ev-page .ev-cta-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ev-page .ev-table th,
+  .ev-page .ev-table td {
+    padding: 11px 12px;
+    font-size: 14px;
+  }
+  .ev-page .ev-table .ev-amount {
+    white-space: normal;
+  }
+  .ev-page .ev-price {
+    font-size: 28px;
+  }
+  .ev-page .ev-final-cta .ev-h2 {
+    font-size: 23px;
+  }
+  .ev-page .ev-nav-brand small {
+    display: none;
+  }
+}
