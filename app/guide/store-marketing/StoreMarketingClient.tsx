@@ -671,6 +671,14 @@ export default function StoreMarketingClient() {
       </div>
       <span className="arrow">→</span>
     </Link>
+    <Link href="/guide/event-marketing" className="g-related-card">
+      <span className="ico">🎪</span>
+      <div>
+        <div className="title">イベント・展示会の活用</div>
+        <div className="sub">催事・ポップアップ出店での集客</div>
+      </div>
+      <span className="arrow">→</span>
+    </Link>
   </div>
 </div>
           {/* CTA */}

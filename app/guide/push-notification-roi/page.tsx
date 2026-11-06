@@ -5,7 +5,7 @@ import PushNotificationRoiClient from './PushNotificationRoiClient';
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 
 export const metadata: Metadata = {
-  title: 'プッシュ通知のCVR（コンバージョン率）を最大化する配信頻度｜LINEの上限と登録者の目安｜Push-taro',
+  title: 'プッシュ通知は週何回まで？成果が落ちない配信頻度と登録者数の目安｜Push-taro',
   description:
     'プッシュ通知で成果を出すための「配信頻度」と「登録者数」の黄金律を解説。CVR4%がボーダーライン、体感できるのは1000人以上から。LINE公式の配信上限（LITEプラン月5,000通）の壁と、Push-taroの料金体系（配信無制限）を比較します。',
   keywords: [
@@ -21,14 +21,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'article',
     locale: 'ja_JP',
-    title: 'プッシュ通知のCVR（コンバージョン率）を最大化する配信頻度｜Push-taro',
+    title: 'プッシュ通知の配信頻度と登録者数の目安｜Push-taro',
     description: '配信頻度と登録者数の黄金律。LINEの上限との比較とPush-taroの料金体系を解説。',
     url: '/guide/push-notification-roi',
     siteName: 'Push-taro',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'プッシュ通知のCVR（コンバージョン率）を最大化する配信頻度｜Push-taro',
+    title: 'プッシュ通知の配信頻度と登録者数の目安｜Push-taro',
     description: '配信頻度と登録者数の黄金律。LINEの上限との比較。',
   },
   robots: {

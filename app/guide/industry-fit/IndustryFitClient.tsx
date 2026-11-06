@@ -102,6 +102,21 @@ export default function IndustryFitClient() {
             </div>
           </div>
 
+          {/* 業種別ガイドへのリンク */}
+          <div style={{ marginTop: '40px', padding: '24px', background: '#fff7ed', borderRadius: '12px', border: '1px solid #fed7aa' }}>
+            <h3 style={{ marginTop: 0, color: '#9a3412' }}>🏪 業種別の詳しいガイド</h3>
+            <p style={{ fontSize: '14px', color: '#7c2d12', marginBottom: '16px' }}>
+              業種ごとの「効く理由」と運用のポイントは、こちらの記事で詳しく解説しています。
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+              <Link href="/guide/bakery" style={{ padding: '10px 18px', background: '#fff', border: '1px solid #fdba74', color: '#c2410c', fontWeight: 'bold', borderRadius: '8px', textDecoration: 'none', fontSize: '14px' }}>🥐 パン屋・ベーカリー →</Link>
+              <Link href="/guide/cafe" style={{ padding: '10px 18px', background: '#fff', border: '1px solid #fdba74', color: '#c2410c', fontWeight: 'bold', borderRadius: '8px', textDecoration: 'none', fontSize: '14px' }}>☕ 飲食店・カフェ →</Link>
+              <Link href="/guide/apparel" style={{ padding: '10px 18px', background: '#fff', border: '1px solid #fdba74', color: '#c2410c', fontWeight: 'bold', borderRadius: '8px', textDecoration: 'none', fontSize: '14px' }}>👕 アパレル・雑貨 →</Link>
+              <Link href="/guide/super" style={{ padding: '10px 18px', background: '#fff', border: '1px solid #fdba74', color: '#c2410c', fontWeight: 'bold', borderRadius: '8px', textDecoration: 'none', fontSize: '14px' }}>🛒 スーパー・小売店 →</Link>
+              <Link href="/guide/snack" style={{ padding: '10px 18px', background: '#fff', border: '1px solid #fdba74', color: '#c2410c', fontWeight: 'bold', borderRadius: '8px', textDecoration: 'none', fontSize: '14px' }}>🍸 スナック・パブ →</Link>
+            </div>
+          </div>
+
           {/* 相互リンク：記事②へ */}
           <div className="g-related" style={{ marginTop: '40px', padding: '24px', background: '#f0f9ff', borderRadius: '12px', border: '1px solid #bae6fd' }}>
             <h3 style={{ marginTop: 0, color: '#0369a1' }}>📊 あなたの業種で、最大限の効果を出すには？</h3>
