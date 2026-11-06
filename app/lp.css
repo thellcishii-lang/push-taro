@@ -29,9 +29,10 @@
   --font-en: var(--font-inter), sans-serif;
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; overflow-x: clip; }
 
 body {
+  overflow-x: hidden; overflow-x: clip;
   font-family: var(--font-jp);
   color: var(--slate-700);
   background: var(--slate-50);
@@ -182,6 +183,11 @@ img { max-width: 100%; display: block; }
   font-weight: 700; font-size: 16px;
   border: 1px solid rgba(255,255,255,0.18);
 }
+.mid-cta {
+  display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+  padding: 56px 20px;
+}
+
 .hero-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -1756,7 +1762,8 @@ img { max-width: 100%; display: block; }
 }
 
 @media (max-width: 768px) {
-  .nav-links { display: none; }
+  .nav-links { display: flex; }
+  .nav-links a:not(.nav-cta) { display: none; }
   .section { padding: 72px 20px; }
   .philosophy-statement { padding: 32px 24px; }
   .why-coupon-flow { flex-direction: column; }
