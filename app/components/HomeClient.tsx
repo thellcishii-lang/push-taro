@@ -1200,6 +1200,41 @@ export default function HomeClient() {
           </div>
         </section>
 
+        {/* EVENT PROMO */}
+        <section className="guide-promo guide-promo-2">
+          <div className="container">
+            <div className="guide-promo-card is-reverse reveal">
+              <div className="guide-promo-left">
+                <span className="guide-promo-tag">🎪 イベント・展示会の主催者さまへ</span>
+                <h2 className="guide-promo-title">イベント当日の「今」を、<br />来場者のスマホへ<span className="guide-promo-title-accent">直接届ける。</span></h2>
+                <p className="guide-promo-text">店舗向けのPush-taroとは別に、イベント開催期間のためだけに設計された「Push-taro.EVENT」を近日公開します。<br />来場者は会場のQRコードから登録し、購読は毎日リセット。情報は「その日限り」で完結します。</p>
+                <ul className="guide-promo-list">
+                  <li>15分刻みの予約配信＋即時プッシュで、プログラムに合わせた告知を自動で届けられます</li>
+                  <li>予約配信とクーポンは、出店者に販売できる「広告商品」になります</li>
+                  <li>会場マップやプログラムはPDFで掲載でき、印刷物を実質的に減らせます</li>
+                </ul>
+                <Link href="/event" className="guide-promo-btn">
+                  Push-taro.EVENT の詳細を見る
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </Link>
+              </div>
+              <div className="guide-promo-right">
+                <div className="guide-promo-mock is-alt">
+                  <div className="guide-promo-mock-head"></div>
+                  <div className="guide-promo-mock-bar" style={{ width: '85%' }}></div>
+                  <div className="guide-promo-mock-bar is-highlight" style={{ width: '65%' }}></div>
+                  <div className="guide-promo-mock-bar" style={{ width: '90%' }}></div>
+                  <div className="guide-promo-mock-bar" style={{ width: '55%' }}></div>
+                  <div className="guide-promo-mock-bar is-highlight" style={{ width: '75%' }}></div>
+                  <div className="guide-promo-mock-bar" style={{ width: '70%' }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* FINAL CTA */}
         <section className="cta-final" id="cta">
           <div className="cta-final-inner reveal">
