@@ -91,15 +91,15 @@ export default function HomeClient() {
           <div className="hero-inner">
             <div className="hero-badge reveal">
               <span className="dot-live"></span>
-              アプリのダウンロード不要｜個人店・小規模店舗向け
+              店舗向けプッシュ通知｜アプリのダウンロード不要
             </div>
             <h1 className="reveal" style={{ transitionDelay: '0.1s' }}>
               一度来たお客さんを、<br />
               <span className="gradient">もう一度来店させる。</span>
             </h1>
             <p className="hero-lead reveal" style={{ transitionDelay: '0.2s' }}>
-              Push-taroは、店頭のQRコードから30秒で登録できる<br />
-              「プッシュ通知 × クーポン」の仕組みです。<br />
+              Push-taroは、店舗向けプッシュ通知 × クーポンの仕組みです。<br />
+              店頭のQRコードから30秒で登録でき、<br />
               登録したその場で使える初回クーポンを配り、<br />
               来店回数に応じて「次の理由」を自動で届けます。<br />
               <strong>集めるのは電話番号だけ。</strong><br />
