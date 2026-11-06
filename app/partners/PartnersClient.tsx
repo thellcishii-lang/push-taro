@@ -1059,6 +1059,7 @@ export default function PartnersClient() {
                 <h4 className="footer-col-title">サービス</h4>
                 <ul className="footer-col-list">
                   <li><Link href="/">Push-taro トップ</Link></li>
+                  <li><Link href="/event">Push-taro.EVENT</Link></li>
                   <li><Link href="/partners">代理店パートナー募集</Link></li>
                   <li><Link href="/signup">PROプランで始める</Link></li>
                   <li><Link href="/affiliate/signup">アフィリエイト登録</Link></li>
