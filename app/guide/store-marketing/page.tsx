@@ -5,15 +5,17 @@ import StoreMarketingClient from './StoreMarketingClient';
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://push-taro.com';
 
 export const metadata: Metadata = {
-  title: '実店舗の集客には何をするべきか。｜Push-taro',
+  title: '実店舗の集客方法｜新規と既存客、成果が出る施策の全体像｜Push-taro',
   description:
-    '広告、ポータル、LP、SNS、LINE。どれも必要で、全てをやる時代です。でも、それだけでは足りない。1回来店してくれたお客様への施策が、ほとんどの店舗で抜けています。LINE Businessの配信上限という壁と、Push-taroがその壁をどう外したかを解説します。',
+    '広告、ポータル、LP、SNS、LINE。どれも必要で、全てをやる時代です。でも、それだけでは足りない。1回来店してくれたお客様への施策が、ほとんどの店舗で抜けています。LINE Businessの配信上限という壁と、Push-taroがその壁をどう外したかを解説します。既存客の囲い込みは「1回の来店を3回に持ち込む」課題と「リピーターの回転率を上げる」課題に分けて解説。',
   keywords: [
     '実店舗 集客',
     '実店舗 リピート施策',
     'LINE Business 配信上限',
     'LINE 公式アカウント 埋もれる',
     '店舗 マーケティング',
+    '既存客 囲い込み',
+    'リピート率 上げる 方法',
     'CVR 改善',
     'Push-taro',
   ],

@@ -36,7 +36,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // --- 運用ノウハウ ---
     '/guide/ctr-to-cvr',
     '/guide/event-marketing',
-    '/guide/existing-customers',
     '/guide/food-loss',
     '/guide/industry-fit',
     '/guide/line-comparison',

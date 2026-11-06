@@ -13,6 +13,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/guide/existing-customers',
+        destination: '/guide/store-marketing',
+        permanent: true, // 既存客の囲い込みは store-marketing に統合
+      },
+      {
         source: '/program',
         destination: '/partners',
         permanent: true, // 301リダイレクト

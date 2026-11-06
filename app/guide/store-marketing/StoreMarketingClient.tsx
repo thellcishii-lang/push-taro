@@ -561,6 +561,80 @@ export default function StoreMarketingClient() {
             これが、実店舗のリピート施策を、次のステージに進めます。
           </p>
 
+          <h2 className="g-h2"><span className="num">13</span>既存客の「囲い込み」は、2つの課題に分ける</h2>
+
+          <p>
+            最後に、多くの店舗で抜け落ちる<strong>「来てくれた人への施策」</strong>を、もう一段深く掘ります。
+          </p>
+
+          <p>
+            売上が頭打ちになる本当の理由は、<strong>新規開拓の限界</strong>です。
+            広告費は湯水のように使えず、SNSでバズっても集客とは別物で、人はすぐに忘れてしまう。
+            だからこそ、<strong>すでに来てくれた人へのアプローチ</strong>が効いてきます。
+          </p>
+
+          <p>
+            ただし、「既存客の囲い込み」という、ひとつの言葉でまとめてしまうと、施策が散らかり、効果が出ません。
+            課題は、はっきり<strong>2つに分かれます</strong>。
+          </p>
+
+          <div className="g-grid">
+            <div className="g-card-simple">
+              <div className="g-icon-big">🆕</div>
+              <h4>課題① 新規客を、リピーターに変える</h4>
+              <p>初めて来たお客様を、2回目・3回目に繋げる。<br />「新規客を、常連の入口まで導く」という課題。</p>
+            </div>
+            <div className="g-card-simple">
+              <div className="g-icon-big">🔄</div>
+              <h4>課題② 既存リピーターの回転率を上げる</h4>
+              <p>すでに何度か来てくれているお客様の、来店頻度を上げる。<br />「すでに来てくれている人を、もっと喜ばせる」という課題。</p>
+            </div>
+          </div>
+
+          <h3 className="g-h3">課題①：1回の来店を、3回に持ち込む</h3>
+
+          <p>
+            ここで多くの店舗が手を出すのが<strong>ポイントカード</strong>ですが、決定的な弱点があります。
+            「100ポイント貯まったら500円引き」は、初来店のお客様にとって<strong>目標が遠すぎる</strong>。
+            ポイントは「未来の貯金」だから、今日わざわざ来る理由にはならないのです。
+          </p>
+
+          <p>
+            効くのは、<strong>初来店からの「ロードマップ」</strong>です。
+            初回クーポンで今日の会計をお得にし、期限つきの次回クーポンを渡し、
+            「3回来店で、特別クーポン」という次のステップを見せる。
+            貯めている途中のクーポンは<strong>「来ないと、失ってしまう」</strong>。
+            この「もったいない」が、自然な来店動機になります。
+          </p>
+
+          <h3 className="g-h3">課題②：来てくれている人の、頻度を上げる</h3>
+
+          <p>
+            すでにリピーターのお客様には、ポイントでは囲い込めません。
+            他のお店にもポイントを持っている時代、ポイントだけでは離反してしまいます。
+          </p>
+
+          <p>
+            効くのは、<strong>季節キャンペーンの仕組化</strong>です。
+            マクドナルドが50年以上続ける「この時期は、これ」という季節の定番は、普遍的な手法。
+            実店舗でも、クリスマスやお正月以外の<strong>独自の季節イベント</strong>を作り、
+            3年続ければ「この時期は、あの店のこれ」という定着が生まれます。
+            その期間にステップクーポンを組み込めば、来店回数を増やす仕組みまで作れます。
+          </p>
+
+          <div className="g-quote is-orange">
+            「既存客の囲い込み」——<br />
+            これは、もう古い考え方です。
+          </div>
+
+          <p>
+            お客様を「囲い込む」のではなく、<strong>「喜んで、楽しんでもらう」</strong>。
+            この発想の転換が、課題②を解く鍵です。
+            そして課題①と課題②を<strong>分けて設計できること</strong>——
+            連続・ステップアップ・特別達成クーポンで1回を3回に持ち込み、
+            予約配信・記念日・休眠復活で回転率を上げる——が、リピート施策の土台になります。
+          </p>
+
           {/* 関連ガイド */}
 <div className="g-related">
   <h3>次に読む</h3>
@@ -589,14 +663,6 @@ export default function StoreMarketingClient() {
 <div className="g-related" style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e2e8f0' }}>
   <h3>あわせて読みたい</h3>
   <div className="g-related-grid">
-    <Link href="/guide/existing-customers" className="g-related-card">
-      <span className="ico">👥</span>
-      <div>
-        <div className="title">既存客の囲い込み</div>
-        <div className="sub">売上が頭打ちになる、本当の理由</div>
-      </div>
-      <span className="arrow">→</span>
-    </Link>
     <Link href="/guide/segmentation" className="g-related-card">
       <span className="ico">📊</span>
       <div>
