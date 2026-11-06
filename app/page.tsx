@@ -101,7 +101,7 @@ const softwareJsonLd = {
   url: appUrl,
   inLanguage: 'ja-JP',
   description:
-    '実店舗のリピート施策を「プッシュ通知 × クーポンアプリ」で自動化するSaaS。顧客データを集めず、QRコード一つで始められる。全7種類のクーポン自動配信、QR消込、休眠復活、誕生日配信を標準搭載。',
+    '実店舗のリピート施策を「プッシュ通知 × クーポンアプリ」で自動化するSaaS。集めるのは電話番号だけ。QRコード一つで始められる。全7種類のクーポン自動配信、QR消込、休眠復活、誕生日配信を標準搭載。',
   provider: { '@id': `${appUrl}/#organization` },
   featureList: [
     'プッシュ通知（全デバイス対応）',
