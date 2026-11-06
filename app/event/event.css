@@ -71,15 +71,31 @@
   min-width: 0;
 }
 
-.ev-page .ev-nav-event {
-  background: var(--ev-navy);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  border-radius: 6px;
-  padding: 3px 9px;
+.ev-page .ev-nav-logo {
+  display: flex;
+  align-items: center;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans JP', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+  text-decoration: none;
+  line-height: 1;
+  padding-top: 4px;
   white-space: nowrap;
+}
+
+.ev-page .ev-nav-logo svg {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+.ev-page .ev-nav-logo-dot {
+  color: #ff4500;
+  margin-left: 1px;
 }
 
 .ev-page .ev-nav-cta {
@@ -95,10 +111,27 @@
 
 /* ---------- ヒーロー ---------- */
 .ev-page .ev-hero {
-  background: linear-gradient(160deg, var(--ev-navy) 0%, var(--ev-navy2) 60%, var(--ev-navy3) 100%);
+  background: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
   color: #fff;
   padding: 72px 0 64px;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.ev-page .ev-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(255, 69, 0, 0.22), transparent 55%),
+    radial-gradient(circle at 20% 80%, rgba(49, 130, 206, 0.15), transparent 55%);
+  pointer-events: none;
+}
+
+.ev-page .ev-hero .ev-inner {
+  position: relative;
+  z-index: 1;
 }
 
 .ev-page .ev-soon {
@@ -647,8 +680,5 @@
   }
   .ev-page .ev-final-cta .ev-h2 {
     font-size: 23px;
-  }
-  .ev-page .ev-nav-brand small {
-    display: none;
   }
 }

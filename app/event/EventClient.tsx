@@ -3,7 +3,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import BrandLogo from '@/components/BrandLogo';
 import './event.css';
 import { faqs } from './data/faq';
 
@@ -16,8 +15,32 @@ export default function EventClient() {
       <nav className="ev-nav">
         <div className="ev-nav-inner">
           <div className="ev-nav-brand">
-            <BrandLogo />
-            <span className="ev-nav-event">EVENT</span>
+            <Link href="/" className="ev-nav-logo" aria-label="Push-taro.EVENT">
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <defs>
+                  <linearGradient
+                    id="evBrandLogoGrad"
+                    x1="0"
+                    y1="0"
+                    x2="48"
+                    y2="48"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop offset="0%" stopColor="#ff6b6b" />
+                    <stop offset="100%" stopColor="#ff4500" />
+                  </linearGradient>
+                </defs>
+                <circle cx="24" cy="24" r="23" fill="url(#evBrandLogoGrad)" />
+                <path d="M24 8 L33 22 L28 22 L28 30 L20 30 L20 22 L15 22 Z" fill="#ffffff" />
+                <circle cx="24" cy="20" r="3" fill="#ff4500" opacity="0.5" />
+                <path d="M18 30 L14 38 L20 34 Z" fill="#ffffff" />
+                <path d="M30 30 L34 38 L28 34 Z" fill="#ffffff" />
+                <path d="M22 30 L24 40 L26 30 Z" fill="#fbbf24" />
+              </svg>
+              <span>
+                Push-taro<span className="ev-nav-logo-dot">.</span>EVENT
+              </span>
+            </Link>
           </div>
           <Link href="/signup" className="ev-nav-cta">
             資料請求 →
@@ -33,7 +56,7 @@ export default function EventClient() {
               <span className="ev-soon-badge">近日公開</span>
               <span className="ev-soon-text">資料請求・導入の事前相談を受付中</span>
             </div>
-            <span className="ev-tag">EVENT</span>
+            <span className="ev-tag">Push-taro.EVENT</span>
             <h1>
               イベント当日の「今」を、
               <br />
