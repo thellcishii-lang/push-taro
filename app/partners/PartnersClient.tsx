@@ -1070,7 +1070,6 @@ export default function PartnersClient() {
                 <ul className="footer-col-list">
                   <li><Link href="/guide">ガイドTOP</Link></li>
                   <li><Link href="/guide/features">機能別ガイド</Link></li>
-                  <li><Link href="/guide/case-studies">導入事例</Link></li>
                 </ul>
               </div>
 

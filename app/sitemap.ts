@@ -34,7 +34,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/guide/features/store-pop',
 
     // --- 運用ノウハウ ---
-    '/guide/case-studies',
     '/guide/ctr-to-cvr',
     '/guide/event-marketing',
     '/guide/existing-customers',
