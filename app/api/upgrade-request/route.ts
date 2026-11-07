@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { db, authAdmin } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../lib/mailer';
+import { notifyOperatorOfSignup } from '../../../lib/operator-notify';
 
 // StandardプランのSquareリンク（環境変数から取得）
 const STANDARD_PAYMENT_URL = process.env.NEXT_PUBLIC_SQUARE_LINK_STANDARD || '';
@@ -91,6 +92,21 @@ export async function POST(request: Request) {
         <p><a href="mailto:info@push-taro.com">info@push-taro.com</a></p>
   `,
 });
+
+    // 運営者への申請通知（失敗しても申請は維持）
+    await notifyOperatorOfSignup({
+      subject: `【新規申込】アップグレード申請：${shopData?.name || '店舗'}（STANDARD）`,
+      heading: 'アップグレード申請（スタンダードプラン・決済待ち）',
+      fields: [
+        { label: '店名', value: shopData?.name },
+        { label: '現在のプラン', value: currentPlan.toUpperCase() },
+        { label: '変更先プラン', value: 'STANDARD' },
+        { label: 'メールアドレス', value: shopData?.email },
+        { label: '店舗ID', value: shopId },
+        { label: 'ステータス', value: '申請受付・決済待ち（pending_payment）' },
+      ],
+      adminPath: '/system-admin',
+    });
 
     return NextResponse.json({
       success: true,

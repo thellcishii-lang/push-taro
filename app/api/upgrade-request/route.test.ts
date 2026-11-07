@@ -61,6 +61,7 @@ describe.each(['standard', 'pro'] as const)('%s payment configuration', (plan) =
     expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
       upgradeStatus: 'pending_payment', upgradeTargetPlan: plan,
     }));
-    expect(mocks.sendEmail).toHaveBeenCalledOnce();
+    // 申請者への受付メール＋運営者への申請通知の2通
+    expect(mocks.sendEmail).toHaveBeenCalledTimes(2);
   });
 });

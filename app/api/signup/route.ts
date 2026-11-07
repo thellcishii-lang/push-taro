@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db, authAdmin } from '../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../lib/mailer';
+import { notifyOperatorOfSignup } from '../../../lib/operator-notify';
 import { notifyAdmins } from '../../../lib/error-notifier';
 import { enforceRateLimit } from '../../../lib/rate-limit';
 import { generatePrintToken } from '../../../lib/print-token';
@@ -307,6 +308,25 @@ export async function POST(request: Request) {
     if (!applicantMail.success) {
       console.error(`[signup] 申込受付メール送信失敗: shopId=${shopId}`);
     }
+
+    // 運営者への申込通知（申込受付時点・決済前。失敗しても申込は維持）
+    await notifyOperatorOfSignup({
+      subject: `【新規申込】店舗申込：${companyName}（${plan.toUpperCase()}）`,
+      heading: '新規店舗申込（決済待ち）',
+      fields: [
+        { label: '店名', value: companyName },
+        { label: 'プラン', value: plan.toUpperCase() },
+        { label: 'メールアドレス', value: normalizedEmail },
+        { label: '電話番号', value: phone },
+        { label: '住所', value: address },
+        { label: 'インボイス登録番号', value: invoiceNumber },
+        { label: '紹介コード', value: referrerId ? refCode : '' },
+        { label: '紹介者', value: referrerId ? referrerName : '' },
+        { label: '店舗ID', value: shopId },
+        { label: 'ステータス', value: '申込受付・決済待ち（pending_payment）' },
+      ],
+      adminPath: '/system-admin',
+    });
 
     return NextResponse.json({
       success: true,

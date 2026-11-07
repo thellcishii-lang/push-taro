@@ -262,7 +262,8 @@ describe('storefront signup', () => {
     if (occupied < 2) {
       expect(saved('referral_relations').at(-1)?.[1]).toMatchObject({ proReferralPlan: 'b', rewardRate: 0.2 });
     } else {
-      expect(mocks.sendEmail).toHaveBeenCalledTimes(1);
+      // 紹介者メールなし: 申込者への受付メール＋運営者への申込通知の2通
+      expect(mocks.sendEmail).toHaveBeenCalledTimes(2);
     }
   });
 
@@ -321,7 +322,8 @@ describe('storefront signup', () => {
       referrerId: null, referrerType: null, referredByCode: '',
     });
     expect(saved('referral_relations')).toHaveLength(0);
-    expect(mocks.sendEmail).toHaveBeenCalledTimes(1);
+    // 紹介者メールなし: 申込者への受付メール＋運営者への申込通知の2通
+    expect(mocks.sendEmail).toHaveBeenCalledTimes(2);
   });
 
   it('preserves the agency PRO rate', async () => {

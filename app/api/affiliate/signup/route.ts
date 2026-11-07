@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
+import { OPERATOR_NOTIFICATION_EMAIL } from '@/lib/constants';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { generatePrintToken } from '@/lib/print-token';
 
@@ -234,17 +235,20 @@ export async function POST(request: Request) {
     }
 
     // ============================================================
-    // 6. 管理者への通知メール（失敗しても登録は維持）
+    // 6. 運営者への申込通知メール（失敗しても登録は維持）
+    //    宛先は運営者通知専用アドレスに統一（旧: ADMIN_EMAILS / info@ 宛で
+    //    運営者の手元に届かなかったため）
     // ============================================================
-    const adminEmail = process.env.ADMIN_EMAILS?.split(',')[0]?.trim() || 'info@push-taro.com';
     await sendEmail({
-      to: adminEmail,
-      subject: `【新規アフィリエイト登録】${name}（${rewardTypeLabel}）`,
+      to: OPERATOR_NOTIFICATION_EMAIL,
+      subject: `【新規申込】アフィリエイト申込：${name}（${rewardTypeLabel}）`,
       html: `
-        <h2>新規アフィリエイト登録</h2>
+        <h2>新規アフィリエイト申込</h2>
         <table style="font-size: 14px;">
           <tr><td style="padding: 6px; font-weight: bold;">氏名</td><td style="padding: 6px;">${name}</td></tr>
           <tr><td style="padding: 6px; font-weight: bold;">メール</td><td style="padding: 6px;">${normalizedEmail}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">電話番号</td><td style="padding: 6px;">${phone || ''}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">住所</td><td style="padding: 6px;">${address}</td></tr>
           <tr><td style="padding: 6px; font-weight: bold;">紹介コード</td><td style="padding: 6px;">${referralCode}</td></tr>
           <tr><td style="padding: 6px; font-weight: bold;">報酬タイプ</td><td style="padding: 6px;">${rewardTypeLabel}</td></tr>
           <tr><td style="padding: 6px; font-weight: bold;">事業形態</td><td style="padding: 6px;">${businessType === 'corporation' ? '法人' : '個人'}</td></tr>

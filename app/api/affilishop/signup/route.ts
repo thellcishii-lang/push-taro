@@ -11,6 +11,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
+import { OPERATOR_NOTIFICATION_EMAIL } from '@/lib/constants';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { generatePrintToken } from '@/lib/print-token';
 
@@ -154,18 +155,22 @@ export async function POST(request: Request) {
       `,
     });
 
-    // 管理者への通知メール
-    const adminEmail = process.env.ADMIN_EMAILS?.split(',')[0]?.trim() || 'info@push-taro.com';
+    // 運営者への申込通知メール（宛先は運営者通知専用アドレスに統一）
     await sendEmail({
-      to: adminEmail,
-      subject: `【新規affilishop申し込み】${ownerName}`,
+      to: OPERATOR_NOTIFICATION_EMAIL,
+      subject: `【新規申込】affilishop申込：${ownerName}`,
       html: `
         <h2>新規affilishop申し込み</h2>
         <table style="font-size: 14px;">
           <tr><td style="padding: 6px; font-weight: bold;">担当者</td><td style="padding: 6px;">${ownerName}</td></tr>
           <tr><td style="padding: 6px; font-weight: bold;">メール</td><td style="padding: 6px;">${normalizedEmail}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">電話番号</td><td style="padding: 6px;">${phone || ''}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">住所</td><td style="padding: 6px;">${address}</td></tr>
           <tr><td style="padding: 6px; font-weight: bold;">会社名/屋号</td><td style="padding: 6px;">${companyName || '-'}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">事業形態</td><td style="padding: 6px;">${businessType === 'corporation' ? '法人' : '個人'}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">インボイス</td><td style="padding: 6px;">${hasInvoice ? 'あり' : 'なし'}</td></tr>
           <tr><td style="padding: 6px; font-weight: bold;">紹介コード</td><td style="padding: 6px;">${referralCode}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">ステータス</td><td style="padding: 6px;">審査待ち（pending_approval）</td></tr>
         </table>
         <hr />
         <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/system-admin">全体管理画面で確認</a></p>

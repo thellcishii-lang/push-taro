@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db, authAdmin } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '@/lib/mailer';
+import { notifyOperatorOfSignup } from '@/lib/operator-notify';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { generatePrintToken } from '@/lib/print-token';
 
@@ -192,6 +193,24 @@ export async function POST(request: Request) {
     if (!mailResult.success) {
       throw new Error('登録完了メールの送信に失敗しました');
     }
+
+    // 運営者への申込通知（失敗しても申し込みは維持）
+    await notifyOperatorOfSignup({
+      subject: `【新規申込】代理店申込：${companyName || ownerName}`,
+      heading: '新規代理店申込（審査待ち）',
+      fields: [
+        { label: '会社名/屋号', value: companyName },
+        { label: '担当者', value: ownerName },
+        { label: 'メールアドレス', value: normalizedEmail },
+        { label: '電話番号', value: phone },
+        { label: '住所', value: address },
+        { label: '事業形態', value: businessType === 'corporation' ? '法人' : '個人' },
+        { label: 'インボイス', value: hasInvoice ? 'あり' : 'なし' },
+        { label: '紹介コード', value: referralCode },
+        { label: 'ステータス', value: '審査待ち（pending_approval）' },
+      ],
+      adminPath: '/system-admin',
+    });
 
     return NextResponse.json({
       success: true,

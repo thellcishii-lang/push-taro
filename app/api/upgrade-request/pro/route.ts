@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { db, authAdmin } from '../../../../lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { sendEmail } from '../../../../lib/mailer';
+import { notifyOperatorOfSignup } from '../../../../lib/operator-notify';
 
 // PROプランのSquareリンク（環境変数から取得）
 const PRO_PAYMENT_URL = process.env.NEXT_PUBLIC_SQUARE_LINK_PRO || '';
@@ -109,6 +110,25 @@ export async function POST(request: Request) {
         <p><a href="mailto:info@push-taro.com">info@push-taro.com</a></p>
   `,
 });
+
+    // 運営者への申請通知（失敗しても申請は維持）
+    await notifyOperatorOfSignup({
+      subject: `【新規申込】アップグレード申請：${shopData?.name || '店舗'}（PRO）`,
+      heading: 'アップグレード申請（PROプラン・決済待ち）',
+      fields: [
+        { label: '店名', value: shopData?.name },
+        { label: '会社名', value: companyName },
+        { label: '現在のプラン', value: (shopData?.plan || 'light').toUpperCase() },
+        { label: '変更先プラン', value: 'PRO' },
+        { label: 'メールアドレス', value: shopData?.email },
+        { label: '電話番号', value: phone },
+        { label: '住所', value: address },
+        { label: 'インボイス登録番号', value: invoiceNumber },
+        { label: '店舗ID', value: shopId },
+        { label: 'ステータス', value: '申請受付・決済待ち（pending_payment）' },
+      ],
+      adminPath: '/system-admin',
+    });
 
     return NextResponse.json({
       success: true,
