@@ -1,12 +1,22 @@
 import { sendEmail } from './mailer';
 import { db } from './firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
+import { OPERATOR_NOTIFICATION_EMAIL } from './constants';
 
 // 管理者のメールアドレス（環境変数から取得、カンマ区切りで複数指定可）
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'info@push-taro.com')
-  .split(',')
-  .map((e) => e.trim())
-  .filter((e) => e);
+// 運営者通知アドレス（OPERATOR_NOTIFICATION_EMAIL）は、環境変数の設定漏れや
+// 誤記があってもエラー通知が確実に運営者の手元へ届くよう常時含める。
+// ※ 環境変数側に無効なアドレスが残っていると、その宛先分だけバウンスが
+//   発生し続けるため、コンソール側の ADMIN_EMAILS の値も併せて要確認。
+const ADMIN_EMAILS = Array.from(
+  new Set([
+    ...(process.env.ADMIN_EMAILS || 'info@push-taro.com')
+      .split(',')
+      .map((e) => e.trim())
+      .filter((e) => e),
+    OPERATOR_NOTIFICATION_EMAIL,
+  ])
+);
 
 // 同じエラーを短時間に何度も送らないためのスロットル（5分間）
 const recentErrors = new Map<string, number>();
