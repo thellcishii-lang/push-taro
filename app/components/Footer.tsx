@@ -41,6 +41,7 @@ export default function Footer() {
               <ul className="footer-col-list">
                 <li><Link href="/">Push-taro トップ</Link></li>
                 <li><Link href="/event">Push-taro.EVENT</Link></li>
+                <li><Link href="/mountain">Push-taro.MOUNTAIN</Link></li>
                 <li><Link href="/guide/pos-integration">POSレジ連携</Link></li>
                 <li><Link href="/guide/features/store-pop">店頭POP印刷</Link></li>
                 <li><Link href="/partners">収益化プログラム</Link></li>

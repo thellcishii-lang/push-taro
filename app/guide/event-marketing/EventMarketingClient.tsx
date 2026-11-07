@@ -255,6 +255,11 @@ push-taro EVENT は、想定購読者数に応じた3つのプランから選び
 <div><div className="title">イベント専用｜push-taro EVENT</div><div className="sub">15分刻みの予約配信・クーポン・料金と事前相談</div></div>
 <span className="arrow">→</span>
 </Link>
+<Link href="/guide/mountain-push" className="g-related-card">
+<span className="ico">⛰️</span>
+<div><div className="title">登山プッシュ通知の活用方法</div><div className="sub">低山ハイキングの安全対策と下山確認</div></div>
+<span className="arrow">→</span>
+</Link>
 <Link href="/guide/features/push-notification" className="g-related-card">
 <span className="ico">📢</span>
 <div><div className="title">プッシュ通知</div><div className="sub">基本機能の使い方</div></div>

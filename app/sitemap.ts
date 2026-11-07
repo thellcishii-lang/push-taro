@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/guide', priority: 0.9, freq: 'weekly' as const },
     { path: '/partners', priority: 0.9, freq: 'weekly' as const },
     { path: '/event', priority: 0.9, freq: 'weekly' as const },
+    { path: '/mountain', priority: 0.9, freq: 'weekly' as const },
     { path: '/signup', priority: 0.8, freq: 'monthly' as const },
     { path: '/contact', priority: 0.6, freq: 'monthly' as const },
   ];
@@ -37,6 +38,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // --- 運用ノウハウ ---
     '/guide/ctr-to-cvr',
     '/guide/event-marketing',
+    '/guide/mountain-push',
     '/guide/food-loss',
     '/guide/industry-fit',
     '/guide/line-comparison',

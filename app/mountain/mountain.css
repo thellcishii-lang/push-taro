@@ -1,0 +1,668 @@
+/* app/mountain/mountain.css */
+
+.mt-page {
+  --mt-navy: #0f2040;
+  --mt-navy2: #16294f;
+  --mt-navy3: #1e3a68;
+  --mt-orange: #f07300;
+  --mt-orange-dark: #d96400;
+  --mt-bg: #f4f6fa;
+  --mt-card: #ffffff;
+  --mt-text: #1c2434;
+  --mt-muted: #5a6577;
+  --mt-line: #dde3ec;
+  --mt-radius: 14px;
+
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN',
+    'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+  background: var(--mt-bg);
+  color: var(--mt-text);
+  line-height: 1.8;
+  font-size: 16px;
+}
+
+.mt-page .mt-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.mt-page .mt-section {
+  padding: 64px 0;
+}
+
+.mt-page .mt-h2 {
+  font-size: 26px;
+  line-height: 1.5;
+  color: var(--mt-navy);
+  margin: 0 0 28px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.mt-page p {
+  margin: 0 0 16px;
+}
+
+/* ---------- ナビ ---------- */
+.mt-page .mt-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--mt-line);
+}
+
+.mt-page .mt-nav-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mt-page .mt-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.mt-page .mt-nav-logo {
+  display: flex;
+  align-items: center;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans JP', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+  text-decoration: none;
+  line-height: 1;
+  padding-top: 4px;
+  white-space: nowrap;
+}
+
+.mt-page .mt-nav-logo svg {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+.mt-page .mt-nav-logo-dot {
+  color: #ff4500;
+  margin-left: 1px;
+}
+
+.mt-page .mt-nav-cta {
+  background: var(--mt-orange);
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* ---------- ヒーロー ---------- */
+.mt-page .mt-hero {
+  /* 写真（/images/mountain-hero.jpg）が無い場合は最下層の紺グラデーションで表示 */
+  background:
+    linear-gradient(165deg, rgba(15, 23, 42, 0.93) 0%, rgba(15, 23, 42, 0.86) 45%, rgba(15, 23, 42, 0.92) 100%),
+    url('/images/mountain-hero.jpg') center 30% / cover no-repeat,
+    linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
+  background-color: #0f172a;
+  color: #fff;
+  padding: 72px 0 64px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.mt-page .mt-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(255, 69, 0, 0.16), transparent 55%),
+    radial-gradient(circle at 20% 80%, rgba(49, 130, 206, 0.12), transparent 55%);
+  pointer-events: none;
+}
+
+.mt-page .mt-hero h1,
+.mt-page .mt-hero-sub {
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.65), 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.mt-page .mt-hero .mt-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.mt-page .mt-soon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.mt-page .mt-soon-badge {
+  background: var(--mt-orange);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  border-radius: 999px;
+  padding: 4px 16px;
+}
+
+.mt-page .mt-soon-text {
+  font-size: 13px;
+  color: #cfdcf2;
+}
+
+.mt-page .mt-tag {
+  display: inline-block;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  margin-bottom: 22px;
+  color: #cfdcf2;
+}
+
+.mt-page .mt-hero h1 {
+  font-size: 34px;
+  line-height: 1.45;
+  margin: 0 0 22px;
+  font-weight: 800;
+}
+
+.mt-page .mt-hero .mt-accent {
+  color: var(--mt-orange);
+}
+
+.mt-page .mt-hero-sub {
+  color: #d7e0f0;
+  max-width: 680px;
+  margin: 0 auto 32px;
+  text-align: left;
+}
+
+.mt-page .mt-cta-row {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.mt-page .mt-btn {
+  display: inline-block;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 14px 30px;
+  border-radius: 999px;
+}
+
+.mt-page .mt-btn-primary {
+  background: var(--mt-orange);
+  color: #fff;
+}
+
+.mt-page .mt-btn-secondary {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
+.mt-page .mt-note {
+  font-size: 13px;
+  color: #aebbd6;
+  margin: 0;
+}
+
+/* ---------- カード3列（課題・特徴） ---------- */
+.mt-page .mt-cards3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.mt-page .mt-card {
+  background: var(--mt-card);
+  border: 1px solid var(--mt-line);
+  border-radius: var(--mt-radius);
+  padding: 26px 22px;
+}
+
+.mt-page .mt-num {
+  display: inline-block;
+  background: var(--mt-navy);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 6px;
+  padding: 2px 10px;
+  margin-bottom: 12px;
+  letter-spacing: 0.06em;
+}
+
+.mt-page .mt-card h3 {
+  font-size: 17px;
+  color: var(--mt-navy);
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.mt-page .mt-card p {
+  font-size: 14.5px;
+  color: var(--mt-muted);
+  margin: 0;
+}
+
+/* ---------- 解決策 ---------- */
+.mt-page .mt-solution {
+  background: #fff;
+}
+
+.mt-page .mt-intro {
+  background: var(--mt-bg);
+  border-radius: var(--mt-radius);
+  padding: 26px 26px 10px;
+  margin-bottom: 26px;
+}
+
+/* 安全に関する注記 */
+.mt-page .mt-warn {
+  background: #fdf3e7;
+  border: 1px solid #f0d9b5;
+  border-radius: var(--mt-radius);
+  padding: 20px 24px;
+  font-size: 14px;
+  color: #6b5320;
+  margin-top: 24px;
+}
+
+.mt-page .mt-warn p {
+  margin: 0;
+}
+
+/* ---------- 広告2種 ---------- */
+.mt-page .mt-ads {
+  background: var(--mt-navy);
+  color: #e8edf6;
+}
+
+.mt-page .mt-ads .mt-h2 {
+  color: #fff;
+}
+
+.mt-page .mt-lead {
+  color: #b9c6de;
+  text-align: center;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mt-page .mt-ad-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.mt-page .mt-ad-card {
+  background: var(--mt-navy2);
+  border: 1px solid #2b4470;
+  border-radius: var(--mt-radius);
+  padding: 28px 24px;
+}
+
+.mt-page .mt-ad-label {
+  display: inline-block;
+  background: var(--mt-orange);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 3px 12px;
+  margin-bottom: 12px;
+  letter-spacing: 0.06em;
+}
+
+.mt-page .mt-ad-card h3 {
+  font-size: 19px;
+  color: #fff;
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.mt-page .mt-ad-card p {
+  color: #c4d0e4;
+  font-size: 15px;
+}
+
+.mt-page .mt-ad-card ul {
+  list-style: none;
+  margin: 14px 0;
+  padding: 0;
+}
+
+.mt-page .mt-ad-card li {
+  color: #dbe4f2;
+  font-size: 14.5px;
+  padding-left: 22px;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.mt-page .mt-ad-card li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--mt-orange);
+  font-weight: 700;
+}
+
+.mt-page .mt-ad-card .mt-ad-closing {
+  color: #fff;
+  font-weight: 700;
+  border-top: 1px solid #2b4470;
+  padding-top: 14px;
+  margin-bottom: 0;
+}
+
+.mt-page .mt-flow {
+  background: #0b1830;
+  border: 1px dashed #3d5a8c;
+  border-radius: var(--mt-radius);
+  padding: 24px 26px;
+  text-align: center;
+}
+
+.mt-page .mt-flow h3 {
+  color: #fff;
+  font-size: 17px;
+  margin: 0 0 16px;
+}
+
+.mt-page .mt-flow-step {
+  color: #dbe4f2;
+  font-size: 15px;
+}
+
+.mt-page .mt-flow-arrow {
+  color: var(--mt-orange);
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.mt-page .mt-ads-fineprint {
+  font-size: 13px;
+  color: #93a5c4;
+  text-align: center;
+  margin: 16px 0 0;
+}
+
+/* ---------- 表（収支・仕様） ---------- */
+.mt-page .mt-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: var(--mt-radius);
+  overflow: hidden;
+}
+
+.mt-page .mt-table th,
+.mt-page .mt-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--mt-line);
+  text-align: left;
+  font-size: 15px;
+  vertical-align: top;
+}
+
+.mt-page .mt-table th {
+  background: var(--mt-navy);
+  color: #fff;
+  font-size: 14px;
+}
+
+.mt-page .mt-table tr:last-child td {
+  border-bottom: none;
+}
+
+.mt-page .mt-table .mt-amount {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.mt-page .mt-table .mt-total-row td {
+  background: #fff4e8;
+  font-weight: 800;
+  color: var(--mt-navy);
+}
+
+.mt-page .mt-table .mt-total-row .mt-amount {
+  color: var(--mt-orange-dark);
+  font-size: 18px;
+}
+
+.mt-page .mt-fineprint {
+  font-size: 13px;
+  color: var(--mt-muted);
+  margin-top: 14px;
+}
+
+/* ---------- 仕様 ---------- */
+.mt-page .mt-spec {
+  background: #fff;
+}
+
+/* ---------- 料金（金額は公開時に案内） ---------- */
+.mt-page .mt-price-box {
+  background: #fff;
+  border: 1px solid var(--mt-line);
+  border-radius: var(--mt-radius);
+  padding: 28px 26px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.mt-page .mt-price-box p {
+  text-align: center;
+}
+
+.mt-page .mt-option-box {
+  background: #fff;
+  border: 1px solid var(--mt-line);
+  border-left: 5px solid var(--mt-orange);
+  border-radius: var(--mt-radius);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+.mt-page .mt-option-box h3 {
+  color: var(--mt-navy);
+  font-size: 16px;
+  margin: 0 0 6px;
+}
+
+.mt-page .mt-option-box p {
+  margin: 0;
+  color: var(--mt-muted);
+  font-size: 15px;
+}
+
+.mt-page .mt-notes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mt-page .mt-notes li {
+  font-size: 14px;
+  color: var(--mt-muted);
+  padding-left: 18px;
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.mt-page .mt-notes li::before {
+  content: '・';
+  position: absolute;
+  left: 2px;
+}
+
+/* ---------- 導入の流れ ---------- */
+.mt-page .mt-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.mt-page .mt-step-card {
+  background: #fff;
+  border: 1px solid var(--mt-line);
+  border-radius: var(--mt-radius);
+  padding: 24px 20px;
+}
+
+.mt-page .mt-step-label {
+  color: var(--mt-orange);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.mt-page .mt-step-card h3 {
+  font-size: 16px;
+  color: var(--mt-navy);
+  margin: 0 0 8px;
+}
+
+.mt-page .mt-step-card p {
+  font-size: 14px;
+  color: var(--mt-muted);
+  margin: 0;
+}
+
+/* ---------- FAQ ---------- */
+.mt-page .mt-faq {
+  background: #fff;
+}
+
+.mt-page .mt-faq-item {
+  border-bottom: 1px solid var(--mt-line);
+}
+
+.mt-page .mt-faq-item:first-of-type {
+  border-top: 1px solid var(--mt-line);
+}
+
+.mt-page .mt-faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  font-weight: 700;
+  color: var(--mt-navy);
+  padding: 20px 4px;
+}
+
+.mt-page .mt-faq-icon {
+  color: var(--mt-orange);
+  font-size: 20px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.mt-page .mt-faq-a {
+  color: var(--mt-muted);
+  font-size: 15px;
+  margin: 0;
+  padding: 0 4px 20px;
+}
+
+/* ---------- 最終CTA ---------- */
+.mt-page .mt-final-cta {
+  background: linear-gradient(160deg, var(--mt-navy) 0%, var(--mt-navy3) 100%);
+  color: #fff;
+  text-align: center;
+}
+
+.mt-page .mt-final-cta .mt-h2 {
+  color: #fff;
+  font-size: 28px;
+}
+
+.mt-page .mt-final-text {
+  color: #d7e0f0;
+  max-width: 640px;
+  margin: 0 auto 28px;
+  text-align: left;
+}
+
+.mt-page .mt-final-cta .mt-note {
+  text-align: center;
+}
+
+/* ---------- レスポンシブ ---------- */
+@media (max-width: 760px) {
+  .mt-page .mt-section {
+    padding: 44px 0;
+  }
+  .mt-page .mt-h2 {
+    font-size: 22px;
+    margin-bottom: 22px;
+  }
+  .mt-page .mt-hero {
+    padding: 52px 0 44px;
+  }
+  .mt-page .mt-hero h1 {
+    font-size: 26px;
+  }
+  .mt-page .mt-cards3,
+  .mt-page .mt-ad-cards,
+  .mt-page .mt-steps {
+    grid-template-columns: 1fr;
+  }
+  .mt-page .mt-btn {
+    width: 100%;
+    text-align: center;
+  }
+  .mt-page .mt-cta-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .mt-page .mt-table th,
+  .mt-page .mt-table td {
+    padding: 11px 12px;
+    font-size: 14px;
+  }
+  .mt-page .mt-table .mt-amount {
+    white-space: normal;
+  }
+  .mt-page .mt-final-cta .mt-h2 {
+    font-size: 23px;
+  }
+}
